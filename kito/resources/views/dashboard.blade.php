@@ -136,6 +136,16 @@
                                             SIMINBAR</h2>
                                     </a>
                                 </article>
+
+                                <article
+                                    class="p-6 bg-white bg-opacity-50 rounded-lg border border-gray-200 shadow-md transition-all duration-300 flex flex-col items-center justify-center gap-3 hover:bg-opacity-90 hover:bg-gray-300">
+                                    <a href="/siminbarpermintaanbarang">
+                                        <img src="mitrabps.png" height="300" width="175" alt="Logo siminbar" />
+                                        <h2
+                                            class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                            SIMIT</h2>
+                                    </a>
+                                </article>
             
                             </div>
                         </div>

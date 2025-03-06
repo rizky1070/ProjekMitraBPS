@@ -245,6 +245,31 @@
             </div>
         </div>
 
+<div>
+<!-- Button Dropdown -->
+    <div class="flex items-center">
+        <img src="mitrabps.png" alt="Logo mitabps" class="ml-4 w-12 h-12" />
+        <button
+            class="dropdown-btn flex items-center px-4 py-3 text-lg {{ $isDropdownPrismaActive ? 'text-white' : 'text-gray-500' }} hover:bg-opacity-80 hover:text-white transition-all duration-300 rounded-md">
+            MITRA BPS
+            <i class="fa fa-caret-down ml-2"></i>
+        </button>
+    </div>
+
+    <div class="dropdown-container {{ $isDropdownPrismaActive ? 'block' : 'hidden' }}">
+        @if (auth()->user()->is_admin)
+            <!-- Admin - Daftar Izin dan Histori Izin -->
+            <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('izinkeluar') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+               href="/izinkeluar">
+                <span class="mx-3">Halaman 1</span>
+            </a>
+            <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('izinkeluarhistori') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+               href="/izinkeluarhistori">
+                <span class="mx-3">Halaman 2</span>
+            </a>
+        @endif
+    </div>
+</div>
 
 
 
