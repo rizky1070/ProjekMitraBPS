@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="/Logo BPS.png" type="image/png">
-    <title>Mitra BPS</title>
+    <title>Input Mitra BPS</title>
 </head>
 <body class="h-full">
         <!-- SweetAlert Logic -->
@@ -30,6 +30,15 @@
         <!-- component -->
         <div x-data="{ sidebarOpen: false }" class="flex h-screen">
             <x-sidebar></x-sidebar>
+            <div class="flex flex-col flex-1 overflow-hidden">
+                <x-navbar></x-navbar>
+                <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
+                    <div class="container px-6 py-8 mx-auto">
+                        <h3 class="text-3xl font-medium text-gray-700">Daftar Mitra</h3>
+                        <h1>hallo bang, ini halaman Mitra</h1>
+                    </div>
+                </main>
+            </div>
         </div>
 </body>
 </html>
