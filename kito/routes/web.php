@@ -23,6 +23,7 @@ use App\Http\Controllers\PermintaanBarangController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\InputMitraBpsController;
+use App\Http\Controllers\DaftarSurveiBpsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -305,7 +306,8 @@ Route::middleware('guest')->group(function () {
 
 
 // MITRA BPS
-Route::get('/inputmitrabps', [InputMitraBpsController::class, 'index']);
+Route::get('/daftarsurveibps', [DaftarSurveiBpsController::class, 'index']);
+Route::get('/surveys', [DaftarSurveiBpsController::class, 'index']);
 // Route::get('/mitrabps/inputmitrabps', [InputMitraBpsController::class, 'index']);
 
 require __DIR__ . '/auth.php';
