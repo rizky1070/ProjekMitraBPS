@@ -23,6 +23,9 @@ use App\Http\Controllers\PermintaanBarangController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
+
+use App\Http\Controllers\SurveyController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -300,6 +303,19 @@ Route::middleware('guest')->group(function () {
     Route::get('/', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/', [AuthenticatedSessionController::class, 'store']);
     // Route::post('/register', [RegisteredUserController::class, 'store'])->name('register.store');
+});
+
+
+
+//SurveyMitra
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/mitrabps/survey', [SurveyController::class, 'index'])->name('mitrabps.survey');
+});
+
+Route::middleware(['auth', 'Mitra', 'verified'])->group(function () {
+    Route::get('/Mitra', function () {
+        return view('Mitra');
+    })->name('Mitra');
 });
 
 require __DIR__ . '/auth.php';

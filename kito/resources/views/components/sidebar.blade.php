@@ -259,13 +259,13 @@
     <div class="dropdown-container {{ $isDropdownPrismaActive ? 'block' : 'hidden' }}">
         @if (auth()->user()->is_admin)
             <!-- Admin - Daftar Izin dan Histori Izin -->
-            <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('izinkeluar') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-               href="/izinkeluar">
-                <span class="mx-3">Halaman 1</span>
+            <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('mitrabps.survey') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+               href="/mitrabps/survey">
+                <span class="mx-3">Survey</span>
             </a>
             <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('izinkeluarhistori') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                href="/izinkeluarhistori">
-                <span class="mx-3">Halaman 2</span>
+                <span class="mx-3">Mitra</span>
             </a>
         @endif
     </div>
