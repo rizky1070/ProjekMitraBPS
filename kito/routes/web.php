@@ -22,9 +22,9 @@ use App\Http\Controllers\KetersediaanController;
 use App\Http\Controllers\PermintaanBarangController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\InputMitraBpsController;
+use App\Http\Controllers\DaftarSurveiBpsController;
 
-
-use App\Http\Controllers\SurveyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -306,16 +306,9 @@ Route::middleware('guest')->group(function () {
 });
 
 
-
-//SurveyMitra
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/mitrabps/survey', [SurveyController::class, 'index'])->name('mitrabps.survey');
-});
-
-Route::middleware(['auth', 'Mitra', 'verified'])->group(function () {
-    Route::get('/Mitra', function () {
-        return view('Mitra');
-    })->name('Mitra');
-});
+// MITRA BPS
+Route::get('/daftarsurveibps', [DaftarSurveiBpsController::class, 'index']);
+Route::get('/surveys', [DaftarSurveiBpsController::class, 'index']);
+// Route::get('/mitrabps/inputmitrabps', [InputMitraBpsController::class, 'index']);
 
 require __DIR__ . '/auth.php';

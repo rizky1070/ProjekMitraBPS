@@ -10,9 +10,86 @@ class MitraSurveiSeeder extends Seeder
     public function run()
     {
         DB::table('mitra_survei')->insert([
-            ['id_mitra' => 1, 'id_survei' => 1, 'posisi_mitra' => 'Posisi A'],
-            ['id_mitra' => 2, 'id_survei' => 2, 'posisi_mitra' => 'Posisi B'],
-            ['id_mitra' => 3, 'id_survei' => 3, 'posisi_mitra' => 'Posisi C'],
+            // Data pertama
+            [
+                'id_mitra' => 1,
+                'id_survei' => 1,
+                'posisi_mitra' => 'Posisi A',
+                'catatan' => 'Catatan untuk Mitra 1',
+                'nilai' => 85.5
+            ],
+            // Data kedua
+            [
+                'id_mitra' => 2,
+                'id_survei' => 2,
+                'posisi_mitra' => 'Posisi B',
+                'catatan' => 'Catatan untuk Mitra 2',
+                'nilai' => 90.0
+            ],
+            // Data ketiga
+            [
+                'id_mitra' => 3,
+                'id_survei' => 3,
+                'posisi_mitra' => 'Posisi C',
+                'catatan' => 'Catatan untuk Mitra 3',
+                'nilai' => 78.3
+            ],
+            // Data keempat
+            [
+                'id_mitra' => 4,
+                'id_survei' => 4,
+                'posisi_mitra' => 'Posisi D',
+                'catatan' => 'Catatan untuk Mitra 4',
+                'nilai' => 88.7
+            ],
+            // Data kelima
+            [
+                'id_mitra' => 5,
+                'id_survei' => 1,
+                'posisi_mitra' => 'Posisi E',
+                'catatan' => 'Catatan untuk Mitra 5',
+                'nilai' => 91.2
+            ],
+            // Data keenam
+            [
+                'id_mitra' => 6,
+                'id_survei' => 1,
+                'posisi_mitra' => 'Posisi F',
+                'catatan' => 'Catatan untuk Mitra 6',
+                'nilai' => 79.8
+            ],
+            // Data ketujuh
+            [
+                'id_mitra' => 7,
+                'id_survei' => 2,
+                'posisi_mitra' => 'Posisi G',
+                'catatan' => 'Catatan untuk Mitra 7',
+                'nilai' => 84.3
+            ],
+            // Data kedelapan
+            [
+                'id_mitra' => 8,
+                'id_survei' => 3,
+                'posisi_mitra' => 'Posisi H',
+                'catatan' => 'Catatan untuk Mitra 8',
+                'nilai' => 80.1
+            ],
+            // Data kesembilan
+            [
+                'id_mitra' => 9,
+                'id_survei' => 4,
+                'posisi_mitra' => 'Posisi I',
+                'catatan' => 'Catatan untuk Mitra 9',
+                'nilai' => 87.5
+            ],
+            // Data kesepuluh
+            [
+                'id_mitra' => 10,
+                'id_survei' => 1,
+                'posisi_mitra' => 'Posisi J',
+                'catatan' => 'Catatan untuk Mitra 10',
+                'nilai' => 92.6
+            ]
         ]);
     }
 }
