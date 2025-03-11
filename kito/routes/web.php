@@ -310,7 +310,7 @@ Route::middleware('guest')->group(function () {
 Route::get('/daftarsurveibps', [DaftarSurveiBpsController::class, 'index']);
 Route::get('/surveys', [DaftarSurveiBpsController::class, 'index']);
 
-Route::get('/selectSurvey/{id}', [DaftarSurveiBpsController::class, 'addSurvey']);
+Route::get('/selectSurvey/{id_survei}', [DaftarSurveiBpsController::class, 'addSurvey']);
 // Route::get('/mitrabps/inputmitrabps', [InputMitraBpsController::class, 'index']);
 
 require __DIR__ . '/auth.php';

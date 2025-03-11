@@ -36,11 +36,13 @@
                 <div class="p-6">
                     <h2 class="text-2xl font-bold mb-4">Survei Terpilih</h2>
                     <div class="bg-white p-4 rounded-lg shadow">
-                        <p><strong>Nama Survei :</strong> Plan Valencia</p>
-                        <p><strong>Lokasi :</strong> Kec. Trowulan</p>
-                        <p><strong>Jadwal :</strong> 29 Feb 2099</p>
-                        <p><strong>Tim :</strong> Pertanian</p>
-                        <p><strong>KRO :</strong> <span class="font-bold">Statistik Peternakan, Perikanan dan Kehutanan</span></p>
+                        @foreach($surveys as $survey)
+                            <p><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
+                            <p><strong>Lokasi :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
+                            <p><strong>Jadwal :</strong> {{ $survey->jadwal_kegiatan }}</p>
+                            <p><strong>Tim :</strong> Pertanian</p>
+                            <p><strong>KRO :</strong> <span class="font-bold">{{ $survey->kro }}</span></p>
+                        @endforeach
                     </div>
 
                     <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>
@@ -61,30 +63,16 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach($mitras as $mitra)
                                 <tr>
-                                    <td class="border border-gray-300 p-2">Si Fulan</td>
-                                    <td class="border border-gray-300 p-2">Kec. Trowulan</td>
+                                    <td class="border border-gray-300 p-2"> {{ $mitra->nama_lengkap}}</td>
+                                    <td class="border border-gray-300 p-2"> {{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
                                     <td class="border border-gray-300 p-2 text-center">2</td>
                                     <td class="border border-gray-300 p-2 text-center">
                                         <button class="bg-orange text-white px-3 py-1 rounded">Batal</button>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td class="border border-gray-300 p-2">Fulana</td>
-                                    <td class="border border-gray-300 p-2">Kec. Trowulan</td>
-                                    <td class="border border-gray-300 p-2 text-center">1</td>
-                                    <td class="border border-gray-300 p-2 text-center">
-                                        <button class="bg-orange text-white px-3 py-1 rounded">Pilih</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="border border-gray-300 p-2">Fulani</td>
-                                    <td class="border border-gray-300 p-2">Kec. Trowulan</td>
-                                    <td class="border border-gray-300 p-2 text-center">3</td>
-                                    <td class="border border-gray-300 p-2 text-center">
-                                        <button class="bg-orange text-white px-3 py-1 rounded">Pilih</button>
-                                    </td>
-                                </tr>
+                                @endforeach
                             </tbody>
                         </table>
 
