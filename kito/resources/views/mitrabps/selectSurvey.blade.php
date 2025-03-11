@@ -33,10 +33,76 @@
             <div class="flex flex-col flex-1 overflow-hidden">
                 <x-navbar></x-navbar>
                 <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-                    <div class="container px-6 py-8 mx-auto">
-                        <h3 class="text-3xl font-medium text-gray-700">Daftar Mitra</h3>
-                        <h1>hallo bang, ini halaman Mitra</h1>
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold mb-4">Survei Terpilih</h2>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <p><strong>Nama Survei :</strong> Plan Valencia</p>
+                        <p><strong>Lokasi :</strong> Kec. Trowulan</p>
+                        <p><strong>Jadwal :</strong> 29 Feb 2099</p>
+                        <p><strong>Tim :</strong> Pertanian</p>
+                        <p><strong>KRO :</strong> <span class="font-bold">Statistik Peternakan, Perikanan dan Kehutanan</span></p>
                     </div>
+
+                    <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <div class="flex items-center mb-4">
+                            <input type="text" placeholder="Search..." class="border p-2 rounded w-full">
+                            <button class="bg-gray-300 text-gray-700 px-4 py-2 ml-2 rounded">Filter</button>
+                            <button class="bg-orange text-white px-4 py-2 ml-4 rounded">Import excel</button>
+                        </div>
+
+                        <table class="w-full border-collapse border border-gray-300">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="border border-gray-300 p-2">Nama Mitra</th>
+                                    <th class="border border-gray-300 p-2">Domisili</th>
+                                    <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
+                                    <th class="border border-gray-300 p-2">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-gray-300 p-2">Si Fulan</td>
+                                    <td class="border border-gray-300 p-2">Kec. Trowulan</td>
+                                    <td class="border border-gray-300 p-2 text-center">2</td>
+                                    <td class="border border-gray-300 p-2 text-center">
+                                        <button class="bg-orange text-white px-3 py-1 rounded">Batal</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 p-2">Fulana</td>
+                                    <td class="border border-gray-300 p-2">Kec. Trowulan</td>
+                                    <td class="border border-gray-300 p-2 text-center">1</td>
+                                    <td class="border border-gray-300 p-2 text-center">
+                                        <button class="bg-orange text-white px-3 py-1 rounded">Pilih</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 p-2">Fulani</td>
+                                    <td class="border border-gray-300 p-2">Kec. Trowulan</td>
+                                    <td class="border border-gray-300 p-2 text-center">3</td>
+                                    <td class="border border-gray-300 p-2 text-center">
+                                        <button class="bg-orange text-white px-3 py-1 rounded">Pilih</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="flex justify-between items-center mt-4">
+                            <div>
+                                <button class="bg-orange text-white px-4 py-2 rounded">Tambah</button>
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="bg-orange text-white px-3 py-1 rounded">1</button>
+                                <button class="bg-gray-300 text-gray-700 px-3 py-1 rounded">2</button>
+                                <button class="bg-gray-300 text-gray-700 px-3 py-1 rounded">3</button>
+                                <button class="bg-gray-300 text-gray-700 px-3 py-1 rounded">4</button>
+                                <button class="bg-gray-300 text-gray-700 px-3 py-1 rounded">5</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 </main>
             </div>
         </div>

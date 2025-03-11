@@ -17,5 +17,15 @@ class DaftarSurveiBpsController extends Controller
 
         return view('mitrabps.daftarsurveibps', compact('surveys')); // Memanggil view mitrabps.blade.php
     }
+
+    public function addSurvey()
+    {
+        // Mengambil data survei berdasarkan ID
+        $survey = Survei::with('kecamatan')
+                        ->withCount('MitraSurvei')
+                        ->paginate(10);
+
+        return view('mitrabps.selectSurvey'); 
+    }
 }
 
