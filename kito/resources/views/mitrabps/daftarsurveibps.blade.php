@@ -42,7 +42,7 @@
                                 <div class="flex items-center space-x-4">
                                     <!-- Input untuk search -->
                                     <input type="text" name="search" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
-                            
+
                                     <!-- Dropdown untuk memilih tahun -->
                                     <select name="tahun" class="px-4 py-2 border border-gray-300 rounded-md">
                                         <option value="">Pilih Tahun</option>
@@ -97,7 +97,7 @@
                                         </h3>
                                         <div class="flex space-x-4">
                                             <button class="px-4 py-2 bg-orange text-black rounded-md">Edit</button>
-                                            <a href="{{ url('/selectSurvey/' . $survey->id_survei) }}" class="px-4 py-2 bg-orange text-black rounded-md">
+                                            <a href="/selectSurvey/{{ $survey->id_survei }}"  class="px-4 py-2 bg-orange text-black rounded-md">
                                                 Pilih
                                             </a>
                                         </div>

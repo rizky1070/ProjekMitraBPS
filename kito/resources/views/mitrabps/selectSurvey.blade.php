@@ -61,7 +61,18 @@
                                     <td class="border border-gray-300 p-2">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
                                     <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
                                     <td class="border border-gray-300 p-2 text-center">
-                                        <button class="bg-orange text-white px-3 py-1 rounded">Batal</button>
+                                        @if ($mitra->isFollowingSurvey)
+                                            <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="bg-orange text-white px-3 py-1 rounded">Batal</button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="bg-orange text-white px-3 py-1 rounded">Tambah</button>
+                                            </form>
+                                        @endif
+                                        {{-- <button class="bg-orange text-white px-3 py-1 rounded">Batal</button> --}}
                                     </td>
                                 </tr>
                                 @endforeach

@@ -11,6 +11,8 @@ class Mitra extends Model
 
     protected $table = 'mitra';
 
+    protected $primaryKey = 'id_mitra'; // Menggunakan id_survei sebagai primary key
+
     protected $fillable = [
         'id_kecamatan',
         'id_kabupaten',
@@ -48,6 +50,17 @@ class Mitra extends Model
 
     public function mitraSurvei()
     {
-        return $this->hasMany(MitraSurvei::class, 'id_survei', 'id_survei'); // Menghubungkan id_survei di Survei ke id_survei di MitraSurvei
+        return $this->belongsToMany(Survei::class, 'mitra_survei', 'id_mitra', 'id_survei');
+    }
+
+    // Model Survei
+    public function mitra()
+    {
+        return $this->belongsToMany(Mitra::class, 'mitra_survei', 'id_mitra', 'id_survei');
+    }
+
+    public function survei()
+    {
+        return $this->belongsToMany(Survei::class, 'mitra_survei', 'id_mitra', 'id_survei');
     }
 }

@@ -23,23 +23,66 @@ class DaftarSurveiBpsController extends Controller
         
         // Query untuk mengambil data survei
         $surveys = Survei::with('kecamatan')
-                        ->withCount('mitraSurvei'); // Pastikan relasi dengan mitraSurvei sudah benar
-
+                         ->withCount('mitraSurvei'); // Pastikan relasi dengan mitraSurvei sudah benar
+    
         // Filter berdasarkan tahun jika ada parameter tahun
         if ($request->filled('tahun')) {
             $surveys->whereYear('jadwal_kegiatan', $request->tahun);  // Sesuaikan dengan kolom tanggal
         }
-
+    
         // Filter berdasarkan kata kunci pencarian jika ada
         if ($request->filled('search')) {
             $surveys->where('nama_survei', 'like', '%' . $request->search . '%');
         }
-
+    
         // Menampilkan data survei dengan paginasi
         $surveys = $surveys->paginate(10); // Atur sesuai kebutuhan
-
+    
         return view('mitrabps.daftarsurveibps', compact('surveys', 'availableYears'));
     }
+    
+    public function addSurvey($id_survei)
+    {
+        // Mengambil data survei berdasarkan id_survei
+        $survey = Survei::with('kecamatan')
+            ->where('id_survei', $id_survei)
+            ->firstOrFail();
+
+        // Mengambil semua mitra dan menghitung jumlah survei yang diikuti oleh setiap mitra
+        $mitras = Mitra::withCount('mitraSurvei') // Menggunakan relasi mitraSurvei untuk menghitung survei yang diikuti
+            ->get(); // Ambil semua mitra tanpa pagination
+
+        // Menambahkan status apakah mitra sudah mengikuti survei atau tidak
+        foreach ($mitras as $mitra) {
+            // Periksa apakah mitra ini mengikuti survei yang dimaksud
+            $mitra->isFollowingSurvey = $mitra->mitraSurvei->contains('id_survei', $id_survei);
+        }
+
+        // Urutkan mitra sehingga yang mengikuti survei berada di teratas
+        $mitras = $mitras->sortByDesc(function($mitra) {
+            return $mitra->isFollowingSurvey ? 1 : 0;
+        });
+
+        // Mengirimkan data survei dan mitra ke view
+        return view('mitrabps.selectSurvey', compact('survey', 'mitras'));
+    }
+
+
+    public function toggleMitraSurvey($id_survei, $id_mitra)
+    {
+        $survey = Survei::findOrFail($id_survei);
+        $mitra = Mitra::findOrFail($id_mitra);
+
+        // Jika mitra sudah mengikuti survei, batalkan
+        if ($mitra->mitraSurvei->contains('id_survei', $id_survei)) {
+            $mitra->mitraSurvei()->detach($id_survei); // Menghapus relasi
+        } else {
+            $mitra->mitraSurvei()->attach($id_survei); // Menambahkan relasi
+        }
+
+        return redirect()->back();
+    }
+
 
     public function import(Request$request) 
     {
@@ -170,21 +213,21 @@ class DaftarSurveiBpsController extends Controller
     // }
 }
 
-        return view('mitrabps.daftarsurveibps', compact('surveys')); // Memanggil view mitrabps.blade.php
-    }
+//         return view('mitrabps.daftarsurveibps', compact('surveys')); // Memanggil view mitrabps.blade.php
+//     }
 
-    public function addSurvey($id_survei)
-    {
-        // Mengambil data survei berdasarkan id_survei
-        $survey = Survei::with('kecamatan')
-            ->where('id_survei', $id_survei)
-            ->firstOrFail();
+//     public function addSurvey($id_survei)
+//     {
+//         // Mengambil data survei berdasarkan id_survei
+//         $survey = Survei::with('kecamatan')
+//             ->where('id_survei', $id_survei)
+//             ->firstOrFail();
 
-        // Mengambil semua mitra dan menghitung jumlah relasi MitraSurvei
-        $mitras = Mitra::paginate(10); // Bisa juga ditambahkan ->get() jika tanpa pagination
+//         // Mengambil semua mitra dan menghitung jumlah relasi MitraSurvei
+//         $mitras = Mitra::paginate(10); // Bisa juga ditambahkan ->get() jika tanpa pagination
 
-        return view('mitrabps.selectSurvey', compact('survey', 'mitras'));
-    }
+//         return view('mitrabps.selectSurvey', compact('survey', 'mitras'));
+//     }
 
-}
+// }
 

@@ -313,6 +313,7 @@ Route::get('/surveys', [DaftarSurveiBpsController::class, 'index'])->name('surve
 Route::post('/surveys/import', [DaftarSurveiBpsController::class, 'import'])->name('surveys.import');
 
 Route::get('/selectSurvey/{id_survei}', [DaftarSurveiBpsController::class, 'addSurvey']);
+Route::post('/mitra/survei/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController::class, 'toggleMitraSurvey'])->name('mitra.toggle');
 // Route::get('/mitrabps/inputmitrabps', [InputMitraBpsController::class, 'index']);
 
 require __DIR__ . '/auth.php';

@@ -13,6 +13,8 @@ class Survei extends Model
     protected $table = 'survei';
 
     // Kolom yang bisa diisi (mass assignable)
+    protected $primaryKey = 'id_survei'; // Menggunakan id_survei sebagai primary key
+    
     protected $fillable = [
         'id_provinsi',
         'id_kabupaten',
@@ -51,6 +53,18 @@ class Survei extends Model
 
     public function mitraSurvei()
     {
-        return $this->hasMany(MitraSurvei::class, 'id_survei', 'id_survei'); // Menghubungkan id_survei di Survei ke id_survei di MitraSurvei
+        return $this->belongsToMany(Mitra::class, 'mitra_survei', 'id_survei', 'id_mitra'); 
     }
+
+    // Model Survei
+    public function survei()
+    {
+        return $this->belongsToMany(Survei::class, 'mitra_survei', 'id_survei', 'id_mitra');
+    }
+
+    public function mitra()
+    {
+        return $this->belongsToMany(Mitra::class, 'mitra_survei', 'id_survei', 'id_mitra');
+    }
+
 }
