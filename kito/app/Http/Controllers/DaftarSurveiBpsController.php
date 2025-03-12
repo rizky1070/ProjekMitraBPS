@@ -3,15 +3,14 @@
 namespace App\Http\Controllers;
 use App\Models\Survei;
 use App\Models\Mitra;
+use App\Models\MitraSurvei;
 use Illuminate\Http\Request;
 
 class DaftarSurveiBpsController extends Controller
 {
     public function index()
     {
-
-        // Mengambil semua data survei
-        // $surveys = Survei::paginate(10); 
+        // Mengambil data survei dengan relasi kecamatan
         $surveys = Survei::with('kecamatan')
                         ->withCount('MitraSurvei')
                         ->paginate(10);
@@ -21,21 +20,16 @@ class DaftarSurveiBpsController extends Controller
 
     public function addSurvey($id_survei)
     {
-        // Mengambil data survei berdasarkan ID
+        // Mengambil data survei berdasarkan id_survei
         $survey = Survei::with('kecamatan')
-            ->withCount('mitraSurvei') // Sesuaikan relasi jika ada perbedaan nama
-            ->where('id_survei', $id_survei) // Gunakan nama kolom yang benar
-            ->firstOrFail(); // Gantilah findOrFail dengan firstOrFail
+            ->where('id_survei', $id_survei)
+            ->firstOrFail();
 
-        // Mengambil semua mitra dengan relasi kecamatan
-        $mitras = Mitra::with('kecamatan')->get();
+        // Mengambil semua mitra dan menghitung jumlah relasi MitraSurvei
+        $mitras = Mitra::paginate(10); // Bisa juga ditambahkan ->get() jika tanpa pagination
 
-        // Bungkus $survey dalam array agar sesuai dengan struktur sebelumnya
-        $surveys = [$survey];
-
-        return view('mitrabps.selectSurvey', compact('surveys', 'mitras')); // Pastikan nama view benar
+        return view('mitrabps.selectSurvey', compact('survey', 'mitras'));
     }
-
 
 }
 
