@@ -54,6 +54,17 @@ class SurveiSeeder extends Seeder
                 'jadwal_kegiatan' => '2025-04-04',
                 'status_survei' => 3
             ],
+            [
+                'id_provinsi' => 4,
+                'id_kabupaten' => 4,
+                'id_kecamatan' => 4,
+                'id_desa' => 4,
+                'nama_survei' => 'Survei E',
+                'lokasi_survei' => 'Lokasi E',
+                'kro' => 'Kro D',
+                'jadwal_kegiatan' => '2024-04-04',
+                'status_survei' => 3
+            ],
         ]);
     }
 }

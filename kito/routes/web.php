@@ -308,6 +308,8 @@ Route::middleware('guest')->group(function () {
 // MITRA BPS
 Route::get('/daftarsurveibps', [DaftarSurveiBpsController::class, 'index']);
 Route::get('/surveys', [DaftarSurveiBpsController::class, 'index']);
+Route::get('/surveys', [DaftarSurveiBpsController::class, 'index'])->name('surveys.filter');
+Route::post('/surveys/import', [DaftarSurveiBpsController::class, 'import'])->name('surveys.import');
 // Route::get('/mitrabps/inputmitrabps', [InputMitraBpsController::class, 'index']);
 
 require __DIR__ . '/auth.php';
