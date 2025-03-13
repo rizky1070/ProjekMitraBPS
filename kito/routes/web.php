@@ -24,7 +24,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\InputMitraBpsController;
 use App\Http\Controllers\DaftarSurveiBpsController;
-
+use App\Http\Controllers\MitraController;
 
 /*
 |--------------------------------------------------------------------------
@@ -310,7 +310,12 @@ Route::middleware('guest')->group(function () {
 Route::get('/daftarsurveibps', [DaftarSurveiBpsController::class, 'index']);
 Route::get('/surveys', [DaftarSurveiBpsController::class, 'index']);
 
-Route::get('/selectSurvey/{id_survei}', [DaftarSurveiBpsController::class, 'addSurvey']);
+Route::get('/selectSurvey/{id}', [DaftarSurveiBpsController::class, 'addSurvey']);
 // Route::get('/mitrabps/inputmitrabps', [InputMitraBpsController::class, 'index']);
+
+
+// Daftar Mitra
+Route::get('/daftarmitrabps', [MitraController::class, 'index'])->name('index');
+
 
 require __DIR__ . '/auth.php';
