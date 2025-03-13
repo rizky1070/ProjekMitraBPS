@@ -36,23 +36,15 @@
                 <div class="p-6">
                     <h2 class="text-2xl font-bold mb-4">Survei Terpilih</h2>
                     <div class="bg-white p-4 rounded-lg shadow">
-                        @foreach($surveys as $survey)
-                            <p><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
-                            <p><strong>Lokasi :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
-                            <p><strong>Jadwal :</strong> {{ $survey->jadwal_kegiatan }}</p>
-                            <p><strong>Tim :</strong> Pertanian</p>
-                            <p><strong>KRO :</strong> <span class="font-bold">{{ $survey->kro }}</span></p>
-                        @endforeach
+                        <p><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
+                        <p><strong>Lokasi :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
+                        <p><strong>Jadwal :</strong> {{ $survey->jadwal_kegiatan }}</p>
+                        <p><strong>Tim :</strong> Pertanian</p>
+                        <p><strong>KRO :</strong> <span class="font-bold">{{ $survey->kro }}</span></p>
                     </div>
 
                     <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>
                     <div class="bg-white p-4 rounded-lg shadow">
-                        <div class="flex items-center mb-4">
-                            <input type="text" placeholder="Search..." class="border p-2 rounded w-full">
-                            <button class="bg-gray-300 text-gray-700 px-4 py-2 ml-2 rounded">Filter</button>
-                            <button class="bg-orange text-white px-4 py-2 ml-4 rounded">Import excel</button>
-                        </div>
-
                         <table class="w-full border-collapse border border-gray-300">
                             <thead>
                                 <tr class="bg-gray-100">
@@ -65,29 +57,27 @@
                             <tbody>
                                 @foreach($mitras as $mitra)
                                 <tr>
-                                    <td class="border border-gray-300 p-2"> {{ $mitra->nama_lengkap}}</td>
-                                    <td class="border border-gray-300 p-2"> {{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
-                                    <td class="border border-gray-300 p-2 text-center">2</td>
+                                    <td class="border border-gray-300 p-2">{{ $mitra->nama_lengkap }}</td>
+                                    <td class="border border-gray-300 p-2">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
+                                    <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
                                     <td class="border border-gray-300 p-2 text-center">
-                                        <button class="bg-orange text-white px-3 py-1 rounded">Batal</button>
+                                        @if ($mitra->isFollowingSurvey)
+                                            <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="bg-orange text-white px-3 py-1 rounded">Batal</button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="bg-orange text-white px-3 py-1 rounded">Tambah</button>
+                                            </form>
+                                        @endif
+                                        {{-- <button class="bg-orange text-white px-3 py-1 rounded">Batal</button> --}}
                                     </td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
-
-                        <div class="flex justify-between items-center mt-4">
-                            <div>
-                                <button class="bg-orange text-white px-4 py-2 rounded">Tambah</button>
-                            </div>
-                            <div class="flex space-x-1">
-                                <button class="bg-orange text-white px-3 py-1 rounded">1</button>
-                                <button class="bg-gray-300 text-gray-700 px-3 py-1 rounded">2</button>
-                                <button class="bg-gray-300 text-gray-700 px-3 py-1 rounded">3</button>
-                                <button class="bg-gray-300 text-gray-700 px-3 py-1 rounded">4</button>
-                                <button class="bg-gray-300 text-gray-700 px-3 py-1 rounded">5</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
 

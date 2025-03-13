@@ -309,8 +309,11 @@ Route::middleware('guest')->group(function () {
 // MITRA BPS
 Route::get('/daftarsurveibps', [DaftarSurveiBpsController::class, 'index']);
 Route::get('/surveys', [DaftarSurveiBpsController::class, 'index']);
+Route::get('/surveys', [DaftarSurveiBpsController::class, 'index'])->name('surveys.filter');
+Route::post('/surveys/import', [DaftarSurveiBpsController::class, 'import'])->name('surveys.import');
 
-Route::get('/selectSurvey/{id}', [DaftarSurveiBpsController::class, 'addSurvey']);
+Route::get('/selectSurvey/{id_survei}', [DaftarSurveiBpsController::class, 'addSurvey']);
+Route::post('/mitra/survei/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController::class, 'toggleMitraSurvey'])->name('mitra.toggle');
 // Route::get('/mitrabps/inputmitrabps', [InputMitraBpsController::class, 'index']);
 
 

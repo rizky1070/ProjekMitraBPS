@@ -21,8 +21,8 @@ class SuratTugasController extends Controller
         $endDateInput = $request->input('end_date');
         $searchKeyword = $request->input('search'); // Ambil kata kunci pencarian
 
-        // Initialize the query
-        $query = SuratTugas::query();
+        // Initialize the query berubah
+        $query = SuratTugas::with('user'); 
         
 
         // Convert input dates to Carbon instances in the correct format
@@ -55,6 +55,7 @@ class SuratTugasController extends Controller
                 'tanggalsurat' => Carbon::parse($surattugas->created_at)->translatedFormat('d F Y H:i:s'),
                 'nomorfull' => $surattugas->nomorfull,
                 'id' => $surattugas->id,
+                'user' => $surattugas->user->pluck('name')->implode(', ') // Mengambil nama user berubah
             ];
         });
 
