@@ -319,6 +319,7 @@ Route::post('/mitra/survei/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsContr
 
 // Daftar Mitra
 Route::get('/daftarmitrabps', [MitraController::class, 'index'])->name('index');
+Route::get('/mitras', [MitraController::class, 'index'])->name('mitras.filter');
 
 
 require __DIR__ . '/auth.php';
