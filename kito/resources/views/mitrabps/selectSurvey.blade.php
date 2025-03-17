@@ -45,6 +45,22 @@
 
                     <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>
                     <div class="bg-white p-4 rounded-lg shadow">
+                    <!-- Search Bar and Filter -->
+                    <form action="{{ route('selectSurvey.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="flex justify-between items-center mb-4">
+                        <div class="flex items-center space-x-4">
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
+
+                            <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
+                                <option value="">Pilih Kecamatan</option>
+                                @foreach($kecamatans as $kecamatan)
+                                    <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
+                                @endforeach
+                            </select>
+                        
+                            <button type="submit" class="px-4 py-2 bg-orange rounded-md">Filter</button>
+                        </div>
+                    </form>
+
                         <table class="w-full border-collapse border border-gray-300">
                             <thead>
                                 <tr class="bg-gray-100">
