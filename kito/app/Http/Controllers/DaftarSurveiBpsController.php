@@ -82,6 +82,45 @@ class DaftarSurveiBpsController extends Controller
 
 
 
+    public function editSurvey(Request $request, $id_survei)
+    {
+        // Ambil data survei berdasarkan ID
+        $survey = Survei::with('kecamatan')
+            ->where('id_survei', $id_survei)
+            ->firstOrFail();
+
+        // Query untuk daftar mitra dengan relasi jumlah survei
+        $mitras = Mitra::with('kecamatan')
+            ->withCount('mitraSurvei');
+
+        // Filter berdasarkan kecamatan jika dipilih
+        if ($request->filled('kecamatan')) {
+            $mitras->where('id_kecamatan', $request->kecamatan);
+        }
+
+        // Filter berdasarkan pencarian nama mitra
+        if ($request->filled('search')) {
+            $mitras->where('nama_lengkap', 'like', '%' . $request->search . '%');
+        }
+
+        // Eksekusi query
+        $mitras = $mitras->get();
+
+        // Ambil daftar kecamatan untuk dropdown
+        $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
+
+        // Tambahkan status apakah mitra sudah mengikuti survei
+        foreach ($mitras as $mitra) {
+            $mitra->isFollowingSurvey = $mitra->mitraSurvei->contains('id_survei', $id_survei);
+        }
+
+        // Urutkan agar mitra yang mengikuti survei tampil di atas
+        $mitras = $mitras->sortByDesc(fn($mitra) => $mitra->isFollowingSurvey ? 1 : 0);
+
+        return view('mitrabps.editSurvey', compact('survey', 'mitras', 'kecamatans'));
+    }
+
+
     public function toggleMitraSurvey($id_survei, $id_mitra)
     {
         $survey = Survei::findOrFail($id_survei);

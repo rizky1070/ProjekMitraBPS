@@ -318,6 +318,7 @@ Route::post('/mitra/survei/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsContr
 Route::post('/upload-excel', [DaftarSurveiBpsController::class, 'uploadExcel'])->name('upload.excel');
 // Route::get('/mitrabps/inputmitrabps', [InputMitraBpsController::class, 'index']);
 
+Route::get('/editSurvey/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvey'])->name('editSurvey');
 
 // Daftar Mitra
 Route::get('/daftarmitrabps', [MitraController::class, 'index'])->name('index');
