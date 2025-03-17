@@ -27,74 +27,71 @@
     </script>
     @endif
     
-    <div x-data="{ sidebarOpen: false }" class="flex h-screen">
-        <x-sidebar></x-sidebar>
-        <div class="flex flex-col flex-1 overflow-hidden">
-            <x-navbar></x-navbar>
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold mb-4">Survei Terpilih</h2>
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <p><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
-                        <p><strong>Lokasi :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
-                        <p><strong>Jadwal :</strong> {{ $survey->jadwal_kegiatan }}</p>
-                        <p><strong>Tim :</strong> Pertanian</p>
-                        <p><strong>KRO :</strong> <span class="font-bold">{{ $survey->kro }}</span></p>
-                    </div>
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
+        <a href="{{ url('/daftarsurveibps') }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
+            <
+        </a>
+        <div class="p-6">
+            <h2 class="text-2xl font-bold mb-4">Survei Terpilih</h2>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <p><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
+                <p><strong>Lokasi :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
+                <p><strong>Jadwal :</strong> {{ $survey->jadwal_kegiatan }}</p>
+                <p><strong>Tim :</strong> Pertanian</p>
+                <p><strong>KRO :</strong> <span class="font-bold">{{ $survey->kro }}</span></p>
+            </div>
 
-                    <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <form action="{{ route('selectSurvey.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="flex justify-between items-center mb-4">
-                            <div class="flex items-center space-x-4">
-                                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
-                                <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
-                                    <option value="">Pilih Kecamatan</option>
-                                    @foreach($kecamatans as $kecamatan)
-                                        <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
-                                    @endforeach
-                                </select>
-                                <button type="submit" class="px-4 py-2 bg-orange rounded-md">Filter</button>
-                            </div>
-                            <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
-                        </form>
-
-                        <table class="w-full border-collapse border border-gray-300">
-                            <thead>
-                                <tr class="bg-gray-100">
-                                    <th class="border border-gray-300 p-2">Nama Mitra</th>
-                                    <th class="border border-gray-300 p-2">Domisili</th>
-                                    <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
-                                    <th class="border border-gray-300 p-2">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($mitras as $mitra)
-                                <tr>
-                                    <td class="border border-gray-300 p-2">{{ $mitra->nama_lengkap }}</td>
-                                    <td class="border border-gray-300 p-2">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
-                                    <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
-                                    <td class="border border-gray-300 p-2 text-center">
-                                        @if ($mitra->isFollowingSurvey)
-                                            <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                                @csrf
-                                                <button type="submit" class="bg-orange text-white px-3 py-1 rounded">Batal</button>
-                                            </form>
-                                        @else
-                                            <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                                @csrf
-                                                <button type="submit" class="bg-orange text-white px-3 py-1 rounded">Tambah</button>
-                                            </form>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+            <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <form action="{{ route('selectSurvey.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="flex justify-between items-center mb-4">
+                    <div class="flex items-center space-x-4">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
+                        <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
+                            <option value="">Pilih Kecamatan</option>
+                            @foreach($kecamatans as $kecamatan)
+                                <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
+                            @endforeach
+                        </select>
+                        <button type="submit" class="px-4 py-2 bg-orange rounded-md">Filter</button>
                     </div>
-                </div>
-            </main>
+                    <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+                </form>
+
+                <table class="w-full border-collapse border border-gray-300">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border border-gray-300 p-2">Nama Mitra</th>
+                            <th class="border border-gray-300 p-2">Domisili</th>
+                            <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
+                            <th class="border border-gray-300 p-2">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($mitras as $mitra)
+                        <tr>
+                            <td class="border border-gray-300 p-2">{{ $mitra->nama_lengkap }}</td>
+                            <td class="border border-gray-300 p-2">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
+                            <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
+                            <td class="border border-gray-300 p-2 text-center">
+                                @if ($mitra->isFollowingSurvey)
+                                    <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="bg-orange text-white px-3 py-1 rounded">Batal</button>
+                                    </form>
+                                @else
+                                    <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="bg-orange text-white px-3 py-1 rounded">Tambah</button>
+                                    </form>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+    </main>
 
     <!-- Modal Upload Excel -->
     <div id="uploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
