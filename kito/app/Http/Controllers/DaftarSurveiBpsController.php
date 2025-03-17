@@ -119,8 +119,10 @@ class DaftarSurveiBpsController extends Controller
 
         // Tambahkan status apakah mitra sudah mengikuti survei
         foreach ($mitras as $mitra) {
-            $mitra->isFollowingSurvey = $mitra->mitraSurvei->contains('id_survei', $id_survei);
+            // Menambahkan properti isFollowingSurvey secara dinamis
+            $mitra->setAttribute('isFollowingSurvey', $mitra->mitraSurvei->contains('id_survei', $id_survei));
         }
+        
 
         // Urutkan agar mitra yang mengikuti survei tampil di atas
         $mitras = $mitras->sortByDesc(fn($mitra) => $mitra->isFollowingSurvey ? 1 : 0);
