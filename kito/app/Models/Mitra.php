@@ -53,7 +53,6 @@ class Mitra extends Model
         return $this->belongsToMany(Survei::class, 'mitra_survei', 'id_mitra', 'id_survei');
     }
 
-    // Model Survei
     public function mitra()
     {
         return $this->belongsToMany(Mitra::class, 'mitra_survei', 'id_mitra', 'id_survei');

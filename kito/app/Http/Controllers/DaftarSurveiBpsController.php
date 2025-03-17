@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 use App\Models\Survei;
 use App\Models\Mitra;
-use App\Models\MitraSurvei;
 use App\Models\Kecamatan;
+use App\Models\MitraSurvei;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\SurveiImport;
@@ -21,6 +21,9 @@ class DaftarSurveiBpsController extends Controller
             ->distinct()
             ->orderBy('year', 'desc')  // Mengurutkan tahun dari yang terbaru
             ->pluck('year');
+
+         // Mendapatkan daftar kecamatan
+        $kecamatans = Kecamatan::all(); // Mengambil semua kecamatan
         
         // Query untuk mengambil data survei
         $surveys = Survei::with('kecamatan')
@@ -35,11 +38,16 @@ class DaftarSurveiBpsController extends Controller
         if ($request->filled('search')) {
             $surveys->where('nama_survei', 'like', '%' . $request->search . '%');
         }
+
+        // Filter berdasarkan kecamatan jika ada parameter kecamatan
+        if ($request->filled('kecamatan')) {
+            $surveys->where('id_kecamatan', $request->kecamatan); 
+        }
     
         // Menampilkan data survei dengan paginasi
-        $surveys = $surveys->paginate(10); // Atur sesuai kebutuhan
+        $surveys = $surveys->paginate(3); // Atur sesuai kebutuhan
     
-        return view('mitrabps.daftarsurveibps', compact('surveys', 'availableYears'));
+        return view('mitrabps.daftarsurveibps', compact('surveys', 'availableYears', 'kecamatans'));
     }
     
     public function addSurvey(Request $request, $id_survei)
@@ -69,9 +77,9 @@ class DaftarSurveiBpsController extends Controller
         // Ambil daftar kecamatan untuk dropdown
         $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
 
-        // Tambahkan status apakah mitra sudah mengikuti survei
         foreach ($mitras as $mitra) {
-            $mitra->isFollowingSurvey = $mitra->mitraSurvei->contains('id_survei', $id_survei);
+            // Menambahkan properti isFollowingSurvey secara dinamis
+            $mitra->setAttribute('isFollowingSurvey', $mitra->mitraSurvei->contains('id_survei', $id_survei));
         }
 
         // Urutkan agar mitra yang mengikuti survei tampil di atas
@@ -111,8 +119,10 @@ class DaftarSurveiBpsController extends Controller
 
         // Tambahkan status apakah mitra sudah mengikuti survei
         foreach ($mitras as $mitra) {
-            $mitra->isFollowingSurvey = $mitra->mitraSurvei->contains('id_survei', $id_survei);
+            // Menambahkan properti isFollowingSurvey secara dinamis
+            $mitra->setAttribute('isFollowingSurvey', $mitra->mitraSurvei->contains('id_survei', $id_survei));
         }
+        
 
         // Urutkan agar mitra yang mengikuti survei tampil di atas
         $mitras = $mitras->sortByDesc(fn($mitra) => $mitra->isFollowingSurvey ? 1 : 0);

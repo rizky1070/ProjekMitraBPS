@@ -50,31 +50,40 @@
                                             <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $year }}</option>
                                         @endforeach
                                     </select>
+
+                                    <!-- Dropdown untuk memilih kecamatan -->
+                                    <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
+                                        <option value="">Pilih Kecamatan</option>
+                                        @foreach($kecamatans as $kecamatan)
+                                            <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
+                                        @endforeach
+                                    </select>
                             
                                     <!-- Tombol filter -->
                                     <button class="px-4 py-2 bg-orange rounded-md">Filter</button>
                                 </div>
+                                <button class="px-4 py-2 bg-orange rounded-md">tambah</button>
                                 <!-- Menambahkan ml-auto untuk memindahkan tombol Tambah ke kanan -->
-                                <form action="{{ route('surveys.import') }}" method="POST" enctype="multipart/form-data" class="flex justify-between items-center mb-4">
+                                {{-- <form action="{{ route('surveys.import') }}" method="POST" enctype="multipart/form-data" class="flex justify-between items-center mb-4">
                                     @csrf
-                                    <div class="flex items-center space-x-4">
+                                    <div class="flex items-center space-x-4"> --}}
                                         <!-- Tombol tambah untuk input file excel -->
                                         {{-- <label for="excel_file" class="px-4 py-2 bg-orange text-black rounded-md ml-auto cursor-pointer">+ Tambah</label> --}}
                                         {{-- <input type="file" id="excel_file" name="excel_file" class="hidden" accept=".xlsx, .xls"> --}}
-                                        <input type="file" class="form-control @error('filexls') is-invalid @enderror" name="filexls">
+                                        {{-- <input type="file" class="form-control @error('filexls') is-invalid @enderror" name="filexls">
                                         @error('filexls')
                                             <p style="color: red;">{{ $message }}</p>
-                                        @enderror
-                                        <button class="btn btn-info" type="submit">tambah</button>
-                                    </div>
-                                </form>
+                                        @enderror --}}
+                                        {{-- <button cclass="px-4 py-2 bg-orange rounded-md">tambah</button> --}}
+                                    {{-- </div>
+                                </form> --}}
                                 {{-- <button class="px-4 py-2 bg-orange text-black rounded-md ml-auto">+ Tambah</button> --}}
                             </div>
 
                             <!-- List of Survei -->
                             <div class="space-y-4">
                                 @foreach($surveys as $survey)
-                                <div class="flex justify-between items-center p-4 border border-gray-300 rounded-md">
+                                <div class="flex justify-between  bg-white items-center p-4 border border-gray-300 rounded-md">
                                     <div>
                                         <h3 class="text-xl font-semibold">{{ $survey->nama_survei }}</h3>
                                         <p class="text-gray-500">{{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}</p>
@@ -104,10 +113,7 @@
                                 @endforeach
                             </div>
 
-                            <!-- Pagination -->
-                            <div class="flex justify-center mt-6">
-                                {{ $surveys->links() }}
-                            </div>
+                            @include('components.pagination', ['paginator' => $surveys])
                         </div>
 
                     </div>
