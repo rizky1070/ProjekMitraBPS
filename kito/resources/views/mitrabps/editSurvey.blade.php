@@ -38,7 +38,21 @@
                 <p><strong>Lokasi :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
                 <p><strong>Jadwal :</strong> {{ $survey->jadwal_kegiatan }}</p>
                 <p><strong>Tim :</strong> Pertanian</p>
-                <p><strong>KRO :</strong>{{ $survey->kro }}</p>
+                <p><strong>KRO :</strong> {{ $survey->kro }} </p>
+                <div class="flex">
+                    <p><strong>Status :</strong><span class="font-bold">
+                        @if($survey->status_survei == 1)
+                            Belum Dikerjakan
+                        @elseif($survey->status_survei == 2)
+                            Sedang Dikerjakan
+                        @elseif($survey->status_survei == 3)
+                            Telah Dikerjakan
+                        @else
+                            Status Tidak Diketahui
+                        @endif</span>
+                    </p>
+                    <button type="" class="bg-orange text-white px-3 py-1 rounded">Ubah Status</button>
+                </div>
             </div>
 
             <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>
@@ -54,7 +68,6 @@
                         </select>
                         <button type="submit" class="px-4 py-2 bg-orange rounded-md">Filter</button>
                     </div>
-                    <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
                 </form>
 
                 <table class="w-full border-collapse border border-gray-300">
@@ -92,29 +105,5 @@
             </div>
         </div>
     </main>
-
-    <!-- Modal Upload Excel -->
-    <div id="uploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
-        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 class="text-xl font-bold mb-4">Unggah File Excel</h2>
-            <form action="{{ route('upload.excel') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <input type="file" name="file" accept=".xlsx, .xls" class="border p-2 w-full">
-                <div class="flex justify-end mt-4">
-                    <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md mr-2" onclick="closeModal()">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-orange text-white rounded-md">Unggah</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function openModal() {
-            document.getElementById('uploadModal').classList.remove('hidden');
-        }
-        function closeModal() {
-            document.getElementById('uploadModal').classList.add('hidden');
-        }
-    </script>
 </body>
 </html>

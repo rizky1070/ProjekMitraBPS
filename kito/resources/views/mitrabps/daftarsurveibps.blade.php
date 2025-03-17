@@ -105,10 +105,8 @@
                                             @endif
                                         </h3>
                                         <div class="flex space-x-4">
-                                            <button class="px-4 py-2 bg-orange text-black rounded-md">Edit</button>
-                                            <a href="/selectSurvey/{{ $survey->id_survei }}"  class="px-4 py-2 bg-orange text-black rounded-md">
-                                                Pilih
-                                            </a>
+                                            <a href="/editSurvey/{{ $survey->id_survei }}" class="px-4 py-2 bg-orange text-black rounded-md">Edit</a>
+                                            <a href="/selectSurvey/{{ $survey->id_survei }}"  class="px-4 py-2 bg-orange text-black rounded-md">Pilih</a>
                                         </div>
                                     </div>
                                 </div>
