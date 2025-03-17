@@ -15,7 +15,6 @@
     <title>Input Mitra BPS</title>
 </head>
 <body class="h-full">
-        <!-- SweetAlert Logic -->
     @if (session('success'))
     <script>
     swal("Success!", "{{ session('success') }}", "success");
@@ -27,12 +26,12 @@
     swal("Error!", "{{ $errors->first() }}", "error");
     </script>
     @endif
-        <!-- component -->
-        <div x-data="{ sidebarOpen: false }" class="flex h-screen">
-            <x-sidebar></x-sidebar>
-            <div class="flex flex-col flex-1 overflow-hidden">
-                <x-navbar></x-navbar>
-                <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
+    
+    <div x-data="{ sidebarOpen: false }" class="flex h-screen">
+        <x-sidebar></x-sidebar>
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <x-navbar></x-navbar>
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
                 <div class="p-6">
                     <h2 class="text-2xl font-bold mb-4">Survei Terpilih</h2>
                     <div class="bg-white p-4 rounded-lg shadow">
@@ -45,21 +44,19 @@
 
                     <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>
                     <div class="bg-white p-4 rounded-lg shadow">
-                    <!-- Search Bar and Filter -->
-                    <form action="{{ route('selectSurvey.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="flex justify-between items-center mb-4">
-                        <div class="flex items-center space-x-4">
-                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
-
-                            <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
-                                <option value="">Pilih Kecamatan</option>
-                                @foreach($kecamatans as $kecamatan)
-                                    <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
-                                @endforeach
-                            </select>
-                        
-                            <button type="submit" class="px-4 py-2 bg-orange rounded-md">Filter</button>
-                        </div>
-                    </form>
+                        <form action="{{ route('selectSurvey.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="flex justify-between items-center mb-4">
+                            <div class="flex items-center space-x-4">
+                                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
+                                <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
+                                    <option value="">Pilih Kecamatan</option>
+                                    @foreach($kecamatans as $kecamatan)
+                                        <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="px-4 py-2 bg-orange rounded-md">Filter</button>
+                            </div>
+                            <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+                        </form>
 
                         <table class="w-full border-collapse border border-gray-300">
                             <thead>
@@ -88,7 +85,6 @@
                                                 <button type="submit" class="bg-orange text-white px-3 py-1 rounded">Tambah</button>
                                             </form>
                                         @endif
-                                        {{-- <button class="bg-orange text-white px-3 py-1 rounded">Batal</button> --}}
                                     </td>
                                 </tr>
                                 @endforeach
@@ -96,9 +92,32 @@
                         </table>
                     </div>
                 </div>
-
-                </main>
-            </div>
+            </main>
         </div>
+    </div>
+
+    <!-- Modal Upload Excel -->
+    <div id="uploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 class="text-xl font-bold mb-4">Unggah File Excel</h2>
+            <form action="{{ route('upload.excel') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="file" name="file" accept=".xlsx, .xls" class="border p-2 w-full">
+                <div class="flex justify-end mt-4">
+                    <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md mr-2" onclick="closeModal()">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-orange text-white rounded-md">Unggah</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('uploadModal').classList.remove('hidden');
+        }
+        function closeModal() {
+            document.getElementById('uploadModal').classList.add('hidden');
+        }
+    </script>
 </body>
 </html>

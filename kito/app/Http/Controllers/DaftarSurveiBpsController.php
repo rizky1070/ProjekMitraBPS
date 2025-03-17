@@ -97,6 +97,27 @@ class DaftarSurveiBpsController extends Controller
         return redirect()->back();
     }
 
+    public function uploadExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        try {
+            Excel::import(new SurveiImport, $request->file('file'));
+            return redirect()->back()->with('success', 'Data berhasil diunggah!');
+        } catch (Exception $e) {
+            Log::error('Error saat mengunggah file: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengunggah file.');
+        }
+    }
+
+
+
+
+
+
+
 
     public function import(Request$request) 
     {
