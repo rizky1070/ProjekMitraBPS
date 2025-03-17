@@ -50,6 +50,14 @@
                                             <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $year }}</option>
                                         @endforeach
                                     </select>
+
+                                    <!-- Dropdown untuk memilih kecamatan -->
+                                    <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
+                                        <option value="">Pilih Kecamatan</option>
+                                        @foreach($kecamatans as $kecamatan)
+                                            <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
+                                        @endforeach
+                                    </select>
                             
                                     <!-- Tombol filter -->
                                     <button class="px-4 py-2 bg-orange rounded-md">Filter</button>
