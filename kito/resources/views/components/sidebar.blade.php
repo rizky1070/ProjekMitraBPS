@@ -220,12 +220,12 @@
             <!-- Dropdown Container -->
             <div class="dropdown-container {{ $isDropdownSiminbarActive ? 'block' : 'hidden' }}">
                <!-- Link: Daftar Barang (Cek Stok) - Hanya untuk Admin -->
-    @if (auth()->check() && auth()->user()->jabatan == 'admin')
-        <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('siminbardaftarbarang') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-            href="/siminbardaftarbarang">
-            <span class="mx-3">Cek Stok</span>
-        </a>
-    @endif
+            @if (auth()->check() && auth()->user()->jabatan == 'admin')
+                <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('siminbardaftarbarang') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                    href="/siminbardaftarbarang">
+                    <span class="mx-3">Cek Stok</span>
+                </a>
+            @endif
 
                 <!-- Link: Permintaan Barang (Admin/Kabag Umum) -->
                 @if (auth()->user()->jabatan == 'admin' || auth()->user()->jabatan == 'Kasubag Umum')
@@ -245,31 +245,37 @@
             </div>
         </div>
 
-<div>
-<!-- Button Dropdown -->
-    <div class="flex items-center">
-        <img src="mitrabps.png" alt="Logo mitabps" class="ml-4 w-12 h-12" />
-        <button
-            class="dropdown-btn flex items-center px-4 py-3 text-lg {{ $isDropdownPrismaActive ? 'text-white' : 'text-gray-500' }} hover:bg-opacity-80 hover:text-white transition-all duration-300 rounded-md">
-            MITRA BPS
-            <i class="fa fa-caret-down ml-2"></i>
-        </button>
-    </div>
+        @php
+            // Cek apakah ada link yang aktif di dalam dropdown
+            $isDropdownMitraActive =
+                request()->is('daftarsurveibps') ||
+                request()->is('daftarmitrabps');
+        @endphp
+        <div>
+        <!-- Button Dropdown -->
+            <div class="flex items-center">
+                <img src="mitrabps.png" alt="Logo mitabps" class="ml-4 w-12 h-12" />
+                <button
+                    class="dropdown-btn flex items-center px-4 py-3 text-lg {{ $isDropdownMitraActive ? 'text-white' : 'text-gray-500' }} hover:bg-opacity-80 hover:text-white transition-all duration-300 rounded-md">
+                    MITRA BPS
+                    <i class="fa fa-caret-down ml-2"></i>
+                </button>
+            </div>
 
-    <div class="dropdown-container {{ $isDropdownPrismaActive ? 'block' : 'hidden' }}">
-        @if (auth()->user()->is_admin)
-            <!-- Admin - Daftar Izin dan Histori Izin -->
-            <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('/inputmitrabps') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                href="/daftarsurveibps">
-                <span class="mx-3">Daftar Survei</span>
-            </a>
-            <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('izinkeluarhistori') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                href="/daftarmitrabps">
-                <span class="mx-3">Daftar Mitra</span>
-            </a>
-        @endif
-    </div>
-</div>
+            <div class="dropdown-container {{ $isDropdownMitraActive ? 'block' : 'hidden' }}">
+                @if (auth()->user()->is_admin)
+                    <!-- Admin - Daftar Izin dan Histori Izin -->
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('/inputmitrabps') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/daftarsurveibps">
+                        <span class="mx-3">Daftar Survei</span>
+                    </a>
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('izinkeluarhistori') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/daftarmitrabps">
+                        <span class="mx-3">Daftar Mitra</span>
+                    </a>
+                @endif
+            </div>
+        </div>
 
 
 
