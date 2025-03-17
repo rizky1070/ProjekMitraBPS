@@ -38,7 +38,7 @@
                 <p><strong>Lokasi :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
                 <p><strong>Jadwal :</strong> {{ $survey->jadwal_kegiatan }}</p>
                 <p><strong>Tim :</strong> Pertanian</p>
-                <p><strong>KRO :</strong> <span class="font-bold">{{ $survey->kro }}</span></p>
+                <p><strong>KRO :</strong>{{ $survey->kro }}</p>
             </div>
 
             <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>

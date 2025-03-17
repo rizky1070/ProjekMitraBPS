@@ -38,9 +38,9 @@
                 <p><strong>Lokasi :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
                 <p><strong>Jadwal :</strong> {{ $survey->jadwal_kegiatan }}</p>
                 <p><strong>Tim :</strong> Pertanian</p>
-                <p><strong>KRO :</strong> <span class="font-bold">{{ $survey->kro }}</span></p>
+                <p><strong>KRO :</strong> {{ $survey->kro }} </p>
                 <div class="flex">
-                    <p><strong>Status :</strong>
+                    <p><strong>Status :</strong><span class="font-bold">
                         @if($survey->status_survei == 1)
                             Belum Dikerjakan
                         @elseif($survey->status_survei == 2)
@@ -49,7 +49,7 @@
                             Telah Dikerjakan
                         @else
                             Status Tidak Diketahui
-                        @endif
+                        @endif</span>
                     </p>
                     <button type="" class="bg-orange text-white px-3 py-1 rounded">Ubah Status</button>
                 </div>
