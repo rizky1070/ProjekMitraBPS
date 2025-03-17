@@ -5,7 +5,6 @@ use App\Models\Survei;
 use App\Models\Mitra;
 use App\Models\Kecamatan;
 use App\Models\MitraSurvei;
-use App\Models\Kecamatan;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\SurveiImport;
@@ -46,7 +45,7 @@ class DaftarSurveiBpsController extends Controller
         }
     
         // Menampilkan data survei dengan paginasi
-        $surveys = $surveys->paginate(10); // Atur sesuai kebutuhan
+        $surveys = $surveys->paginate(3); // Atur sesuai kebutuhan
     
         return view('mitrabps.daftarsurveibps', compact('surveys', 'availableYears', 'kecamatans'));
     }
@@ -78,9 +77,9 @@ class DaftarSurveiBpsController extends Controller
         // Ambil daftar kecamatan untuk dropdown
         $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
 
-        // Tambahkan status apakah mitra sudah mengikuti survei
         foreach ($mitras as $mitra) {
-            $mitra->isFollowingSurvey = $mitra->mitraSurvei->contains('id_survei', $id_survei);
+            // Menambahkan properti isFollowingSurvey secara dinamis
+            $mitra->setAttribute('isFollowingSurvey', $mitra->mitraSurvei->contains('id_survei', $id_survei));
         }
 
         // Urutkan agar mitra yang mengikuti survei tampil di atas
