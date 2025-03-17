@@ -24,7 +24,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\InputMitraBpsController;
 use App\Http\Controllers\DaftarSurveiBpsController;
-
+use App\Http\Controllers\MitraController;
 
 /*
 |--------------------------------------------------------------------------
@@ -312,8 +312,15 @@ Route::get('/surveys', [DaftarSurveiBpsController::class, 'index']);
 Route::get('/surveys', [DaftarSurveiBpsController::class, 'index'])->name('surveys.filter');
 Route::post('/surveys/import', [DaftarSurveiBpsController::class, 'import'])->name('surveys.import');
 
-Route::get('/selectSurvey/{id_survei}', [DaftarSurveiBpsController::class, 'addSurvey']);
+Route::get('/add-survey/{id_survei}', [DaftarSurveiBpsController::class, 'addSurvey'])->name('addSurvey');
+Route::get('/selectSurvey/{id_survei}', [DaftarSurveiBpsController::class, 'addSurvey'])->name('selectSurvey.filter');
 Route::post('/mitra/survei/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController::class, 'toggleMitraSurvey'])->name('mitra.toggle');
 // Route::get('/mitrabps/inputmitrabps', [InputMitraBpsController::class, 'index']);
+
+
+// Daftar Mitra
+Route::get('/daftarmitrabps', [MitraController::class, 'index'])->name('index');
+Route::get('/mitras', [MitraController::class, 'index'])->name('mitras.filter');
+
 
 require __DIR__ . '/auth.php';
