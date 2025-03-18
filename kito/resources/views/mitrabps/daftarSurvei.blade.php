@@ -35,7 +35,7 @@
                 <x-navbar></x-navbar>
                 <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
                     <div class="container px-6 py-8 mx-auto">
-                        <h3 class="text-3xl font-medium text-gray-700">Daftar Survei</h3>
+                        <h3 class="text-3xl font-medium text-black">Daftar Survei</h3>
                         <div class="p-6">
                             <!-- Search Bar and Filter -->
                             <form action="{{ route('surveys.filter') }}" method="GET" class="flex justify-between items-center mb-4">
@@ -62,7 +62,7 @@
                                     <!-- Tombol filter -->
                                     <button class="px-4 py-2 bg-orange rounded-md">Filter</button>
                                 </div>
-                                <button class="px-4 py-2 bg-orange rounded-md">tambah</button>
+                                <button class="px-4 py-2 bg-orange rounded-md">+ Tambah</button>
                                 <!-- Menambahkan ml-auto untuk memindahkan tombol Tambah ke kanan -->
                                 {{-- <form action="{{ route('surveys.import') }}" method="POST" enctype="multipart/form-data" class="flex justify-between items-center mb-4">
                                     @csrf
@@ -86,20 +86,19 @@
                                 <div class="flex justify-between  bg-white items-center p-4 border border-gray-300 rounded-md">
                                     <div>
                                         <h3 class="text-xl font-semibold">{{ $survey->nama_survei }}</h3>
-                                        <p class="text-gray-500">{{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}</p>
-                                        <p class="text-gray-500">Jadwal Kegiatan : {{ $survey->jadwal_kegiatan }}</p>
-                                        <p class="text-gray-500">Jumlah Mitra : {{ $survey->mitra_survei_count }}</p> <!-- Menampilkan jumlah mitra -->
+                                        <p class="text-gray-700">{{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}</p>
+                                        <p class="text-gray-700">Jadwal Kegiatan : {{ $survey->jadwal_kegiatan }}</p>
+                                        <p class="text-gray-700">Jumlah Mitra : {{ $survey->mitra_survei_count }}</p> <!-- Menampilkan jumlah mitra -->
                                     </div>
                                     <div class="flex flex-col items-end space-y-2">
                                         <!-- Menempatkan status survei di atas tombol -->
                                         <h3 class="text-xl font-semibold">
-                                            Status Survei : 
                                             @if($survey->status_survei == 1)
-                                                Belum Dikerjakan
+                                                <div class="bg-red-500 text-white rounded-md px-4 py-1">Belum Dikerjakan</div>
                                             @elseif($survey->status_survei == 2)
-                                                Sedang Dikerjakan
+                                                <div class="bg-yellow-300 text-white rounded-md px-4 py-1">Sedang Dikerjakan</div>
                                             @elseif($survey->status_survei == 3)
-                                                Telah Dikerjakan
+                                                <div class="bg-green-500 text-white rounded-md px-4 py-1">Sudah Dikerjakan</div>
                                             @else
                                                 Status Tidak Diketahui
                                             @endif
