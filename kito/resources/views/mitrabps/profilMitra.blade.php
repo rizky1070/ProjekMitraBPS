@@ -35,5 +35,68 @@
         @endforeach
     </div>
 
+    <!-- Tabel Survei -->
+    <div class="max-w-4xl mx-auto p-4">
+        <h2 class="text-xl font-bold mb-4">Survei yang sudah dikerjakan</h2>
+        <input type="text" placeholder="Search..." class="border p-2 w-full mb-2">
+        <table class="w-full border-collapse border border-gray-300">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="border border-gray-300 p-2">Nama Survei</th>
+                    <th class="border border-gray-300 p-2">Tahun</th>
+                    <th class="border border-gray-300 p-2">Catatan</th>
+                    <th class="border border-gray-300 p-2">Nilai</th>
+                    <th class="border border-gray-300 p-2">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="border border-gray-300">
+                    <td class="p-2">Plan Valencia</td>
+                    <td class="p-2">2024</td>
+                    <td class="p-2">Solid, Solid, Solid!!</td>
+                    <td class="p-2">
+                        ⭐⭐⭐⭐⭐
+                    </td>
+                    <td class="p-2">
+                        <button class="bg-orange-500 text-white px-4 py-1 rounded">Edit</button>
+                    </td>
+                </tr>
+                <tr class="border border-gray-300">
+                    <td class="p-2">Plan Cameron</td>
+                    <td class="p-2">2024</td>
+                    <td class="p-2">Solid, Solid, Solid!!</td>
+                    <td class="p-2">
+                        ⭐⭐⭐⭐☆
+                    </td>
+                    <td class="p-2">
+                        <button class="bg-orange-500 text-white px-4 py-1 rounded">Edit</button>
+                    </td>
+                </tr>
+                <tr class="border border-gray-300">
+                    <td class="p-2">Plan Chernobyl</td>
+                    <td class="p-2">2024</td>
+                    <td class="p-2">Solid, Solid, Solid!!</td>
+                    <td class="p-2">
+                        ⭐⭐⭐☆☆
+                    </td>
+                    <td class="p-2">
+                        <button class="bg-orange-500 text-white px-4 py-1 rounded">Edit</button>
+                    </td>
+                </tr>
+                <tr class="border border-gray-300">
+                    <td class="p-2">Plan Alcatraz</td>
+                    <td class="p-2">2024</td>
+                    <td class="p-2">Solid, Solid, Solid!!</td>
+                    <td class="p-2">
+                        ⭐⭐⭐⭐⭐
+                    </td>
+                    <td class="p-2">
+                        <button class="bg-orange-500 text-white px-4 py-1 rounded">Edit</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
 </body>
 </html>
