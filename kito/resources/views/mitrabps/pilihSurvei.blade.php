@@ -28,7 +28,7 @@
     @endif
     
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-        <a href="{{ url('/daftarsurveibps') }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
+        <a href="{{ url('/daftarSurvei') }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
             <
         </a>
         <div class="p-6">
@@ -43,7 +43,7 @@
 
             <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>
             <div class="bg-white p-4 rounded-lg shadow">
-                <form action="{{ route('selectSurvey.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="flex justify-between items-center mb-4">
+                <form action="{{ route('pilihSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="flex justify-between items-center mb-4">
                     <div class="flex items-center space-x-4">
                         <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
                         <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">

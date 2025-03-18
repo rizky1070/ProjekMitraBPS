@@ -33,7 +33,7 @@ class MitraController extends Controller
         // Daftar kecamatan untuk dropdown filter
         $kecamatans = Kecamatan::pluck('nama_kecamatan', 'id_kecamatan');
     
-        return view('mitrabps.daftarmitrabps', compact('mitras', 'kecamatans'));
+        return view('mitrabps.daftarMitra', compact('mitras', 'kecamatans'));
     }
     
 //     public function index(Request $request)

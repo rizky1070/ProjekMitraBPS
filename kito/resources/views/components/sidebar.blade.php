@@ -248,8 +248,8 @@
         @php
             // Cek apakah ada link yang aktif di dalam dropdown
             $isDropdownMitraActive =
-                request()->is('daftarsurveibps') ||
-                request()->is('daftarmitrabps');
+                request()->is('daftarSurvei') ||
+                request()->is('daftarMitra');
         @endphp
         <div>
         <!-- Button Dropdown -->
@@ -266,11 +266,11 @@
                 @if (auth()->user()->is_admin)
                     <!-- Admin - Daftar Izin dan Histori Izin -->
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('/inputmitrabps') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/daftarsurveibps">
+                        href="/daftarSurvei">
                         <span class="mx-3">Daftar Survei</span>
                     </a>
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('izinkeluarhistori') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/daftarmitrabps">
+                        href="/daftarMitra">
                         <span class="mx-3">Daftar Mitra</span>
                     </a>
                 @endif

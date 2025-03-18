@@ -307,21 +307,22 @@ Route::middleware('guest')->group(function () {
 
 
 // MITRA BPS
-Route::get('/daftarsurveibps', [DaftarSurveiBpsController::class, 'index']);
+Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index']);
 Route::get('/surveys', [DaftarSurveiBpsController::class, 'index']);
 Route::get('/surveys', [DaftarSurveiBpsController::class, 'index'])->name('surveys.filter');
 Route::post('/surveys/import', [DaftarSurveiBpsController::class, 'import'])->name('surveys.import');
 
-Route::get('/add-survey/{id_survei}', [DaftarSurveiBpsController::class, 'addSurvey'])->name('addSurvey');
-Route::get('/selectSurvey/{id_survei}', [DaftarSurveiBpsController::class, 'addSurvey'])->name('selectSurvey.filter');
+Route::get('/add-survey/{id_survei}', [DaftarSurveiBpsController::class, 'tambahKeSurvei'])->name('tambahKeSurvei');
+Route::get('/pilihSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'tambahKeSurvei'])->name('pilihSurvei.filter');
 Route::post('/mitra/survei/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController::class, 'toggleMitraSurvey'])->name('mitra.toggle');
 Route::post('/upload-excel', [DaftarSurveiBpsController::class, 'uploadExcel'])->name('upload.excel');
 // Route::get('/mitrabps/inputmitrabps', [InputMitraBpsController::class, 'index']);
 
-Route::get('/editSurvey/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvey'])->name('editSurvey');
+Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei');
+Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei.filter');
 
 // Daftar Mitra
-Route::get('/daftarmitrabps', [MitraController::class, 'index'])->name('index');
+Route::get('/daftarMitra', [MitraController::class, 'index'])->name('index');
 Route::get('/mitras', [MitraController::class, 'index'])->name('mitras.filter');
 
 
