@@ -48,8 +48,7 @@ class MitraController extends Controller
         $mits = Mitra::with(['kecamatan', 'desa'])->findOrFail($id_mitra);
         $survei = MitraSurvei::with('survei')->where('id_mitra', $id_mitra)->get();
 
-        return view('profilMitra', compact('mits', 'survei'));
-
+        return view('mitrabps.profilMitra', compact('mits', 'survei'));
     }
 
 

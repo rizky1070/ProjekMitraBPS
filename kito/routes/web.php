@@ -332,8 +332,7 @@ Route::get('/daftarMitra', [MitraController::class, 'index'])->name('index');
 Route::get('/mitras', [MitraController::class, 'index'])->name('mitras.filter');
 
 //Halaman Mitra > Daftar Mitra > Profil Mitra
-Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profilMitra');
-
+Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profil.mitra');
 
 
 
