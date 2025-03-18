@@ -24,7 +24,8 @@ class Survei extends Model
         'lokasi_survei',
         'kro',
         'jadwal_kegiatan',
-        'status_survei'
+        'status_survei',
+        'tim'
     ];
 
     // Relasi dengan Provinsi

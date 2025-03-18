@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 use App\Models\Survei;
 use App\Models\Mitra;
 use Illuminate\Http\Request;
+use App\Models\Provinsi;
+use App\Models\Kabupaten;
 use App\Models\Kecamatan;
+use App\Models\Desa;
+
 
 class MitraController extends Controller
 {
@@ -33,9 +37,27 @@ class MitraController extends Controller
         // Daftar kecamatan untuk dropdown filter
         $kecamatans = Kecamatan::pluck('nama_kecamatan', 'id_kecamatan');
     
-        return view('mitrabps.daftarmitrabps', compact('mitras', 'kecamatans'));
+        return view('mitrabps.daftarMitra', compact('mitras', 'kecamatans'));
     }
     
+
+
+    public function profilMitra($id_mitra)
+    {
+        $mits = Mitra::with(['desa.kecamatan.kabupaten.provinsi']) // Pastikan relasi berurutan
+                    ->withCount('mitraSurvei')
+                    ->where('id_mitra', $id_mitra)
+                    ->get();
+
+        if ($mits->isEmpty()) {
+            abort(404, 'Mitra tidak ditemukan');
+        }
+
+        return view('mitrabps.profilMitra', compact('mits'));
+    }
+
+
+
 //     public function index(Request $request)
 // {
 //     $query = Mitra::with('kecamatan')->withCount('survei');

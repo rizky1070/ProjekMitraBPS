@@ -35,7 +35,7 @@
                 <x-navbar></x-navbar>
                 <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
                     <div class="container px-6 py-8 mx-auto">
-                        <h3 class="text-3xl font-medium text-gray-700">Daftar Survei</h3>
+                        <h3 class="text-3xl font-medium text-black">Daftar Survei</h3>
                         <div class="p-6">
                             <!-- Search Bar and Filter -->
                             <form action="{{ route('surveys.filter') }}" method="GET" class="flex justify-between items-center mb-4">
@@ -50,66 +50,69 @@
                                             <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $year }}</option>
                                         @endforeach
                                     </select>
+
+                                    <!-- Dropdown untuk memilih kecamatan -->
+                                    <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
+                                        <option value="">Pilih Kecamatan</option>
+                                        @foreach($kecamatans as $kecamatan)
+                                            <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
+                                        @endforeach
+                                    </select>
                             
                                     <!-- Tombol filter -->
                                     <button class="px-4 py-2 bg-orange rounded-md">Filter</button>
                                 </div>
+                                <button class="px-4 py-2 bg-orange rounded-md">+ Tambah</button>
                                 <!-- Menambahkan ml-auto untuk memindahkan tombol Tambah ke kanan -->
-                                <form action="{{ route('surveys.import') }}" method="POST" enctype="multipart/form-data" class="flex justify-between items-center mb-4">
+                                {{-- <form action="{{ route('surveys.import') }}" method="POST" enctype="multipart/form-data" class="flex justify-between items-center mb-4">
                                     @csrf
-                                    <div class="flex items-center space-x-4">
+                                    <div class="flex items-center space-x-4"> --}}
                                         <!-- Tombol tambah untuk input file excel -->
                                         {{-- <label for="excel_file" class="px-4 py-2 bg-orange text-black rounded-md ml-auto cursor-pointer">+ Tambah</label> --}}
                                         {{-- <input type="file" id="excel_file" name="excel_file" class="hidden" accept=".xlsx, .xls"> --}}
-                                        <input type="file" class="form-control @error('filexls') is-invalid @enderror" name="filexls">
+                                        {{-- <input type="file" class="form-control @error('filexls') is-invalid @enderror" name="filexls">
                                         @error('filexls')
                                             <p style="color: red;">{{ $message }}</p>
-                                        @enderror
-                                        <button class="btn btn-info" type="submit">tambah</button>
-                                    </div>
-                                </form>
+                                        @enderror --}}
+                                        {{-- <button cclass="px-4 py-2 bg-orange rounded-md">tambah</button> --}}
+                                    {{-- </div>
+                                </form> --}}
                                 {{-- <button class="px-4 py-2 bg-orange text-black rounded-md ml-auto">+ Tambah</button> --}}
                             </div>
 
                             <!-- List of Survei -->
                             <div class="space-y-4">
                                 @foreach($surveys as $survey)
-                                <div class="flex justify-between items-center p-4 border border-gray-300 rounded-md">
+                                <div class="flex justify-between  bg-white items-center p-4 border border-gray-300 rounded-md">
                                     <div>
                                         <h3 class="text-xl font-semibold">{{ $survey->nama_survei }}</h3>
-                                        <p class="text-gray-500">{{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}</p>
-                                        <p class="text-gray-500">Jadwal Kegiatan : {{ $survey->jadwal_kegiatan }}</p>
-                                        <p class="text-gray-500">Jumlah Mitra : {{ $survey->mitra_survei_count }}</p> <!-- Menampilkan jumlah mitra -->
+                                        <p class="text-gray-700">{{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}</p>
+                                        <p class="text-gray-700">Jadwal Kegiatan : {{ $survey->jadwal_kegiatan }}</p>
+                                        <p class="text-gray-700">Jumlah Mitra : {{ $survey->mitra_survei_count }}</p> <!-- Menampilkan jumlah mitra -->
                                     </div>
                                     <div class="flex flex-col items-end space-y-2">
                                         <!-- Menempatkan status survei di atas tombol -->
                                         <h3 class="text-xl font-semibold">
-                                            Status Survei : 
                                             @if($survey->status_survei == 1)
-                                                Belum Dikerjakan
+                                                <div class="bg-red-500 text-white rounded-md px-4 py-1">Belum Dikerjakan</div>
                                             @elseif($survey->status_survei == 2)
-                                                Sedang Dikerjakan
+                                                <div class="bg-yellow-300 text-white rounded-md px-4 py-1">Sedang Dikerjakan</div>
                                             @elseif($survey->status_survei == 3)
-                                                Telah Dikerjakan
+                                                <div class="bg-green-500 text-white rounded-md px-4 py-1">Sudah Dikerjakan</div>
                                             @else
                                                 Status Tidak Diketahui
                                             @endif
                                         </h3>
                                         <div class="flex space-x-4">
-                                            <button class="px-4 py-2 bg-orange text-black rounded-md">Edit</button>
-                                            <a href="/selectSurvey/{{ $survey->id_survei }}"  class="px-4 py-2 bg-orange text-black rounded-md">
-                                                Pilih
-                                            </a>
+                                            <a href="/editSurvei/{{ $survey->id_survei }}" class="px-4 py-2 bg-orange text-black rounded-md">Edit</a>
+                                            <a href="/pilihSurvei/{{ $survey->id_survei }}"  class="px-4 py-2 bg-orange text-black rounded-md">Pilih</a>
                                         </div>
                                     </div>
                                 </div>
                                 @endforeach
                             </div>
 
-                            <!-- Pagination -->
-                            <div class="flex justify-center mt-6">
-                                {{ $surveys->links() }}
-                            </div>
+                            @include('components.pagination', ['paginator' => $surveys])
                         </div>
 
                     </div>
