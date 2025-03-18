@@ -9,11 +9,9 @@
     <h1>two glasses of milk please</h1>
     @foreach($mits as $mit)
         <h2>id_mitra yang ditampilkan: {{ $mit->id_mitra }}</h2>
-        <h4>{{ $mit->nama_lengkap }}</h4>
-        <h4>{{ $mit->desa->nama_desa }}</h4>
-        <h4>{{ $mit->kecamatan->nama_kecamatan }}</h4>
-        <h4>{{ $mit->kabupaten->nama_kabupaten }}</h4>
-        <h4>{{ $mit->provinsi->nama_provinsi }}</h4>
+        <h4>Nama: {{ $mit->nama_lengkap }}</h4>
+        <h4>Alamat: {{ $mit->alamat_mitra }}, {{ $mit->desa->nama_desa }}</h4>
+        <h4>Domisili: {{ $mit->kecamatan->nama_kecamatan }}</h4>
     @endforeach
 </body>
 </html>
