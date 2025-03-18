@@ -172,37 +172,41 @@ class DaftarSurveiBpsController extends Controller
     {
             // Validasi file
         $request->validate([
-            'filexls' => 'required|mimes:xlsx,xls',
+            'excel_file' => 'required|mimes:xlsx,xls',
         ],[
-            'filexls.required' => 'File xls tidak boleh kosong',
+            'excel_file.required' => 'File xls tidak boleh kosong',
         ]);
 
+        Excel::import(new SurveiImport, $request->file('excel_file'));
+
+        return redirect()->route('mitrabps.daftarsurveibps')->with('success', 'Import Sukses');
+
         // Cek apakah file ada
-        $file = $request->file('filexls');
-        if (!$file) {
-            return redirect()->back()->with('error', 'File tidak ditemukan');
-        }
+        // $file = $request->file('filexls');
+        // if (!$file) {
+        //     return redirect()->back()->with('error', 'File tidak ditemukan');
+        // }
 
-        // Buat nama file baru dengan menambahkan timestamp
-        $filename = time() . '_' . $file->getClientOriginalName();
+        // // Buat nama file baru dengan menambahkan timestamp
+        // $filename = time() . '_' . $file->getClientOriginalName();
 
-        // Simpan file menggunakan Storage ke folder public/files
-        Storage::disk('public')->put('files/' . $filename, file_get_contents($file));
+        // // Simpan file menggunakan Storage ke folder public/files
+        // Storage::disk('public')->put('files/' . $filename, file_get_contents($file));
 
-        // Log nama file dan path untuk pengecekan
-        Log::info('File berhasil di-upload: ' . $filename);
-        Log::info('Path file: ' . storage_path("app/public/files/{$filename}"));
+        // // Log nama file dan path untuk pengecekan
+        // Log::info('File berhasil di-upload: ' . $filename);
+        // Log::info('Path file: ' . storage_path("app/public/files/{$filename}"));
 
-        // Import file menggunakan Excel
-        try {
-            Excel::import(new SurveiImport, storage_path("app/public/files/{$filename}"));
-        } catch (\Exception $e) {
-            Log::error('Error saat import: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Gagal mengimpor file');
-        }
+        // // Import file menggunakan Excel
+        // try {
+        //     Excel::import(new SurveiImport, storage_path("app/public/files/{$filename}"));
+        // } catch (\Exception $e) {
+        //     Log::error('Error saat import: ' . $e->getMessage());
+        //     return redirect()->back()->with('error', 'Gagal mengimpor file');
+        // }
 
-        return redirect('/survei')->with('success', 'Import Sukses');
-
+        // return redirect('/survei')->with('success', 'Import Sukses');
+    }
         //     // Validasi file
         // $request->validate([
         //     'filexls' => 'required|mimes:xlsx,xls',
@@ -268,7 +272,7 @@ class DaftarSurveiBpsController extends Controller
 
         
         // return redirect('/survei')->with('success', 'Import Sukses');
-    }
+
 
 
     // public function import(Request $request)

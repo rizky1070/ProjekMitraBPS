@@ -10,28 +10,33 @@ use App\Models\Provinsi;     // Import model Provinsi
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 
-class SurveiImport implements ToModel, WithStartRow
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Carbon\Carbon;
 
+class SurveiImport implements ToModel, WithHeadingRow
+// class SurveiImport implements ToModel, WithStartRow
 {
     public function model(array $row)
     {
         return new survei([
-           'nama_survei' => $row[4], // Nama survei
-            'id_desa' => $row[3],
-            'id_kecamatan' => $row[2],
-            'id_kabupaten' => $row[0],
-            'id_provinsi' => $row[1],
-            'lokasi_survei' => $row[5],
-            'kro' => $row[6], 
-            'jadwal_kegiatan' => $row[7],
-            'status_survei' => $row[8],
+           'nama_survei' => $row['nama_survei'], // Nama survei
+            'id_desa' => $row['kode_desa'],
+            'id_kecamatan' => $row['kode_kecamatan'],
+            'id_kabupaten' => $row['kode_kabupaten'],
+            'id_provinsi' => $row['kode_provinsi'],
+            'lokasi_survei' => $row['lokasi_survei'],
+            'kro' => $row['kro'], 
+            'jadwal_kegiatan' => Carbon::parse($row['jadwal_kegiatan']),
+            'status_survei' => $row['status_survei'],
+            'tim' => $row['tim']
         ]);
     }
 
-    public function startRow(): int
-    {
-        return 2;
-    }
+    // public function startRow(): int
+    // {
+    //     return 2;
+    // }
+
     // public function model(array $row)
     // {
 
@@ -41,7 +46,7 @@ class SurveiImport implements ToModel, WithStartRow
     //     $kecamatan = Kecamatan::where('kode_kecamatan', $row[1])->first(); // Sesuaikan dengan indeks kolom di Excel
     //     $kabupaten = Kabupaten::where('kode_kabupaten', $row[2])->first(); // Sesuaikan dengan indeks kolom di Excel
     //     $provinsi = Provinsi::where('kode_provinsi', $row[3])->first(); // Sesuaikan dengan indeks kolom di Excel
-        
+    
     //     // Memasukkan data ke tabel Survei
     //     return new Survei([
     //         'nama_survei' => $row[4], // Nama survei

@@ -306,7 +306,7 @@ Route::middleware('guest')->group(function () {
 });
 
 
-// MITRA BPS
+// Daftar MITRA BPS
 Route::get('/daftarsurveibps', [DaftarSurveiBpsController::class, 'index']);
 Route::get('/surveys', [DaftarSurveiBpsController::class, 'index']);
 Route::get('/surveys', [DaftarSurveiBpsController::class, 'index'])->name('surveys.filter');
