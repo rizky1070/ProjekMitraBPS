@@ -21,7 +21,12 @@ class Desa extends Model
     // Relasi dengan model lain, misalnya jika Desa memiliki banyak Mitra
     public function mitras()
     {
-        return $this->hasMany(Mitra::class, 'id_desa', 'id_desa');
+    return $this->hasMany(Mitra::class, 'id_desa', 'id_desa');
+    }
+    
+    public function kecamatan()
+    {
+        return $this->belongsTo(Kecamatan::class, 'id_kecamatan', 'id_kecamatan');
     }
 
     public function surveis()

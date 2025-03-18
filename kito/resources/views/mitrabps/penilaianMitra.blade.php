@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,28 +10,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="/Logo BPS.png" type="image/png">
-    <title>Mitra BPS</title>
+    <title>Daftar Survei BPS</title>
 </head>
+
 <body class="h-full">
-        <!-- SweetAlert Logic -->
+    <!-- SweetAlert Logic -->
     @if (session('success'))
-    <script>
-    swal("Success!", "{{ session('success') }}", "success");
-    </script>
+        <script>
+            swal("Success!", "{{ session('success') }}", "success");
+        </script>
     @endif
 
     @if ($errors->any())
-    <script>
-    swal("Error!", "{{ $errors->first() }}", "error");
-    </script>
+        <script>
+            swal("Error!", "{{ $errors->first() }}", "error");
+        </script>
     @endif
-        <!-- component -->
-        <div x-data="{ sidebarOpen: false }" class="flex h-screen">
-            <x-sidebar></x-sidebar>
-            CONTENT HERE
-        </div>
+
+    <!-- component -->
+     {{ $surMit->posisi_mitra }}
 </body>
+
 </html>

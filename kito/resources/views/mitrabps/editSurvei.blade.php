@@ -28,7 +28,7 @@
     @endif
     
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-        <a href="{{ url('/daftarsurveibps') }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
+        <a href="{{ url('/daftarSurvei') }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
             <
         </a>
         <div class="p-6">
@@ -39,25 +39,28 @@
                 <p><strong>Jadwal :</strong> {{ $survey->jadwal_kegiatan }}</p>
                 <p><strong>Tim :</strong> Pertanian</p>
                 <p><strong>KRO :</strong> {{ $survey->kro }} </p>
-                <div class="flex">
-                    <p><strong>Status :</strong><span class="font-bold">
+                <div class="flex items-center">
+                    <p>
+                        <strong>Status :</strong>
+                        <span class="font-bold">
                         @if($survey->status_survei == 1)
-                            Belum Dikerjakan
+                            <div class="bg-red-500 text-white rounded-md px-1 py-0.5 ml-2 mr-5 ">Belum Dikerjakan</div>
                         @elseif($survey->status_survei == 2)
-                            Sedang Dikerjakan
+                            <div class="bg-yellow-300 text-white rounded-md px-1 py-0.5 ml-2 mr-5 ">Sedang Dikerjakan</div>
                         @elseif($survey->status_survei == 3)
-                            Telah Dikerjakan
+                            <div class="bg-green-500 text-white rounded-md px-1 py-0.5 ml-2 mr-5 ">Sudah Dikerjakan</div>
                         @else
                             Status Tidak Diketahui
-                        @endif</span>
+                        @endif
+                        </span>
                     </p>
-                    <button type="" class="bg-orange text-white px-3 py-1 rounded">Ubah Status</button>
+                    <button type="" class="bg-orange text-black px-1 py-0.5 rounded">Ubah Status</button>
                 </div>
             </div>
 
             <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>
             <div class="bg-white p-4 rounded-lg shadow">
-                <form action="{{ route('selectSurvey.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="flex justify-between items-center mb-4">
+                <form action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="flex justify-between items-center mb-4">
                     <div class="flex items-center space-x-4">
                         <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
                         <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
@@ -81,15 +84,15 @@
                     </thead>
                     <tbody>
                         @foreach($mitras as $mitra)
-                        <tr>
+                        <tr class="bg-white hover:bg-gray-100">
                             <td class="border border-gray-300 p-2">{{ $mitra->nama_lengkap }}</td>
-                            <td class="border border-gray-300 p-2">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
+                            <td class="border border-gray-300 p-2 text-center">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
                             <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
                             <td class="border border-gray-300 p-2 text-center">
                                 @if ($mitra->isFollowingSurvey)
                                     <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
                                         @csrf
-                                        <button type="submit" class="bg-orange text-white px-3 py-1 rounded">Batal</button>
+                                        <button type="submit" class="bg-orange text-white px-3 py-1 rounded">Hapus</button>
                                     </form>
                                 @else
                                     <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
