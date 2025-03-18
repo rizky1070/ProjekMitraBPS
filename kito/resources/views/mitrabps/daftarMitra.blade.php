@@ -77,8 +77,8 @@
                                                 <td class="border border-gray-300 p-2">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
                                                 <td class="border border-gray-300 p-2">{{ $mitra->mitra_survei_count }}</td>
                                                 <td class="border border-gray-300 p-2">
-                                                    <button class="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600">Edit</button>
-                                                    <button class="bg-orange text-white px-3 py-1 rounded-md hover:bg-orange-600 ml-2">Lihat</button>
+                                                    <a class="px-4 py-2 bg-orange text-black rounded-md">{{ $mitra->id_mitra }}</a>
+                                                    <a href="/profilMitra/{{ $mitra->id_mitra }}"  class="px-4 py-2 bg-orange text-black rounded-md">Lihat</a>
                                                 </td>
                                             </tr>
                                             @endforeach
