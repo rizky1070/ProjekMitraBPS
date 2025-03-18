@@ -50,8 +50,9 @@
                 </tr>
             </thead>
             <tbody>
+                @foreach ($survei as $sur)
                 <tr class="border border-gray-300">
-                    <td class="p-2">Plan Valencia</td>
+                    <td class="p-2">{{ $sur->id_survei->nama_survei }}</td>
                     <td class="p-2">2024</td>
                     <td class="p-2">Solid, Solid, Solid!!</td>
                     <td class="p-2">
@@ -61,39 +62,7 @@
                         <button class="bg-orange-500 text-white px-4 py-1 rounded">Edit</button>
                     </td>
                 </tr>
-                <tr class="border border-gray-300">
-                    <td class="p-2">Plan Cameron</td>
-                    <td class="p-2">2024</td>
-                    <td class="p-2">Solid, Solid, Solid!!</td>
-                    <td class="p-2">
-                        ⭐⭐⭐⭐☆
-                    </td>
-                    <td class="p-2">
-                        <button class="bg-orange-500 text-white px-4 py-1 rounded">Edit</button>
-                    </td>
-                </tr>
-                <tr class="border border-gray-300">
-                    <td class="p-2">Plan Chernobyl</td>
-                    <td class="p-2">2024</td>
-                    <td class="p-2">Solid, Solid, Solid!!</td>
-                    <td class="p-2">
-                        ⭐⭐⭐☆☆
-                    </td>
-                    <td class="p-2">
-                        <button class="bg-orange-500 text-white px-4 py-1 rounded">Edit</button>
-                    </td>
-                </tr>
-                <tr class="border border-gray-300">
-                    <td class="p-2">Plan Alcatraz</td>
-                    <td class="p-2">2024</td>
-                    <td class="p-2">Solid, Solid, Solid!!</td>
-                    <td class="p-2">
-                        ⭐⭐⭐⭐⭐
-                    </td>
-                    <td class="p-2">
-                        <button class="bg-orange-500 text-white px-4 py-1 rounded">Edit</button>
-                    </td>
-                </tr>
+                @endforeach
             </tbody>
         </table>
     </div>

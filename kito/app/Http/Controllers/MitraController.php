@@ -8,6 +8,7 @@ use App\Models\Provinsi;
 use App\Models\Kabupaten;
 use App\Models\Kecamatan;
 use App\Models\Desa;
+use App\Models\MitraSurvei;
 
 
 class MitraController extends Controller
@@ -44,17 +45,14 @@ class MitraController extends Controller
 
     public function profilMitra($id_mitra)
     {
-        $mits = Mitra::with(['desa.kecamatan.kabupaten.provinsi']) // Pastikan relasi berurutan
-                    ->withCount('mitraSurvei')
-                    ->where('id_mitra', $id_mitra)
-                    ->get();
+        $mits = Mitra::with(['kecamatan', 'desa'])->findOrFail($id_mitra);
+        $survei = MitraSurvei::with('survei')->where('id_mitra', $id_mitra)->get();
 
-        if ($mits->isEmpty()) {
-            abort(404, 'Mitra tidak ditemukan');
-        }
+        return view('profilMitra', compact('mits', 'survei'));
 
-        return view('mitrabps.profilMitra', compact('mits'));
     }
+
+
 
 
 
