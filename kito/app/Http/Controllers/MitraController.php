@@ -51,6 +51,13 @@ class MitraController extends Controller
         return view('mitrabps.profilMitra', compact('mits', 'survei'));
     }
 
+    public function penilaianMitra($id_survei)
+    {
+        $surMit = MitraSurvei::with('survei')->where('id_survei', $id_survei)->first();
+
+        return view('mitrabps.penilaianMitra', compact('surMit'));
+    }
+
 
 
 

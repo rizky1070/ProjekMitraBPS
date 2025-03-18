@@ -55,7 +55,7 @@
                     <td class="p-2">{{ $sur->catatan }}</td>
                     <td class="p-2">{{ $sur->nilai }}</td>
                     <td class="p-2">
-                        <button class="bg-orange text-black px-4 py-1 rounded">Edit</button>
+                        <a href="/penilaianMitra/{{ $sur->survei->id_survei }}"  class="px-4 py-1 bg-orange text-white rounded-md">Edit</a>
                     </td>
                 </tr>
                 @endforeach

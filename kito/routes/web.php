@@ -334,6 +334,8 @@ Route::get('/mitras', [MitraController::class, 'index'])->name('mitras.filter');
 //Halaman Mitra > Daftar Mitra > Profil Mitra
 Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profil.mitra');
 
+//Halaman Mitra > Daftar Mitra > Penilaian Mitra
+Route::get('/penilaianMitra/{id_mitra_survei}', [MitraController::class, 'penilaianMitra'])->name('penilaian.mitra');
 
 
 require __DIR__ . '/auth.php';
