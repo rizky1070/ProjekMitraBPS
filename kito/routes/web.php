@@ -332,10 +332,13 @@ Route::get('/daftarMitra', [MitraController::class, 'index'])->name('index');
 Route::get('/mitras', [MitraController::class, 'index'])->name('mitras.filter');
 
 //Halaman Mitra > Daftar Mitra > Profil Mitra
-Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profil.mitra');
+Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profilMitra');
 
 //Halaman Mitra > Daftar Mitra > Penilaian Mitra
 Route::get('/penilaianMitra/{id_mitra_survei}', [MitraController::class, 'penilaianMitra'])->name('penilaian.mitra');
-
+Route::post('/simpan-penilaian', [MitraController::class, 'simpanPenilaian'])->name('simpan.penilaian');
+// Route::get('/penilaian-mitra', [PenilaianMitraController::class, 'index'])->name('penilaian.mitra');
+// Route::get('/penilaian-mitra/{id}', [PenilaianMitraController::class, 'show'])->name('penilaian.mitra.show');
+// Route::post('/penilaian-mitra/{id}', [PenilaianMitraController::class, 'store'])->name('penilaian.mitra.store');
 
 require __DIR__ . '/auth.php';

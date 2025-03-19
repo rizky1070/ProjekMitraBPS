@@ -12,6 +12,8 @@ class MitraSurvei extends Model
 
     protected $table = 'mitra_survei';
 
+    protected $primaryKey = 'id_mitra_survei';
+
     protected $fillable = [
         'id_mitra',
         'id_survei',
@@ -19,6 +21,8 @@ class MitraSurvei extends Model
         'catatan',
         'nilai',
     ];
+
+    public $timestamps = false; // Nonaktifkan fitur timestamps
 
     // Relasi dengan Mitra
     public function mitra()
