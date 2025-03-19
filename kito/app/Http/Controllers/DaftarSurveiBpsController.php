@@ -84,7 +84,7 @@ class DaftarSurveiBpsController extends Controller
         }
     
         // Pagination langsung di query
-        $mitras = $mitras->paginate(3);
+        $mitras = $mitras->paginate(10);
     
         // Ambil daftar kecamatan untuk dropdown
         $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
