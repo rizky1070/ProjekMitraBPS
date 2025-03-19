@@ -111,7 +111,6 @@
                                 </div>
                                 @endforeach
                             </div>
-
                             @include('components.pagination', ['paginator' => $surveys])
                         </div>
 

@@ -31,8 +31,14 @@
         </script>
     @endif
 
+    
+    <a href="/profilMitra/{{ $surMit->survei->id_survei }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
+        <
+    </a>
+
     <!-- component -->
-     {{ $surMit->posisi_mitra }}
+    {{ $surMit->posisi_mitra }}
+    {{ $surMit->nilai }}
 </body>
 
 </html>

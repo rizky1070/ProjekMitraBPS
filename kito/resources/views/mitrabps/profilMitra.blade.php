@@ -15,6 +15,9 @@
     <title>Profil Mitra</title>
 </head>
 <body>
+    <a href="{{ url('/daftarMitra') }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
+        <
+    </a>
     <div class="flex items-center mb-4">
         <img alt="Profile picture" class="w-24 h-24 rounded-full mr-4" 
             src="logo.png" width="100" height="100">
@@ -53,7 +56,11 @@
                     <td class="p-2">{{ $sur->survei->nama_survei }}</td> <!-- Perbaikan di sini -->
                     <td class="p-2">{{ $sur->survei->jadwal_kegiatan }}</td>
                     <td class="p-2">{{ $sur->catatan }}</td>
-                    <td class="p-2">{{ $sur->nilai }}</td>
+                    <?php
+                    $nilai = $sur->nilai;
+                    $nilaiOutput = str_repeat('⭐', $nilai);
+                    ?>
+                    <td class="p-2">{{ $nilaiOutput }}</td>
                     <td class="p-2">
                         <a href="/penilaianMitra/{{ $sur->survei->id_survei }}"  class="px-4 py-1 bg-orange text-white rounded-md">Edit</a>
                     </td>

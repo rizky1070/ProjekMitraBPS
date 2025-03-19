@@ -33,7 +33,7 @@ class MitraController extends Controller
         }
     
         // Pagination
-        $mitras = $mitras->paginate(10);
+        $mitras = $mitras->paginate(3);
     
         // Daftar kecamatan untuk dropdown filter
         $kecamatans = Kecamatan::pluck('nama_kecamatan', 'id_kecamatan');
