@@ -50,7 +50,7 @@
                         @elseif($survey->status_survei == 3)
                             <div class="bg-green-500 text-white rounded-md px-1 py-0.5 ml-2 mr-5">Sudah Dikerjakan</div>
                         @else
-                            Status Tidak Diketahui
+                            <span class="bg-gray-500 text-white rounded-md px-2 py-1 ml-2">Status Tidak Diketahui</span>
                         @endif
                     </span>
                 </p>

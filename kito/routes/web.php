@@ -318,6 +318,8 @@ Route::post('/surveys/import', [DaftarSurveiBpsController::class, 'import'])->na
 Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei');
 Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei.filter');
 Route::post('/survey/{id}/update-status', [DaftarSurveiBpsController::class, 'updateStatus'])->name('survey.updateStatus');
+Route::post('/survey/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController::class, 'toggleMitraSurvey'])->name('mitra.toggle');
+
 
 
 // Halaman Mitra
