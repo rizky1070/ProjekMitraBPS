@@ -314,16 +314,12 @@ Route::get('/surveys', [DaftarSurveiBpsController::class, 'index']);
 Route::get('/surveys', [DaftarSurveiBpsController::class, 'index'])->name('surveys.filter');
 Route::post('/surveys/import', [DaftarSurveiBpsController::class, 'import'])->name('surveys.import');
 
-// Halaman Survei > Daftar Survei > Tambah Survei
-Route::get('/add-survey/{id_survei}', [DaftarSurveiBpsController::class, 'tambahKeSurvei'])->name('tambahKeSurvei');
-Route::get('/pilihSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'tambahKeSurvei'])->name('pilihSurvei.filter');
-Route::post('/mitra/survei/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController::class, 'toggleMitraSurvey'])->name('mitra.toggle');
-Route::post('/upload-excel', [DaftarSurveiBpsController::class, 'uploadExcel'])->name('upload.excel');
-// Route::get('/mitrabps/inputmitrabps', [InputMitraBpsController::class, 'index']);
-
 // Halaman Survei > Daftar Survei > Edit Survei
 Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei');
 Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei.filter');
+Route::post('/survey/{id}/update-status', [DaftarSurveiBpsController::class, 'updateStatus'])->name('survey.updateStatus');
+Route::post('/survey/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController::class, 'toggleMitraSurvey'])->name('mitra.toggle');
+
 
 
 // Halaman Mitra

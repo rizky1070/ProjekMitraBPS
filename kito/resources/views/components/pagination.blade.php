@@ -14,7 +14,7 @@
         }
     </style>
     <nav aria-label="Page navigation example"
-        class="mt-6 py-4 px-16 flex w-min-[96] bg-white rounded-lg {{ $marginX ?? 'mx-4' }}">
+        class="mt-6 py-4 pr-16 flex w-min-[96] rounded-lg {{ $marginX ?? 'mx-4' }}">
         <ul class="flex items-center -space-x-px h-10 text-base">
             <li>
                 <a href="{{ $paginator->onFirstPage() ? '' : $paginator->previousPageUrl() }}" id="prev-btn"

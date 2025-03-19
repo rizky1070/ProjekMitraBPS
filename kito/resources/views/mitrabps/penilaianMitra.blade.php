@@ -31,6 +31,11 @@
         </script>
     @endif
 
+    
+    <a href="/profilMitra/{{ $surMit->survei->id_survei }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
+        <
+    </a>
+
     <!-- component -->
     <div class="max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-6">
 
