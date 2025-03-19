@@ -43,21 +43,20 @@
                     <p>
                         <strong>Status :</strong>
                         <span class="font-bold">
-                        @if($survey->status_survei == 1)
-                            <div class="bg-red-500 text-white rounded-md px-1 py-0.5 ml-2 mr-5 ">Belum Dikerjakan</div>
-                        @elseif($survey->status_survei == 2)
-                            <div class="bg-yellow-300 text-white rounded-md px-1 py-0.5 ml-2 mr-5 ">Sedang Dikerjakan</div>
-                        @elseif($survey->status_survei == 3)
-                            <div class="bg-green-500 text-white rounded-md px-1 py-0.5 ml-2 mr-5 ">Sudah Dikerjakan</div>
-                        @else
-                            Status Tidak Diketahui
-                        @endif
+                            @if($survey->status_survei == 1)
+                                <span class="bg-red-500 text-white rounded-md px-2 py-1 ml-2">Belum Dikerjakan</span>
+                            @elseif($survey->status_survei == 2)
+                                <span class="bg-yellow-300 text-black rounded-md px-2 py-1 ml-2">Sedang Dikerjakan</span>
+                            @elseif($survey->status_survei == 3)
+                                <span class="bg-green-500 text-white rounded-md px-2 py-1 ml-2">Sudah Dikerjakan</span>
+                            @else
+                                <span class="bg-gray-500 text-white rounded-md px-2 py-1 ml-2">Status Tidak Diketahui</span>
+                            @endif
                         </span>
                     </p>
-                    <button type="" class="bg-orange text-black px-1 py-0.5 rounded">Ubah Status</button>
+                    <button type="button" class="bg-orange text-black px-2 py-1 rounded ml-4">Ubah Status</button>
                 </div>
             </div>
-
             <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>
             <div class="bg-white p-4 rounded-lg shadow">
                 <form action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="flex justify-between items-center mb-4">
