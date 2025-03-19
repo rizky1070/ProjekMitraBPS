@@ -84,7 +84,7 @@ class DaftarSurveiBpsController extends Controller
         }
     
         // Pagination langsung di query
-        $mitras = $mitras->paginate(3);
+        $mitras = $mitras->paginate(10);
     
         // Ambil daftar kecamatan untuk dropdown
         $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
@@ -123,6 +123,17 @@ class DaftarSurveiBpsController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat mengunggah file.');
         }
     }
+
+
+        public function updateStatus(Request $request, $id_survei)
+    {
+        $survey = Survei::findOrFail($id_survei);
+        $survey->status_survei = $request->status_survei;
+        $survey->save();
+
+        return redirect()->back()->with('success', 'Status survei berhasil diperbarui!');
+    }
+
 
 
 

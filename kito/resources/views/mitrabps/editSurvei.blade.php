@@ -40,23 +40,54 @@
                 <p><strong>Tim :</strong> Pertanian</p>
                 <p><strong>KRO :</strong> {{ $survey->kro }} </p>
                 <div class="flex items-center">
-                    <p>
-                        <strong>Status :</strong>
-                        <span class="font-bold">
-                            @if($survey->status_survei == 1)
-                                <span class="bg-red-500 text-white rounded-md px-2 py-1 ml-2">Belum Dikerjakan</span>
-                            @elseif($survey->status_survei == 2)
-                                <span class="bg-yellow-300 text-black rounded-md px-2 py-1 ml-2">Sedang Dikerjakan</span>
-                            @elseif($survey->status_survei == 3)
-                                <span class="bg-green-500 text-white rounded-md px-2 py-1 ml-2">Sudah Dikerjakan</span>
-                            @else
-                                <span class="bg-gray-500 text-white rounded-md px-2 py-1 ml-2">Status Tidak Diketahui</span>
-                            @endif
-                        </span>
-                    </p>
-                    <button type="button" class="bg-orange text-black px-2 py-1 rounded ml-4">Ubah Status</button>
+                <p>
+                    <strong>Status :</strong>
+                    <span class="font-bold">
+                        @if($survey->status_survei == 1)
+                            <div class="bg-red-500 text-white rounded-md px-1 py-0.5 ml-2 mr-5">Belum Dikerjakan</div>
+                        @elseif($survey->status_survei == 2)
+                            <div class="bg-yellow-300 text-white rounded-md px-1 py-0.5 ml-2 mr-5">Sedang Dikerjakan</div>
+                        @elseif($survey->status_survei == 3)
+                            <div class="bg-green-500 text-white rounded-md px-1 py-0.5 ml-2 mr-5">Sudah Dikerjakan</div>
+                        @else
+                            <span class="bg-gray-500 text-white rounded-md px-2 py-1 ml-2">Status Tidak Diketahui</span>
+                        @endif
+                    </span>
+                </p>
+
+                <!-- Dropdown -->
+                <div class="relative inline-block text-left ml-4">
+                    <button type="button" class="bg-orange text-black px-2 py-1 rounded" onclick="toggleDropdown()">Ubah Status</button>
+
+                    <div id="dropdown" class="hidden absolute mt-2 bg-white border rounded shadow-lg z-10">
+                        <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
+                            @csrf
+                            <input type="hidden" name="status_survei" value="1">
+                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Belum Dikerjakan</button>
+                        </form>
+                        <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
+                            @csrf
+                            <input type="hidden" name="status_survei" value="2">
+                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sedang Dikerjakan</button>
+                        </form>
+                        <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
+                            @csrf
+                            <input type="hidden" name="status_survei" value="3">
+                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sudah Dikerjakan</button>
+                        </form>
+                    </div>
                 </div>
             </div>
+
+            <script>
+                function toggleDropdown() {
+                    var dropdown = document.getElementById("dropdown");
+                    dropdown.classList.toggle("hidden");
+                }
+            </script>
+
+            </div>
+
             <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>
             <div class="bg-white p-4 rounded-lg shadow">
                 <form action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="flex justify-between items-center mb-4">
