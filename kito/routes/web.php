@@ -324,6 +324,7 @@ Route::post('/upload-excel', [DaftarSurveiBpsController::class, 'uploadExcel'])-
 // Halaman Survei > Daftar Survei > Edit Survei
 Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei');
 Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei.filter');
+Route::post('/survey/{id}/update-status', [DaftarSurveiBpsController::class, 'updateStatus'])->name('survey.updateStatus');
 
 
 // Halaman Mitra

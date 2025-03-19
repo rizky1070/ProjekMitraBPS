@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Survei extends Model
 {
     use HasFactory;
+    public $timestamps = false; // Tambahkan ini!
+
 
     // Tentukan nama tabel jika berbeda dari nama model
     protected $table = 'survei';

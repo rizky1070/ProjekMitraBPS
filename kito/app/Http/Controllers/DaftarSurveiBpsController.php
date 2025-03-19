@@ -162,6 +162,17 @@ class DaftarSurveiBpsController extends Controller
     }
 
 
+        public function updateStatus(Request $request, $id_survei)
+    {
+        $survey = Survei::findOrFail($id_survei);
+        $survey->status_survei = $request->status_survei;
+        $survey->save();
+
+        return redirect()->back()->with('success', 'Status survei berhasil diperbarui!');
+    }
+
+
+
 
 
 
