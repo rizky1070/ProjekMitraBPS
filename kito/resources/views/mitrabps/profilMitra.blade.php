@@ -15,25 +15,26 @@
     <title>Profil Mitra</title>
 </head>
 <body>
-
-    <div class="max-w-4xl mx-auto p-4">
-        @foreach ($mits as $mit)
-        <div class="flex items-center mb-4">
-            <img alt="Profile picture" class="w-24 h-24 rounded-full mr-4" src="{{ $mit->profile_picture }}" width="100" height="100">
-            <div>
-                <h1 class="text-2xl font-bold">Profil Mitra</h1>
-                <h2 class="text-xl">{{ $mit->nama_lengkap }}</h2>
-            </div>
+    <a href="{{ url('/daftarMitra') }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
+        <
+    </a>
+    <div class="flex items-center mb-4">
+        <img alt="Profile picture" class="w-24 h-24 rounded-full mr-4" 
+            src="logo.png" width="100" height="100">
+        <div>
+            <h1 class="text-2xl font-bold">Profil Mitra</h1>
+            <h2 class="text-xl">{{ $mits->nama_lengkap }}</h2>
         </div>
-
-        <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-                <p><strong>Domisili : {{ $mit->kecamatan->nama_kecamatan }}</strong></p>
-                <p><strong>Alamat Detail : {{ $mit->alamat_mitra }}, {{ $mit->desa->nama_desa }}</strong></p>
-            </div>
-        </div>
-        @endforeach
     </div>
+
+    <div class="grid grid-cols-2 gap-4 mb-4">
+        <div>
+            <p><strong>Domisili : {{ $mits->kecamatan->nama_kecamatan }}</strong></p>
+            <p><strong>Alamat Detail : {{ $mits->alamat_mitra }}, {{ $mits->desa->nama_desa }}</strong></p>
+        </div>
+    </div>
+
+
 
     <!-- Tabel Survei -->
     <div class="max-w-4xl mx-auto p-4">
@@ -52,14 +53,16 @@
             <tbody>
                 @foreach ($survei as $sur)
                 <tr class="border border-gray-300">
-                    <td class="p-2">{{ $sur->id_survei->nama_survei }}</td>
-                    <td class="p-2">2024</td>
-                    <td class="p-2">Solid, Solid, Solid!!</td>
+                    <td class="p-2">{{ $sur->survei->nama_survei }}</td> <!-- Perbaikan di sini -->
+                    <td class="p-2">{{ $sur->survei->jadwal_kegiatan }}</td>
+                    <td class="p-2">{{ $sur->catatan }}</td>
+                    <?php
+                    $nilai = $sur->nilai;
+                    $nilaiOutput = str_repeat('⭐', $nilai);
+                    ?>
+                    <td class="p-2">{{ $nilaiOutput }}</td>
                     <td class="p-2">
-                        ⭐⭐⭐⭐⭐
-                    </td>
-                    <td class="p-2">
-                        <button class="bg-orange-500 text-white px-4 py-1 rounded">Edit</button>
+                        <a href="/penilaianMitra/{{ $sur->survei->id_survei }}"  class="px-4 py-1 bg-orange text-white rounded-md">Edit</a>
                     </td>
                 </tr>
                 @endforeach
@@ -68,4 +71,5 @@
     </div>
 
 </body>
+<!-- ⭐⭐⭐⭐⭐ -->
 </html>

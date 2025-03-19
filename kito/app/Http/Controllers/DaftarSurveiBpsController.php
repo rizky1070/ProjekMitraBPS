@@ -50,85 +50,48 @@ class DaftarSurveiBpsController extends Controller
         return view('mitrabps.daftarSurvei', compact('surveys', 'availableYears', 'kecamatans'));
     }
     
-    public function tambahKeSurvei(Request $request, $id_survei)
-    {
-        // Ambil data survei berdasarkan ID
-        $survey = Survei::with('kecamatan')
-            ->where('id_survei', $id_survei)
-            ->firstOrFail();
 
-        // Query untuk daftar mitra dengan relasi jumlah survei
-        $mitras = Mitra::with('kecamatan')
-            ->withCount('mitraSurvei');
-
-        // Filter berdasarkan kecamatan jika dipilih
-        if ($request->filled('kecamatan')) {
-            $mitras->where('id_kecamatan', $request->kecamatan);
-        }
-
-        // Filter berdasarkan pencarian nama mitra
-        if ($request->filled('search')) {
-            $mitras->where('nama_lengkap', 'like', '%' . $request->search . '%');
-        }
-
-        // Eksekusi query
-        $mitras = $mitras->get();
-
-        // Ambil daftar kecamatan untuk dropdown
-        $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
-
-        foreach ($mitras as $mitra) {
-            // Menambahkan properti isFollowingSurvey secara dinamis
-            $mitra->setAttribute('isFollowingSurvey', $mitra->mitraSurvei->contains('id_survei', $id_survei));
-        }
-
-        // Urutkan agar mitra yang mengikuti survei tampil di atas
-        $mitras = $mitras->sortByDesc(fn($mitra) => $mitra->isFollowingSurvey ? 1 : 0);
-
-        return view('mitrabps.pilihSurvei', compact('survey', 'mitras', 'kecamatans'));
-    }
-
+    
 
 
     public function editSurvei(Request $request, $id_survei)
     {
-        // Ambil data survei berdasarkan ID
+        // Ambil data survei berdasarkan ID dan pastikan status_survei ada dalam query
         $survey = Survei::with('kecamatan')
+            ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan')
             ->where('id_survei', $id_survei)
             ->firstOrFail();
-
-        // Query untuk daftar mitra dengan relasi jumlah survei
+    
+        // Query daftar mitra
         $mitras = Mitra::with('kecamatan')
-            ->withCount('mitraSurvei');
-
+            ->leftJoin('mitra_survei', function ($join) use ($id_survei) {
+                $join->on('mitra.id_mitra', '=', 'mitra_survei.id_mitra');
+            })
+            ->select('mitra.*')
+            ->selectRaw('COUNT(mitra_survei.id_survei) as mitra_survei_count') // Hitung jumlah survei
+            ->selectRaw('IF(SUM(mitra_survei.id_survei = ?), 1, 0) as isFollowingSurvey', [$id_survei]) // Cek apakah mitra mengikuti survei tertentu
+            ->groupBy('mitra.id_mitra') // Diperlukan agar COUNT() berfungsi
+            ->orderByDesc('isFollowingSurvey');
+    
         // Filter berdasarkan kecamatan jika dipilih
         if ($request->filled('kecamatan')) {
             $mitras->where('id_kecamatan', $request->kecamatan);
         }
-
+    
         // Filter berdasarkan pencarian nama mitra
         if ($request->filled('search')) {
             $mitras->where('nama_lengkap', 'like', '%' . $request->search . '%');
         }
-
-        // Eksekusi query
-        $mitras = $mitras->get();
-
+    
+        // Pagination langsung di query
+        $mitras = $mitras->paginate(3);
+    
         // Ambil daftar kecamatan untuk dropdown
         $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
-
-        // Tambahkan status apakah mitra sudah mengikuti survei
-        foreach ($mitras as $mitra) {
-            // Menambahkan properti isFollowingSurvey secara dinamis
-            $mitra->setAttribute('isFollowingSurvey', $mitra->mitraSurvei->contains('id_survei', $id_survei));
-        }
-        
-
-        // Urutkan agar mitra yang mengikuti survei tampil di atas
-        $mitras = $mitras->sortByDesc(fn($mitra) => $mitra->isFollowingSurvey ? 1 : 0);
-
+    
         return view('mitrabps.editSurvei', compact('survey', 'mitras', 'kecamatans'));
     }
+    
 
 
     public function toggleMitraSurvey($id_survei, $id_mitra)
@@ -183,37 +146,41 @@ class DaftarSurveiBpsController extends Controller
     {
             // Validasi file
         $request->validate([
-            'filexls' => 'required|mimes:xlsx,xls',
+            'excel_file' => 'required|mimes:xlsx,xls',
         ],[
-            'filexls.required' => 'File xls tidak boleh kosong',
+            'excel_file.required' => 'File xls tidak boleh kosong',
         ]);
 
+        Excel::import(new SurveiImport, $request->file('excel_file'));
+
+        return redirect()->route('mitrabps.daftarsurveibps')->with('success', 'Import Sukses');
+
         // Cek apakah file ada
-        $file = $request->file('filexls');
-        if (!$file) {
-            return redirect()->back()->with('error', 'File tidak ditemukan');
-        }
+        // $file = $request->file('filexls');
+        // if (!$file) {
+        //     return redirect()->back()->with('error', 'File tidak ditemukan');
+        // }
 
-        // Buat nama file baru dengan menambahkan timestamp
-        $filename = time() . '_' . $file->getClientOriginalName();
+        // // Buat nama file baru dengan menambahkan timestamp
+        // $filename = time() . '_' . $file->getClientOriginalName();
 
-        // Simpan file menggunakan Storage ke folder public/files
-        Storage::disk('public')->put('files/' . $filename, file_get_contents($file));
+        // // Simpan file menggunakan Storage ke folder public/files
+        // Storage::disk('public')->put('files/' . $filename, file_get_contents($file));
 
-        // Log nama file dan path untuk pengecekan
-        Log::info('File berhasil di-upload: ' . $filename);
-        Log::info('Path file: ' . storage_path("app/public/files/{$filename}"));
+        // // Log nama file dan path untuk pengecekan
+        // Log::info('File berhasil di-upload: ' . $filename);
+        // Log::info('Path file: ' . storage_path("app/public/files/{$filename}"));
 
-        // Import file menggunakan Excel
-        try {
-            Excel::import(new SurveiImport, storage_path("app/public/files/{$filename}"));
-        } catch (\Exception $e) {
-            Log::error('Error saat import: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Gagal mengimpor file');
-        }
+        // // Import file menggunakan Excel
+        // try {
+        //     Excel::import(new SurveiImport, storage_path("app/public/files/{$filename}"));
+        // } catch (\Exception $e) {
+        //     Log::error('Error saat import: ' . $e->getMessage());
+        //     return redirect()->back()->with('error', 'Gagal mengimpor file');
+        // }
 
-        return redirect('/survei')->with('success', 'Import Sukses');
-
+        // return redirect('/survei')->with('success', 'Import Sukses');
+    }
         //     // Validasi file
         // $request->validate([
         //     'filexls' => 'required|mimes:xlsx,xls',
@@ -279,7 +246,7 @@ class DaftarSurveiBpsController extends Controller
 
         
         // return redirect('/survei')->with('success', 'Import Sukses');
-    }
+
 
 
     // public function import(Request $request)
