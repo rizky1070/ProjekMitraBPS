@@ -27,6 +27,7 @@ class DaftarSurveiBpsController extends Controller
         
         // Query untuk mengambil data survei
         $surveys = Survei::with('kecamatan')
+                         ->orderBy('status_survei', 'asc')
                          ->withCount('mitraSurvei'); // Pastikan relasi dengan mitraSurvei sudah benar
     
         // Filter berdasarkan tahun jika ada parameter tahun
@@ -56,12 +57,12 @@ class DaftarSurveiBpsController extends Controller
 
     public function editSurvei(Request $request, $id_survei)
     {
-        // Ambil data survei berdasarkan ID dan pastikan status_survei ada dalam query
+        // Ambil data survei berdasarkan ID
         $survey = Survei::with('kecamatan')
             ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan')
             ->where('id_survei', $id_survei)
             ->firstOrFail();
-    
+
         // Query daftar mitra
         $mitras = Mitra::with('kecamatan')
             ->leftJoin('mitra_survei', function ($join) use ($id_survei) {
@@ -71,26 +72,29 @@ class DaftarSurveiBpsController extends Controller
             ->selectRaw('COUNT(mitra_survei.id_survei) as mitra_survei_count') // Hitung jumlah survei
             ->selectRaw('IF(SUM(mitra_survei.id_survei = ?), 1, 0) as isFollowingSurvey', [$id_survei]) // Cek apakah mitra mengikuti survei tertentu
             ->groupBy('mitra.id_mitra') // Diperlukan agar COUNT() berfungsi
-            ->orderByDesc('isFollowingSurvey');
-    
+            ->orderByDesc('isFollowingSurvey') // Prioritaskan mitra yang mengikuti survei
+            ->orderByRaw('mitra.id_kecamatan = ? DESC', [$survey->id_kecamatan]); // Lalu prioritaskan mitra dari kecamatan survei
+
         // Filter berdasarkan kecamatan jika dipilih
         if ($request->filled('kecamatan')) {
-            $mitras->where('id_kecamatan', $request->kecamatan);
+            $mitras->where('mitra.id_kecamatan', $request->kecamatan);
         }
-    
+
         // Filter berdasarkan pencarian nama mitra
         if ($request->filled('search')) {
-            $mitras->where('nama_lengkap', 'like', '%' . $request->search . '%');
+            $mitras->where('mitra.nama_lengkap', 'like', '%' . $request->search . '%');
         }
-    
+
         // Pagination langsung di query
         $mitras = $mitras->paginate(10);
-    
+
         // Ambil daftar kecamatan untuk dropdown
         $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
-    
+
         return view('mitrabps.editSurvei', compact('survey', 'mitras', 'kecamatans'));
     }
+
+
     
 
 

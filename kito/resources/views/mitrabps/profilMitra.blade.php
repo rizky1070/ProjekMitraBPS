@@ -50,6 +50,7 @@
             </thead>
             <tbody>
                 @foreach ($survei as $sur)
+                @if($sur->survei->status_survei==3)
                 <tr class="border border-gray-300">
                     <td class="p-2">{{ $sur->survei->nama_survei }}</td> <!-- Perbaikan di sini -->
                     <td class="p-2">{{ $sur->survei->jadwal_kegiatan }}</td>
@@ -63,6 +64,7 @@
                         <a href="/penilaianMitra/{{ $sur->survei->id_survei }}"  class="px-4 py-1 bg-orange text-white rounded-md">Edit</a>
                     </td>
                 </tr>
+                @endif
                 @endforeach
             </tbody>
         </table>
