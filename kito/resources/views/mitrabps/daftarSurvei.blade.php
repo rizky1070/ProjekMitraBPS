@@ -104,7 +104,7 @@
                                             @endif
                                         </h3>
                                         <div class="flex space-x-4">
-                                            <a href="/editSurvei/{{ $survey->id_survei }}" class="px-4 py-2 bg-orange text-black rounded-md">Pilij</a>
+                                            <a href="/editSurvei/{{ $survey->id_survei }}" class="px-4 py-2 bg-orange text-black rounded-md">Pilih</a>
                                         </div>
                                     </div>
                                 </div>
