@@ -57,9 +57,16 @@ class DaftarSurveiBpsController extends Controller
             ->where('id_survei', $id_survei)
             ->firstOrFail();
 
-        // Query untuk daftar mitra dengan relasi jumlah survei
+        // Query daftar mitra
         $mitras = Mitra::with('kecamatan')
-            ->withCount('mitraSurvei');
+            ->leftJoin('mitra_survei', function ($join) use ($id_survei) {
+                $join->on('mitra.id_mitra', '=', 'mitra_survei.id_mitra');
+            })
+            ->select('mitra.*')
+            ->selectRaw('COUNT(mitra_survei.id_survei) as mitra_survei_count') // Hitung jumlah survei
+            ->selectRaw('IF(SUM(mitra_survei.id_survei = ?), 1, 0) as isFollowingSurvey', [$id_survei]) // Cek apakah mitra mengikuti survei tertentu
+            ->groupBy('mitra.id_mitra') // Diperlukan agar COUNT() berfungsi
+            ->orderByDesc('isFollowingSurvey'); // Sorting agar yang ikut survei tampil di atas
 
         // Filter berdasarkan kecamatan jika dipilih
         if ($request->filled('kecamatan')) {
@@ -71,23 +78,16 @@ class DaftarSurveiBpsController extends Controller
             $mitras->where('nama_lengkap', 'like', '%' . $request->search . '%');
         }
 
-        // Eksekusi query
-        $mitras = $mitras->get();
+        // Pagination langsung di query
+        $mitras = $mitras->paginate(3);
 
         // Ambil daftar kecamatan untuk dropdown
         $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
 
-        foreach ($mitras as $mitra) {
-            // Menambahkan properti isFollowingSurvey secara dinamis
-            $mitra->setAttribute('isFollowingSurvey', $mitra->mitraSurvei->contains('id_survei', $id_survei));
-        }
-
-        // Urutkan agar mitra yang mengikuti survei tampil di atas
-        $mitras = $mitras->sortByDesc(fn($mitra) => $mitra->isFollowingSurvey ? 1 : 0);
-
         return view('mitrabps.pilihSurvei', compact('survey', 'mitras', 'kecamatans'));
     }
 
+    
 
 
     public function editSurvei(Request $request, $id_survei)
@@ -97,9 +97,16 @@ class DaftarSurveiBpsController extends Controller
             ->where('id_survei', $id_survei)
             ->firstOrFail();
 
-        // Query untuk daftar mitra dengan relasi jumlah survei
+        // Query daftar mitra
         $mitras = Mitra::with('kecamatan')
-            ->withCount('mitraSurvei');
+            ->leftJoin('mitra_survei', function ($join) use ($id_survei) {
+                $join->on('mitra.id_mitra', '=', 'mitra_survei.id_mitra');
+            })
+            ->select('mitra.*')
+            ->selectRaw('COUNT(mitra_survei.id_survei) as mitra_survei_count') // Hitung jumlah survei
+            ->selectRaw('IF(SUM(mitra_survei.id_survei = ?), 1, 0) as isFollowingSurvey', [$id_survei]) // Cek apakah mitra mengikuti survei tertentu
+            ->groupBy('mitra.id_mitra') // Diperlukan agar COUNT() berfungsi
+            ->orderByDesc('isFollowingSurvey'); // Sorting agar yang ikut survei tampil di atas
 
         // Filter berdasarkan kecamatan jika dipilih
         if ($request->filled('kecamatan')) {
@@ -111,23 +118,13 @@ class DaftarSurveiBpsController extends Controller
             $mitras->where('nama_lengkap', 'like', '%' . $request->search . '%');
         }
 
-        // Eksekusi query
-        $mitras = $mitras->get();
+        // Pagination langsung di query
+        $mitras = $mitras->paginate(3);
 
         // Ambil daftar kecamatan untuk dropdown
         $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
 
-        // Tambahkan status apakah mitra sudah mengikuti survei
-        foreach ($mitras as $mitra) {
-            // Menambahkan properti isFollowingSurvey secara dinamis
-            $mitra->setAttribute('isFollowingSurvey', $mitra->mitraSurvei->contains('id_survei', $id_survei));
-        }
-        
-
-        // Urutkan agar mitra yang mengikuti survei tampil di atas
-        $mitras = $mitras->sortByDesc(fn($mitra) => $mitra->isFollowingSurvey ? 1 : 0);
-
-        return view('mitrabps.editSurvei', compact('survey', 'mitras', 'kecamatans'));
+        return view('mitrabps.pilihSurvei', compact('survey', 'mitras', 'kecamatans'));
     }
 
 

@@ -106,6 +106,7 @@
                     </tbody>
                 </table>
             </div>
+            @include('components.pagination', ['paginator' => $mitras])
         </div>
     </main>
 </body>
