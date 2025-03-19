@@ -18,19 +18,17 @@
     <a href="{{ url('/daftarMitra') }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
         <
     </a>
-    <div class="flex items-center mb-4">
-        <img alt="Profile picture" class="w-24 h-24 rounded-full mr-4" 
-            src="logo.png" width="100" height="100">
-        <div>
+    <div class="flex items-center my-4 pl-10">
+        <div class="flex flex-col justify-center items-center text-center">
             <h1 class="text-2xl font-bold">Profil Mitra</h1>
+            <img alt="Profile picture" class="w-24 h-24 rounded-full border-4 border-gray-500 mr-4" src="proflie.png" width="100" height="100">
             <h2 class="text-xl">{{ $mits->nama_lengkap }}</h2>
         </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-4 mb-4">
-        <div>
-            <p><strong>Domisili : {{ $mits->kecamatan->nama_kecamatan }}</strong></p>
-            <p><strong>Alamat Detail : {{ $mits->alamat_mitra }}, {{ $mits->desa->nama_desa }}</strong></p>
+        <div class="pl-5"> 
+            <p><strong>Domisili :</strong> {{ $mits->kecamatan->nama_kecamatan }}</p>
+            <p><strong>Alamat Detail :</strong> {{ $mits->alamat_mitra }}, {{ $mits->desa->nama_desa }}</p>
+            <p><strong>Nomor Handphone :</strong> +62</p>
+            <p><strong>Email :</strong> www.email.com</p>       
         </div>
     </div>
 
