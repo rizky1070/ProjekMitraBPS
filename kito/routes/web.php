@@ -319,7 +319,7 @@ Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSu
 Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei.filter');
 Route::post('/survey/{id}/update-status', [DaftarSurveiBpsController::class, 'updateStatus'])->name('survey.updateStatus');
 Route::post('/survey/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController::class, 'toggleMitraSurvey'])->name('mitra.toggle');
-Route::post('/upload-excel', [DaftarSurveiBpsController::class, 'uploadExcel'])->name('upload.excel');
+Route::post('/upExcelMitra2Survey/{id_survei}', [DaftarSurveiBpsController::class, 'upExcelMitra2Survey'])->name('upload.excel');
 
 
 

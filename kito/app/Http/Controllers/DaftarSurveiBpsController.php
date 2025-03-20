@@ -7,6 +7,7 @@ use App\Models\Kecamatan;
 use App\Models\MitraSurvei;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\Mitra2SurveyImport;
 use App\Imports\SurveiImport;
 use Exception; // Untuk menangani error
 use Illuminate\Support\Facades\Log;
@@ -113,19 +114,15 @@ class DaftarSurveiBpsController extends Controller
         return redirect()->back();
     }
 
-    public function uploadExcel(Request $request)
+    public function upExcelMitra2Survey(Request $request, $id_survei)
     {
         $request->validate([
             'file' => 'required|mimes:xlsx,xls'
-        ]);
-
-        try {
-            Excel::import(new SurveiImport, $request->file('file'));
-            return redirect()->back()->with('success', 'Data berhasil diunggah!');
-        } catch (Exception $e) {
-            Log::error('Error saat mengunggah file: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengunggah file.');
-        }
+        ]);    
+    
+        Excel::import(new mitra2SurveyImport($id_survei), $request->file('file'));
+    
+        return redirect()->back()->with('success', 'Mitra berhasil diimport ke survei');
     }
 
 

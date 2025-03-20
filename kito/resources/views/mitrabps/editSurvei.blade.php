@@ -144,7 +144,7 @@
     <div id="uploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
         <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <h2 class="text-xl font-bold mb-4">Unggah File Excel</h2>
-            <form action="{{ route('upload.excel') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('upload.excel', ['id_survei' => $survey->id_survei]) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="file" name="file" accept=".xlsx, .xls" class="border p-2 w-full">
                 <div class="flex justify-end mt-4">
