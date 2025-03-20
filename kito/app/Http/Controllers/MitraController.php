@@ -45,14 +45,29 @@ class MitraController extends Controller
 
 
 
-    public function profilMitra($id_mitra)
+    public function profilMitra(Request $request, $id_mitra)
     {
         $mits = Mitra::with(['kecamatan', 'desa'])->findOrFail($id_mitra);
-        $survei = MitraSurvei::with('survei')->where('id_mitra', $id_mitra)->get();
-
+    
+        $query = MitraSurvei::with('survei')->where('id_mitra', $id_mitra);
+    
+        // Cek apakah ada input pencarian
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->whereHas('survei', function ($q) use ($search) {
+                $q->where('nama_survei', 'LIKE', "%$search%");
+            });
+        }
+    
+        $survei = $query->get()
+            ->sortByDesc(fn($item) => optional($item->survei)->jadwal_kegiatan) // Urutkan jadwal_kegiatan DESC
+            ->sortByDesc(fn($item) => is_null($item->nilai)); // Pastikan NULL berada di atas
+    
         return view('mitrabps.profilMitra', compact('mits', 'survei'));
     }
-
+    
+    
+    
     public function penilaianMitra($id_survei)
     {
         $surMit = MitraSurvei::with(['survei.kecamatan','mitra']) // Menarik data survei dan kecamatan

@@ -17,7 +17,7 @@
     <title>Daftar Survei BPS</title>
 </head>
 
-<body class="h-full">
+<body class="h-full bg-gray-200">
     <!-- SweetAlert Logic -->
     @if (session('success'))
         <script>
@@ -37,62 +37,60 @@
     </a>
 
     <!-- component -->
-    <div class="max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-6">
+    <main class="max-w-4xl mx-auto bg-gray-200">
 
-    <div class="flex justify-between items-start"> <!-- Membuat tampilan dua kolom dengan jarak -->
-        
-        <!-- Kiri: Profil Mitra -->
-        <div class="w-1/3 text-center mr-auto"> <!-- Menjauhkan dari kanan -->
-            <h2 class="text-xl font-bold mb-4">Profil Mitra</h2> <!-- Judul di atas -->
-            <img alt="Profile picture" class="w-24 h-24 rounded-full mr-4" 
-            src="logo.png" width="100" height="100">            
-            <h2 class="text-lg font-semibold mt-2">{{ $surMit->mitra->nama_lengkap ?? '-' }}</h2> <!-- Nama mitra di bawah foto -->
-        </div>
-
-        <!-- Kanan: Detail Mitra -->
-        <div class="w-2/3 border-l pl-10 ml-auto"> <!-- Memberi jarak lebih besar dari kiri -->
-            <div class="grid grid-cols-2 gap-4 text-sm"> <!-- Menambah gap agar lebih rapi -->
-                <span class="font-semibold">Survei / Sensus:</span>
-                <span>{{ $surMit->survei->nama_survei ?? '-' }}</span>
-                <span class="font-semibold">Kecamatan:</span>
-                <span>{{ $surMit->survei->kecamatan->nama_kecamatan ?? '-' }}</span>
-                <span class="font-semibold">Lokasi:</span>
-                <span>{{ $surMit->survei->lokasi_survei ?? '-' }}</span>
-                <span class="font-semibold">Posisi:</span>
-                <span>{{ $surMit->posisi_mitra ?? '-' }}</span>
-                <span class="font-semibold">Jadwal:</span>
-                <span>{{ $surMit->survei->jadwal_kegiatan ?? '-' }}</span>
-            </div>
-        </div>
-
-    </div>
-
-
-        <div class="p-4 border rounded-lg shadow-md w-1000 mx-auto">
-            <form class="w-1000" action="{{ route('simpan.penilaian') }}" method="POST">
-                @csrf
-                <input type="hidden" name="id_mitra_survei" value="{{ $surMit->id_mitra_survei }}">
-
-                <!-- Rating Bintang -->
-                <div class="flex justify-center mb-4">
-                    @for ($i = 1; $i <= 5; $i++)
-                        <button type="button" class="star text-4xl focus:outline-none" data-value="{{ $i }}">★</button>
-                    @endfor
+        <div class="flex justify-between items-center max-w-4xl mx-auto mt-4"> <!-- Membuat tampilan dua kolom dengan jarak -->
+            
+            <!-- Kiri: Profil Mitra -->
+            <div class="max-w-4xl mx-auto mt-4 w-full">
+                <h1 class="text-2xl font-bold">Profil Mitra</h1>
+            <div class="flex items-center bg-white my-4 px-10 py-5 rounded-lg shadow w-full">
+                <div class="flex flex-col justify-center items-center text-center">
+                    <img alt="Profile picture" class="w-24 h-24 rounded-full border-4 border-gray-500 mr-4" src="proflie.png" width="100" height="100">
+                    <h2 class="text-xl">{{ $surMit->mitra->nama_lengkap }}</h2>
                 </div>
-                <input type="hidden" name="nilai" id="rating" value="0">
+                <div class="pl-5 w-full"> 
+                    <p><strong>Survei / Sensus : </strong>{{ $surMit->survei->nama_survei ?? '-' }}</p>
+                    <p><strong>Kecamatan : </strong>{{ $surMit->survei->kecamatan->nama_kecamatan ?? '-' }}</p>
+                    <p><strong>Lokasi : </strong>{{ $surMit->survei->lokasi_survei ?? '-' }}</p>
+                    <p><strong>Posisi : </strong>{{ $surMit->posisi_mitra ?? '-' }}</p>
+                    <p><strong>Jadwal : </strong>{{ $surMit->survei->jadwal_kegiatan ?? '-' }}</p>       
+                </div>
+            </div>
+            </div>
 
-                <!-- Catatan -->
-                <label class="block text-lg font-semibold text-center">Catatan:</label>
-                <textarea name="catatan"
-                    class="w-full mt-2 p-3 border rounded-lg text-gray-600 focus:ring focus:ring-yellow-400"
-                    placeholder="Catatan untuk mitra" rows="4"></textarea>
+        </div>
 
-                <!-- Tombol Tambah -->
-                <button type="submit"
-                    class="w-full bg-orange text-white font-semibold py-2 rounded-lg mt-4 hover:bg-orange-500 transition">
-                    Tambah
-                </button>
-            </form>
+        <div>  
+            <h1 class="text-2xl font-bold my-4">Penilaian</h1>
+            <div class="p-4 bg-white border rounded-lg shadow-md mx-auto">
+                <form class="w-1000" action="{{ route('simpan.penilaian') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="id_mitra_survei" value="{{ $surMit->id_mitra_survei }}">
+
+                    <!-- Rating Bintang -->
+                    <div class="flex justify-center mb-4">
+                        @for ($i = 1; $i <= 5; $i++)
+                            <button type="button" class="star text-4xl focus:outline-none" data-value="{{ $i }}">★</button>
+                        @endfor
+                    </div>
+                    <input type="hidden" name="nilai" id="rating" value="0">
+
+                    <!-- Catatan -->
+                    <label class="block text-lg font-semibold text-center">Catatan:</label>
+                    <textarea name="catatan"
+                        class="w-full mt-2 p-3 border rounded-lg text-gray-600 focus:ring focus:ring-yellow-400"
+                        placeholder="Catatan untuk mitra" rows="4"></textarea>
+
+                    <!-- Tombol Tambah -->
+                    <div class="flex justify-center">
+                        <button type="submit"
+                            class="w-full max-w-[150px] bg-orange text-white font-semibold py-2 rounded-lg mt-4">
+                            Tambah
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- Script untuk Interaksi Rating -->
@@ -112,7 +110,7 @@
                 });
             });
         </script>
-    </div>
+    </main>
 
 
 </body>
