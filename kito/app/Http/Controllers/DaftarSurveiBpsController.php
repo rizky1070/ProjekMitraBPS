@@ -72,10 +72,6 @@ class DaftarSurveiBpsController extends Controller
     }
     
 
-    
-
-    
-
 
     public function editSurvei(Request $request, $id_survei)
     {
@@ -117,9 +113,6 @@ class DaftarSurveiBpsController extends Controller
     }
 
 
-    
-
-
     public function toggleMitraSurvey($id_survei, $id_mitra)
     {
         $survey = Survei::findOrFail($id_survei);
@@ -146,7 +139,6 @@ class DaftarSurveiBpsController extends Controller
         return redirect()->back()->with('success', 'Mitra berhasil diimport ke survei');
     }
 
-
         public function updateStatus(Request $request, $id_survei)
     {
         $survey = Survei::findOrFail($id_survei);
@@ -155,13 +147,6 @@ class DaftarSurveiBpsController extends Controller
 
         return redirect()->back()->with('success', 'Status survei berhasil diperbarui!');
     }
-
-
-
-
-
-
-
 
 
     public function import(Request$request) 

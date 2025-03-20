@@ -264,12 +264,11 @@
 
             <div class="dropdown-container {{ $isDropdownMitraActive ? 'block' : 'hidden' }}">
                 @if (auth()->user()->is_admin)
-                    <!-- Admin - Daftar Izin dan Histori Izin -->
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('/inputmitrabps') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarSurvei') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/daftarSurvei">
                         <span class="mx-3">Daftar Survei</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('izinkeluarhistori') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/daftarMitra">
                         <span class="mx-3">Daftar Mitra</span>
                     </a>
