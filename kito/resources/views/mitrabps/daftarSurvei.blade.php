@@ -51,6 +51,14 @@
                                         @endforeach
                                     </select>
 
+                                    <!-- Dropdown untuk memilih bulan -->
+                                    <select name="bulan" class="px-4 py-2 border border-gray-300 rounded-md">
+                                        <option value="">Pilih Bulan</option>
+                                        @foreach(['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'] as $month => $monthName)
+                                            <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
+                                        @endforeach
+                                    </select>
+
                                     <!-- Dropdown untuk memilih kecamatan -->
                                     <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
                                         <option value="">Pilih Kecamatan</option>
@@ -63,21 +71,6 @@
                                     <button class="px-4 py-2 bg-orange rounded-md">Filter</button>
                                 </div>
                                 <button class="px-4 py-2 bg-orange rounded-md">+ Tambah</button>
-                                <!-- Menambahkan ml-auto untuk memindahkan tombol Tambah ke kanan -->
-                                {{-- <form action="{{ route('surveys.import') }}" method="POST" enctype="multipart/form-data" class="flex justify-between items-center mb-4">
-                                    @csrf
-                                    <div class="flex items-center space-x-4"> --}}
-                                        <!-- Tombol tambah untuk input file excel -->
-                                        {{-- <label for="excel_file" class="px-4 py-2 bg-orange text-black rounded-md ml-auto cursor-pointer">+ Tambah</label> --}}
-                                        {{-- <input type="file" id="excel_file" name="excel_file" class="hidden" accept=".xlsx, .xls"> --}}
-                                        {{-- <input type="file" class="form-control @error('filexls') is-invalid @enderror" name="filexls">
-                                        @error('filexls')
-                                            <p style="color: red;">{{ $message }}</p>
-                                        @enderror --}}
-                                        {{-- <button cclass="px-4 py-2 bg-orange rounded-md">tambah</button> --}}
-                                    {{-- </div>
-                                </form> --}}
-                                {{-- <button class="px-4 py-2 bg-orange text-black rounded-md ml-auto">+ Tambah</button> --}}
                             </div>
 
                             <!-- List of Survei -->
@@ -89,6 +82,18 @@
                                         <p class="text-gray-700">{{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}</p>
                                         <p class="text-gray-700">Jadwal Kegiatan : {{ $survey->jadwal_kegiatan }}</p>
                                         <p class="text-gray-700">Jumlah Mitra : {{ $survey->mitra_survei_count }}</p> <!-- Menampilkan jumlah mitra -->
+                                        <!-- Menampilkan nama mitra yang mengikuti lebih dari satu survei di bulan yang dipilih -->
+                                        @if($survey->mitraSurvei->isNotEmpty())
+                                            @foreach($survey->mitraSurvei as $mitra)
+                                                <!-- Cek apakah mitra terdaftar dalam mitraWithMultipleSurveysInMonth -->
+                                                @if($mitraWithMultipleSurveysInMonth->contains('id_mitra', $mitra->id_mitra))
+                                                <p class="text-gray-700">Mitra yang mengikuti lebih dari 1 survei di bulan ini : 
+                                                    <span class="text-gray-700">{{ $mitra->nama_lengkap }}</span>@if(!$loop->last), @endif
+                                                </p>
+                                                @endif
+                                            @endforeach
+                                        @endif
+
                                     </div>
                                     <div class="flex flex-col items-end space-y-2">
                                         <!-- Menempatkan status survei di atas tombol -->
