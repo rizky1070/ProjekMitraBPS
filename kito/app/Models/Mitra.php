@@ -13,6 +13,8 @@ class Mitra extends Model
 
     protected $primaryKey = 'id_mitra'; // Menggunakan id_survei sebagai primary key
 
+    public $timestamps = false;
+
     protected $fillable = [
         'id_kecamatan',
         'id_kabupaten',
