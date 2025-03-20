@@ -1,6 +1,5 @@
 @if ($paginator instanceof Illuminate\Pagination\LengthAwarePaginator && $paginator->hasPages())
     <style>
-
         #prev-btn {
             @media (max-width: 640px) {
                 margin-right: 1rem;
@@ -17,7 +16,7 @@
         class="mt-6 py-4 pr-16 flex w-min-[96] rounded-lg {{ $marginX ?? 'mx-4' }}">
         <ul class="flex items-center -space-x-px h-10 text-base">
             <li>
-                <a href="{{ $paginator->onFirstPage() ? '' : $paginator->previousPageUrl() }}" id="prev-btn"
+                <a href="{{ $paginator->onFirstPage() ? '' : $paginator->previousPageUrl() . '&' . http_build_query(Arr::except(request()->query(), 'page')) }}" id="prev-btn"
                     class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem]  mx-[0.3rem] py-2 {{ $paginator->onFirstPage() ? 'hidden' : '' }}">
                     Previous
                 </a>
@@ -31,7 +30,7 @@
                     </li>
                 @else
                     <li>
-                        <a href="{{ $paginator->url($pages) }}"
+                        <a href="{{ $paginator->url($pages) . '&' . http_build_query(Arr::except(request()->query(), 'page')) }}"
                             class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem]  mx-[0.3rem] py-2 visiblePageNum">
                             {{ $pages }}</a>
                     </li>
@@ -39,7 +38,7 @@
             @endforeach
 
             <li>
-                <a href="{{ $paginator->onLastPage() ? '' : $paginator->nextPageUrl() }}"
+                <a href="{{ $paginator->onLastPage() ? '' : $paginator->nextPageUrl() . '&' . http_build_query(Arr::except(request()->query(), 'page')) }}"
                     class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem]  mx-[0.3rem] py-2 {{ $paginator->onLastPage() ? 'hidden' : '' }}">
                     Next
                 </a>

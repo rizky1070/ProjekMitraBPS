@@ -83,16 +83,25 @@
                                         <p class="text-gray-700">Jadwal Kegiatan : {{ $survey->jadwal_kegiatan }}</p>
                                         <p class="text-gray-700">Jumlah Mitra : {{ $survey->mitra_survei_count }}</p> <!-- Menampilkan jumlah mitra -->
                                         <!-- Menampilkan nama mitra yang mengikuti lebih dari satu survei di bulan yang dipilih -->
-                                        @if($survey->mitraSurvei->isNotEmpty())
-                                            @foreach($survey->mitraSurvei as $mitra)
-                                                <!-- Cek apakah mitra terdaftar dalam mitraWithMultipleSurveysInMonth -->
-                                                @if($mitraWithMultipleSurveysInMonth->contains('id_mitra', $mitra->id_mitra))
-                                                <p class="text-gray-700">Mitra yang mengikuti lebih dari 1 survei di bulan ini : 
-                                                    <span class="text-gray-700">{{ $mitra->nama_lengkap }}</span>@if(!$loop->last), @endif
-                                                </p>
-                                                @endif
-                                            @endforeach
+                                        @if(isset($mitraWithMultipleSurveysInMonth) && $survey->mitraSurvei->isNotEmpty())
+                                            @php
+                                                // Ambil semua id_mitra dari $mitraWithMultipleSurveysInMonth
+                                                $mitraIds = $mitraWithMultipleSurveysInMonth->pluck('id_mitra');
+
+                                                // Mengumpulkan nama mitra yang mengikuti lebih dari satu survei di bulan ini
+                                                $mitraNames = $survey->mitraSurvei->filter(function($mitra) use ($mitraIds) {
+                                                    return $mitraIds->contains($mitra->id_mitra);
+                                                })->pluck('nama_lengkap')->toArray();
+
+                                                // Gabungkan nama mitra menjadi string, jika ada
+                                                $mitraText = count($mitraNames) > 0 ? implode(', ', $mitraNames) : '';
+                                            @endphp
+
+                                            @if($mitraText)
+                                                <p class="text-gray-700">Mitra yang mengikuti lebih dari 1 survei di bulan ini : {{ $mitraText }}</p>
+                                            @endif
                                         @endif
+
 
                                     </div>
                                     <div class="flex flex-col items-end space-y-2">
