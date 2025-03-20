@@ -66,7 +66,7 @@ class DaftarSurveiBpsController extends Controller
             ->get(); // Dapatkan semua data mitra yang mengikuti lebih dari satu survei pada bulan ini
 
         // Menampilkan data survei dengan paginasi
-        $surveys = $surveys->paginate(3); 
+        $surveys = $surveys->paginate(10); 
 
         return view('mitrabps.daftarSurvei', compact('surveys', 'availableYears', 'kecamatans', 'mitraWithMultipleSurveysInMonth', 'bulan'));
     }
@@ -107,7 +107,7 @@ class DaftarSurveiBpsController extends Controller
         }
 
         // Pagination langsung di query
-        $mitras = $mitras->paginate(2);
+        $mitras = $mitras->paginate(10);
 
         // Ambil daftar kecamatan untuk dropdown
         $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
