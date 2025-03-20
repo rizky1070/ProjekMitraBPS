@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="/Logo BPS.png" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+
     <title>Daftar Survei BPS</title>
 </head>
 <body class="h-full">
@@ -38,40 +40,105 @@
                         <h3 class="text-3xl font-medium text-black">Daftar Survei</h3>
                         <div class="p-6">
                             <!-- Search Bar and Filter -->
-                            <form action="{{ route('surveys.filter') }}" method="GET" class="flex justify-between items-center mb-4">
-                                <div class="flex items-center space-x-4">
-                                    <!-- Input untuk search -->
-                                    <input type="text" name="search" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
-
-                                    <!-- Dropdown untuk memilih tahun -->
-                                    <select name="tahun" class="px-4 py-2 border border-gray-300 rounded-md">
-                                        <option value="">Pilih Tahun</option>
-                                        @foreach($availableYears as $year)
-                                            <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $year }}</option>
-                                        @endforeach
-                                    </select>
-
-                                    <!-- Dropdown untuk memilih bulan -->
-                                    <select name="bulan" class="px-4 py-2 border border-gray-300 rounded-md">
-                                        <option value="">Pilih Bulan</option>
-                                        @foreach(['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'] as $month => $monthName)
-                                            <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
-                                        @endforeach
-                                    </select>
-
-                                    <!-- Dropdown untuk memilih kecamatan -->
-                                    <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
-                                        <option value="">Pilih Kecamatan</option>
-                                        @foreach($kecamatans as $kecamatan)
-                                            <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
-                                        @endforeach
-                                    </select>
-                            
-                                    <!-- Tombol filter -->
-                                    <button class="px-4 py-2 bg-orange rounded-md">Filter</button>
+                            <div x-data="{ isOpen: false }">
+                                <!-- Tombol untuk membuka modal -->
+                                <div class="flex justify-between items-center mb-4">
+                                    <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                        Filter
+                                    </button>
+                                    <button class="px-4 py-2 bg-orange rounded-md">+ Tambah</button>
                                 </div>
-                                <button class="px-4 py-2 bg-orange rounded-md">+ Tambah</button>
+                            
+                                <!-- Modal -->
+                                <div x-show="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                                    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+                                        <h2 class="text-xl font-bold mb-6 text-gray-800">Filter</h2>
+                            
+                                        <!-- Form Filter -->
+                                        <form action="{{ route('surveys.filter') }}" method="GET" class="space-y-4">
+                                            <!-- Dropdown untuk memilih nama survei -->
+                                            <div>
+                                                <select name="nama_survei" id="nama_survei" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                    <option value="">Pilih Nama Survei</option>
+                                                    @foreach($namaSurvei as $survei)
+                                                        <option value="{{ $survei->nama_survei }}" @if(request('nama_survei') == $survei->nama_survei) selected @endif>{{ $survei->nama_survei }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                            
+                                            <!-- Dropdown untuk memilih tahun -->
+                                            <div>
+                                                <select name="tahun" id="tahun" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                    <option value="">Pilih Tahun</option>
+                                                    @foreach($availableYears as $year)
+                                                        <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $year }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                            
+                                            <!-- Dropdown untuk memilih bulan -->
+                                            <div>
+                                                <select name="bulan" id="bulan" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                    <option value="">Pilih Bulan</option>
+                                                    @foreach(['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'] as $month => $monthName)
+                                                        <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                            
+                                            <!-- Dropdown untuk memilih kecamatan -->
+                                            <div>
+                                                <select name="kecamatan" id="kecamatan" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                    <option value="">Pilih Kecamatan</option>
+                                                    @foreach($kecamatans as $kecamatan)
+                                                        <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                            
+                                            <!-- Tombol Apply Filter -->
+                                            <button type="submit" class="w-full px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                                Apply Filter
+                                            </button>
+                                        </form>
+                            
+                                        <!-- Tombol untuk menutup modal -->
+                                        <button @click="isOpen = false" class="mt-4 w-full px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition duration-300">
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                                
                             </div>
+                        </div>
+                        <!-- JavaScript Tom Select -->
+                        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+                        <!-- Inisialisasi Tom Select -->
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+
+                                new TomSelect('#tahun', {
+                                placeholder: 'Pilih Tahun',
+                                searchField: 'text',
+                                });
+
+                                new TomSelect('#bulan', {
+                                    placeholder: 'Pilih Bulan',
+                                    searchField: 'text',
+                                });
+
+                                new TomSelect('#kecamatan', {
+                                    placeholder: 'Pilih Kecamatan',
+                                    searchField: 'text',
+                                });
+
+                                new TomSelect('#nama_survei', {
+                                    placeholder: 'Pilih Survei',
+                                    searchField: 'text',
+                                });
+
+                            });
+                        </script>
 
                             <!-- List of Survei -->
                             <div class="space-y-4">

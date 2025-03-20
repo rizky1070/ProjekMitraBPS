@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="/Logo BPS.png" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+
     <title>Input Mitra BPS</title>
 </head>
 <body class="h-full">
@@ -90,19 +92,75 @@
 
             <h3 class="text-xl font-bold mt-6 mb-4">Daftar Mitra</h3>
             <div class="bg-white p-4 rounded-lg shadow">
-                <form action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="flex justify-between items-center mb-4">
-                    <div class="flex items-center space-x-4">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
-                        <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
-                            <option value="">Pilih Kecamatan</option>
-                            @foreach($kecamatans as $kecamatan)
-                                <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
-                            @endforeach
-                        </select>
-                        <button type="submit" class="px-4 py-2 bg-orange rounded-md">Filter</button>
+                <div x-data="{ isOpen: false }">
+                    <!-- Form untuk Filter dan Tombol Tambah -->
+                    <div class="flex justify-between items-center mb-4">
+                        <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                            Filter
+                        </button>
+                        <button class="px-4 py-2 bg-orange rounded-md">+ Tambah</button>
                     </div>
-                    <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
-                </form>
+                
+                    <!-- Modal untuk Filter -->
+                    <div x-show="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+                            <h2 class="text-xl font-bold mb-6 text-gray-800">Filter</h2>
+                
+                            <!-- Form Filter di dalam Modal -->
+                            <form action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="space-y-4">
+
+                                <!-- Dropdown untuk memilih mitra -->
+                                <div>
+                                    <select id="mitra"  name="mitra" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                        <option value="">Pilih Mitra</option>
+                                        @foreach($mitrasForDropdown as $mitra)
+                                            <option value="{{ $mitra->id_mitra }}" @if(request('mitra') == $mitra->id_mitra) selected @endif>{{ $mitra->nama_lengkap }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                
+                                <!-- Dropdown untuk memilih kecamatan -->
+                                <div>
+                                    <select id="kecamatan"  name="kecamatan" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                        <option value="">Pilih Kecamatan</option>
+                                        @foreach($kecamatans as $kecamatan)
+                                            <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                
+                                <!-- Tombol Apply Filter -->
+                                <button type="submit" class="w-full px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                    Apply Filter
+                                </button>
+                            </form>
+                
+                            <!-- Tombol untuk menutup modal -->
+                            <button @click="isOpen = false" class="mt-4 w-full px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition duration-300">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- JavaScript Tom Select -->
+                <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+                <!-- Inisialisasi Tom Select -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+
+                        new TomSelect('#kecamatan', {
+                            placeholder: 'Pilih Kecamatan',
+                            searchField: 'text',
+                        });
+
+                        new TomSelect('#mitra', {
+                            placeholder: 'Pilih Mitra',
+                            searchField: 'text',
+                        });
+                    });
+                </script>
+                
 
                 <table class="w-full border-collapse border border-gray-300">
                     <thead>
