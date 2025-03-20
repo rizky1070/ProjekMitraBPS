@@ -7,6 +7,7 @@ use App\Models\Kecamatan;
 use App\Models\MitraSurvei;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\Mitra2SurveyImport;
 use App\Imports\SurveiImport;
 use Exception; // Untuk menangani error
 use Illuminate\Support\Facades\Log;
@@ -71,85 +72,51 @@ class DaftarSurveiBpsController extends Controller
     }
 
     
-    public function tambahKeSurvei(Request $request, $id_survei)
-    {
-        // Ambil data survei berdasarkan ID
-        $survey = Survei::with('kecamatan')
-            ->where('id_survei', $id_survei)
-            ->firstOrFail();
 
-        // Query untuk daftar mitra dengan relasi jumlah survei
-        $mitras = Mitra::with('kecamatan')
-            ->withCount('mitraSurvei');
-
-        // Filter berdasarkan kecamatan jika dipilih
-        if ($request->filled('kecamatan')) {
-            $mitras->where('id_kecamatan', $request->kecamatan);
-        }
-
-        // Filter berdasarkan pencarian nama mitra
-        if ($request->filled('search')) {
-            $mitras->where('nama_lengkap', 'like', '%' . $request->search . '%');
-        }
-
-        // Eksekusi query
-        $mitras = $mitras->get();
-
-        // Ambil daftar kecamatan untuk dropdown
-        $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
-
-        foreach ($mitras as $mitra) {
-            // Menambahkan properti isFollowingSurvey secara dinamis
-            $mitra->setAttribute('isFollowingSurvey', $mitra->mitraSurvei->contains('id_survei', $id_survei));
-        }
-
-        // Urutkan agar mitra yang mengikuti survei tampil di atas
-        $mitras = $mitras->sortByDesc(fn($mitra) => $mitra->isFollowingSurvey ? 1 : 0);
-
-        return view('mitrabps.pilihSurvei', compact('survey', 'mitras', 'kecamatans'));
-    }
-
+    
 
 
     public function editSurvei(Request $request, $id_survei)
     {
         // Ambil data survei berdasarkan ID
         $survey = Survei::with('kecamatan')
+            ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan')
             ->where('id_survei', $id_survei)
             ->firstOrFail();
 
-        // Query untuk daftar mitra dengan relasi jumlah survei
+        // Query daftar mitra
         $mitras = Mitra::with('kecamatan')
-            ->withCount('mitraSurvei');
+            ->leftJoin('mitra_survei', function ($join) use ($id_survei) {
+                $join->on('mitra.id_mitra', '=', 'mitra_survei.id_mitra');
+            })
+            ->select('mitra.*')
+            ->selectRaw('COUNT(mitra_survei.id_survei) as mitra_survei_count') // Hitung jumlah survei
+            ->selectRaw('IF(SUM(mitra_survei.id_survei = ?), 1, 0) as isFollowingSurvey', [$id_survei]) // Cek apakah mitra mengikuti survei tertentu
+            ->groupBy('mitra.id_mitra') // Diperlukan agar COUNT() berfungsi
+            ->orderByDesc('isFollowingSurvey') // Prioritaskan mitra yang mengikuti survei
+            ->orderByRaw('mitra.id_kecamatan = ? DESC', [$survey->id_kecamatan]); // Lalu prioritaskan mitra dari kecamatan survei
 
         // Filter berdasarkan kecamatan jika dipilih
         if ($request->filled('kecamatan')) {
-            $mitras->where('id_kecamatan', $request->kecamatan);
+            $mitras->where('mitra.id_kecamatan', $request->kecamatan);
         }
 
         // Filter berdasarkan pencarian nama mitra
         if ($request->filled('search')) {
-            $mitras->where('nama_lengkap', 'like', '%' . $request->search . '%');
+            $mitras->where('mitra.nama_lengkap', 'like', '%' . $request->search . '%');
         }
 
-        // Eksekusi query
-        $mitras = $mitras->get();
+        // Pagination langsung di query
+        $mitras = $mitras->paginate(10);
 
         // Ambil daftar kecamatan untuk dropdown
         $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
 
-        // Tambahkan status apakah mitra sudah mengikuti survei
-        foreach ($mitras as $mitra) {
-            // Menambahkan properti isFollowingSurvey secara dinamis
-            $mitra->setAttribute('isFollowingSurvey', $mitra->mitraSurvei->contains('id_survei', $id_survei));
-        }
-        
-
-        // Urutkan agar mitra yang mengikuti survei tampil di atas
-        $mitras = $mitras->sortByDesc(fn($mitra) => $mitra->isFollowingSurvey ? 1 : 0);
-
         return view('mitrabps.editSurvei', compact('survey', 'mitras', 'kecamatans'));
     }
+
+
+    
 
 
     public function toggleMitraSurvey($id_survei, $id_mitra)
@@ -167,20 +134,27 @@ class DaftarSurveiBpsController extends Controller
         return redirect()->back();
     }
 
-    public function uploadExcel(Request $request)
+    public function upExcelMitra2Survey(Request $request, $id_survei)
     {
         $request->validate([
             'file' => 'required|mimes:xlsx,xls'
-        ]);
-
-        try {
-            Excel::import(new SurveiImport, $request->file('file'));
-            return redirect()->back()->with('success', 'Data berhasil diunggah!');
-        } catch (Exception $e) {
-            Log::error('Error saat mengunggah file: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengunggah file.');
-        }
+        ]);    
+    
+        Excel::import(new mitra2SurveyImport($id_survei), $request->file('file'));
+    
+        return redirect()->back()->with('success', 'Mitra berhasil diimport ke survei');
     }
+
+
+        public function updateStatus(Request $request, $id_survei)
+    {
+        $survey = Survei::findOrFail($id_survei);
+        $survey->status_survei = $request->status_survei;
+        $survey->save();
+
+        return redirect()->back()->with('success', 'Status survei berhasil diperbarui!');
+    }
+
 
 
 

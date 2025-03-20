@@ -28,77 +28,67 @@
     </script>
     @endif
         <!-- component -->
-        <div x-data="{ sidebarOpen: false }" class="flex h-screen">
-            <x-sidebar></x-sidebar>
-            <div class="flex flex-col flex-1 overflow-hidden">
-                <x-navbar></x-navbar>
-                <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-                    <div class="container px-6 py-8 mx-auto">
+    <div x-data="{ sidebarOpen: false }" class="flex h-screen">
+        <x-sidebar></x-sidebar>
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <x-navbar></x-navbar>
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
+                <div class="container px-6 py-8 mx-auto">
                         <!-- Title -->
-                        <h3 class="text-3xl font-medium text-black">Daftar Mitra</h3>
-                        <div class="p-6">
+                    <h3 class="text-3xl font-medium text-black">Daftar Mitra</h3>
+                    <div class="p-6">
                         <!-- Search Bar -->
-                            <form action="{{ route('mitras.filter') }}" method="GET" class="flex justify-between items-center mb-4">
-                                <div class="flex items-center space-x-4">
+                        <form action="{{ route('mitras.filter') }}" method="GET" class="flex justify-between items-center mb-4">
+                            <div class="flex items-center space-x-4">
                                     <!-- Input untuk search -->
-                                    <input type="text" name="search" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
+                                <input type="text" name="search" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
                             <!-- Filter Kecamatan -->
-                                    <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
-                                        <option value="">Semua Kecamatan</option>
-                                        @foreach($kecamatans as $id => $nama)
-                                        <option value="{{ $nama }}" {{ request('kecamatan') == $nama ? 'selected' : '' }}>
-                                            {{ $nama }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                    <!-- Tombol Filter -->
-                                    <button type="submit" class="px-4 py-2 bg-orange text-black rounded-md">Filter</button>
-                                </div>
+                                <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
+                                <option value="">Semua Kecamatan</option>
+                                @foreach($kecamatans as $id => $nama)
+                                <option value="{{ $nama }}" {{ request('kecamatan') == $nama ? 'selected' : '' }}>
+                                    {{ $nama }}
+                                </option>
+                                @endforeach
+                            </select>
+                                <!-- Tombol Filter -->
+                            <button type="submit" class="px-4 py-2 bg-orange text-black rounded-md">Filter</button>
+                            </div>
                                 <!-- Menambahkan ml-auto untuk memindahkan tombol Tambah ke kanan -->
-                                <div class="flex items-center space-x-4">
-                                    <button class="btn btn-info" type="submit">tambah</button>
-                                </div>
-                            </form>
-                        </div>  
-                        <!-- Table -->
-                                <div class="overflow-x-auto">
-                                    <table class="w-full border-collapse border border-gray-300">
-                                        <thead>
-                                            <tr class="bg-gray-100">
-                                                <th class="border border-gray-300 p-2">Nama Mitra</th>
-                                                <th class="border border-gray-300 p-2">Domisili</th>
-                                                <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
-                                                <th class="border border-gray-300 p-2">Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($mitras as $mitra)
-                                            <tr class="bg-white hover:bg-gray-100">
-                                                <td class="border border-gray-300 p-2">{{ $mitra->nama_lengkap }}</td>
-                                                <td class="border border-gray-300 p-2 text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
-                                                <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
-                                                <td class="border border-gray-300 p-2 text-center">
-                                                    <a href="/profilMitra/{{ $mitra->id_mitra }}"  class="px-4 py-1 bg-orange text-white rounded-md">Lihat</a>
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                            
-                                        </tbody>
-                                    </table>
-                                </div>
-                            
-                        <!-- Pagination -->
-                        <div class="flex justify-center mt-6">
-                            <button class="bg-orange text-white px-3 py-1 rounded-md hover:bg-orange-600">1</button>
-                            <button class="bg-gray-300 text-gray-700 px-3 py-1 rounded-md ml-2">2</button>
-                            <button class="bg-gray-300 text-gray-700 px-3 py-1 rounded-md ml-2">3</button>
-                            <button class="bg-gray-300 text-gray-700 px-3 py-1 rounded-md ml-2">4</button>
-                            <button class="bg-gray-300 text-gray-700 px-3 py-1 rounded-md ml-2">5</button>
-                        </div>
-
+                            <div class="flex items-center space-x-4">
+                                <button class="btn btn-info" type="submit">tambah</button>
+                            </div>
+                        </form>
+                    </div>  
+            <!-- Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-gray-300">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="border border-gray-300 p-2">Nama Mitra</th>
+                                    <th class="border border-gray-300 p-2">Domisili</th>
+                                    <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
+                                    <th class="border border-gray-300 p-2">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($mitras as $mitra)
+                                <tr class="bg-white hover:bg-gray-100">
+                                    <td class="border border-gray-300 p-2">{{ $mitra->nama_lengkap }}</td>
+                                    <td class="border border-gray-300 p-2 text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
+                                    <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
+                                    <td class="border border-gray-300 p-2 text-center">
+                                        <a href="/profilMitra/{{ $mitra->id_mitra }}"  class="px-4 py-1 bg-orange text-white rounded-md">Lihat</a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
-                </main>
-            </div>
+                    @include('components.pagination', ['paginator' => $mitras])
+                </div>
+            </main>
         </div>
+    </div>
 </body>
 </html>

@@ -314,16 +314,13 @@ Route::get('/surveys', [DaftarSurveiBpsController::class, 'index']);
 Route::get('/surveys', [DaftarSurveiBpsController::class, 'index'])->name('surveys.filter');
 Route::post('/surveys/import', [DaftarSurveiBpsController::class, 'import'])->name('surveys.import');
 
-// Halaman Survei > Daftar Survei > Tambah Survei
-Route::get('/add-survey/{id_survei}', [DaftarSurveiBpsController::class, 'tambahKeSurvei'])->name('tambahKeSurvei');
-Route::get('/pilihSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'tambahKeSurvei'])->name('pilihSurvei.filter');
-Route::post('/mitra/survei/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController::class, 'toggleMitraSurvey'])->name('mitra.toggle');
-Route::post('/upload-excel', [DaftarSurveiBpsController::class, 'uploadExcel'])->name('upload.excel');
-// Route::get('/mitrabps/inputmitrabps', [InputMitraBpsController::class, 'index']);
-
 // Halaman Survei > Daftar Survei > Edit Survei
 Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei');
 Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei.filter');
+Route::post('/survey/{id}/update-status', [DaftarSurveiBpsController::class, 'updateStatus'])->name('survey.updateStatus');
+Route::post('/survey/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController::class, 'toggleMitraSurvey'])->name('mitra.toggle');
+Route::post('/upExcelMitra2Survey/{id_survei}', [DaftarSurveiBpsController::class, 'upExcelMitra2Survey'])->name('upload.excel');
+
 
 
 // Halaman Mitra
@@ -332,10 +329,13 @@ Route::get('/daftarMitra', [MitraController::class, 'index'])->name('index');
 Route::get('/mitras', [MitraController::class, 'index'])->name('mitras.filter');
 
 //Halaman Mitra > Daftar Mitra > Profil Mitra
-Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profil.mitra');
+Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profilMitra');
 
 //Halaman Mitra > Daftar Mitra > Penilaian Mitra
 Route::get('/penilaianMitra/{id_mitra_survei}', [MitraController::class, 'penilaianMitra'])->name('penilaian.mitra');
-
+Route::post('/simpan-penilaian', [MitraController::class, 'simpanPenilaian'])->name('simpan.penilaian');
+// Route::get('/penilaian-mitra', [PenilaianMitraController::class, 'index'])->name('penilaian.mitra');
+// Route::get('/penilaian-mitra/{id}', [PenilaianMitraController::class, 'show'])->name('penilaian.mitra.show');
+// Route::post('/penilaian-mitra/{id}', [PenilaianMitraController::class, 'store'])->name('penilaian.mitra.store');
 
 require __DIR__ . '/auth.php';
