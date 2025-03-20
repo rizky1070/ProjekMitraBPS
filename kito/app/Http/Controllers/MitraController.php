@@ -9,6 +9,8 @@ use App\Models\Kabupaten;
 use App\Models\Kecamatan;
 use App\Models\Desa;
 use App\Models\MitraSurvei;
+use App\Imports\MitraImport;
+use Maatwebsite\Excel\Facades\Excel;    
 
 
 class MitraController extends Controller
@@ -33,7 +35,7 @@ class MitraController extends Controller
         }
 
         // Pagination
-        $mitras = $mitras->paginate(3);
+        $mitras = $mitras->paginate(10);
     
         // Daftar kecamatan untuk dropdown filter
         $kecamatans = Kecamatan::pluck('nama_kecamatan', 'id_kecamatan');
@@ -61,22 +63,33 @@ class MitraController extends Controller
     }
 
     public function simpanPenilaian(Request $request)
-{
-    $request->validate([
-        'id_mitra_survei' => 'required|exists:mitra_survei,id_mitra_survei',
-        'nilai' => 'required|integer|min:1|max:5',
-        'catatan' => 'nullable|string'
-    ]);
-
-    // Simpan ke database
-    MitraSurvei::where('id_mitra_survei', $request->id_mitra_survei)
-        ->update([
-            'nilai' => $request->nilai,
-            'catatan' => $request->catatan,
+    {
+        $request->validate([
+            'id_mitra_survei' => 'required|exists:mitra_survei,id_mitra_survei',
+            'nilai' => 'required|integer|min:1|max:5',
+            'catatan' => 'nullable|string'
         ]);
 
-    return redirect()->back()->with('success', 'Penilaian berhasil disimpan!');
-}
+        // Simpan ke database
+        MitraSurvei::where('id_mitra_survei', $request->id_mitra_survei)
+            ->update([
+                'nilai' => $request->nilai,
+                'catatan' => $request->catatan,
+            ]);
+
+        return redirect()->back()->with('success', 'Penilaian berhasil disimpan!');
+    }
+
+    public function upExcelMitra(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xls,xlsx'
+        ]);
+
+        Excel::import(new MitraImport, $request->file('file'));
+
+        return redirect()->back()->with('success', 'Data mitra berhasil diimport!');
+    }
 
 
 

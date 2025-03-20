@@ -47,7 +47,7 @@ class DaftarSurveiBpsController extends Controller
         }
     
         // Menampilkan data survei dengan paginasi
-        $surveys = $surveys->paginate(3); // Atur sesuai kebutuhan
+        $surveys = $surveys->paginate(5); // Atur sesuai kebutuhan
     
         return view('mitrabps.daftarSurvei', compact('surveys', 'availableYears', 'kecamatans'));
     }
