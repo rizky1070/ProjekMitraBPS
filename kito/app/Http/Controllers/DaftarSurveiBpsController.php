@@ -22,54 +22,55 @@ class DaftarSurveiBpsController extends Controller
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year');
-
+    
         // Mendapatkan daftar kecamatan
         $kecamatans = Kecamatan::all(); 
         
-            // Mendapatkan bulan yang dipilih dari request
+        // Mendapatkan bulan yang dipilih dari request
         $bulan = $request->filled('bulan') ? $request->bulan : null;
-
+    
         // Query untuk mengambil data survei dan filter berdasarkan bulan
         $surveys = Survei::with('kecamatan', 'mitraSurvei')
                         ->withCount('mitraSurvei')
                         ->when($bulan, function ($query) use ($bulan) {
-                            return $query->whereMonth('jadwal_kegiatan', $bulan); // Filter berdasarkan bulan
+                            return $query->whereMonth('jadwal_kegiatan', $bulan);
                         });
-
+    
         // Filter berdasarkan tahun jika ada parameter tahun
         if ($request->filled('tahun')) {
             $surveys->whereYear('jadwal_kegiatan', $request->tahun); 
         }
-
+    
         // Filter berdasarkan bulan jika ada parameter bulan
         if ($request->filled('bulan')) {
             $surveys->whereMonth('jadwal_kegiatan', $request->bulan);  
         }
-
+    
         // Filter berdasarkan kata kunci pencarian jika ada
         if ($request->filled('search')) {
             $surveys->where('nama_survei', 'like', '%' . $request->search . '%');
         }
-
+    
         // Filter berdasarkan kecamatan jika ada parameter kecamatan
         if ($request->filled('kecamatan')) {
             $surveys->where('id_kecamatan', $request->kecamatan); 
         }
-
+    
         // Mendapatkan mitra yang terlibat lebih dari satu survei di bulan yang dipilih
         $mitraWithMultipleSurveysInMonth = Mitra::select('mitra.id_mitra', 'mitra.nama_lengkap')
             ->join('mitra_survei', 'mitra_survei.id_mitra', '=', 'mitra.id_mitra')
             ->join('survei', 'survei.id_survei', '=', 'mitra_survei.id_survei')
-            ->whereMonth('survei.jadwal_kegiatan', $bulan) // Filter berdasarkan bulan survei
+            ->whereMonth('survei.jadwal_kegiatan', $bulan)
             ->groupBy('mitra.id_mitra', 'mitra.nama_lengkap')
             ->havingRaw('COUNT(DISTINCT mitra_survei.id_survei) > 1')
-            ->get(); // Dapatkan semua data mitra yang mengikuti lebih dari satu survei pada bulan ini
-
-        // Menampilkan data survei dengan paginasi
-        $surveys = $surveys->paginate(10); 
-
+            ->get();
+    
+        // Urutkan berdasarkan status_survei DESC sebelum melakukan paginasi
+        $surveys = $surveys->orderBy('status_survei')->paginate(10);
+    
         return view('mitrabps.daftarSurvei', compact('surveys', 'availableYears', 'kecamatans', 'mitraWithMultipleSurveysInMonth', 'bulan'));
     }
+    
 
     
 
