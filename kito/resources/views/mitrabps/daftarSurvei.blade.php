@@ -147,7 +147,7 @@
                                     <div>
                                         <h3 class="text-xl font-semibold">{{ $survey->nama_survei }}</h3>
                                         <p class="text-gray-700">{{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}</p>
-                                        <p class="text-gray-700">Jadwal Kegiatan : {{ $survey->jadwal_kegiatan }}</p>
+                                        <p class="text-gray-700">Jadwal Kegiatan : {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }}</p>
                                         <p class="text-gray-700">Jumlah Mitra : {{ $survey->mitra_survei_count }}</p> <!-- Menampilkan jumlah mitra -->
                                         <!-- Menampilkan nama mitra yang mengikuti lebih dari satu survei di bulan yang dipilih -->
                                         @if(isset($mitraWithMultipleSurveysInMonth) && $survey->mitraSurvei->isNotEmpty())

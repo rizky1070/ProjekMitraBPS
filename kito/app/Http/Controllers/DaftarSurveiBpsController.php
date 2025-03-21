@@ -17,6 +17,9 @@ class DaftarSurveiBpsController extends Controller
 {
     public function index(Request $request)
     {
+        // Set locale ke Indonesia
+        \Carbon\Carbon::setLocale('id');
+        
         // Mendapatkan daftar tahun yang tersedia dari tabel survei
         $availableYears = Survei::selectRaw('YEAR(jadwal_kegiatan) as year')
             ->distinct()
