@@ -58,6 +58,9 @@ class MitraController extends Controller
 
     public function profilMitra(Request $request, $id_mitra)
     {
+        // Set locale ke Indonesia
+        \Carbon\Carbon::setLocale('id');
+        
         $mits = Mitra::with(['kecamatan', 'desa'])->findOrFail($id_mitra);
     
         $query = MitraSurvei::with('survei')->where('id_mitra', $id_mitra);

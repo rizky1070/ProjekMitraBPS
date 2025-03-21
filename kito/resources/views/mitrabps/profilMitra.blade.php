@@ -73,7 +73,7 @@
                         @if($sur->survei->status_survei == 3)
                         <tr class="border border-gray-300 hover:bg-gray-100">
                             <td class="p-2">{{ $sur->survei->nama_survei }}</td>
-                            <td class="p-2 text-center">{{ $sur->survei->jadwal_kegiatan }}</td>
+                            <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
                             @if($sur->catatan == null & $sur->nilai == null)
                             <td class="p-2 text-center text-red-700 font-bold">Tidak ada catatan</td>
                             <td class="p-2 text-center text-red-700 font-bold">Belum dinilai</td>
