@@ -98,7 +98,7 @@
                         <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
                             Filter
                         </button>
-                        <button class="px-4 py-2 bg-orange rounded-md">+ Tambah</button>
+                        <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
                     </div>
                 
                     <!-- Modal untuk Filter -->
