@@ -34,13 +34,24 @@ class MitraController extends Controller
             });
         }
 
+        // Filter berdasarkan mitra yang dipilih dari dropdown
+        if ($request->filled('mitra')) {
+            $mitras->where('id_mitra', $request->mitra);
+        }
+
         // Pagination
         $mitras = $mitras->paginate(10);
     
         // Daftar kecamatan untuk dropdown filter
         $kecamatans = Kecamatan::pluck('nama_kecamatan', 'id_kecamatan');
 
-        return view('mitrabps.daftarMitra', compact('mitras', 'kecamatans'));
+        // Daftar mitra untuk dropdown filter
+        $mitrasForDropdown = Mitra::select('id_mitra', 'nama_lengkap')
+        ->orderBy('nama_lengkap', 'asc')
+        ->get();
+
+
+        return view('mitrabps.daftarMitra', compact('mitras', 'kecamatans', 'mitrasForDropdown'));
     }
 
 

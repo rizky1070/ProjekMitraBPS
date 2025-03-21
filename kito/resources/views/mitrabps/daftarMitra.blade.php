@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="/Logo BPS.png" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <title>Input Mitra BPS</title>
 </head>
 <body class="h-full">
@@ -38,28 +39,80 @@
                     <h3 class="text-3xl font-medium text-black">Daftar Mitra</h3>
                     <div class="p-6">
                         <!-- Search Bar -->
-                        <form action="{{ route('mitras.filter') }}" method="GET" class="flex justify-between items-center mb-4">
-                            <div class="flex items-center space-x-4">
-                                    <!-- Input untuk search -->
-                                <input type="text" name="search" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
-                            <!-- Filter Kecamatan -->
-                                <select name="kecamatan" class="px-4 py-2 border border-gray-300 rounded-md">
-                                <option value="">Semua Kecamatan</option>
-                                @foreach($kecamatans as $id => $nama)
-                                <option value="{{ $nama }}" {{ request('kecamatan') == $nama ? 'selected' : '' }}>
-                                    {{ $nama }}
-                                </option>
-                                @endforeach
-                            </select>
-                                <!-- Tombol Filter -->
-                            <button type="submit" class="px-4 py-2 bg-orange text-black rounded-md">Filter</button>
+                        <div x-data="{ isOpen: false }">
+                            <!-- Tombol untuk membuka modal -->
+                            <div class="flex justify-between items-center mb-4">
+                                <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                    Filter
+                                </button>
+                                <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
                             </div>
-                                <!-- Menambahkan ml-auto untuk memindahkan tombol Tambah ke kanan -->
-                            <div class="flex items-center space-x-4">
-                            <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+                        
+                            <!-- Modal -->
+                            <div x-show="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                                <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+                                    <h2 class="text-xl font-bold mb-6 text-gray-800">Filter</h2>
+                        
+                                    <!-- Form Filter -->
+                                    <form action="{{ route('mitras.filter') }}" method="GET" class="space-y-4">
+
+                                        <!-- Dropdown untuk memilih nama mitra -->
+                                        <div>
+                                            <select id="mitra" name="mitra" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                <option value="">Pilih Nama Mitra</option>
+                                                @foreach($mitrasForDropdown as $mitra)
+                                                    <option value="{{ $mitra->id_mitra }}" {{ request('mitra') == $mitra->id_mitra ? 'selected' : '' }}>
+                                                        {{ $mitra->nama_lengkap }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                        
+                                        <!-- Dropdown untuk memilih kecamatan -->
+                                        <div>
+                                            <select id="kecamatan" name="kecamatan" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                <option value="">Semua Kecamatan</option>
+                                                @foreach($kecamatans as $id => $nama)
+                                                    <option value="{{ $nama }}" {{ request('kecamatan') == $nama ? 'selected' : '' }}>
+                                                        {{ $nama }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                        
+                                        <!-- Tombol Apply Filter -->
+                                        <button type="submit" class="w-full px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                            Apply Filter
+                                        </button>
+                                    </form>
+                        
+                                    <!-- Tombol untuk menutup modal -->
+                                    <button @click="isOpen = false" class="mt-4 w-full px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition duration-300">
+                                        Close
+                                    </button>
+                                </div>
                             </div>
-                        </form>
+                        
+                            
+                        </div>
                     </div>  
+                    <!-- JavaScript Tom Select -->
+                <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+                <!-- Inisialisasi Tom Select -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+
+                        new TomSelect('#kecamatan', {
+                            placeholder: 'Pilih Kecamatan',
+                            searchField: 'text',
+                        });
+
+                        new TomSelect('#mitra', {
+                            placeholder: 'Pilih Mitra',
+                            searchField: 'text',
+                        });
+                    });
+                </script>
             <!-- Table -->
                     <div class="overflow-x-auto">
                         <table class="w-full border-collapse border border-gray-300">
