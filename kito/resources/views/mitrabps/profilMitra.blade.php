@@ -54,9 +54,35 @@
         <div class="max-w-4xl mx-auto">
             <h2 class="text-xl font-bold mb-4">Survei yang sudah dikerjakan</h2>
             <div class="bg-white p-4 rounded-lg shadow">
-                <form method="GET" action="{{ route('profilMitra', ['id_mitra' => $mits->id_mitra]) }}" class="flex justify-between items-center mb-4">
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
-                </form>
+                    <form method="GET" action="{{ route('profilMitra', ['id_mitra' => $mits->id_mitra]) }}" class="flex flex-wrap gap-4 items-center mb-4">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
+
+            <!-- Filter Bulan -->
+            <select name="bulan" class="px-4 py-2 border border-gray-300 rounded-md">
+                <option value="">-- Pilih Bulan --</option>
+                @foreach (range(1, 12) as $month)
+                    <option value="{{ $month }}" {{ request('bulan') == $month ? 'selected' : '' }}>
+                        {{ \Carbon\Carbon::create()->month($month)->translatedFormat('F') }}
+                    </option>
+                @endforeach
+            </select>
+
+            <!-- Filter Tahun -->
+            <select name="tahun" class="px-4 py-2 border border-gray-300 rounded-md">
+                <option value="">-- Pilih Tahun --</option>
+                @php
+                    $currentYear = now()->year;
+                @endphp
+                @for ($year = $currentYear; $year >= ($currentYear - 5); $year--)
+                    <option value="{{ $year }}" {{ request('tahun') == $year ? 'selected' : '' }}>
+                        {{ $year }}
+                    </option>
+                @endfor
+            </select>
+
+            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Filter</button>
+        </form>
+
 
                 <table class="w-full border-collapse border border-gray-300">
                     <thead>
