@@ -48,13 +48,11 @@
             </div>
         </div>
 
-
-
         <!-- Tabel Survei -->
         <div class="max-w-4xl mx-auto">
             <h2 class="text-xl font-bold mb-4">Survei yang sudah dikerjakan</h2>
             <div class="bg-white p-4 rounded-lg shadow">
-                    <form method="GET" action="{{ route('profilMitra', ['id_mitra' => $mits->id_mitra]) }}" class="flex flex-wrap gap-4 items-center mb-4">
+        <form method="GET" action="{{ route('profilMitra', ['id_mitra' => $mits->id_mitra]) }}" class="flex flex-wrap gap-4 items-center mb-4">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
 
             <!-- Filter Bulan -->
@@ -80,7 +78,7 @@
                 @endfor
             </select>
 
-            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Filter</button>
+            <button type="submit" class="px-4 py-2 bg-orange text-white rounded-md">Filter</button>
         </form>
 
 

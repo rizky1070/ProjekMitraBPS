@@ -46,7 +46,7 @@
                                     <div class="flex items-center space-x-4">
                                         <form action="{{ route('surveys.filter') }}" method="GET" class="flex items-center space-x-4">
                                             <div>
-                                                <select name="nama_survei" id="nama_survei" class="w-64 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                <select name="nama_survei" id="nama_survei" class="w-64 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                                     <option value="">Pilih Nama Survei</option>
                                                     @foreach($namaSurvei as $survei)
                                                         <option value="{{ $survei->nama_survei }}" @if(request('nama_survei') == $survei->nama_survei) selected @endif>{{ $survei->nama_survei }}</option>
@@ -69,10 +69,10 @@
                                         <h2 class="text-xl font-bold mb-6 text-gray-800">Filter</h2>
 
                                         <!-- Form Filter -->
-                                        <form action="{{ route('surveys.filter') }}" method="GET" class="space-y-4">
+                                        <form action="{{ route(name: 'surveys.filter') }}" method="GET" class="space-y-4">
                                             <!-- Dropdown untuk memilih tahun -->
                                             <div>
-                                                <select name="tahun" id="tahun" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                <select name="tahun" id="tahun" class="w-full px-4 py-2  rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                                     <option value="">Pilih Tahun</option>
                                                     @foreach($availableYears as $year)
                                                         <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $year }}</option>
@@ -82,7 +82,7 @@
 
                                             <!-- Dropdown untuk memilih bulan -->
                                             <div>
-                                                <select name="bulan" id="bulan" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                <select name="bulan" id="bulan" class="w-full px-4 py-2  rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                                     <option value="">Pilih Bulan</option>
                                                     @foreach(['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'] as $month => $monthName)
                                                         <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
@@ -92,7 +92,7 @@
 
                                             <!-- Dropdown untuk memilih kecamatan -->
                                             <div>
-                                                <select name="kecamatan" id="kecamatan" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                <select name="kecamatan" id="kecamatan" class="w-full px-4 py-2  rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                                     <option value="">Pilih Kecamatan</option>
                                                     @foreach($kecamatans as $kecamatan)
                                                         <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
@@ -120,6 +120,11 @@
                         <!-- Inisialisasi Tom Select -->
                         <script>
                             document.addEventListener('DOMContentLoaded', function() {
+                                new TomSelect('#nama_survei', {
+                                    placeholder: 'Pilih Survei',
+                                    searchField: 'text',
+                                });
+                                
                                 new TomSelect('#tahun', {
                                     placeholder: 'Pilih Tahun',
                                     searchField: 'text',
@@ -135,10 +140,6 @@
                                     searchField: 'text',
                                 });
 
-                                new TomSelect('#nama_survei', {
-                                    placeholder: 'Pilih Survei',
-                                    searchField: 'text',
-                                });
                             });
                         </script>
                             <!-- List of Survei -->

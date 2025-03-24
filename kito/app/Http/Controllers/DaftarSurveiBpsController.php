@@ -218,7 +218,7 @@ class DaftarSurveiBpsController extends Controller
 
         Excel::import(new SurveiImport, $request->file('file'));
 
-        return redirect()->back()->with('success', 'Data mitra berhasil diimport!');
+        return redirect()->back()->with('success', 'Data survei berhasil diimport!');
     }
 
 }
