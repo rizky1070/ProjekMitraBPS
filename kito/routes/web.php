@@ -312,7 +312,7 @@ Route::middleware('guest')->group(function () {
 Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index']);
 Route::get('/surveys', [DaftarSurveiBpsController::class, 'index']);
 Route::get('/surveys', [DaftarSurveiBpsController::class, 'index'])->name('surveys.filter');
-Route::post('/surveys/import', [DaftarSurveiBpsController::class, 'import'])->name('surveys.import');
+Route::post('/upExcelSurvei', [DaftarSurveiBpsController::class, 'upExcelSurvei'])->name('upload.excelSurvei');
 
 // Halaman Survei > Daftar Survei > Edit Survei
 Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei');
