@@ -29,7 +29,7 @@
     </script>
     @endif
 
-    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
+    <main class="max-w-4xl mx-auto bg-gray-200">
         <a href="{{ url('/daftarSurvei') }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
             <
         </a>
@@ -45,28 +45,44 @@
                     <label for="id_provinsi" class="block text-sm font-medium text-gray-700">Provinsi</label>
                     <select name="id_provinsi" id="id_provinsi" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         <option value="">Pilih Provinsi</option>
-                        <!-- Populate with options from your database -->
+                        @foreach($provinsi as $prov)
+                        <option value="{{ $prov->id_provinsi }}" {{ old('id_provinsi') == $prov->id_provinsi ? 'selected' : '' }}>
+                            {{ $prov->nama_provinsi }}
+                        </option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="mb-4">
                     <label for="id_kabupaten" class="block text-sm font-medium text-gray-700">Kabupaten</label>
                     <select name="id_kabupaten" id="id_kabupaten" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         <option value="">Pilih Kabupaten</option>
-                        <!-- Populate with options from your database -->
+                        @foreach($kabupaten as $kab)
+                        <option value="{{ $kab->id_kabupaten }}" {{ old('id_kabupaten') == $kab->id_kabupaten ? 'selected' : '' }}>
+                            {{ $kab->nama_kabupaten }}
+                        </option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="mb-4">
                     <label for="id_kecamatan" class="block text-sm font-medium text-gray-700">Kecamatan</label>
                     <select name="id_kecamatan" id="id_kecamatan" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         <option value="">Pilih Kecamatan</option>
-                        <!-- Populate with options from your database -->
+                        @foreach($kecamatan as $kec)
+                        <option value="{{ $kec->id_kecamatan }}" {{ old('id_kecamatan') == $kec->id_kecamatan ? 'selected' : '' }}>
+                            {{ $kec->nama_kecamatan }}
+                        </option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="mb-4">
                     <label for="id_desa" class="block text-sm font-medium text-gray-700">Desa</label>
                     <select name="id_desa" id="id_desa" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         <option value="">Pilih Desa</option>
-                        <!-- Populate with options from your database -->
+                        @foreach($desa as $des)
+                        <option value="{{ $des->id_desa }}" {{ old('id_desa') == $des->id_desa ? 'selected' : '' }}>
+                            {{ $des->nama_desa }}
+                        </option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="mb-4">

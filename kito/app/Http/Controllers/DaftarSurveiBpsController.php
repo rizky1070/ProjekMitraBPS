@@ -180,6 +180,8 @@ class DaftarSurveiBpsController extends Controller
         $kecamatan = Kecamatan::all(); // Ambil semua data kecamatan
         $desa = Desa::all(); // Ambil semua data desa
 
+        
+
         return view('mitrabps.inputSurvei', compact('provinsi', 'kabupaten', 'kecamatan', 'desa'));
     }
 
@@ -204,7 +206,7 @@ class DaftarSurveiBpsController extends Controller
         Survei::create($request->all());
 
         // Redirect ke halaman daftar survei dengan pesan sukses
-        return redirect()->route('mitrabps.daftarSurvei')->with('success', 'Survei berhasil ditambahkan!');
+        return redirect()->back()->with('success', 'Survei berhasil ditambahkan!');
     }
 
 
