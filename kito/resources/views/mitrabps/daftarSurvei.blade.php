@@ -41,33 +41,35 @@
                         <div class="p-6">
                             <!-- Search Bar and Filter -->
                             <div x-data="{ isOpen: false }">
-                                <!-- Tombol untuk membuka modal -->
+                                <!-- Dropdown untuk memilih nama survei di luar modal -->
                                 <div class="flex justify-between items-center mb-4">
-                                    <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
-                                        Filter
-                                    </button>
-                                        <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-orange text-white rounded-md mb-4 inline-block">
-                                            + Tambah Survei
-                                        </a>
-                                </div>
-                            
-                                <!-- Modal -->
-                                <div x-show="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                                    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-                                        <h2 class="text-xl font-bold mb-6 text-gray-800">Filter</h2>
-                            
-                                        <!-- Form Filter -->
-                                        <form action="{{ route('surveys.filter') }}" method="GET" class="space-y-4">
-                                            <!-- Dropdown untuk memilih nama survei -->
+                                    <div class="flex items-center space-x-4">
+                                        <form action="{{ route('surveys.filter') }}" method="GET" class="flex items-center space-x-4">
                                             <div>
-                                                <select name="nama_survei" id="nama_survei" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                <select name="nama_survei" id="nama_survei" class="w-64 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                                     <option value="">Pilih Nama Survei</option>
                                                     @foreach($namaSurvei as $survei)
                                                         <option value="{{ $survei->nama_survei }}" @if(request('nama_survei') == $survei->nama_survei) selected @endif>{{ $survei->nama_survei }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
-                            
+                                        </form>
+                                        <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                            Filter
+                                        </button>
+                                    </div>
+                                    <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                        + Tambah Survei
+                                    </a>
+                                </div>
+
+                                <!-- Modal -->
+                                <div x-show="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                                    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+                                        <h2 class="text-xl font-bold mb-6 text-gray-800">Filter</h2>
+
+                                        <!-- Form Filter -->
+                                        <form action="{{ route('surveys.filter') }}" method="GET" class="space-y-4">
                                             <!-- Dropdown untuk memilih tahun -->
                                             <div>
                                                 <select name="tahun" id="tahun" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
@@ -77,7 +79,7 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                            
+
                                             <!-- Dropdown untuk memilih bulan -->
                                             <div>
                                                 <select name="bulan" id="bulan" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
@@ -87,7 +89,7 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                            
+
                                             <!-- Dropdown untuk memilih kecamatan -->
                                             <div>
                                                 <select name="kecamatan" id="kecamatan" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
@@ -97,31 +99,30 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                            
+
                                             <!-- Tombol Apply Filter -->
                                             <button type="submit" class="w-full px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
                                                 Apply Filter
                                             </button>
                                         </form>
-                            
+
                                         <!-- Tombol untuk menutup modal -->
                                         <button @click="isOpen = false" class="mt-4 w-full px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition duration-300">
                                             Close
                                         </button>
                                     </div>
                                 </div>
-                                
                             </div>
                         </div>
+
                         <!-- JavaScript Tom Select -->
                         <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
                         <!-- Inisialisasi Tom Select -->
                         <script>
                             document.addEventListener('DOMContentLoaded', function() {
-
                                 new TomSelect('#tahun', {
-                                placeholder: 'Pilih Tahun',
-                                searchField: 'text',
+                                    placeholder: 'Pilih Tahun',
+                                    searchField: 'text',
                                 });
 
                                 new TomSelect('#bulan', {
@@ -138,10 +139,8 @@
                                     placeholder: 'Pilih Survei',
                                     searchField: 'text',
                                 });
-
                             });
                         </script>
-
                             <!-- List of Survei -->
                             <div class="space-y-4">
                                 @foreach($surveys as $survey)
