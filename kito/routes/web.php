@@ -25,6 +25,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\InputMitraBpsController;
 use App\Http\Controllers\DaftarSurveiBpsController;
 use App\Http\Controllers\MitraController;
+use App\Http\Controllers\ReportMitraSurveiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -326,7 +327,6 @@ Route::get('/inputSurvei', [DaftarSurveiBpsController::class, 'create'])->name('
 Route::post('/simpanSurvei', [DaftarSurveiBpsController::class, 'store'])->name('simpanSurvei');
 
 
-
 // Halaman Mitra
 //Halaman Mitra > Daftar Mitra
 Route::get('/daftarMitra', [MitraController::class, 'index'])->name('index');
@@ -343,5 +343,12 @@ Route::post('/simpan-penilaian', [MitraController::class, 'simpanPenilaian'])->n
 // Route::get('/penilaian-mitra', [PenilaianMitraController::class, 'index'])->name('penilaian.mitra');
 // Route::get('/penilaian-mitra/{id}', [PenilaianMitraController::class, 'show'])->name('penilaian.mitra.show');
 // Route::post('/penilaian-mitra/{id}', [PenilaianMitraController::class, 'store'])->name('penilaian.mitra.store');
+
+// Halaman Report
+//Halaman Report > Report Mitra
+Route::get('/ReportSurvei', [ReportMitraSurveiController::class, 'SurveiReport'])->name('reports.survei');
+
+//Halaman Report > Report Survei
+Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra');
 
 require __DIR__ . '/auth.php';

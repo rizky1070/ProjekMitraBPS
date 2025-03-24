@@ -249,7 +249,9 @@
             // Cek apakah ada link yang aktif di dalam dropdown
             $isDropdownMitraActive =
                 request()->is('daftarSurvei') ||
-                request()->is('daftarMitra');
+                request()->is('daftarMitra') ||
+                request()->is('ReportSurvei') ||
+                request()->is('ReportMitra');
         @endphp
         <div>
         <!-- Button Dropdown -->
@@ -271,6 +273,14 @@
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/daftarMitra">
                         <span class="mx-3">Daftar Mitra</span>
+                    </a>
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportSurvei') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/ReportSurvei">
+                        <span class="mx-3">Laporan Survei</span>
+                    </a>
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/ReportMitra">
+                        <span class="mx-3">Laporan Mitra</span>
                     </a>
                 @endif
             </div>
