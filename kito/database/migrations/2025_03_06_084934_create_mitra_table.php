@@ -18,6 +18,8 @@ class CreateMitraTable extends Migration
             $table->string('nama_lengkap', 1024)->nullable();
             $table->string('alamat_mitra', 1024)->nullable();
             $table->smallInteger('jenis_kelamin')->nullable();
+            $table->string('no_hp_mitra', 1024)->nullable();
+            $table->string('email_mitra', 1024)->nullable();
 
 
             $table->foreign('id_desa')->references('id_desa')->on('desa')->onUpdate('restrict')->onDelete('restrict');
