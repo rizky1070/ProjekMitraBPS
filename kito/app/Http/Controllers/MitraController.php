@@ -58,14 +58,13 @@ class MitraController extends Controller
 
     public function profilMitra(Request $request, $id_mitra)
     {
-        // Set locale ke Indonesia
         \Carbon\Carbon::setLocale('id');
-        
+    
         $mits = Mitra::with(['kecamatan', 'desa'])->findOrFail($id_mitra);
     
         $query = MitraSurvei::with('survei')->where('id_mitra', $id_mitra);
     
-        // Cek apakah ada input pencarian
+        // Filter nama survei
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->whereHas('survei', function ($q) use ($search) {
@@ -73,9 +72,23 @@ class MitraController extends Controller
             });
         }
     
+        // Filter bulan
+        if ($request->filled('bulan')) {
+            $query->whereHas('survei', function ($q) use ($request) {
+                $q->whereMonth('jadwal_kegiatan', $request->bulan);
+            });
+        }
+    
+        // Filter tahun
+        if ($request->filled('tahun')) {
+            $query->whereHas('survei', function ($q) use ($request) {
+                $q->whereYear('jadwal_kegiatan', $request->tahun);
+            });
+        }
+    
         $survei = $query->get()
-            ->sortByDesc(fn($item) => optional($item->survei)->jadwal_kegiatan) // Urutkan jadwal_kegiatan DESC
-            ->sortByDesc(fn($item) => is_null($item->nilai)); // Pastikan NULL berada di atas
+            ->sortByDesc(fn($item) => optional($item->survei)->jadwal_kegiatan)
+            ->sortByDesc(fn($item) => is_null($item->nilai)); // Prioritaskan yang belum dinilai
     
         return view('mitrabps.profilMitra', compact('mits', 'survei'));
     }
