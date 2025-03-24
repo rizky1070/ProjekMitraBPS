@@ -72,7 +72,7 @@
                                         <!-- Dropdown untuk memilih kecamatan -->
                                         <div>
                                             <select id="kecamatan" name="kecamatan" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
-                                                <option value="">Semua Kecamatan</option>
+                                                <option value="">Pilih Kecamatan</option>
                                                 @foreach($kecamatans as $id => $nama)
                                                     <option value="{{ $nama }}" {{ request('kecamatan') == $nama ? 'selected' : '' }}>
                                                         {{ $nama }}
