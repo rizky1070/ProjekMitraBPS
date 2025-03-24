@@ -23,7 +23,9 @@ class Mitra extends Model
         'sobat_id',
         'nama_lengkap',
         'alamat_mitra',
-        'jenis_kelamin'
+        'jenis_kelamin',
+        'no_hp_mitra',
+        'email_mitra'
     ];
 
     // Relasi dengan Provinsi

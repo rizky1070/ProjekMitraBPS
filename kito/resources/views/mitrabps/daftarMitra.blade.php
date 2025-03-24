@@ -40,11 +40,24 @@
                     <div class="p-6">
                         <!-- Search Bar -->
                         <div x-data="{ isOpen: false }">
-                            <!-- Tombol untuk membuka modal -->
                             <div class="flex justify-between items-center mb-4">
-                                <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
-                                    Filter
-                                </button>
+                                <div class="flex items-center space-x-4">
+                                    <form action="{{ route('mitras.filter') }}" method="GET" class="flex items-center space-x-4">
+                                        <div>
+                                            <select id="mitra" name="mitra" class="w-64 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                <option value="">Pilih Nama Mitra</option>
+                                                @foreach($mitrasForDropdown as $mitra)
+                                                    <option value="{{ $mitra->id_mitra }}" {{ request('mitra') == $mitra->id_mitra ? 'selected' : '' }}>
+                                                        {{ $mitra->nama_lengkap }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </form>
+                                    <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                        Filter
+                                    </button>
+                                </div>
                                 <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
                             </div>
                         
@@ -55,23 +68,11 @@
                         
                                     <!-- Form Filter -->
                                     <form action="{{ route('mitras.filter') }}" method="GET" class="space-y-4">
-
-                                        <!-- Dropdown untuk memilih nama mitra -->
-                                        <div>
-                                            <select id="mitra" name="mitra" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
-                                                <option value="">Pilih Nama Mitra</option>
-                                                @foreach($mitrasForDropdown as $mitra)
-                                                    <option value="{{ $mitra->id_mitra }}" {{ request('mitra') == $mitra->id_mitra ? 'selected' : '' }}>
-                                                        {{ $mitra->nama_lengkap }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
                         
                                         <!-- Dropdown untuk memilih kecamatan -->
                                         <div>
                                             <select id="kecamatan" name="kecamatan" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
-                                                <option value="">Semua Kecamatan</option>
+                                                <option value="">Pilih Kecamatan</option>
                                                 @foreach($kecamatans as $id => $nama)
                                                     <option value="{{ $nama }}" {{ request('kecamatan') == $nama ? 'selected' : '' }}>
                                                         {{ $nama }}

@@ -95,9 +95,21 @@
                 <div x-data="{ isOpen: false }">
                     <!-- Form untuk Filter dan Tombol Tambah -->
                     <div class="flex justify-between items-center mb-4">
-                        <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
-                            Filter
-                        </button>
+                        <div class="flex items-center space-x-4">
+                            <form action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="space-y-4">
+                                <div>
+                                    <select id="mitra" name="mitra" class="w-64 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                        <option value="">Pilih Mitra</option>
+                                        @foreach($mitrasForDropdown as $mitra)
+                                            <option value="{{ $mitra->id_mitra }}" @if(request('mitra') == $mitra->id_mitra) selected @endif>{{ $mitra->nama_lengkap }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </form>
+                            <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                Filter
+                            </button>
+                        </div>
                         <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
                     </div>
                 
@@ -108,16 +120,6 @@
                 
                             <!-- Form Filter di dalam Modal -->
                             <form action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="space-y-4">
-
-                                <!-- Dropdown untuk memilih mitra -->
-                                <div>
-                                    <select id="mitra"  name="mitra" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
-                                        <option value="">Pilih Mitra</option>
-                                        @foreach($mitrasForDropdown as $mitra)
-                                            <option value="{{ $mitra->id_mitra }}" @if(request('mitra') == $mitra->id_mitra) selected @endif>{{ $mitra->nama_lengkap }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
                 
                                 <!-- Dropdown untuk memilih kecamatan -->
                                 <div>
