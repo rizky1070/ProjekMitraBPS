@@ -12,6 +12,9 @@ use App\Imports\SurveiImport;
 use Exception; // Untuk menangani error
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Provinsi; // Model untuk Provinsi
+use App\Models\Kabupaten; // Model untuk Kabupaten
+use App\Models\Desa; // Model untuk Desa
 
 class DaftarSurveiBpsController extends Controller
 {
@@ -181,5 +184,41 @@ class DaftarSurveiBpsController extends Controller
 
         return redirect()->route('mitrabps.daftarsurveibps')->with('success', 'Import Sukses');
 
-    }       
+    }     
+    
+
+    // Method untuk menampilkan halaman input survei
+    public function create()
+    {
+        $provinsi = Provinsi::all(); // Ambil semua data provinsi
+        $kabupaten = Kabupaten::all(); // Ambil semua data kabupaten
+        $kecamatan = Kecamatan::all(); // Ambil semua data kecamatan
+        $desa = Desa::all(); // Ambil semua data desa
+
+        return view('mitrabps.inputSurvei', compact('provinsi', 'kabupaten', 'kecamatan', 'desa'));
+    }
+
+    // Method untuk menyimpan data survei
+    public function store(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'id_provinsi' => 'nullable|exists:provinsi,id_provinsi',
+            'id_kabupaten' => 'nullable|exists:kabupaten,id_kabupaten',
+            'id_kecamatan' => 'nullable|exists:kecamatan,id_kecamatan',
+            'id_desa' => 'nullable|exists:desa,id_desa',
+            'nama_survei' => 'nullable|string|max:1024',
+            'lokasi_survei' => 'nullable|string|max:1024',
+            'kro' => 'nullable|string|max:1024',
+            'jadwal_kegiatan' => 'nullable|date',
+            'status_survei' => 'nullable|integer',
+            'tim' => 'nullable|string|max:1024',
+        ]);
+
+        // Simpan data ke database
+        Survei::create($request->all());
+
+        // Redirect ke halaman daftar survei dengan pesan sukses
+        return redirect()->route('mitrabps.daftarSurvei')->with('success', 'Survei berhasil ditambahkan!');
+    }
 }

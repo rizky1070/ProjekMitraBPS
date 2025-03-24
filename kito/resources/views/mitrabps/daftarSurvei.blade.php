@@ -46,7 +46,9 @@
                                     <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
                                         Filter
                                     </button>
-                                    <button class="px-4 py-2 bg-orange rounded-md">+ Tambah</button>
+                                        <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-orange text-white rounded-md mb-4 inline-block">
+                                            + Tambah Survei
+                                        </a>
                                 </div>
                             
                                 <!-- Modal -->
