@@ -169,22 +169,7 @@ class DaftarSurveiBpsController extends Controller
 
         return redirect()->back()->with('success', 'Status survei berhasil diperbarui!');
     }
-
-
-    public function import(Request$request) 
-    {
-            // Validasi file
-        $request->validate([
-            'excel_file' => 'required|mimes:xlsx,xls',
-        ],[
-            'excel_file.required' => 'File xls tidak boleh kosong',
-        ]);
-
-        Excel::import(new SurveiImport, $request->file('excel_file'));
-
-        return redirect()->route('mitrabps.daftarsurveibps')->with('success', 'Import Sukses');
-
-    }     
+    
     
 
     // Method untuk menampilkan halaman input survei
@@ -221,4 +206,17 @@ class DaftarSurveiBpsController extends Controller
         // Redirect ke halaman daftar survei dengan pesan sukses
         return redirect()->route('mitrabps.daftarSurvei')->with('success', 'Survei berhasil ditambahkan!');
     }
+
+
+    public function upExcelSurvei(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xls,xlsx'
+        ]);
+
+        Excel::import(new SurveiImport, $request->file('file'));
+
+        return redirect()->back()->with('success', 'Data mitra berhasil diimport!');
+    }
+
 }
