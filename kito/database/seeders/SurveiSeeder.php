@@ -12,6 +12,10 @@ class SurveiSeeder extends Seeder
         $surveiData = [];
 
         for ($i = 1; $i <= 20; $i++) {
+            $tahun = rand(2018, 2025); // Tahun acak antara 2018-2025
+            $bulan = rand(1, 12);
+            $tanggal = rand(1, 28); // Membatasi maksimal 28 untuk menghindari masalah bulan
+            
             $surveiData[] = [
                 'id_provinsi' => rand(1, 4), // Random antara 1 hingga 4
                 'id_kabupaten' => rand(1, 4), // Random antara 1 hingga 4
@@ -20,8 +24,9 @@ class SurveiSeeder extends Seeder
                 'nama_survei' => 'Survei ' . chr(64 + $i), // Nama survei: Survei A, Survei B, ..., Survei T
                 'lokasi_survei' => 'Lokasi ' . chr(64 + $i), // Lokasi: Lokasi A, Lokasi B, ..., Lokasi T
                 'kro' => 'Kro ' . chr(64 + $i), // KRO: Kro A, Kro B, ..., Kro T
-                'jadwal_kegiatan' => '2025-' . sprintf('%02d', rand(1, 12)) . '-' . sprintf('%02d', rand(1, 28)), // Tanggal acak di tahun 2025
-                'status_survei' => rand(1, 3) // Status survei: 1, 2, atau 3
+                'jadwal_kegiatan' => $tahun . '-' . sprintf('%02d', $bulan) . '-' . sprintf('%02d', $tanggal),            
+                'status_survei' => rand(1, 3), // Status survei: 1, 2, atau 3
+                'tim' => 'tim ' . chr(64 + $i)
             ];
         }
 

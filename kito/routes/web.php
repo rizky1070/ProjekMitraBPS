@@ -350,5 +350,6 @@ Route::get('/ReportSurvei', [ReportMitraSurveiController::class, 'SurveiReport']
 
 //Halaman Report > Report Survei
 Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra');
+Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra.filter');
 
 require __DIR__ . '/auth.php';
