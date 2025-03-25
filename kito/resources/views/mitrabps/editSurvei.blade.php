@@ -30,9 +30,9 @@
     @endif
     
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-        <a href="{{ url('/daftarSurvei') }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
-            <
-        </a>
+    <a href="{{ url()->previous() }}" class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
+        <
+    </a>
         <div class="p-6">
             <h2 class="text-2xl font-bold mb-4">Survei Terpilih</h2>
             <div class="bg-white p-4 rounded-lg shadow">
