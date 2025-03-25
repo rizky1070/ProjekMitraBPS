@@ -98,7 +98,7 @@
                         <div class="flex items-center space-x-4">
                             <form action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="space-y-4">
                                 <div>
-                                    <select id="mitra" name="mitra" class="w-64 px-4 py-2  rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                    <select id="mitra" name="mitra" class="w-64 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                         <option value="">Pilih Mitra</option>
                                         @foreach($mitrasForDropdown as $mitra)
                                             <option value="{{ $mitra->id_mitra }}" @if(request('mitra') == $mitra->id_mitra) selected @endif>{{ $mitra->nama_lengkap }}</option>
@@ -202,11 +202,14 @@
     <!-- Modal Upload Excel -->
     <div id="uploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
         <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 class="text-xl font-bold mb-2">Unggah File Excel</h2>
-            <p class="mb-2">Tambahkan mitra ke survei dengan file excel.</p>
+            <h2 class="text-xl font-bold mb-2">Import Mitra ke Survei</h2>
+            <p class="mb-2 text-red-700 text-sm">Pastikan format file excel yang diimport sesuai.</p>
             <form action="{{ route('upload.excel', ['id_survei' => $survey->id_survei]) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="file" name="file" accept=".xlsx, .xls" class="border p-2 w-full">
+                    <a href="{{ asset('addMitra2Survey.xlsx') }}" class="py-2 text-blue-500 hover:text-blue-600 text-xs">
+                        Belum punya file excel? Download template disini.
+                    </a>
                 <div class="flex justify-end mt-4">
                     <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md mr-2" onclick="closeModal()">Batal</button>
                     <button type="submit" class="px-4 py-2 bg-orange text-white rounded-md">Unggah</button>
