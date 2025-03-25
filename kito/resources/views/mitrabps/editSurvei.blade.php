@@ -98,7 +98,7 @@
                         <div class="flex items-center space-x-4">
                             <form action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="space-y-4">
                                 <div>
-                                    <select id="mitra" name="mitra" class="w-64 px-4 py-2  rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                    <select id="mitra" name="mitra" class="w-64 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                         <option value="">Pilih Mitra</option>
                                         @foreach($mitrasForDropdown as $mitra)
                                             <option value="{{ $mitra->id_mitra }}" @if(request('mitra') == $mitra->id_mitra) selected @endif>{{ $mitra->nama_lengkap }}</option>

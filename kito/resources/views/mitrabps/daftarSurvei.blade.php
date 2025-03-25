@@ -46,7 +46,7 @@
                                     <div class="flex items-center space-x-4">
                                         <form action="{{ route('surveys.filter') }}" method="GET" class="flex items-center space-x-4">
                                             <div>
-                                                <select name="nama_survei" id="nama_survei" class="w-64 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                <select name="nama_survei" id="nama_survei" class="w-64 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                                     <option value="">Pilih Nama Survei</option>
                                                     @foreach($namaSurvei as $survei)
                                                         <option value="{{ $survei->nama_survei }}" @if(request('nama_survei') == $survei->nama_survei) selected @endif>{{ $survei->nama_survei }}</option>
@@ -183,11 +183,11 @@
                                         <!-- Menempatkan status survei di atas tombol -->
                                         <h3 class="text-xl font-semibold">
                                             @if($survey->status_survei == 1)
-                                                <div class="bg-red-500 text-white rounded-md px-4 py-1">Belum Dikerjakan</div>
+                                                <div class="text-red-500 rounded-md px-4 py-1">Belum Dikerjakan</div>
                                             @elseif($survey->status_survei == 2)
-                                                <div class="bg-yellow-300 text-white rounded-md px-4 py-1">Sedang Dikerjakan</div>
+                                                <div class="text-yellow-300 rounded-md px-4 py-1">Sedang Dikerjakan</div>
                                             @elseif($survey->status_survei == 3)
-                                                <div class="bg-green-500 text-white rounded-md px-4 py-1">Sudah Dikerjakan</div>
+                                                <div class="text-green-500 rounded-md px-4 py-1">Sudah Dikerjakan</div>
                                             @else
                                                 Status Tidak Diketahui
                                             @endif

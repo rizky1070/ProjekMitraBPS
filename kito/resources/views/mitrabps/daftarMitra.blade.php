@@ -44,7 +44,7 @@
                                 <div class="flex items-center space-x-4">
                                     <form action="{{ route('mitras.filter') }}" method="GET" class="flex items-center space-x-4">
                                         <div>
-                                            <select id="mitra" name="mitra" class="w-64 px-4 py-2  rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            <select id="mitra" name="mitra" class="w-64 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                                 <option value="">Pilih Nama Mitra</option>
                                                 @foreach($mitrasForDropdown as $mitra)
                                                     <option value="{{ $mitra->id_mitra }}" {{ request('mitra') == $mitra->id_mitra ? 'selected' : '' }}>
