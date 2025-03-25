@@ -84,14 +84,14 @@
                                     @endforeach
                                 </select>
                             </div>
-                            
+
                             <!-- Partisipasi Filter -->
                             <div>
-                                <label for="partisipasi" class="block text-sm font-medium text-gray-700 mb-1">Status Partisipasi</label>
-                                <select id="partisipasi" name="partisipasi" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+                                <label for="status_mitra" class="block text-sm font-medium text-gray-700 mb-1">Status Partisipasi</label>
+                                <select id="status_mitra" name="status_mitra" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
                                     <option value="">Semua Mitra</option>
-                                    <option value="ikut" {{ request('partisipasi') == 'ikut' ? 'selected' : '' }}>Mengikuti Survei</option>
-                                    <option value="tidak_ikut" {{ request('partisipasi') == 'tidak_ikut' ? 'selected' : '' }}>Tidak Mengikuti Survei</option>
+                                    <option value="ikut" {{ request('status_mitra') == 'ikut' ? 'selected' : '' }}>Mengikuti Survei</option>
+                                    <option value="tidak_ikut" {{ request('status_mitra') == 'tidak_ikut' ? 'selected' : '' }}>Tidak Mengikuti Survei</option>
                                 </select>
                             </div>
                         </form>
@@ -216,7 +216,7 @@
                 searchField: 'text',
             });
 
-            new TomSelect('#partisipasi', {
+            new TomSelect('#status_mitra', {
                 placeholder: 'Pilih Status',
                 searchField: 'text',
             });
@@ -224,7 +224,7 @@
             const filterForm = document.getElementById('filterForm');
             const tahunSelect = document.getElementById('tahun');
             const bulanSelect = document.getElementById('bulan');
-            const statusSelect = document.getElementById('status_survei');
+            const statusSelect = document.getElementById('status_mitra');
 
             // Ganti fungsi submitForm dengan ini
             let timeout;

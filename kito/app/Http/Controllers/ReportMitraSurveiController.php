@@ -120,8 +120,8 @@ class ReportMitraSurveiController extends Controller
         $applyFilters($surveisQuery);
         
         // Filter partisipasi khusus untuk query utama
-        if ($request->filled('partisipasi')) {
-            if ($request->status_survei == 'akrif') {
+        if ($request->filled('status_survei')) {
+            if ($request->status_survei == 'aktif') {
                 $surveisQuery->has('mitraSurvei');
             } elseif ($request->status_survei == 'tidak_aktif') {
                 $surveisQuery->doesntHave('mitraSurvei');
@@ -173,10 +173,10 @@ class ReportMitraSurveiController extends Controller
             ->withCount('mitraSurvei');
 
         // Filter berdasarkan status partisipasi survei
-        if ($request->filled('partisipasi')) {
-            if ($request->partisipasi == 'ikut') {
+        if ($request->filled('status_mitra')) {
+            if ($request->status_mitra == 'ikut') {
                 $mitras->has('mitraSurvei');
-            } elseif ($request->partisipasi == 'tidak_ikut') {
+            } elseif ($request->status_mitra == 'tidak_ikut') {
                 $mitras->doesntHave('mitraSurvei');
             }
         }
@@ -249,10 +249,10 @@ class ReportMitraSurveiController extends Controller
         $applyFilters($mitrasQuery);
         
         // Filter partisipasi khusus untuk query utama
-        if ($request->filled('partisipasi')) {
-            if ($request->partisipasi == 'ikut') {
+        if ($request->filled('status_mitra')) {
+            if ($request->status_mitra == 'ikut') {
                 $mitrasQuery->has('mitraSurvei');
-            } elseif ($request->partisipasi == 'tidak_ikut') {
+            } elseif ($request->status_mitra == 'tidak_ikut') {
                 $mitrasQuery->doesntHave('mitraSurvei');
             }
         }
