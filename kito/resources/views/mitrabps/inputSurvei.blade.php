@@ -16,7 +16,7 @@
 
     <title>Input Survei</title>
 </head>
-<body class="h-full">
+<body class="h-full bg-gray-200">
     @if (session('success'))
     <script>
     swal("Success!", "{{ session('success') }}", "success");
@@ -28,11 +28,11 @@
     swal("Error!", "{{ $errors->first() }}", "error");
     </script>
     @endif
+    <a href="{{ url('/daftarSurvei') }}" class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
+        <
+    </a>
 
     <main class="max-w-4xl mx-auto bg-gray-200">
-        <a href="{{ url()->previous() }}" class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
-            <
-        </a>
         <div class="p-6">
             <div class="flex justify-between items-center">
                 <h2 class="text-2xl font-bold mb-4">Input Survei</h2>
@@ -114,7 +114,7 @@
                     <input type="text" name="tim" id="tim" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                 </div>
                 <div class="flex justify-end">
-                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Simpan</button>
+                    <button type="submit" class="px-4 py-2 bg-orange text-black rounded-md">Simpan</button>
                 </div>
             </form>
         </div>
@@ -132,7 +132,7 @@
                     </a>
                 <div class="flex justify-end mt-4">
                     <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md mr-2" onclick="closeModal()">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-orange text-white rounded-md">Unggah</button>
+                    <button type="submit" class="px-4 py-2 bg-orange text-black rounded-md">Unggah</button>
                 </div>
             </form>
         </div>

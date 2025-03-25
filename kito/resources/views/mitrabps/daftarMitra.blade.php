@@ -54,7 +54,7 @@
                                             </select>
                                         </div>
                                     </form>
-                                    <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                    <button @click="isOpen = true" class="px-4 py-2 bg-orange text-black rounded-md hover:bg-orange-600 transition duration-300">
                                         Filter
                                     </button>
                                 </div>
@@ -82,7 +82,7 @@
                                         </div>
                         
                                         <!-- Tombol Apply Filter -->
-                                        <button type="submit" class="w-full px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                        <button type="submit" class="w-full px-4 py-2 bg-orange text-black rounded-md hover:bg-orange-600 transition duration-300">
                                             Apply Filter
                                         </button>
                                     </form>
@@ -132,7 +132,7 @@
                                     <td class="border border-gray-300 p-2 text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
                                     <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
                                     <td class="border border-gray-300 p-2 text-center">
-                                        <a href="/profilMitra/{{ $mitra->id_mitra }}"  class="px-4 py-1 bg-orange text-white rounded-md">Lihat</a>
+                                        <a href="/profilMitra/{{ $mitra->id_mitra }}"  class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -156,8 +156,8 @@
                         Belum punya file excel? Download template disini.
                     </a>
                 <div class="flex justify-end mt-4">
-                    <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md mr-2" onclick="closeModal()">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-orange text-white rounded-md">Unggah</button>
+                    <button type="button" class="px-4 py-2 bg-gray-500 text-black rounded-md mr-2" onclick="closeModal()">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-orange text-black rounded-md">Unggah</button>
                 </div>
             </form>
         </div>

@@ -15,9 +15,15 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <title>Report Mitra BPS</title>
     <style>
+        .only-print {
+            display: none;
+        }
         @media print {
             .no-print {
                 display: none !important;
+            }
+            .only-print {
+                display: block;
             }
         }
     </style>
@@ -30,7 +36,7 @@
     </script>
     @endif
 
-    @if ($errors->any()))
+    @if ($errors->any())
     <script>
     swal("Error!", "{{ $errors->first() }}", "error");
     </script>
@@ -46,7 +52,20 @@
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                         <div>
                             <h1 class="text-2xl font-bold text-gray-800">Report Mitra</h1>
-                            <p class="text-gray-600">Data partisipasi mitra dalam survei BPS</p>
+                            <p class="text-gray-600 no-print">Data partisipasi mitra dalam survei BPS</p>
+                            <h4 class="text-1xl font-bold text-gray-800 only-print">
+                                Status: 
+                                @if(request('partisipasi')) {{ request('partisipasi') == 'ikut' ? 'Mengikuti Survei' : 'Tidak Mengikuti Survei' }} @endif
+                            </h4>
+                            <h4 class="text-1xl font-bold text-gray-800 only-print">
+                                Tahun: 
+                                @if(request('tahun')) {{ request('tahun') }} @endif
+                            </h4>
+                            <h4 class="text-1xl font-bold text-gray-800 only-print">
+                                Bulan: 
+                                @if(request('bulan')) {{ \Carbon\Carbon::create()->month(request('bulan'))->format('F') }} @endif
+                            </h4>
+
                         </div>
                         <div class="mt-4 md:mt-0">
                             <button onclick="window.print()" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 no-print">
