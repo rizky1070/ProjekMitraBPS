@@ -39,14 +39,11 @@
                     <div class="container px-6 py-8 mx-auto">
                         <h3 class="text-3xl font-medium text-black">Daftar Survei</h3>
                         <div class="p-6">
-                            <!-- Search Bar and Filter -->
-                            
-                                <!-- Dropdown untuk memilih nama survei di luar modal -->
-                                <div class="mb-6">
+                                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                                     <!-- Header dengan tombol Tambah Survei -->
                                     <div class="flex justify-between items-center mb-4">
                                         <h2 class="text-lg font-semibold text-gray-800">Filter Survei</h2>
-                                        <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300">
+                                        <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-green-600 transition duration-300">
                                             + Tambah Survei
                                         </a>
                                     </div>
@@ -125,28 +122,6 @@
                                 });
 
                                 // Auto submit saat filter berubah
-                                // Fungsi untuk reload form
-                                function reloadForm() {
-                                    document.getElementById('filterForm').submit();
-                                }
-
-                                // Event listeners untuk auto-submit
-                                document.getElementById('tahun').addEventListener('change', function() {
-                                    reloadForm();
-                                });
-                                
-                                document.getElementById('bulan').addEventListener('change', function() {
-                                    reloadForm();
-                                });
-                                
-                                document.getElementById('kecamatan').addEventListener('change', function() {
-                                    reloadForm();
-                                });
-                                
-                                document.getElementById('nama_survei').addEventListener('change', function() {
-                                    reloadForm();
-                                });
-
                                 const filterForm = document.getElementById('filterForm');
                                 const tahunSelect = document.getElementById('tahun');
                                 const bulanSelect = document.getElementById('bulan');

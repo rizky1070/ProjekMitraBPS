@@ -55,7 +55,7 @@
                             <p class="text-gray-600 no-print">Data partisipasi mitra dalam survei BPS</p>
                             <h4 class="text-1xl font-bold text-gray-800 only-print">
                                 Status: 
-                                @if(request('partisipasi')) {{ request('partisipasi') == 'ikut' ? 'Mengikuti Survei' : 'Tidak Mengikuti Survei' }} @endif
+                                @if(request('status_mitra')) {{ request('status_mitra') == 'ikut' ? 'Mengikuti Survei' : 'Tidak Mengikuti Survei' }} @endif
                             </h4>
                             <h4 class="text-1xl font-bold text-gray-800 only-print">
                                 Tahun: 
