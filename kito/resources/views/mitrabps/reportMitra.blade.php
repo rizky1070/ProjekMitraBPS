@@ -14,6 +14,13 @@
     <link rel="icon" href="/Logo BPS.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <title>Report Mitra BPS</title>
+    <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
 <body class="h-full bg-gray-50">
     <!-- SweetAlert Logic -->
@@ -42,14 +49,14 @@
                             <p class="text-gray-600">Data partisipasi mitra dalam survei BPS</p>
                         </div>
                         <div class="mt-4 md:mt-0">
-                            <button onclick="window.print()" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            <button onclick="window.print()" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 no-print">
                                 <i class="fas fa-print mr-2"></i>Print Report
                             </button>
                         </div>
                     </div>
 
                     <!-- Filter Section -->
-                    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <div class="bg-white rounded-lg shadow-sm p-6 mb-6 no-print">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Filter Data</h2>
                         <form action="{{ route('reports.Mitra.filter') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <!-- Tahun Filter -->
