@@ -85,7 +85,7 @@
                     <!-- Tombol Tambah -->
                     <div class="flex justify-center">
                         <button type="submit"
-                            class="w-full max-w-[150px] bg-orange text-white font-semibold py-2 rounded-lg mt-4">
+                            class="w-full max-w-[150px] bg-orange text-black font-semibold py-2 rounded-lg mt-4">
                             Tambah
                         </button>
                     </div>

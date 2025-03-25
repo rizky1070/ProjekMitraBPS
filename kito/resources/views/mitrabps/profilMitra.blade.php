@@ -78,7 +78,7 @@
                 @endfor
             </select>
 
-            <button type="submit" class="px-4 py-2 bg-orange text-white rounded-md">Filter</button>
+            <button type="submit" class="px-4 py-2 bg-orange text-black rounded-md">Filter</button>
         </form>
                 <h2 class="text-xl font-bold mb-4">Survei yang sudah dikerjakan</h2>
                 <table class="w-full mb-10 border-collapse border border-gray-300">
@@ -106,7 +106,7 @@
                             <td class="p-2 text-center">{{ $nilaiOutput }}</td>
                             @endif
                             <td class="p-2 text-center">
-                                <a href="/penilaianMitra/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-orange text-white rounded-md">Edit</a>
+                                <a href="/penilaianMitra/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-orange text-black rounded-md">Edit</a>
                             </td>
                         </tr>
                         @endif
@@ -129,7 +129,7 @@
                             <td class="p-2">{{ $sur->survei->nama_survei }}</td>
                             <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
                             <td class="p-2 text-center">
-                                <a href="/editSurvei/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-orange text-white rounded-md">Lihat</a>
+                                <a href="/editSurvei/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
                             </td>
                         </tr>
                         @endif

@@ -54,11 +54,11 @@
                                                 </select>
                                             </div>
                                         </form>
-                                        <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                        <button @click="isOpen = true" class="px-4 py-2 bg-orange text-black rounded-md hover:bg-orange-600 transition duration-300">
                                             Filter
                                         </button>
                                     </div>
-                                    <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                    <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-orange text-black rounded-md hover:bg-orange-600 transition duration-300">
                                         + Tambah Survei
                                     </a>
                                 </div>
@@ -101,7 +101,7 @@
                                             </div>
 
                                             <!-- Tombol Apply Filter -->
-                                            <button type="submit" class="w-full px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
+                                            <button type="submit" class="w-full px-4 py-2 bg-orange text-black rounded-md hover:bg-orange-600 transition duration-300">
                                                 Apply Filter
                                             </button>
                                         </form>
