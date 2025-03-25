@@ -29,7 +29,7 @@
     @endif
         <!-- component -->
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-        <a href="{{ url('/daftarMitra') }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
+        <a href="{{ url()->previous() }}" class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
             <
         </a>
         <div class="max-w-4xl mx-auto mt-4">
@@ -50,7 +50,7 @@
 
         <!-- Tabel Survei -->
         <div class="max-w-4xl mx-auto">
-            <h2 class="text-xl font-bold mb-4">Survei yang sudah dikerjakan</h2>
+            <h2 class="text-xl font-bold mb-4">Survei yang diikuti mitra</h2>
             <div class="bg-white p-4 rounded-lg shadow">
         <form method="GET" action="{{ route('profilMitra', ['id_mitra' => $mits->id_mitra]) }}" class="flex flex-wrap gap-4 items-center mb-4">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
@@ -80,13 +80,12 @@
 
             <button type="submit" class="px-4 py-2 bg-orange text-white rounded-md">Filter</button>
         </form>
-
-
-                <table class="w-full border-collapse border border-gray-300">
+                <h2 class="text-xl font-bold mb-4">Survei yang sudah dikerjakan</h2>
+                <table class="w-full mb-10 border-collapse border border-gray-300">
                     <thead>
                         <tr class="bg-gray-200">
                             <th class="border border-gray-300 p-2">Nama Survei</th>
-                            <th class="border border-gray-300 p-2">Tahun</th>
+                            <th class="border border-gray-300 p-2">Jadwal Survei</th>
                             <th class="border border-gray-300 p-2">Catatan</th>
                             <th class="border border-gray-300 p-2">Nilai</th>
                             <th class="border border-gray-300 p-2">Aksi</th>
@@ -114,6 +113,30 @@
                         @endforeach
                     </tbody>
                 </table>
+            <h2 class="text-xl font-bold mb-4">Survei yang belum/sedang dikerjakan</h2>
+                <table class="w-full border-collapse border border-gray-300">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border border-gray-300 p-2">Nama Survei</th>
+                            <th class="border border-gray-300 p-2">Jadwal Survei</th>
+                            <th class="border border-gray-300 p-2">Lihat Survei</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($survei as $sur)
+                        @if($sur->survei->status_survei != 3)
+                        <tr class="border border-gray-300 hover:bg-gray-100">
+                            <td class="p-2">{{ $sur->survei->nama_survei }}</td>
+                            <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
+                            <td class="p-2 text-center">
+                                <a href="/editSurvei/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-orange text-white rounded-md">Lihat</a>
+                            </td>
+                        </tr>
+                        @endif
+                        @endforeach
+                    </tbody>
+                </table>
+
             </div>
         </div>
     </main>

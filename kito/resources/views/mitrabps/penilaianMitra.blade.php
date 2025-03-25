@@ -32,7 +32,7 @@
     @endif
 
     
-    <a href="/profilMitra/{{ $surMit->survei->id_survei }}"  class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
+    <a href="{{ url()->previous() }}" class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
         <
     </a>
 
