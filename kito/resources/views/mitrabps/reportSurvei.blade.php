@@ -51,7 +51,7 @@
                     <!-- Filter Section -->
                     <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Filter Data</h2>
-                        <form action="{{ route('reports.survei.filter') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <form id="filterForm" action="{{ route('reports.survei.filter') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <!-- Tahun Filter -->
                             <div>
                                 <label for="jadwal_kegiatan" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
@@ -86,13 +86,6 @@
                                     <option value="aktif" {{ request('status_survei') == 'aktif' ? 'selected' : '' }}>Survei Aktif</option>
                                     <option value="tidak_aktif" {{ request('status_survei') == 'tidak_aktif' ? 'selected' : '' }}>Survei Tidak aktif</option>
                                 </select>
-                            </div>
-                            
-                            <!-- Apply Button -->
-                            <div class="flex items-end">
-                                <button type="submit" class="w-full px-4 py-2 bg-orange border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
-                                    Terapkan Filter
-                                </button>
                             </div>
                         </form>
                     </div>
@@ -161,8 +154,7 @@
                                                 </div>
                                                 <div class="ml-4">
                                                     <div class="text-sm font-medium text-gray-900">{{ $survei->nama_survei }}</div>
-                                                    {{-- <div class="text-sm text-gray-500">{{ $mitra->email_mitra }}</div>
-                                                    <div class="text-sm text-gray-500">{{ $mitra->no_hp_mitra }}</div> --}}
+                                                    <div class="text-sm text-gray-500">{{ $survei->tim }}</div>
                                                 </div>
                                             </div>
                                         </td>
@@ -220,6 +212,26 @@
                 placeholder: 'Pilih Status',
                 searchField: 'text',
             });
+            
+            // Ambil elemen form dan select
+            const filterForm = document.getElementById('filterForm');
+            const tahunSelect = document.getElementById('tahun');
+            const bulanSelect = document.getElementById('bulan');
+            const statusSelect = document.getElementById('status_survei');
+
+            // Ganti fungsi submitForm dengan ini
+            let timeout;
+            function submitForm() {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    filterForm.submit();
+                }, 500); // Delay 500ms sebelum submit
+            }
+
+            // Tambahkan event listener untuk setiap select
+            tahunSelect.addEventListener('change', submitForm);
+            bulanSelect.addEventListener('change', submitForm);
+            statusSelect.addEventListener('change', submitForm);
         });
     </script>
 </body>
