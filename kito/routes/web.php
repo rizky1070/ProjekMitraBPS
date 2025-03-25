@@ -347,6 +347,8 @@ Route::post('/simpan-penilaian', [MitraController::class, 'simpanPenilaian'])->n
 // Halaman Report
 //Halaman Report > Report Mitra
 Route::get('/ReportSurvei', [ReportMitraSurveiController::class, 'SurveiReport'])->name('reports.survei');
+Route::get('/ReportSurvei', [ReportMitraSurveiController::class, 'SurveiReport'])->name('reports.survei.filter');
+
 
 //Halaman Report > Report Survei
 Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra');
