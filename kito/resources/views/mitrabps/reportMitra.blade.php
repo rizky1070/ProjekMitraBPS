@@ -77,7 +77,7 @@
                     <!-- Filter Section -->
                     <div class="bg-white rounded-lg shadow-sm p-6 mb-6 no-print">
                         <h2 class="text-lg font-semibold text-gray-800 mb-4">Filter Data</h2>
-                        <form action="{{ route('reports.Mitra.filter') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <form id="filterForm" action="{{ route('reports.Mitra.filter') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <!-- Tahun Filter -->
                             <div>
                                 <label for="tahun" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
@@ -112,13 +112,6 @@
                                     <option value="ikut" {{ request('partisipasi') == 'ikut' ? 'selected' : '' }}>Mengikuti Survei</option>
                                     <option value="tidak_ikut" {{ request('partisipasi') == 'tidak_ikut' ? 'selected' : '' }}>Tidak Mengikuti Survei</option>
                                 </select>
-                            </div>
-                            
-                            <!-- Apply Button -->
-                            <div class="flex items-end">
-                                <button type="submit" class="w-full px-4 py-2 bg-orange border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
-                                    Terapkan Filter
-                                </button>
                             </div>
                         </form>
                     </div>
@@ -246,6 +239,25 @@
                 placeholder: 'Pilih Status',
                 searchField: 'text',
             });
+               // Ambil elemen form dan select
+            const filterForm = document.getElementById('filterForm');
+            const tahunSelect = document.getElementById('tahun');
+            const bulanSelect = document.getElementById('bulan');
+            const statusSelect = document.getElementById('status_survei');
+
+            // Ganti fungsi submitForm dengan ini
+            let timeout;
+            function submitForm() {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    filterForm.submit();
+                }, 500); // Delay 500ms sebelum submit
+            }
+
+            // Tambahkan event listener untuk setiap select
+            tahunSelect.addEventListener('change', submitForm);
+            bulanSelect.addEventListener('change', submitForm);
+            statusSelect.addEventListener('change', submitForm);
         });
     </script>
 </body>
