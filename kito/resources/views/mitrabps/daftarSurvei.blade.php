@@ -40,79 +40,63 @@
                         <h3 class="text-3xl font-medium text-black">Daftar Survei</h3>
                         <div class="p-6">
                             <!-- Search Bar and Filter -->
-                            <div x-data="{ isOpen: false }">
+                            
                                 <!-- Dropdown untuk memilih nama survei di luar modal -->
-                                <div class="flex justify-between items-center mb-4">
-                                    <div class="flex items-center space-x-4">
-                                        <form action="{{ route('surveys.filter') }}" method="GET" class="flex items-center space-x-4">
-                                            <div>
-                                                <select name="nama_survei" id="nama_survei" class="w-64 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
-                                                    <option value="">Pilih Nama Survei</option>
-                                                    @foreach($namaSurvei as $survei)
-                                                        <option value="{{ $survei->nama_survei }}" @if(request('nama_survei') == $survei->nama_survei) selected @endif>{{ $survei->nama_survei }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </form>
-                                        <button @click="isOpen = true" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
-                                            Filter
-                                        </button>
+                                <div class="mb-6">
+                                    <!-- Header dengan tombol Tambah Survei -->
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h2 class="text-lg font-semibold text-gray-800">Filter Survei</h2>
+                                        <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300">
+                                            + Tambah Survei
+                                        </a>
                                     </div>
-                                    <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
-                                        + Tambah Survei
-                                    </a>
+                                    <!-- Form Filter -->
+                                    <form action="{{ route('surveys.filter') }}" method="GET" class="space-y-4" id="filterForm">
+                                        <!-- Year Row -->
+                                        <div class="flex items-center">
+                                            <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
+                                            <select name="tahun" id="tahun" class="w-64 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                                <option value="">Semua Tahun</option>
+                                                @foreach($tahunOptions as $year => $yearLabel)
+                                                    <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $yearLabel }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <!-- Month Row -->
+                                        <div class="flex items-center">
+                                            <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
+                                            <select name="bulan" id="bulan" class="w-64 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                                <option value="">Semua Bulan</option>
+                                                @foreach($bulanOptions as $month => $monthName)
+                                                    <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <!-- District Row -->
+                                        <div class="flex items-center">
+                                            <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
+                                            <select name="kecamatan" id="kecamatan" class="w-64 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
+                                                <option value="">Semua Kecamatan</option>
+                                                @foreach($kecamatanOptions as $id => $nama)
+                                                    <option value="{{ $id }}" @if(request('kecamatan') == $id) selected @endif>{{ $nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <!-- Survey Name Row -->
+                                        <div class="flex items-center">
+                                            <label for="nama_survei" class="w-32 text-sm font-medium text-gray-700">Nama Survei</label>
+                                            <select name="nama_survei" id="nama_survei" class="w-64 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaSurveiOptions) ? 'disabled' : '' }}>
+                                                <option value="">Semua Survei</option>
+                                                @foreach($namaSurveiOptions as $nama => $label)
+                                                    <option value="{{ $nama }}" @if(request('nama_survei') == $nama) selected @endif>{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </form>
                                 </div>
-
-                                <!-- Modal -->
-                                <div x-show="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                                    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-                                        <h2 class="text-xl font-bold mb-6 text-gray-800">Filter</h2>
-
-                                        <!-- Form Filter -->
-                                        <form action="{{ route(name: 'surveys.filter') }}" method="GET" class="space-y-4">
-                                            <!-- Dropdown untuk memilih tahun -->
-                                            <div>
-                                                <select name="tahun" id="tahun" class="w-full px-4 py-2  rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
-                                                    <option value="">Pilih Tahun</option>
-                                                    @foreach($availableYears as $year)
-                                                        <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $year }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <!-- Dropdown untuk memilih bulan -->
-                                            <div>
-                                                <select name="bulan" id="bulan" class="w-full px-4 py-2  rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
-                                                    <option value="">Pilih Bulan</option>
-                                                    @foreach(['01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April', '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus', '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'] as $month => $monthName)
-                                                        <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <!-- Dropdown untuk memilih kecamatan -->
-                                            <div>
-                                                <select name="kecamatan" id="kecamatan" class="w-full px-4 py-2  rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
-                                                    <option value="">Pilih Kecamatan</option>
-                                                    @foreach($kecamatans as $kecamatan)
-                                                        <option value="{{ $kecamatan->id_kecamatan }}" @if(request('kecamatan') == $kecamatan->id_kecamatan) selected @endif>{{ $kecamatan->nama_kecamatan }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <!-- Tombol Apply Filter -->
-                                            <button type="submit" class="w-full px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition duration-300">
-                                                Apply Filter
-                                            </button>
-                                        </form>
-
-                                        <!-- Tombol untuk menutup modal -->
-                                        <button @click="isOpen = false" class="mt-4 w-full px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition duration-300">
-                                            Close
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- JavaScript Tom Select -->
@@ -140,6 +124,48 @@
                                     searchField: 'text',
                                 });
 
+                                // Auto submit saat filter berubah
+                                // Fungsi untuk reload form
+                                function reloadForm() {
+                                    document.getElementById('filterForm').submit();
+                                }
+
+                                // Event listeners untuk auto-submit
+                                document.getElementById('tahun').addEventListener('change', function() {
+                                    reloadForm();
+                                });
+                                
+                                document.getElementById('bulan').addEventListener('change', function() {
+                                    reloadForm();
+                                });
+                                
+                                document.getElementById('kecamatan').addEventListener('change', function() {
+                                    reloadForm();
+                                });
+                                
+                                document.getElementById('nama_survei').addEventListener('change', function() {
+                                    reloadForm();
+                                });
+
+                                const filterForm = document.getElementById('filterForm');
+                                const tahunSelect = document.getElementById('tahun');
+                                const bulanSelect = document.getElementById('bulan');
+                                const kecamatanSelect = document.getElementById('kecamatan');
+                                const statusSelect = document.getElementById('status_mitra');
+
+                                // Ganti fungsi submitForm dengan ini
+                                let timeout;
+                                function submitForm() {
+                                    clearTimeout(timeout);
+                                    timeout = setTimeout(() => {
+                                        filterForm.submit();
+                                    }, 500); // Delay 500ms sebelum submit
+                                }
+
+                                // Tambahkan event listener untuk setiap select
+                                tahunSelect.addEventListener('change', submitForm);
+                                bulanSelect.addEventListener('change', submitForm);
+                                statusSelect.addEventListener('change', submitForm);
                             });
                         </script>
                             <!-- List of Survei -->
