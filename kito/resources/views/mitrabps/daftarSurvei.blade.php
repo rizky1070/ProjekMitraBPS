@@ -38,62 +38,64 @@
                 <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
                     <div class="container px-6 py-8 mx-auto">
                         <h3 class="text-3xl font-medium text-black">Daftar Survei</h3>
+                        <div class="flex justify-end">
+                            <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-orange text-black rounded-md hover:bg-green-600 transition duration-300">
+                                + Tambah Survei
+                            </a>
+                        </div>
                         <div class="p-6">
-                                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                                    <!-- Header dengan tombol Tambah Survei -->
-                                    <div class="flex justify-between items-center mb-4">
-                                        <h2 class="text-lg font-semibold text-gray-800">Filter Survei</h2>
-                                        <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-orange text-white rounded-md hover:bg-green-600 transition duration-300">
-                                            + Tambah Survei
-                                        </a>
+                            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                                <!-- Header dengan tombol Tambah Survei -->
+                                <div class="flex justify-between items-center mb-4">
+                                    <h2 class="text-lg font-semibold text-gray-800">Filter Survei</h2>
+                                </div>
+                                <!-- Form Filter -->
+                                <form action="{{ route('surveys.filter') }}" method="GET" class="space-y-4" id="filterForm">
+                                    <!-- Year Row -->
+                                    <div class="flex items-center">
+                                        <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
+                                        <select name="tahun" id="tahun" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                            <option value="">Semua Tahun</option>
+                                            @foreach($tahunOptions as $year => $yearLabel)
+                                                <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $yearLabel }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
-                                    <!-- Form Filter -->
-                                    <form action="{{ route('surveys.filter') }}" method="GET" class="space-y-4" id="filterForm">
-                                        <!-- Year Row -->
-                                        <div class="flex items-center">
-                                            <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
-                                            <select name="tahun" id="tahun" class="w-64 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
-                                                <option value="">Semua Tahun</option>
-                                                @foreach($tahunOptions as $year => $yearLabel)
-                                                    <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $yearLabel }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
 
                                         <!-- Month Row -->
-                                        <div class="flex items-center">
-                                            <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
-                                            <select name="bulan" id="bulan" class="w-64 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
-                                                <option value="">Semua Bulan</option>
-                                                @foreach($bulanOptions as $month => $monthName)
-                                                    <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                    <div class="flex items-center">
+                                        <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
+                                        <select name="bulan" id="bulan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                            <option value="">Semua Bulan</option>
+                                            @foreach($bulanOptions as $month => $monthName)
+                                                <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
                                         <!-- District Row -->
-                                        <div class="flex items-center">
-                                            <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
-                                            <select name="kecamatan" id="kecamatan" class="w-64 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
-                                                <option value="">Semua Kecamatan</option>
-                                                @foreach($kecamatanOptions as $id => $nama)
-                                                    <option value="{{ $id }}" @if(request('kecamatan') == $id) selected @endif>{{ $nama }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                    <div class="flex items-center">
+                                        <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
+                                        <select name="kecamatan" id="kecamatan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
+                                            <option value="">Semua Kecamatan</option>
+                                            @foreach($kecamatanOptions as $id => $nama)
+                                                <option value="{{ $id }}" @if(request('kecamatan') == $id) selected @endif>{{ $nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
                                         <!-- Survey Name Row -->
-                                        <div class="flex items-center">
-                                            <label for="nama_survei" class="w-32 text-sm font-medium text-gray-700">Nama Survei</label>
-                                            <select name="nama_survei" id="nama_survei" class="w-64 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaSurveiOptions) ? 'disabled' : '' }}>
-                                                <option value="">Semua Survei</option>
-                                                @foreach($namaSurveiOptions as $nama => $label)
-                                                    <option value="{{ $nama }}" @if(request('nama_survei') == $nama) selected @endif>{{ $label }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </form>
-                                </div>
+                                    <div class="flex items-center">
+                                        <label for="nama_survei" class="w-32 text-sm font-medium text-gray-700">Nama Survei</label>
+                                        <select name="nama_survei" id="nama_survei" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaSurveiOptions) ? 'disabled' : '' }}>
+                                            <option value="">Semua Survei</option>
+                                            @foreach($namaSurveiOptions as $nama => $label)
+                                                <option value="{{ $nama }}" @if(request('nama_survei') == $nama) selected @endif>{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
 
                         <!-- JavaScript Tom Select -->

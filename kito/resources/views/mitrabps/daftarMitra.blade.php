@@ -141,7 +141,7 @@
                     });
                 </script>
             <!-- Table -->
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto p-4 bg-white rounded-lg shadow-md">
                         <table class="w-full border-collapse border border-gray-300">
                             <thead>
                                 <tr class="bg-gray-100">
