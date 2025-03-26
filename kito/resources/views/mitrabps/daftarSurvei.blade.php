@@ -128,7 +128,7 @@
                                 const tahunSelect = document.getElementById('tahun');
                                 const bulanSelect = document.getElementById('bulan');
                                 const kecamatanSelect = document.getElementById('kecamatan');
-                                const statusSelect = document.getElementById('status_mitra');
+                                const mitraSelect = document.getElementById('nama_survei');
 
                                 // Ganti fungsi submitForm dengan ini
                                 let timeout;
@@ -142,7 +142,8 @@
                                 // Tambahkan event listener untuk setiap select
                                 tahunSelect.addEventListener('change', submitForm);
                                 bulanSelect.addEventListener('change', submitForm);
-                                statusSelect.addEventListener('change', submitForm);
+                                kecamatanSelect.addEventListener('change', submitForm);
+                                mitraSelect.addEventListener('change', submitForm);
                             });
                         </script>
                             <!-- List of Survei -->

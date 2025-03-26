@@ -121,6 +121,8 @@ class DaftarSurveiBpsController extends Controller
     
 
 
+    // 
+    
     public function editSurvei(Request $request, $id_survei)
     {
         // Ambil data survei berdasarkan ID
@@ -128,46 +130,93 @@ class DaftarSurveiBpsController extends Controller
             ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan')
             ->where('id_survei', $id_survei)
             ->firstOrFail();
+        
+        \Carbon\Carbon::setLocale(locale: 'id');
+    
+        // Daftar tahun yang tersedia
+        $tahunOptions = Mitra::selectRaw('DISTINCT YEAR(tahun) as tahun')
+            ->orderByDesc('tahun')
+            ->pluck('tahun', 'tahun');
 
-        // Query daftar mitra untuk dropdown
-        $mitrasForDropdown = Mitra::select('id_mitra', 'nama_lengkap')
-        ->orderBy('nama_lengkap', 'asc')
-        ->get();
+        // Daftar bulan berdasarkan tahun yang dipilih
+        $bulanOptions = [];
+        if ($request->filled('tahun')) {
+            $bulanOptions = Mitra::selectRaw('DISTINCT MONTH(tahun) as bulan')
+                ->whereYear('tahun', $request->tahun)
+                ->orderBy('bulan')
+                ->pluck('bulan', 'bulan')
+                ->mapWithKeys(function($month) {
+                    $monthNumber = str_pad($month, 2, '0', STR_PAD_LEFT);
+                    return [
+                        $monthNumber => \Carbon\Carbon::create()->month($month)->translatedFormat('F')
+                    ];
+                });
+        }
 
-        // Query daftar mitra
-        $mitras = Mitra::with('kecamatan')
+        // Daftar kecamatan berdasarkan tahun dan bulan yang dipilih
+        $kecamatanOptions = Kecamatan::query()
+            ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request) {
+                $query->whereHas('mitras', function($q) use ($request) {
+                    if ($request->filled('tahun')) {
+                        $q->whereYear('tahun', $request->tahun);
+                    }
+                    if ($request->filled('bulan')) {
+                        $q->whereMonth('tahun', $request->bulan);
+                    }
+                });
+            })
+            ->orderBy('nama_kecamatan')
+            ->pluck('nama_kecamatan', 'id_kecamatan');
+
+        // Daftar nama survei berdasarkan filter
+        $namaMitraOptions = Mitra::select('nama_lengkap')
+            ->distinct()
+            ->when($request->filled('tahun'), function($query) use ($request) {
+                $query->whereYear('tahun', $request->tahun);
+            })
+            ->when($request->filled('bulan'), function($query) use ($request) {
+                $query->whereMonth('tahun', $request->bulan);
+            })
+            ->when($request->filled('kecamatan'), function($query) use ($request) {
+                $query->where('id_kecamatan', $request->kecamatan);
+            })
+            ->orderBy('nama_lengkap')
+            ->pluck('nama_lengkap', 'nama_lengkap');
+
+            // query daftar mitra 
+            $mitras = Mitra::with(['kecamatan', 'mitraSurvei'])
             ->leftJoin('mitra_survei', function ($join) use ($id_survei) {
                 $join->on('mitra.id_mitra', '=', 'mitra_survei.id_mitra');
             })
             ->select('mitra.*')
-            ->selectRaw('COUNT(mitra_survei.id_survei) as mitra_survei_count') // Hitung jumlah survei
-            ->selectRaw('IF(SUM(mitra_survei.id_survei = ?), 1, 0) as isFollowingSurvey', [$id_survei]) // Cek apakah mitra mengikuti survei tertentu
-            ->groupBy('mitra.id_mitra') // Diperlukan agar COUNT() berfungsi
-            ->orderByDesc('isFollowingSurvey') // Prioritaskan mitra yang mengikuti survei
-            ->orderByRaw('mitra.id_kecamatan = ? DESC', [$survey->id_kecamatan]); // Lalu prioritaskan mitra dari kecamatan survei
+            ->selectRaw('COUNT(mitra_survei.id_survei) as mitra_survei_count')
+            ->selectRaw('IF(SUM(mitra_survei.id_survei = ?), 1, 0) as isFollowingSurvey', [$id_survei])
+            ->groupBy('mitra.id_mitra')
+            ->when($request->filled('tahun'), function($query) use ($request) {
+                $query->whereYear('tahun', $request->tahun);
+            })
+            ->when($request->filled('bulan'), function($query) use ($request) {
+                $query->whereMonth('tahun', $request->bulan);
+            })
+            ->when($request->filled('kecamatan'), function($query) use ($request) {
+                $query->where('id_kecamatan', $request->kecamatan);
+            })
+            ->when($request->filled('nama_lengkap'), function($query) use ($request) {
+                $query->where('nama_lengkap', $request->nama_lengkap);
+            })
+            ->orderByDesc('isFollowingSurvey')
+            ->orderByRaw('mitra.id_kecamatan = ? DESC', [$survey->id_kecamatan])
+            ->paginate(10);
 
-        // Filter berdasarkan kecamatan jika dipilih
-        if ($request->filled('kecamatan')) {
-            $mitras->where('mitra.id_kecamatan', $request->kecamatan);
-        }
-
-        // Filter berdasarkan pencarian nama mitra
-        if ($request->filled('search')) {
-            $mitras->where('mitra.nama_lengkap', 'like', '%' . $request->search . '%');
-        }
-
-        // Filter berdasarkan mitra yang dipilih dari dropdown
-        if ($request->filled('mitra')) {
-            $mitras->where('mitra.id_mitra', $request->mitra);
-        }
-
-        // Pagination langsung di query
-        $mitras = $mitras->paginate(10);
-
-        // Ambil daftar kecamatan untuk dropdown
-        $kecamatans = Kecamatan::select('id_kecamatan', 'nama_kecamatan')->get();
-
-        return view('mitrabps.editSurvei', compact('survey', 'mitras', 'kecamatans', 'mitrasForDropdown'));
+            return view('mitrabps.editSurvei', compact(
+                'survey',
+                'mitras',
+                'tahunOptions',
+                'bulanOptions',
+                'kecamatanOptions',
+                'namaMitraOptions',
+                'request'
+            ));    
     }
 
 

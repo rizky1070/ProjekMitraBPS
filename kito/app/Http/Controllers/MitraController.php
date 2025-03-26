@@ -16,42 +16,123 @@ use Maatwebsite\Excel\Facades\Excel;
 class MitraController extends Controller
 {
 
+    // public function index(Request $request)
+    // {
+    //     // Query awal dengan relasi
+    //     $mitras = Mitra::with('kecamatan')
+    //         ->withCount('mitraSurvei');
+
+    //     // Filter nama mitra
+    //     if ($request->filled('search')) {
+    //         $mitras->where('nama_lengkap', 'like', '%' . $request->search . '%');
+    //     }
+
+    //     // Filter kecamatan
+    //     if ($request->filled('kecamatan')) {
+    //         $mitras->whereHas('kecamatan', function ($query) use ($request) {
+    //             $query->where('nama_kecamatan', 'like', '%' . $request->kecamatan . '%');
+    //         });
+    //     }
+
+    //     // Filter berdasarkan mitra yang dipilih dari dropdown
+    //     if ($request->filled('mitra')) {
+    //         $mitras->where('id_mitra', $request->mitra);
+    //     }
+
+    //     // Pagination
+    //     $mitras = $mitras->paginate(10);
+    
+    //     // Daftar kecamatan untuk dropdown filter
+    //     $kecamatans = Kecamatan::pluck('nama_kecamatan', 'id_kecamatan');
+
+    //     // Daftar mitra untuk dropdown filter
+    //     $mitrasForDropdown = Mitra::select('id_mitra', 'nama_lengkap')
+    //     ->orderBy('nama_lengkap', 'asc')
+    //     ->get();
+
+
+    //     return view('mitrabps.daftarMitra', compact('mitras', 'kecamatans', 'mitrasForDropdown'));
+    // }
+
     public function index(Request $request)
     {
-        // Query awal dengan relasi
-        $mitras = Mitra::with('kecamatan')
-            ->withCount('mitraSurvei');
+        \Carbon\Carbon::setLocale('id');
+        
+        // Daftar tahun yang tersedia
+        $tahunOptions = Mitra::selectRaw('DISTINCT YEAR(tahun) as tahun')
+            ->orderByDesc('tahun')
+            ->pluck('tahun', 'tahun');
 
-        // Filter nama mitra
-        if ($request->filled('search')) {
-            $mitras->where('nama_lengkap', 'like', '%' . $request->search . '%');
+        // Daftar bulan berdasarkan tahun yang dipilih
+        $bulanOptions = [];
+        if ($request->filled('tahun')) {
+            $bulanOptions = Mitra::selectRaw('DISTINCT MONTH(tahun) as bulan')
+                ->whereYear('tahun', $request->tahun)
+                ->orderBy('bulan')
+                ->pluck('bulan', 'bulan')
+                ->mapWithKeys(function($month) {
+                    $monthNumber = str_pad($month, 2, '0', STR_PAD_LEFT);
+                    return [
+                        $monthNumber => \Carbon\Carbon::create()->month($month)->translatedFormat('F')
+                    ];
+                });
         }
 
-        // Filter kecamatan
-        if ($request->filled('kecamatan')) {
-            $mitras->whereHas('kecamatan', function ($query) use ($request) {
-                $query->where('nama_kecamatan', 'like', '%' . $request->kecamatan . '%');
-            });
-        }
+        // Daftar kecamatan berdasarkan tahun dan bulan yang dipilih
+        $kecamatanOptions = Kecamatan::query()
+            ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request) {
+                $query->whereHas('mitras', function($q) use ($request) {
+                    if ($request->filled('tahun')) {
+                        $q->whereYear('tahun', $request->tahun);
+                    }
+                    if ($request->filled('bulan')) {
+                        $q->whereMonth('tahun', $request->bulan);
+                    }
+                });
+            })
+            ->orderBy('nama_kecamatan')
+            ->pluck('nama_kecamatan', 'id_kecamatan');
 
-        // Filter berdasarkan mitra yang dipilih dari dropdown
-        if ($request->filled('mitra')) {
-            $mitras->where('id_mitra', $request->mitra);
-        }
+        // Daftar nama survei berdasarkan filter
+        $namaMitraOptions = Mitra::select('nama_lengkap')
+            ->distinct()
+            ->when($request->filled('tahun'), function($query) use ($request) {
+                $query->whereYear('tahun', $request->tahun);
+            })
+            ->when($request->filled('bulan'), function($query) use ($request) {
+                $query->whereMonth('tahun', $request->bulan);
+            })
+            ->when($request->filled('kecamatan'), function($query) use ($request) {
+                $query->where('id_kecamatan', $request->kecamatan);
+            })
+            ->orderBy('nama_lengkap')
+            ->pluck('nama_lengkap', 'nama_lengkap');
 
-        // Pagination
-        $mitras = $mitras->paginate(10);
-    
-        // Daftar kecamatan untuk dropdown filter
-        $kecamatans = Kecamatan::pluck('nama_kecamatan', 'id_kecamatan');
+        // Query utama
+        $mitras = Mitra::with(['kecamatan', 'mitraSurvei'])
+            ->withCount('mitraSurvei')
+            ->when($request->filled('tahun'), function($query) use ($request) {
+                $query->whereYear('tahun', $request->tahun);
+            })
+            ->when($request->filled('bulan'), function($query) use ($request) {
+                $query->whereMonth('tahun', $request->bulan);
+            })
+            ->when($request->filled('kecamatan'), function($query) use ($request) {
+                $query->where('id_kecamatan', $request->kecamatan);
+            })
+            ->when($request->filled('nama_lengkap'), function($query) use ($request) {
+                $query->where('nama_lengkap', $request->nama_lengkap);
+            })
+            ->paginate(10);
 
-        // Daftar mitra untuk dropdown filter
-        $mitrasForDropdown = Mitra::select('id_mitra', 'nama_lengkap')
-        ->orderBy('nama_lengkap', 'asc')
-        ->get();
-
-
-        return view('mitrabps.daftarMitra', compact('mitras', 'kecamatans', 'mitrasForDropdown'));
+        return view('mitrabps.daftarMitra', compact(
+            'mitras',
+            'tahunOptions',
+            'bulanOptions',
+            'kecamatanOptions',
+            'namaMitraOptions',
+            'request'
+        ));
     }
 
 
