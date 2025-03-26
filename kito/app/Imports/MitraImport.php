@@ -20,9 +20,7 @@ class mitraImport implements ToModel, WithHeadingRow
         if ($existingMitra) {
             // Jika sudah ada, lakukan update posisi_mitra
             $existingMitra->update([
-                'alamat_mitra' => $row['alamat'],
-                'id_desa' => $row['desa'],
-                'id_kecamatan' => $row['kecamatan']
+                'tahun' => $row['tahun']
             ]);
             return null; // Tidak perlu menambah data baru
         }
@@ -30,10 +28,16 @@ class mitraImport implements ToModel, WithHeadingRow
         // Jika belum ada, buat data baru
         return new Mitra([
             'nama_lengkap' => $row['nama'],
+            // 'sobat_id' => $row['sobat_id'] ?? (isset($row['id_mitra']) ? ('S' . str_pad($row['id_mitra'], 3, '0', STR_PAD_LEFT)) : null),
             'alamat_mitra' => $row['alamat'],
             'id_desa' => $row['desa'],
             'id_kecamatan' => $row['kecamatan'],
-            'jenis_kelamin' => $row['kelamin']
+            'id_kabupaten' => $row['kabupaten'] ?? '1',
+            'id_provinsi' => $row['provinsi'] ?? '3',
+            'jenis_kelamin' => $row['kelamin'],
+            'no_hp_mitra' => $row['hp'],
+            'email_mitra' => $row['email'],
+            'tahun' => $row['tahun'] ?? now()
         ]);
     }
 }

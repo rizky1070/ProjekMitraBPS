@@ -37,7 +37,7 @@
             <div class="flex items-center bg-white my-4 px-10 py-5 rounded-lg shadow">
                 <div class="flex flex-col justify-center items-center text-center">
                     <img alt="Profile picture" class="w-24 h-24 rounded-full border-2 border-gray-500 mr-4" src="{{ asset('person.png') }}" width="100" height="100">
-                    <h2 class="text-xl">{{ $mits->nama_lengkap }}</h2>
+                    <h2 class="text-xl font-bold">{{ $mits->nama_lengkap }}</h2>
                 </div>
                 <div class="pl-5"> 
                     <p><strong>Domisili :</strong> {{ $mits->kecamatan->nama_kecamatan }}</p>
@@ -50,7 +50,7 @@
 
         <!-- Tabel Survei -->
         <div class="max-w-4xl mx-auto">
-            <h2 class="text-xl font-bold mb-4">Survei yang diikuti mitra</h2>
+            <h2 class="text-2xl font-bold mb-4">Survei yang diikuti mitra</h2>
             <div class="bg-white p-4 rounded-lg shadow">
         <form method="GET" action="{{ route('profilMitra', ['id_mitra' => $mits->id_mitra]) }}" class="flex flex-wrap gap-4 items-center mb-4">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md">
