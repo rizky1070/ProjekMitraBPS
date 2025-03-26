@@ -13,17 +13,17 @@ class mitraImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         // Cek apakah nama sudah ada
-        $existingMitra = Mitra::where('nama_lengkap', $row['nama'])
-                                    // ->where('id_survei', $this->id_survei)
-                                    ->first();
+        // $existingMitra = Mitra::where('nama_lengkap', $row['nama'])
+        //                             // ->where('id_survei', $this->id_survei)
+        //                             ->first();
 
-        if ($existingMitra) {
-            // Jika sudah ada, lakukan update posisi_mitra
-            $existingMitra->update([
-                'tahun' => $row['tahun']
-            ]);
-            return null; // Tidak perlu menambah data baru
-        }
+        // if ($existingMitra) {
+        //     // Jika sudah ada, lakukan update tahun mitra
+        //     $existingMitra->update([
+        //         'tahun' => $row['tahun']
+        //     ]);
+        //     return null; // Tidak perlu menambah data baru
+        // }
 
         // Jika belum ada, buat data baru
         return new Mitra([
@@ -32,12 +32,12 @@ class mitraImport implements ToModel, WithHeadingRow
             'alamat_mitra' => $row['alamat'],
             'id_desa' => $row['desa'],
             'id_kecamatan' => $row['kecamatan'],
-            'id_kabupaten' => $row['kabupaten'] ?? '1',
-            'id_provinsi' => $row['provinsi'] ?? '3',
+            'id_kabupaten' => $row['kabupaten'] ?? '1', // default kabupaten 16
+            'id_provinsi' => $row['provinsi'] ?? '3', // default provinsi 35
             'jenis_kelamin' => $row['kelamin'],
             'no_hp_mitra' => $row['hp'],
             'email_mitra' => $row['email'],
-            'tahun' => $row['tahun'] ?? now()
+            'tahun' => $row['tahun'] ?? now() // default tahun sekarang
         ]);
     }
 }
