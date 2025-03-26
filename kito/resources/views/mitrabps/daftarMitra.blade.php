@@ -146,7 +146,7 @@
                             <thead>
                                 <tr class="bg-gray-100">
                                     <th class="border border-gray-300 p-2">Nama Mitra</th>
-                                    <th class="border border-gray-300 p-2">Domisili</th>
+                                    <th class="border border-gray-300 p-2">Kecamatan</th>
                                     <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
                                     <th class="border border-gray-300 p-2">Tahun</th>
                                     <th class="border border-gray-300 p-2">Aksi</th>

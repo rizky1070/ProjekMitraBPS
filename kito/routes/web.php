@@ -336,6 +336,8 @@ Route::post('/upExcelMitra', [MitraController::class, 'upExcelMitra'])->name('up
 
 //Halaman Mitra > Daftar Mitra > Profil Mitra
 Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profilMitra');
+Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profilMitra.filter');
+
 
 //Halaman Mitra > Daftar Mitra > Penilaian Mitra
 Route::get('/penilaianMitra/{id_mitra_survei}', [MitraController::class, 'penilaianMitra'])->name('penilaian.mitra');
