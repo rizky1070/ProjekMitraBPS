@@ -232,7 +232,7 @@
         </div>
     </main>
     <!-- Modal Upload Excel -->
-    <div id="uploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+    <div id="uploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden" style="z-index: 10001;">
         <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <h2 class="text-xl font-bold mb-2">Import Mitra ke Survei</h2>
             <p class="mb-2 text-red-700 text-sm">Pastikan format file excel yang diimport sesuai.</p>
