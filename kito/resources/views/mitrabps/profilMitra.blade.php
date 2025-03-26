@@ -70,7 +70,7 @@
                         </select>
                     </div>
 
-                        <!-- Month Row -->
+                    <!-- Month Row -->
                     <div class="flex items-center">
                         <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
                         <select name="bulan" id="bulan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>

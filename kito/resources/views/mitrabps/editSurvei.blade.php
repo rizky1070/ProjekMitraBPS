@@ -37,7 +37,7 @@
             <h2 class="text-2xl font-bold mb-4">Survei Terpilih</h2>
             <div class="bg-white p-4 rounded-lg shadow">
                 <p><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
-                <p><strong>Lokasi :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
+                <p><strong>Kecamatan :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
                 <p><strong>Jadwal :</strong> {{ $survey->jadwal_kegiatan }}</p>
                 <p><strong>Tim :</strong> {{ $survey->tim }}</p>
                 <p><strong>KRO :</strong> {{ $survey->kro }} </p>
@@ -192,7 +192,6 @@
                         mitraSelect.addEventListener('change', submitForm);
                     });
                 </script>
-
                 <table class="w-full border-collapse border border-gray-300">
                     <thead>
                         <tr class="bg-gray-100">
