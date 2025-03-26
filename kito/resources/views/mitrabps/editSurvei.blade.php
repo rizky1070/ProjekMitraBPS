@@ -46,11 +46,11 @@
                     <strong>Status :</strong>
                     <span class="font-bold">
                         @if($survey->status_survei == 1)
-                            <div class="bg-red-500 text-white rounded-md px-1 py-0.5 ml-2 mr-5">Belum Dikerjakan</div>
+                            <div class="bg-red-500 text-white  px-2 py-1 rounded ml-2 mr-5">Belum Dikerjakan</div>
                         @elseif($survey->status_survei == 2)
-                            <div class="bg-yellow-300 text-white rounded-md px-1 py-0.5 ml-2 mr-5">Sedang Dikerjakan</div>
+                            <div class="bg-yellow-300 text-white  px-2 py-1 rounded ml-2 mr-5">Sedang Dikerjakan</div>
                         @elseif($survey->status_survei == 3)
-                            <div class="bg-green-500 text-white rounded-md px-1 py-0.5 ml-2 mr-5">Sudah Dikerjakan</div>
+                            <div class="bg-green-500 text-white  px-2 py-1 rounded ml-2 mr-5">Sudah Dikerjakan</div>
                         @else
                             <span class="bg-gray-500 text-white rounded-md px-2 py-1 ml-2">Status Tidak Diketahui</span>
                         @endif
@@ -192,41 +192,42 @@
                         mitraSelect.addEventListener('change', submitForm);
                     });
                 </script>
-
-                <table class="w-full border-collapse border border-gray-300">
-                    <thead>
-                        <tr class="bg-gray-100">
-                            <th class="border border-gray-300 p-2">Nama Mitra</th>
-                            <th class="border border-gray-300 p-2">Domisili</th>
-                            <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
-                            <th class="border border-gray-300 p-2">Tahun</th>
-                            <th class="border border-gray-300 p-2">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($mitras as $mitra)
-                        <tr class="bg-white hover:bg-gray-100">
-                            <td class="border border-gray-300 p-2">{{ $mitra->nama_lengkap }}</td>
-                            <td class="border border-gray-300 p-2 text-center">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
-                            <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
-                            <td class="border border-gray-300 p-2 text-center">{{ $mitra->tahun }}</td>
-                            <td class="border border-gray-300 p-2 text-center">
-                                @if ($mitra->isFollowingSurvey)
-                                    <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="bg-orange text-black px-3 py-1 rounded">Hapus</button>
-                                    </form>
-                                @else
-                                    <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="bg-orange text-black px-3 py-1 rounded">Tambah</button>
-                                    </form>
-                                @endif
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                <div class="overflow-x-auto m-6 p-4 bg-white rounded-lg shadow-md">
+                    <table class="w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-gray-300 p-2">Nama Mitra</th>
+                                <th class="border border-gray-300 p-2">Domisili</th>
+                                <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
+                                <th class="border border-gray-300 p-2">Tahun</th>
+                                <th class="border border-gray-300 p-2">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($mitras as $mitra)
+                            <tr class="bg-white hover:bg-gray-100">
+                                <td class="border border-gray-300 p-2">{{ $mitra->nama_lengkap }}</td>
+                                <td class="border border-gray-300 p-2 text-center">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
+                                <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
+                                <td class="border border-gray-300 p-2 text-center">{{ $mitra->tahun }}</td>
+                                <td class="border border-gray-300 p-2 text-center">
+                                    @if ($mitra->isFollowingSurvey)
+                                        <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="bg-orange text-black px-3 py-1 rounded">Hapus</button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="bg-orange text-black px-3 py-1 rounded">Tambah</button>
+                                        </form>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
             @include('components.pagination', ['paginator' => $mitras])
         </div>
