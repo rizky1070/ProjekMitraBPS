@@ -14,16 +14,16 @@ class SurveiImport implements ToModel, WithHeadingRow
     {
         Log::info('Importing row: ', $row);
         return new Survei([
-            'nama_survei' => $row['nama_survei'] ?? null, 
-            'id_desa' => $row['kode_desa'] ?? null,
-            'id_kecamatan' => $row['kode_kecamatan'] ?? null,
-            'id_kabupaten' => $row['kode_kabupaten'] ?? null,
-            'id_provinsi' => $row['kode_provinsi'] ?? null,
+            'nama_survei' => $row['nama_survei'], 
             'lokasi_survei' => $row['lokasi_survei'] ?? null,
-            'kro' => $row['kro'] ?? null,
-            'jadwal_kegiatan' => isset($row['jadwal_kegiatan']) ? $this->parseDate($row['jadwal_kegiatan']) : null,
+            'id_desa' => $row['kode_desa'],
+            'id_kecamatan' => $row['kode_kecamatan'],
+            'id_kabupaten' => $row['kode_kabupaten'] ?? '1', // default kabupaten 16
+            'id_provinsi' => $row['kode_provinsi'] ?? '3', // default provinsi 35
+            'kro' => $row['kro'],
+            'jadwal_kegiatan' => isset($row['jadwal']) ? $this->parseDate($row['jadwal']) : null,
             'status_survei' => 1, 
-            'tim' => $row['tim'] ?? null
+            'tim' => $row['tim']
         ]);
     }
 
