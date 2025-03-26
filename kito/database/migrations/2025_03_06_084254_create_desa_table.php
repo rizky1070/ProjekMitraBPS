@@ -12,6 +12,10 @@ class CreateDesaTable extends Migration
             $table->id('id_desa');
             $table->string('kode_desa');
             $table->string('nama_desa');
+            $table->unsignedBigInteger('id_kecamatan');
+    
+            $table->foreign('id_kecamatan')->references('id_kecamatan')->on('kecamatan');
+
         });
     }
 
