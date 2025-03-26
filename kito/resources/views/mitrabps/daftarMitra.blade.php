@@ -96,8 +96,7 @@
                         
                             
                         </div>
-                    </div>  
-                    <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+                    </div> 
 
                     <!-- JavaScript Tom Select -->
                 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
@@ -117,7 +116,7 @@
                     });
                 </script>
             <!-- Table -->
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto p-4 bg-white rounded-lg shadow-md">
                         <table class="w-full border-collapse border border-gray-300">
                             <thead>
                                 <tr class="bg-gray-100">

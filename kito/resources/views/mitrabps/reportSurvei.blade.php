@@ -55,7 +55,7 @@
                             <!-- Tahun Filter -->
                             <div>
                                 <label for="jadwal_kegiatan" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
-                                <select id="tahun" name="tahun" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+                                <select id="tahun" name="tahun" class="w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
                                     <option value="">Semua Tahun</option>
                                     @foreach($tahunOptions as $tahun)
                                         <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>
@@ -68,7 +68,7 @@
                             <!-- Bulan Filter -->
                             <div>
                                 <label for="bulan" class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
-                                <select id="bulan" name="bulan" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+                                <select id="bulan" name="bulan" class="w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
                                     <option value="">Semua Bulan</option>
                                     @foreach($bulanOptions as $bulan)
                                         <option value="{{ $bulan }}" {{ request('bulan') == $bulan ? 'selected' : '' }}>
@@ -81,7 +81,7 @@
                             <!-- Partisipasi Filter -->
                             <div>
                                 <label for="status_survei" class="block text-sm font-medium text-gray-700 mb-1">Status Survei</label>
-                                <select id="status_survei" name="status_survei" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+                                <select id="status_survei" name="status_survei" class="w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
                                     <option value="">Semua Survei</option>
                                     <option value="aktif" {{ request('status_survei') == 'aktif' ? 'selected' : '' }}>Survei Aktif</option>
                                     <option value="tidak_aktif" {{ request('status_survei') == 'tidak_aktif' ? 'selected' : '' }}>Survei Tidak aktif</option>
