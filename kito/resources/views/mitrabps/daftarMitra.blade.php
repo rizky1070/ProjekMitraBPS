@@ -47,9 +47,9 @@
                             <!-- Form Filter -->
                             <form action="{{ route('mitras.filter') }}" method="GET" class="space-y-4" id="filterForm">
                                 <!-- Year Row -->
-                                <div class="flex items-center">
+                                <div class="flex items-center relative">
                                     <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
-                                    <select name="tahun" id="tahun" class="w-64 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                    <select name="tahun" id="tahun" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
                                         <option value="">Semua Tahun</option>
                                         @foreach($tahunOptions as $year => $yearLabel)
                                             <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $yearLabel }}</option>
@@ -58,9 +58,10 @@
                                 </div>
 
                                 <!-- Month Row -->
-                                <div class="flex items-center">
+                                <div class="flex items-center relative">
                                     <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
-                                    <select name="bulan" id="bulan" class="w-64 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                    <select name="bulan" id="bulan" class="w-64 
+                                    border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
                                         <option value="">Semua Bulan</option>
                                         @foreach($bulanOptions as $month => $monthName)
                                             <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
@@ -69,9 +70,10 @@
                                 </div>
 
                                 <!-- District Row -->
-                                <div class="flex items-center">
+                                <div class="flex items-center relative">
                                     <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
-                                    <select name="kecamatan" id="kecamatan" class="w-64 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
+                                    <select name="kecamatan" id="kecamatan" class="w-64 
+                                    border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
                                         <option value="">Semua Kecamatan</option>
                                         @foreach($kecamatanOptions as $id => $nama)
                                             <option value="{{ $id }}" @if(request('kecamatan') == $id) selected @endif>{{ $nama }}</option>
@@ -80,9 +82,10 @@
                                 </div>
 
                                 <!-- Survey Name Row -->
-                                <div class="flex items-center">
+                                <div class="flex items-center relative">
                                     <label for="nama_lengkap" class="w-32 text-sm font-medium text-gray-700">Nama Mitra</label>
-                                    <select name="nama_lengkap" id="nama_mitra" class="w-64 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaMitraOptions) ? 'disabled' : '' }}>
+                                    <select name="nama_lengkap" id="nama_mitra" class="w-64 
+                                    border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaMitraOptions) ? 'disabled' : '' }}>
                                         <option value="">Semua Mitra</option>
                                         @foreach($namaMitraOptions as $nama => $label)
                                             <option value="{{ $nama }}" @if(request('nama_lengkap') == $nama) selected @endif>{{ $label }}</option>
@@ -173,7 +176,7 @@
         </div>
     </div>
     <!-- Modal Upload Excel -->
-    <div id="uploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden" style="z-index: 10001;">        
+    <div id="uploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden" style="z-index: 50;">
         <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <h2 class="text-xl font-bold mb-2">Import Mitra</h2>
             <p class="mb-2 text-red-700 text-sm">Pastikan format file excel yang diimport sesuai.</p>
