@@ -41,7 +41,7 @@
                         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                             <!-- Header dengan tombol Tambah Survei -->
                             <div class="flex justify-between items-center mb-4">
-                                <h2 class="text-lg font-semibold text-gray-800">Filter Survei</h2>
+                                <h2 class="text-lg font-semibold text-gray-800">Filter Mitra</h2>
                                 <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
                             </div>
                             <!-- Form Filter -->
