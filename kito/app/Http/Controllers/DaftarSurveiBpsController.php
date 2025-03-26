@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Survei;
 use App\Models\Mitra;
 use App\Models\Kecamatan;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Provinsi; // Model untuk Provinsi
 use App\Models\Kabupaten; // Model untuk Kabupaten
 use App\Models\Desa; // Model untuk Desa
+
 
 class DaftarSurveiBpsController extends Controller
 {
@@ -120,8 +122,6 @@ class DaftarSurveiBpsController extends Controller
     }
     
 
-
-    // 
     
     public function editSurvei(Request $request, $id_survei)
     {
@@ -265,7 +265,6 @@ class DaftarSurveiBpsController extends Controller
         $kecamatan = Kecamatan::all(); // Ambil semua data kecamatan
         $desa = Desa::all(); // Ambil semua data desa
 
-        
 
         return view('mitrabps.inputSurvei', compact('provinsi', 'kabupaten', 'kecamatan', 'desa'));
     }
@@ -301,7 +300,19 @@ class DaftarSurveiBpsController extends Controller
             'file' => 'required|file|mimes:xls,xlsx'
         ]);
 
-        Excel::import(new SurveiImport, $request->file('file'));
+        $import = new SurveiImport();
+        
+        try {
+            Excel::import($import, $request->file('file'));
+        } catch (Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+        
+        if (!empty($import->getErrors())) {
+            return redirect()->back()
+                ->with('errors', $import->getErrors());
+        }
 
         return redirect()->back()->with('success', 'Data survei berhasil diimport!');
     }
