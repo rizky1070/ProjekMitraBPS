@@ -20,67 +20,103 @@ class DaftarSurveiBpsController extends Controller
 {
     public function index(Request $request)
     {
-        // Set locale ke Indonesia
         \Carbon\Carbon::setLocale('id');
         
-        // Mendapatkan daftar tahun yang tersedia dari tabel survei
-        $availableYears = Survei::selectRaw('YEAR(jadwal_kegiatan) as year')
-            ->distinct()
-            ->orderBy('year', 'desc')
-            ->pluck('year');
-    
-        // Mendapatkan daftar kecamatan
-        $kecamatans = Kecamatan::all(); 
+        // Daftar tahun yang tersedia
+        $tahunOptions = Survei::selectRaw('DISTINCT YEAR(jadwal_kegiatan) as tahun')
+            ->orderByDesc('tahun')
+            ->pluck('tahun', 'tahun');
 
-        // Mendapatkan daftar nama survei yang unik
-        $namaSurvei = Survei::select('nama_survei')
-            ->distinct()
-            ->orderBy('nama_survei', 'asc')
-            ->get();
-        
-        // Mendapatkan bulan yang dipilih dari request
-        $bulan = $request->filled('bulan') ? $request->bulan : null;
-    
-        // Query untuk mengambil data survei dan filter berdasarkan bulan
-        $surveys = Survei::with('kecamatan', 'mitraSurvei')
-                        ->withCount('mitraSurvei')
-                        ->when($bulan, function ($query) use ($bulan) {
-                            return $query->whereMonth('jadwal_kegiatan', $bulan);
-                        });
-    
-        // Filter berdasarkan tahun jika ada parameter tahun
+        // Daftar bulan berdasarkan tahun yang dipilih
+        $bulanOptions = [];
         if ($request->filled('tahun')) {
-            $surveys->whereYear('jadwal_kegiatan', $request->tahun); 
-        }
-    
-        // Filter berdasarkan bulan jika ada parameter bulan
-        if ($request->filled('bulan')) {
-            $surveys->whereMonth('jadwal_kegiatan', $request->bulan);  
-        }
-    
-        // Filter berdasarkan kecamatan jika ada parameter kecamatan
-        if ($request->filled('kecamatan')) {
-            $surveys->where('id_kecamatan', $request->kecamatan); 
+            $bulanOptions = Survei::selectRaw('DISTINCT MONTH(jadwal_kegiatan) as bulan')
+                ->whereYear('jadwal_kegiatan', $request->tahun)
+                ->orderBy('bulan')
+                ->pluck('bulan', 'bulan')
+                ->mapWithKeys(function($month) {
+                    $monthNumber = str_pad($month, 2, '0', STR_PAD_LEFT);
+                    return [
+                        $monthNumber => \Carbon\Carbon::create()->month($month)->translatedFormat('F')
+                    ];
+                });
         }
 
-        // Filter berdasarkan nama survei jika ada parameter nama_survei
-        if ($request->filled('nama_survei')) {
-            $surveys->where('nama_survei', $request->nama_survei); 
+        // Daftar kecamatan berdasarkan tahun dan bulan yang dipilih
+        $kecamatanOptions = Kecamatan::query()
+            ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request) {
+                $query->whereHas('surveis', function($q) use ($request) {
+                    if ($request->filled('tahun')) {
+                        $q->whereYear('jadwal_kegiatan', $request->tahun);
+                    }
+                    if ($request->filled('bulan')) {
+                        $q->whereMonth('jadwal_kegiatan', $request->bulan);
+                    }
+                });
+            })
+            ->orderBy('nama_kecamatan')
+            ->pluck('nama_kecamatan', 'id_kecamatan');
+
+        // Daftar nama survei berdasarkan filter
+        $namaSurveiOptions = Survei::select('nama_survei')
+            ->distinct()
+            ->when($request->filled('tahun'), function($query) use ($request) {
+                $query->whereYear('jadwal_kegiatan', $request->tahun);
+            })
+            ->when($request->filled('bulan'), function($query) use ($request) {
+                $query->whereMonth('jadwal_kegiatan', $request->bulan);
+            })
+            ->when($request->filled('kecamatan'), function($query) use ($request) {
+                $query->where('id_kecamatan', $request->kecamatan);
+            })
+            ->orderBy('nama_survei')
+            ->pluck('nama_survei', 'nama_survei');
+
+        // Query utama
+        $surveys = Survei::with(['kecamatan', 'mitraSurvei'])
+            ->withCount('mitraSurvei')
+            ->when($request->filled('tahun'), function($query) use ($request) {
+                $query->whereYear('jadwal_kegiatan', $request->tahun);
+            })
+            ->when($request->filled('bulan'), function($query) use ($request) {
+                $query->whereMonth('jadwal_kegiatan', $request->bulan);
+            })
+            ->when($request->filled('kecamatan'), function($query) use ($request) {
+                $query->where('id_kecamatan', $request->kecamatan);
+            })
+            ->when($request->filled('nama_survei'), function($query) use ($request) {
+                $query->where('nama_survei', $request->nama_survei);
+            })
+            ->orderBy('status_survei')
+            ->paginate(10);
+
+        // Mitra dengan survei ganda
+        $mitraWithMultipleSurveysInMonth = collect([]);
+        if ($request->filled('bulan')) {
+            $mitraWithMultipleSurveysInMonth = Mitra::select('mitra.id_mitra', 'mitra.nama_lengkap')
+                ->join('mitra_survei', 'mitra_survei.id_mitra', '=', 'mitra.id_mitra')
+                ->join('survei', 'survei.id_survei', '=', 'mitra_survei.id_survei')
+                ->whereMonth('survei.jadwal_kegiatan', $request->bulan)
+                ->when($request->filled('tahun'), function($query) use ($request) {
+                    $query->whereYear('survei.jadwal_kegiatan', $request->tahun);
+                })
+                ->when($request->filled('kecamatan'), function($query) use ($request) {
+                    $query->where('survei.id_kecamatan', $request->kecamatan);
+                })
+                ->groupBy('mitra.id_mitra', 'mitra.nama_lengkap')
+                ->havingRaw('COUNT(DISTINCT mitra_survei.id_survei) > 1')
+                ->get();
         }
-    
-        // Mendapatkan mitra yang terlibat lebih dari satu survei di bulan yang dipilih
-        $mitraWithMultipleSurveysInMonth = Mitra::select('mitra.id_mitra', 'mitra.nama_lengkap')
-            ->join('mitra_survei', 'mitra_survei.id_mitra', '=', 'mitra.id_mitra')
-            ->join('survei', 'survei.id_survei', '=', 'mitra_survei.id_survei')
-            ->whereMonth('survei.jadwal_kegiatan', $bulan)
-            ->groupBy('mitra.id_mitra', 'mitra.nama_lengkap')
-            ->havingRaw('COUNT(DISTINCT mitra_survei.id_survei) > 1')
-            ->get();
-    
-        // Urutkan berdasarkan status_survei DESC sebelum melakukan paginasi
-        $surveys = $surveys->orderBy('status_survei')->paginate(10);
-    
-        return view('mitrabps.daftarSurvei', compact('surveys', 'availableYears', 'kecamatans', 'mitraWithMultipleSurveysInMonth', 'bulan', 'namaSurvei'));
+
+        return view('mitrabps.daftarSurvei', compact(
+            'surveys',
+            'tahunOptions',
+            'bulanOptions',
+            'kecamatanOptions',
+            'namaSurveiOptions',
+            'mitraWithMultipleSurveysInMonth',
+            'request'
+        ));
     }
     
 

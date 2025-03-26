@@ -311,8 +311,8 @@ Route::middleware('guest')->group(function () {
 // MITRA SURVEI
 // Halaman Survei > Daftar Survei
 Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index']);
-Route::get('/surveys', [DaftarSurveiBpsController::class, 'index']);
-Route::get('/surveys', [DaftarSurveiBpsController::class, 'index'])->name('surveys.filter');
+Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index']);
+Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index'])->name('surveys.filter');
 Route::post('/upExcelSurvei', [DaftarSurveiBpsController::class, 'upExcelSurvei'])->name('upload.excelSurvei');
 
 // Halaman Survei > Daftar Survei > Edit Survei
@@ -330,7 +330,7 @@ Route::post('/simpanSurvei', [DaftarSurveiBpsController::class, 'store'])->name(
 // Halaman Mitra
 //Halaman Mitra > Daftar Mitra
 Route::get('/daftarMitra', [MitraController::class, 'index'])->name('index');
-Route::get('/mitras', [MitraController::class, 'index'])->name('mitras.filter');
+Route::get('/daftarMitra', [MitraController::class, 'index'])->name('mitras.filter');
 Route::post('/upExcelMitra', [MitraController::class, 'upExcelMitra'])->name('upload.excelMitra');
 
 

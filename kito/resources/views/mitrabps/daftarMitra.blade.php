@@ -97,6 +97,8 @@
                             
                         </div>
                     </div>  
+                    <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+
                     <!-- JavaScript Tom Select -->
                 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
                 <!-- Inisialisasi Tom Select -->
@@ -122,6 +124,7 @@
                                     <th class="border border-gray-300 p-2">Nama Mitra</th>
                                     <th class="border border-gray-300 p-2">Domisili</th>
                                     <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
+                                    <th class="border border-gray-300 p-2">Tahun</th>
                                     <th class="border border-gray-300 p-2">Aksi</th>
                                 </tr>
                             </thead>
@@ -131,6 +134,7 @@
                                     <td class="border border-gray-300 p-2">{{ $mitra->nama_lengkap }}</td>
                                     <td class="border border-gray-300 p-2 text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
                                     <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
+                                    <td class="border border-gray-300 p-2 text-center">{{ $mitra->tahun }}</td>
                                     <td class="border border-gray-300 p-2 text-center">
                                         <a href="/profilMitra/{{ $mitra->id_mitra }}"  class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
                                     </td>
