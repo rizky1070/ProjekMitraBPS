@@ -20,32 +20,14 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
     
     public function model(array $row)
     {
-        // Set default values jika kosong
-        $kodeProvinsi = empty($row['kode_provinsi']) ? 'P001' : $row['kode_provinsi'];
-        $kodeKabupaten = empty($row['kode_kabupaten']) ? 'K001' : $row['kode_kabupaten'];
-        
         Log::info('Importing row: ', $row);
-        
-        // Cari provinsi
-        $provinsi = Provinsi::where('kode_provinsi', $kodeProvinsi)->first();
-        if (!$provinsi) {
-            throw new \Exception("Kode provinsi {$kodeProvinsi} tidak ditemukan");
-        }
-        
-        // Cari kabupaten
-        $kabupaten = Kabupaten::where('kode_kabupaten', $kodeKabupaten)
-            // ->where('id_provinsi', $provinsi->id_provinsi)
-            ->first();
-        if (!$kabupaten) {
-            throw new \Exception("Kode kabupaten {$kodeKabupaten} tidak ditemukan di provinsi {$provinsi->nama}");
-        }
         
         // Cari kecamatan
         $kecamatan = Kecamatan::where('kode_kecamatan', $row['kode_kecamatan'])
             // ->where('id_kabupaten', $kabupaten->id_kabupaten)
             ->first();
         if (!$kecamatan) {
-            throw new \Exception("Kode kecamatan {$row['kode_kecamatan']} tidak ditemukan di kabupaten {$kabupaten->nama}");
+            throw new \Exception("Kode kecamatan {$row['kode_kecamatan']} tidak ditemukan di kabupaten {$kabupaten->nama_kabupaten}");
         }
         
         // Cari desa
@@ -53,16 +35,16 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             // ->where('id_kecamatan', $kecamatan->id_kecamatan)
             ->first();
         if (!$desa) {
-            throw new \Exception("Kode desa {$row['kode_desa']} tidak ditemukan di kecamatan {$kecamatan->nama}");
+            throw new \Exception("Kode desa {$row['kode_desa']} tidak ditemukan di kecamatan {$kecamatan->nama_kecamatan}");
         }
         
         return new Survei([
             'nama_survei' => $row['nama_survei'], 
             'lokasi_survei' => $row['lokasi_survei'] ?? null,
             'id_desa' => $desa->id_desa,
-            'id_kecamatan' => $kecamatan->id_kecamatan,
-            'id_kabupaten' => $kabupaten->id_kabupaten,
-            'id_provinsi' => $provinsi->id_provinsi,
+            'id_kecamatan' => $kecamatan->id_kecamatan, 
+            'id_kabupaten' => '1', //seharusnya 16
+            'id_provinsi' => '3', //seharusnya 35
             'kro' => $row['kro'],
             'jadwal_kegiatan' => isset($row['jadwal']) ? $this->parseDate($row['jadwal']) : null,
             'status_survei' => 1, 
