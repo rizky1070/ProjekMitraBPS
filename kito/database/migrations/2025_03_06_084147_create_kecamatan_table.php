@@ -10,7 +10,7 @@ class CreateKecamatanTable extends Migration
     {
         Schema::create('kecamatan', function (Blueprint $table) {
             $table->id('id_kecamatan');
-            $table->string('kode_kecamatan');
+            $table->string('kode_kecamatan',3);
             $table->string('nama_kecamatan');
             $table->unsignedBigInteger('id_kabupaten');
     

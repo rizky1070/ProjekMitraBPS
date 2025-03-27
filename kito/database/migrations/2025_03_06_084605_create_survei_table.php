@@ -10,15 +10,15 @@ class CreateSurveiTable extends Migration
     {
         Schema::create('survei', function (Blueprint $table) {
             $table->id('id_survei');
-            $table->unsignedBigInteger('id_provinsi')->nullable();
-            $table->unsignedBigInteger('id_kabupaten')->nullable();
-            $table->unsignedBigInteger('id_kecamatan')->nullable();
-            $table->unsignedBigInteger('id_desa')->nullable();
-            $table->string('nama_survei', 1024)->nullable();
-            $table->string('lokasi_survei', 1024)->nullable();
+            $table->unsignedBigInteger('id_provinsi');
+            $table->unsignedBigInteger('id_kabupaten');
+            $table->unsignedBigInteger('id_kecamatan');
+            $table->unsignedBigInteger('id_desa');
+            $table->string('nama_survei', 1024);
+            $table->string('lokasi_survei', 1024);
             $table->string('kro', 1024)->nullable();
-            $table->date('jadwal_kegiatan')->nullable();
-            $table->integer('status_survei')->nullable();
+            $table->date('jadwal_kegiatan');
+            $table->integer('status_survei');
             $table->string('tim', 1024)->nullable();
 
             $table->foreign('id_provinsi')->references('id_provinsi')->on('provinsi')->onUpdate('restrict')->onDelete('restrict');

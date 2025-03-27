@@ -10,17 +10,17 @@ class CreateMitraTable extends Migration
     {
         Schema::create('mitra', function (Blueprint $table) {
             $table->id('id_mitra');
-            $table->unsignedBigInteger('id_kecamatan')->nullable();
-            $table->unsignedBigInteger('id_kabupaten')->nullable();
-            $table->unsignedBigInteger('id_provinsi')->nullable();
-            $table->unsignedBigInteger('id_desa')->nullable();
-            $table->string('sobat_id', 1024)->nullable();
-            $table->string('nama_lengkap', 1024)->nullable();
-            $table->string('alamat_mitra', 1024)->nullable();
-            $table->smallInteger('jenis_kelamin')->nullable();
-            $table->string('no_hp_mitra', 1024)->nullable();
-            $table->string('email_mitra', 1024)->nullable();
-            $table->date('tahun')->nullable();
+            $table->unsignedBigInteger('id_kecamatan');
+            $table->unsignedBigInteger('id_kabupaten');
+            $table->unsignedBigInteger('id_provinsi');
+            $table->unsignedBigInteger('id_desa');
+            $table->string('sobat_id', 1024);
+            $table->string('nama_lengkap', 1024);
+            $table->string('alamat_mitra', 1024);
+            $table->smallInteger('jenis_kelamin');
+            $table->string('no_hp_mitra', 1024);
+            $table->string('email_mitra', 1024);
+            $table->date('tahun');
 
 
             $table->foreign('id_desa')->references('id_desa')->on('desa')->onUpdate('restrict')->onDelete('restrict');
