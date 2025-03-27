@@ -20,8 +20,8 @@ class MitraSeeder extends Seeder
 
             $mitraData[] = [
                 'id_kecamatan' => rand(1, 4), // Random antara 1 hingga 4
-                'id_kabupaten' => rand(1, 4), // Random antara 1 hingga 4
-                'id_provinsi' => rand(1, 4), // Random antara 1 hingga 4
+                'id_kabupaten' => '16', // Random antara 1 hingga 4
+                'id_provinsi' => '35', // Random antara 1 hingga 4
                 'id_desa' => rand(1, 4), // Random antara 1 hingga 4
                 'sobat_id' => 'S' . sprintf('%03d', $i), // Sobat ID: S001, S002, ..., S020
                 'nama_lengkap' => 'Mitra ' . chr(64 + $i), // Nama mitra: Mitra A, Mitra B, ..., Mitra T

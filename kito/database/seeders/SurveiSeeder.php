@@ -17,8 +17,8 @@ class SurveiSeeder extends Seeder
             $tanggal = rand(1, 28); // Membatasi maksimal 28 untuk menghindari masalah bulan
             
             $surveiData[] = [
-                'id_provinsi' => rand(1, 4), // Random antara 1 hingga 4
-                'id_kabupaten' => rand(1, 4), // Random antara 1 hingga 4
+                'id_provinsi' => '35', // Random antara 1 hingga 4
+                'id_kabupaten' => '16', // Random antara 1 hingga 4
                 'id_kecamatan' => rand(1, 4), // Random antara 1 hingga 4
                 'id_desa' => rand(1, 4), // Random antara 1 hingga 4
                 'nama_survei' => 'Survei ' . chr(64 + $i), // Nama survei: Survei A, Survei B, ..., Survei T
