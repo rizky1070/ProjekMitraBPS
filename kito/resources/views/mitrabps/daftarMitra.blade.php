@@ -28,6 +28,12 @@
     swal("Error!", "{{ $errors->first() }}", "error");
     </script>
     @endif
+    
+    @if (session('error'))
+    <script>
+    swal("Error!", "{{ session('error') }}", "error");
+    </script>
+    @endif
         <!-- component -->
     <div x-data="{ sidebarOpen: false }" class="flex h-screen">
         <x-sidebar></x-sidebar>

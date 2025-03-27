@@ -17,7 +17,6 @@
     <title>Daftar Survei BPS</title>
 </head>
 <body class="h-full">
-        <!-- SweetAlert Logic -->
     @if (session('success'))
     <script>
     swal("Success!", "{{ session('success') }}", "success");
@@ -26,7 +25,7 @@
 
     @if ($errors->any())
     <script>
-    swal("Error!", "{{ $errors->first() }}", "error");
+    swal("Error!", "{{ implode(', ', $errors->all()) }}", "error");
     </script>
     @endif
 

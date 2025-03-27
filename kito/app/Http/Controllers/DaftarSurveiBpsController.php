@@ -328,14 +328,21 @@ class DaftarSurveiBpsController extends Controller
         
         try {
             Excel::import($import, $request->file('file'));
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errorMessages = [];
+            foreach ($failures as $failure) {
+                $errorMessages[] = 'Baris ' . $failure->row() . ': ' . implode(', ', $failure->errors());
+            }
+            return redirect()->back()->withErrors(['file' => $errorMessages]);
         } catch (Exception $e) {
             return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+                ->withErrors(['file' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
         
         if (!empty($import->getErrors())) {
             return redirect()->back()
-                ->with('errors', $import->getErrors());
+                ->withErrors(['file' => $import->getErrors()]);
         }
 
         return redirect()->back()->with('success', 'Data survei berhasil diimport!');

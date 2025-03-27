@@ -25,7 +25,7 @@
 
     @if ($errors->any())
     <script>
-    swal("Error!", "{{ $errors->first() }}", "error");
+    swal("Error!", "{{ implode(', ', $errors->all()) }}", "error");
     </script>
     @endif
     
