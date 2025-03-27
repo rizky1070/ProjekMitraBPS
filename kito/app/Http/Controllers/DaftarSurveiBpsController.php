@@ -269,6 +269,24 @@ class DaftarSurveiBpsController extends Controller
         return view('mitrabps.inputSurvei', compact('provinsi', 'kabupaten', 'kecamatan', 'desa'));
     }
 
+    public function getKabupaten($id_provinsi)
+    {
+        $kabupaten = Kabupaten::where('id_provinsi', $id_provinsi)->get();
+        return response()->json($kabupaten);
+    }
+
+    public function getKecamatan($id_kabupaten)
+    {
+        $kecamatan = Kecamatan::where('id_kabupaten', $id_kabupaten)->get();
+        return response()->json($kecamatan);
+    }
+
+    public function getDesa($id_kecamatan)
+    {
+        $desa = Desa::where('id_kecamatan', $id_kecamatan)->get();
+        return response()->json($desa);
+    }
+
     // Method untuk menyimpan data survei
     public function store(Request $request)
     {

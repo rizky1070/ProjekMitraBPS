@@ -181,28 +181,137 @@
     <!-- Inisialisasi Tom Select -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-
-            new TomSelect('#id_provinsi', {
+            // Inisialisasi Tom Select
+            const provinsiSelect = new TomSelect('#id_provinsi', {
                 placeholder: 'Pilih Provinsi',
                 searchField: 'text',
+                onChange: function(value) {
+                    if (value) {
+                        fetchKabupaten(value);
+                    } else {
+                        resetSelect('id_kabupaten');
+                        resetSelect('id_kecamatan');
+                        resetSelect('id_desa');
+                    }
+                }
             });
-
-            new TomSelect('#id_kecamatan', {
-                placeholder: 'Pilih Kecamatan',
-                searchField: 'text',
-            });
-
-            new TomSelect('#id_kabupaten', {
+        
+            const kabupatenSelect = new TomSelect('#id_kabupaten', {
                 placeholder: 'Pilih Kabupaten',
                 searchField: 'text',
+                onChange: function(value) {
+                    if (value) {
+                        fetchKecamatan(value);
+                    } else {
+                        resetSelect('id_kecamatan');
+                        resetSelect('id_desa');
+                    }
+                }
             });
-
-            new TomSelect('#id_desa', {
-                placeholder: 'Pilih Desa',
+        
+            const kecamatanSelect = new TomSelect('#id_kecamatan', {
+                placeholder: 'Pilih Kecamatan',
                 searchField: 'text',
+                onChange: function(value) {
+                    if (value) {
+                        fetchDesa(value);
+                    } else {
+                        resetSelect('id_desa');
+                    }
+                }
             });
-
+        
+            const desaSelect = new TomSelect('#id_desa', {
+                placeholder: 'Pilih Desa',
+                searchField: 'text'
+            });
+        
+            function fetchKabupaten(id_provinsi) {
+                fetch(`/get-kabupaten/${id_provinsi}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const kabupatenSelect = document.getElementById('id_kabupaten');
+                        kabupatenSelect.innerHTML = '<option value="">Pilih Kabupaten</option>';
+                        
+                        data.forEach(kabupaten => {
+                            const option = document.createElement('option');
+                            option.value = kabupaten.id_kabupaten;
+                            option.textContent = kabupaten.nama_kabupaten;
+                            kabupatenSelect.appendChild(option);
+                        });
+                        
+                        // Refresh Tom Select instance
+                        kabupatenSelect.tomselect.clear();
+                        kabupatenSelect.tomselect.clearOptions();
+                        kabupatenSelect.tomselect.addOptions(data.map(kab => ({
+                            value: kab.id_kabupaten,
+                            text: kab.nama_kabupaten
+                        })));
+                        
+                        // Reset dependent selects
+                        resetSelect('id_kecamatan');
+                        resetSelect('id_desa');
+                    });
+            }
+        
+            function fetchKecamatan(id_kabupaten) {
+                fetch(`/get-kecamatan/${id_kabupaten}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const kecamatanSelect = document.getElementById('id_kecamatan');
+                        kecamatanSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+                        
+                        data.forEach(kecamatan => {
+                            const option = document.createElement('option');
+                            option.value = kecamatan.id_kecamatan;
+                            option.textContent = kecamatan.nama_kecamatan;
+                            kecamatanSelect.appendChild(option);
+                        });
+                        
+                        // Refresh Tom Select instance
+                        kecamatanSelect.tomselect.clear();
+                        kecamatanSelect.tomselect.clearOptions();
+                        kecamatanSelect.tomselect.addOptions(data.map(kec => ({
+                            value: kec.id_kecamatan,
+                            text: kec.nama_kecamatan
+                        })));
+                        
+                        // Reset dependent select
+                        resetSelect('id_desa');
+                    });
+            }
+        
+            function fetchDesa(id_kecamatan) {
+                fetch(`/get-desa/${id_kecamatan}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const desaSelect = document.getElementById('id_desa');
+                        desaSelect.innerHTML = '<option value="">Pilih Desa</option>';
+                        
+                        data.forEach(desa => {
+                            const option = document.createElement('option');
+                            option.value = desa.id_desa;
+                            option.textContent = desa.nama_desa;
+                            desaSelect.appendChild(option);
+                        });
+                        
+                        // Refresh Tom Select instance
+                        desaSelect.tomselect.clear();
+                        desaSelect.tomselect.clearOptions();
+                        desaSelect.tomselect.addOptions(data.map(des => ({
+                            value: des.id_desa,
+                            text: des.nama_desa
+                        })));
+                    });
+            }
+        
+            function resetSelect(selectId) {
+                const select = document.getElementById(selectId);
+                select.innerHTML = `<option value="">Pilih ${selectId.split('_')[1].charAt(0).toUpperCase() + selectId.split('_')[1].slice(1)}</option>`;
+                select.tomselect.clear();
+                select.tomselect.clearOptions();
+            }
         });
-    </script>
+        </script>
 </body>
 </html>
