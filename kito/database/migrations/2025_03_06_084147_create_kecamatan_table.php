@@ -12,6 +12,9 @@ class CreateKecamatanTable extends Migration
             $table->id('id_kecamatan');
             $table->string('kode_kecamatan');
             $table->string('nama_kecamatan');
+            $table->unsignedBigInteger('id_kabupaten');
+    
+            $table->foreign('id_kabupaten')->references('id_kabupaten')->on('kabupaten');
 
         });
     }

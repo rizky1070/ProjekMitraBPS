@@ -323,7 +323,10 @@ Route::post('/survey/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController:
 Route::post('/upExcelMitra2Survey/{id_survei}', [DaftarSurveiBpsController::class, 'upExcelMitra2Survey'])->name('upload.excel');
 
 // Halaman Survei > Daftar Survei > Input Survei
-Route::get('/inputSurvei', [DaftarSurveiBpsController::class, 'create'])->name('inputSurvei');
+Route::get('/inputSurvei', action: [DaftarSurveiBpsController::class, 'create'])->name('inputSurvei');
+Route::get('/get-kabupaten/{id_provinsi}', [DaftarSurveiBpsController::class, 'getKabupaten']);
+Route::get('/get-kecamatan/{id_kabupaten}', [DaftarSurveiBpsController::class, 'getKecamatan']);
+Route::get('/get-desa/{id_kecamatan}', [DaftarSurveiBpsController::class, 'getDesa']);
 Route::post('/simpanSurvei', [DaftarSurveiBpsController::class, 'store'])->name('simpanSurvei');
 
 
@@ -336,6 +339,8 @@ Route::post('/upExcelMitra', [MitraController::class, 'upExcelMitra'])->name('up
 
 //Halaman Mitra > Daftar Mitra > Profil Mitra
 Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profilMitra');
+Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profilMitra.filter');
+
 
 //Halaman Mitra > Daftar Mitra > Penilaian Mitra
 Route::get('/penilaianMitra/{id_mitra_survei}', [MitraController::class, 'penilaianMitra'])->name('penilaian.mitra');

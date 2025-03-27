@@ -17,6 +17,7 @@ class ReportMitraSurveiController extends Controller
 {
     public function SurveiReport(Request $request)
     {
+        \Carbon\Carbon::setLocale('id');
         // Daftar kecamatan untuk dropdown filter
         $kecamatans = Kecamatan::pluck('nama_kecamatan', 'id_kecamatan');
 
@@ -146,6 +147,7 @@ class ReportMitraSurveiController extends Controller
 
     public function MitraReport(Request $request)
     {
+        \Carbon\Carbon::setLocale('id');
         // Daftar kecamatan untuk dropdown filter
         $kecamatans = Kecamatan::pluck('nama_kecamatan', 'id_kecamatan');
 

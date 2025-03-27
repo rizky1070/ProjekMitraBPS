@@ -9,21 +9,27 @@ class Provinsi extends Model
 {
     use HasFactory;
 
-    // Tentukan nama tabel jika berbeda dari nama model (provinsi -> provinsi)
     protected $table = 'provinsi';
-
-    // Kolom yang dapat diisi (mass assignable)
+    protected $primaryKey = 'id_provinsi';
+    
     protected $fillable = [
         'kode_provinsi',
         'nama_provinsi',
     ];
 
-    // Relasi dengan model lain, misalnya jika provinsi memiliki banyak Mitra
+    // Relasi ke Kabupaten (One-to-Many)
+    public function kabupatens()
+    {
+        return $this->hasMany(Kabupaten::class, 'id_provinsi', 'id_provinsi');
+    }
+
+    // Relasi ke Mitra
     public function mitras()
     {
         return $this->hasMany(Mitra::class, 'id_provinsi', 'id_provinsi');
     }
 
+    // Relasi ke Survei
     public function surveis()
     {
         return $this->hasMany(Survei::class, 'id_provinsi', 'id_provinsi');

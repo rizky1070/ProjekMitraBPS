@@ -12,6 +12,9 @@ class CreateKabupatenTable extends Migration
             $table->id('id_kabupaten');
             $table->string('kode_kabupaten', );
             $table->string('nama_kabupaten', );
+            $table->unsignedBigInteger('id_provinsi');
+    
+            $table->foreign('id_provinsi')->references('id_provinsi')->on('provinsi');
 
         });
     }
