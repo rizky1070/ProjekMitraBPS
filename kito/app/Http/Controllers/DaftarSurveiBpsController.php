@@ -240,16 +240,38 @@ class DaftarSurveiBpsController extends Controller
         $request->validate([
             'file' => 'required|mimes:xlsx,xls'
         ]);
-
+    
+        $import = new mitra2SurveyImport($id_survei);
+    
         try {
-            Excel::import(new mitra2SurveyImport($id_survei), $request->file('file'));
+            Excel::import($import, $request->file('file'));
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-            return redirect()->back()->withErrors(['file' => 'Format file tidak sesuai. Pastikan file Excel memiliki format yang benar.']);
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['file' => 'Terjadi kesalahan saat mengimpor file. Pastikan format file sudah benar.']);
+            $failures = $e->failures();
+            $errorMessages = [];
+            
+            foreach ($failures as $failure) {
+                $errorMessages[] = "Baris {$failure->row()}: {$failure->errors()[0]}";
+            }
+            
+            return redirect()->back()
+                ->withErrors(['file' => $errorMessages]);
+        } catch (Exception $e) {
+            return redirect()->back()
+                ->withErrors(['file' => $e->getMessage()]);
         }
-
-        return redirect()->back()->with('success', 'Mitra berhasil diimport ke survei');
+    
+        // Tampilkan pesan sukses dengan info baris yang di-skip
+        $message = 'Mitra berhasil diimport ke survei';
+        
+        if (count($import->failures()) > 0) {
+            $message .= '. Beberapa data gagal: ' . count($import->failures()) . ' baris';
+        }
+        
+        if (count($import->errors()) > 0) {
+            $message .= '. Terdapat ' . count($import->errors()) . ' error';
+        }
+    
+        return redirect()->back()->with('success', $message);
     }
 
     public function updateStatus(Request $request, $id_survei)
