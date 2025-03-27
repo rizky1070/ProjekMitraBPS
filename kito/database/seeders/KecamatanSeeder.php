@@ -13,22 +13,22 @@ class KecamatanSeeder extends Seeder
             [
                 'kode_kecamatan' => 'KC001', 
                 'nama_kecamatan' => 'Kecamatan A',
-                'id_kabupaten' => 1 // Sesuaikan dengan ID kabupaten yang ada
+                'id_kabupaten' => 16 // Sesuaikan dengan ID kabupaten yang ada
             ],
             [
                 'kode_kecamatan' => 'KC002', 
                 'nama_kecamatan' => 'Kecamatan B',
-                'id_kabupaten' => 1
+                'id_kabupaten' => 16
             ],
             [
                 'kode_kecamatan' => 'KC003', 
                 'nama_kecamatan' => 'Kecamatan C',
-                'id_kabupaten' => 2
+                'id_kabupaten' => 16
             ],
             [
                 'kode_kecamatan' => 'KC004', 
                 'nama_kecamatan' => 'Kecamatan D',
-                'id_kabupaten' => 3
+                'id_kabupaten' => 16
             ],
         ]);
     }

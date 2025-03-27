@@ -11,25 +11,11 @@ class KabupatenSeeder extends Seeder
     {
         DB::table('kabupaten')->insert([
             [
+                'id_kabupaten' => '16',
                 'kode_kabupaten' => 'K001', 
-                'nama_kabupaten' => 'Kabupaten A',
-                'id_provinsi' => 1 // Sesuaikan dengan ID provinsi yang ada
-            ],
-            [
-                'kode_kabupaten' => 'K002', 
-                'nama_kabupaten' => 'Kabupaten B',
-                'id_provinsi' => 1
-            ],
-            [
-                'kode_kabupaten' => 'K003', 
-                'nama_kabupaten' => 'Kabupaten C',
-                'id_provinsi' => 2
-            ],
-            [
-                'kode_kabupaten' => 'K004', 
-                'nama_kabupaten' => 'Kabupaten D',
-                'id_provinsi' => 2
-            ],
+                'nama_kabupaten' => 'Mojokerto',
+                'id_provinsi' => 35 // Sesuaikan dengan ID provinsi yang ada
+            ]
         ]);
     }
 }
