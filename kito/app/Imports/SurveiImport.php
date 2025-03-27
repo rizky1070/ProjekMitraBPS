@@ -34,26 +34,26 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
         
         // Cari kabupaten
         $kabupaten = Kabupaten::where('kode_kabupaten', $kodeKabupaten)
-            // ->where('id_provinsi', $provinsi->id_provinsi)
+            ->where('id_provinsi', $provinsi->id_provinsi)
             ->first();
         if (!$kabupaten) {
-            throw new \Exception("Kode kabupaten {$kodeKabupaten} tidak ditemukan di provinsi {$provinsi->nama}");
+            throw new \Exception("Kode kabupaten {$kodeKabupaten} tidak ditemukan di provinsi {$provinsi->nama_provinsi}");
         }
         
         // Cari kecamatan
         $kecamatan = Kecamatan::where('kode_kecamatan', $row['kode_kecamatan'])
-            // ->where('id_kabupaten', $kabupaten->id_kabupaten)
+            ->where('id_kabupaten', $kabupaten->id_kabupaten)
             ->first();
         if (!$kecamatan) {
-            throw new \Exception("Kode kecamatan {$row['kode_kecamatan']} tidak ditemukan di kabupaten {$kabupaten->nama}");
+            throw new \Exception("Kode kecamatan {$row['kode_kecamatan']} tidak ditemukan di kabupaten {$kabupaten->nama_kabupaten}");
         }
         
         // Cari desa
         $desa = Desa::where('kode_desa', $row['kode_desa'])
-            // ->where('id_kecamatan', $kecamatan->id_kecamatan)
+            ->where('id_kecamatan', $kecamatan->id_kecamatan)
             ->first();
         if (!$desa) {
-            throw new \Exception("Kode desa {$row['kode_desa']} tidak ditemukan di kecamatan {$kecamatan->nama}");
+            throw new \Exception("Kode desa {$row['kode_desa']} tidak ditemukan di kecamatan {$kecamatan->nama_kecamatan}");
         }
         
         return new Survei([
