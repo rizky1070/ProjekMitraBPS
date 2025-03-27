@@ -91,7 +91,7 @@ class MitraController extends Controller
                 });
             })
             ->orderBy('nama_kecamatan')
-            ->pluck('nama_kecamatan', 'id_kecamatan');
+            ->get(['nama_kecamatan', 'id_kecamatan', 'kode_kecamatan']);
 
         // Daftar nama survei berdasarkan filter
         $namaMitraOptions = Mitra::select('nama_lengkap')

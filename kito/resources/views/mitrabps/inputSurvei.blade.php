@@ -66,7 +66,7 @@
                                     <option value="">Pilih Kecamatan</option>
                                     @foreach($kecamatan as $kec)
                                     <option value="{{ $kec->id_kecamatan }}" {{ old('id_kecamatan') == $kec->id_kecamatan ? 'selected' : '' }}>
-                                        {{ $kec->nama_kecamatan }}
+                                        [{{ $kec->kode_kecamatan }}] {{ $kec->nama_kecamatan }}
                                     </option>
                                     @endforeach
                                 </select>
@@ -78,7 +78,7 @@
                                     <option value="">Pilih Desa</option>
                                     @foreach($desa as $des)
                                     <option value="{{ $des->id_desa }}" {{ old('id_desa') == $des->id_desa ? 'selected' : '' }}>
-                                        {{ $des->nama_desa }}
+                                        [{{ $des->kode_desa }}] {{ $des->nama_desa }}
                                     </option>
                                     @endforeach
                                 </select>

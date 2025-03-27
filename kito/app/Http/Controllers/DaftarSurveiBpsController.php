@@ -57,7 +57,7 @@ class DaftarSurveiBpsController extends Controller
                 });
             })
             ->orderBy('nama_kecamatan')
-            ->pluck('nama_kecamatan', 'id_kecamatan');
+            ->get(['nama_kecamatan', 'kode_kecamatan', 'id_kecamatan']);
 
         // Daftar nama survei berdasarkan filter
         $namaSurveiOptions = Survei::select('nama_survei')
@@ -127,7 +127,7 @@ class DaftarSurveiBpsController extends Controller
     {
         // Ambil data survei berdasarkan ID
         $survey = Survei::with('kecamatan')
-            ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan')
+            ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan', 'tim')
             ->where('id_survei', $id_survei)
             ->firstOrFail();
         
@@ -155,18 +155,18 @@ class DaftarSurveiBpsController extends Controller
 
         // Daftar kecamatan berdasarkan tahun dan bulan yang dipilih
         $kecamatanOptions = Kecamatan::query()
-            ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request) {
-                $query->whereHas('mitras', function($q) use ($request) {
-                    if ($request->filled('tahun')) {
-                        $q->whereYear('tahun', $request->tahun);
-                    }
-                    if ($request->filled('bulan')) {
-                        $q->whereMonth('tahun', $request->bulan);
-                    }
-                });
-            })
-            ->orderBy('nama_kecamatan')
-            ->pluck('nama_kecamatan', 'id_kecamatan');
+        ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request) {
+            $query->whereHas('mitras', function($q) use ($request) {
+                if ($request->filled('tahun')) {
+                    $q->whereYear('tahun', $request->tahun);
+                }
+                if ($request->filled('bulan')) {
+                    $q->whereMonth('tahun', $request->bulan);
+                }
+            });
+        })
+        ->orderBy('nama_kecamatan')
+        ->get(['id_kecamatan', 'kode_kecamatan', 'nama_kecamatan']); // Ambil seluruh data objek
 
         // Daftar nama survei berdasarkan filter
         $namaMitraOptions = Mitra::select('nama_lengkap')

@@ -81,8 +81,10 @@
                                     <select name="kecamatan" id="kecamatan" class="w-64 
                                     border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
                                         <option value="">Semua Kecamatan</option>
-                                        @foreach($kecamatanOptions as $id => $nama)
-                                            <option value="{{ $id }}" @if(request('kecamatan') == $id) selected @endif>{{ $nama }}</option>
+                                        @foreach($kecamatanOptions as $kecam)
+                                            <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan') == $kecam->id_kecamatan) selected @endif>
+                                                [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
