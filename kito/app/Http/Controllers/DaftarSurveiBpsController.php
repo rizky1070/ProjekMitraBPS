@@ -239,14 +239,20 @@ class DaftarSurveiBpsController extends Controller
     {
         $request->validate([
             'file' => 'required|mimes:xlsx,xls'
-        ]);    
-    
-        Excel::import(new mitra2SurveyImport($id_survei), $request->file('file'));
-    
+        ]);
+
+        try {
+            Excel::import(new mitra2SurveyImport($id_survei), $request->file('file'));
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            return redirect()->back()->withErrors(['file' => 'Format file tidak sesuai. Pastikan file Excel memiliki format yang benar.']);
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['file' => 'Terjadi kesalahan saat mengimpor file. Pastikan format file sudah benar.']);
+        }
+
         return redirect()->back()->with('success', 'Mitra berhasil diimport ke survei');
     }
 
-        public function updateStatus(Request $request, $id_survei)
+    public function updateStatus(Request $request, $id_survei)
     {
         $survey = Survei::findOrFail($id_survei);
         $survey->status_survei = $request->status_survei;
@@ -301,7 +307,13 @@ class DaftarSurveiBpsController extends Controller
             'file' => 'required|file|mimes:xls,xlsx'
         ]);
 
-        Excel::import(new SurveiImport, $request->file('file'));
+        try {
+            Excel::import(new SurveiImport, $request->file('file'));
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            return redirect()->back()->withErrors(['file' => 'Format file tidak sesuai. Pastikan file Excel memiliki format yang benar.']);
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['file' => 'Terjadi kesalahan saat mengimpor file. Pastikan format file sudah benar.']);
+        }
 
         return redirect()->back()->with('success', 'Data survei berhasil diimport!');
     }

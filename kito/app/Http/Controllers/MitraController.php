@@ -209,9 +209,19 @@ class MitraController extends Controller
             'file' => 'required|file|mimes:xls,xlsx'
         ]);
 
-        Excel::import(new MitraImport, $request->file('file'));
-
-        return redirect()->back()->with('success', 'Data mitra berhasil diimport!');
+        try {
+            Excel::import(new MitraImport, $request->file('file'));
+            return redirect()->back()->with('success', 'Data mitra berhasil diimport!');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errorMessage = 'Terjadi kesalahan pada file Excel. Pastikan format dan data sudah benar.';
+            if (!empty($failures)) {
+                $errorMessage .= ' Kesalahan pada baris: ' . implode(', ', array_map(fn($failure) => $failure->row(), $failures));
+            }
+            return redirect()->back()->with('error', $errorMessage);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Format file salah atau terjadi kesalahan saat mengimpor data.');
+        }
     }
 
 
