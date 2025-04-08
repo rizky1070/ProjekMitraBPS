@@ -159,32 +159,32 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Inisialisasi Tom Select
-            const provinsiSelect = new TomSelect('#id_provinsi', {
-                placeholder: 'Pilih Provinsi',
-                searchField: 'text',
-                onChange: function(value) {
-                    if (value) {
-                        fetchKabupaten(value);
-                    } else {
-                        resetSelect('id_kabupaten');
-                        resetSelect('id_kecamatan');
-                        resetSelect('id_desa');
-                    }
-                }
-            });
+            // const provinsiSelect = new TomSelect('#id_provinsi', {
+            //     placeholder: 'Pilih Provinsi',
+            //     searchField: 'text',
+            //     onChange: function(value) {
+            //         if (value) {
+            //             fetchKabupaten(value);
+            //         } else {
+            //             resetSelect('id_kabupaten');
+            //             resetSelect('id_kecamatan');
+            //             resetSelect('id_desa');
+            //         }
+            //     }
+            // });
         
-            const kabupatenSelect = new TomSelect('#id_kabupaten', {
-                placeholder: 'Pilih Kabupaten',
-                searchField: 'text',
-                onChange: function(value) {
-                    if (value) {
-                        fetchKecamatan(value);
-                    } else {
-                        resetSelect('id_kecamatan');
-                        resetSelect('id_desa');
-                    }
-                }
-            });
+            // const kabupatenSelect = new TomSelect('#id_kabupaten', {
+            //     placeholder: 'Pilih Kabupaten',
+            //     searchField: 'text',
+            //     onChange: function(value) {
+            //         if (value) {
+            //             fetchKecamatan(value);
+            //         } else {
+            //             resetSelect('id_kecamatan');
+            //             resetSelect('id_desa');
+            //         }
+            //     }
+            // });
         
             const kecamatanSelect = new TomSelect('#id_kecamatan', {
                 placeholder: 'Pilih Kecamatan',

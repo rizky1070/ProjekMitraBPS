@@ -276,12 +276,12 @@
                     </a>
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportSurvei') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/ReportSurvei">
-                        <span class="mx-3">Laporan Survei</span>
+                        <span class="mx-3">Report</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                    {{-- <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/ReportMitra">
                         <span class="mx-3">Laporan Mitra</span>
-                    </a>
+                    </a> --}}
                 @endif
             </div>
         </div>

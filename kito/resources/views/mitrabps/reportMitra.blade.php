@@ -51,6 +51,8 @@
                     <!-- Title and Header -->
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                         <div>
+                            <button class="px-4 py-2 bg-orange text-black rounded-md"><a href="/ReportSurvei">Report Survei</a></button>
+                            <button class="px-4 py-2 bg-orange text-black rounded-md"><a href="/ReportMitra">Report Mitra</a></button>
                             <h1 class="text-2xl font-bold text-gray-800">Report Mitra</h1>
                             <p class="text-gray-600 no-print">Data partisipasi mitra dalam survei BPS</p>
                             <h4 class="text-1xl font-bold text-gray-800 only-print">
