@@ -20,6 +20,7 @@ class MitraSurvei extends Model
         'posisi_mitra',
         'catatan',
         'nilai',
+        'vol',
     ];
 
     public $timestamps = false; // Nonaktifkan fitur timestamps

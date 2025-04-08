@@ -209,13 +209,26 @@ class MitraController extends Controller
             ->sortByDesc(fn($item) => optional($item->survei)->jadwal_kegiatan)
             ->sortByDesc(fn($item) => is_null($item->nilai)); // Prioritaskan yang belum dinilai
         
+        // Hitung total gaji
+        $totalGaji = 0;
+        foreach ($survei as $item) {
+            if ($item->survei && $item->vol && $item->survei->rate_honor) {
+                // Tambahkan pengecekan status survei
+                if ($item->survei->status_survei == 3) { // Misalnya status 3 berarti survei selesai
+                    $totalGaji += $item->vol * $item->survei->rate_honor;
+                }
+            }
+        }
+
+        
         return view('mitrabps.profilMitra', compact(
             'mits', 
             'survei',
             'tahunOptions',
             'bulanOptions',
             'namaSurveiOptions',
-            'request'
+            'request',
+            'totalGaji'
         ));
     }
     

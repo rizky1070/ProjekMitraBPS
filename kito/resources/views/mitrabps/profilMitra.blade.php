@@ -92,6 +92,8 @@
                         </select>
                     </div>
                 </form>
+                <p class="font-bold">Total Gaji Mitra:</p>
+                <p class="text-xl font-bold">Rp {{ number_format($totalGaji, 0, ',', '.') }}</p>
                 <div class="bg-white p-4 rounded-lg shadow">
                     <h2 class="text-xl font-bold mb-4">Survei yang sudah dikerjakan</h2>
                     <table class="w-full mb-10 border-collapse border border-gray-300">
@@ -99,6 +101,8 @@
                             <tr class="bg-gray-200">
                                 <th class="border border-gray-300 p-2">Nama Survei</th>
                                 <th class="border border-gray-300 p-2">Jadwal Survei</th>
+                                <th class="border border-gray-300 p-2">Vol</th>
+                                <th class="border border-gray-300 p-2">Rate Honor</th>
                                 <th class="border border-gray-300 p-2">Catatan</th>
                                 <th class="border border-gray-300 p-2">Nilai</th>
                                 <th class="border border-gray-300 p-2">Aksi</th>
@@ -110,6 +114,8 @@
                             <tr class="border border-gray-300 hover:bg-gray-100">
                                 <td class="p-2">{{ $sur->survei->nama_survei }}</td>
                                 <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
+                                <td class="p-2">{{ $sur->vol?? '-' }}</td>
+                                <td class="p-2">{{ $sur->survei->rate_honor?? '-'  }}</td>
                                 @if($sur->catatan == null & $sur->nilai == null)
                                 <td class="p-2 text-center text-red-700 font-bold">Tidak ada catatan</td>
                                 <td class="p-2 text-center text-red-700 font-bold">Belum dinilai</td>
@@ -132,6 +138,8 @@
                             <tr class="bg-gray-200">
                                 <th class="border border-gray-300 p-2">Nama Survei</th>
                                 <th class="border border-gray-300 p-2">Jadwal Survei</th>
+                                <th class="border border-gray-300 p-2">Vol</th>
+                                <th class="border border-gray-300 p-2">Rate Honor</th>
                                 <th class="border border-gray-300 p-2">Lihat Survei</th>
                             </tr>
                         </thead>
@@ -141,6 +149,8 @@
                             <tr class="border border-gray-300 hover:bg-gray-100">
                                 <td class="p-2">{{ $sur->survei->nama_survei }}</td>
                                 <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
+                                <td class="p-2">{{ $sur->vol ?? '-' }}</td>
+                                <td class="p-2">{{ $sur->survei->rate_honor ?? '-' }}</td>
                                 <td class="p-2 text-center">
                                     <a href="/editSurvei/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
                                 </td>

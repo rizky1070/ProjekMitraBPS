@@ -28,9 +28,7 @@ class Survei extends Model
         'jadwal_kegiatan',
         'status_survei',
         'tim',
-        'honor',
-        'vol',
-        'total_honor'
+        'rate_honor',
     ];
 
     // Relasi dengan Provinsi

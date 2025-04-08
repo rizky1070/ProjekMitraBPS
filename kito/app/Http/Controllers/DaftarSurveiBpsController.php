@@ -354,15 +354,11 @@ class DaftarSurveiBpsController extends Controller
             'status_survei' => 'nullable|integer',
             'tim' => 'nullable|string|max:1024',
             'honor' => 'nullable|numeric',
-            'vol' => 'nullable|integer',
         ]);
 
         // Tambahkan nilai default
         $validated['id_provinsi'] = 35; // Jatim
         $validated['id_kabupaten'] = 16; // mojokerto
-        
-        // Hitung total honor
-        $validated['total_honor'] = $validated['vol'] * $validated['honor'];
 
         // Simpan data ke database
         Survei::create($validated);
