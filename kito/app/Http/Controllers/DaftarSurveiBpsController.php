@@ -127,7 +127,7 @@ class DaftarSurveiBpsController extends Controller
     {
         // Ambil data survei berdasarkan ID
         $survey = Survei::with('kecamatan')
-            ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan', 'tim')
+            ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan', 'tim','vol','honor')
             ->where('id_survei', $id_survei)
             ->firstOrFail();
         
@@ -328,13 +328,16 @@ class DaftarSurveiBpsController extends Controller
             'jadwal_kegiatan' => 'nullable|date',
             'status_survei' => 'nullable|integer',
             'tim' => 'nullable|string|max:1024',
-            'honor' => 'nullable|string|max:1024',
-            'vol' => 'nullable|string|max:1024',
+            'honor' => 'nullable|numeric',
+            'vol' => 'nullable|integer',
         ]);
 
         // Tambahkan nilai default
         $validated['id_provinsi'] = 35; // Jatim
-        $validated['id_kabupaten'] = 16; // Kota Malang
+        $validated['id_kabupaten'] = 16; // mojokerto
+        
+        // Hitung total honor
+        $validated['total_honor'] = $validated['vol'] * $validated['honor'];
 
         // Simpan data ke database
         Survei::create($validated);

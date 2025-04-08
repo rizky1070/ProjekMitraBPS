@@ -30,6 +30,7 @@ class Survei extends Model
         'tim',
         'honor',
         'vol',
+        'total_honor'
     ];
 
     // Relasi dengan Provinsi
