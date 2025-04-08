@@ -176,7 +176,7 @@
                                     </span> <br>
                                     <span class="text-gray-600">
                                         Jumlah Mitra:
-                                        @if($survey->mitraSurvei->isNotEmpty())
+                                        @if($survey->mitraSurvei->isNotEmpty('posisi_mitra'))
                                             {{ $survey->mitraSurvei->count() }}<br>
 
                                             <div class="mt-2 max-h-[350px] overflow-y-auto pr-2">

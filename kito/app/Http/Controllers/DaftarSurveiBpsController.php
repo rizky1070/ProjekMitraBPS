@@ -76,7 +76,9 @@ class DaftarSurveiBpsController extends Controller
 
         // Query utama
         $surveys = Survei::with(['kecamatan', 'mitraSurvei'])
-            ->withCount('mitraSurvei')
+            ->withCount(['mitraSurvei as mitra_survei_count' => function ($query) {
+                $query->whereNotNull('posisi_mitra');
+            }])
             ->when($request->filled('tahun'), function($query) use ($request) {
                 $query->whereYear('jadwal_kegiatan', $request->tahun);
             })
@@ -125,14 +127,19 @@ class DaftarSurveiBpsController extends Controller
     
     public function editSurvei(Request $request, $id_survei)
     {
-        // Ambil data survei berdasarkan ID
-        $survey = Survei::with('kecamatan')
-            ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan', 'tim','vol','honor')
-            ->where('id_survei', $id_survei)
-            ->firstOrFail();
-        
-        \Carbon\Carbon::setLocale(locale: 'id');
-    
+        // Ambil data survei beserta relasi mitra + posisi_mitra dari pivot
+        $survey = Survei::with([
+            'kecamatan',
+            'mitra' => function ($query) {
+                $query->withPivot('posisi_mitra');
+            }
+        ])
+        ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan', 'tim','vol','honor')
+        ->where('id_survei', $id_survei)
+        ->firstOrFail();
+
+        \Carbon\Carbon::setLocale('id');
+
         // Daftar tahun yang tersedia
         $tahunOptions = Mitra::selectRaw('DISTINCT YEAR(tahun) as tahun')
             ->orderByDesc('tahun')
@@ -155,20 +162,20 @@ class DaftarSurveiBpsController extends Controller
 
         // Daftar kecamatan berdasarkan tahun dan bulan yang dipilih
         $kecamatanOptions = Kecamatan::query()
-        ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request) {
-            $query->whereHas('mitras', function($q) use ($request) {
-                if ($request->filled('tahun')) {
-                    $q->whereYear('tahun', $request->tahun);
-                }
-                if ($request->filled('bulan')) {
-                    $q->whereMonth('tahun', $request->bulan);
-                }
-            });
-        })
-        ->orderBy('nama_kecamatan')
-        ->get(['id_kecamatan', 'kode_kecamatan', 'nama_kecamatan']); // Ambil seluruh data objek
+            ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request) {
+                $query->whereHas('mitras', function($q) use ($request) {
+                    if ($request->filled('tahun')) {
+                        $q->whereYear('tahun', $request->tahun);
+                    }
+                    if ($request->filled('bulan')) {
+                        $q->whereMonth('tahun', $request->bulan);
+                    }
+                });
+            })
+            ->orderBy('nama_kecamatan')
+            ->get(['id_kecamatan', 'kode_kecamatan', 'nama_kecamatan']);
 
-        // Daftar nama survei berdasarkan filter
+        // Daftar nama mitra (nama lengkap)
         $namaMitraOptions = Mitra::select('nama_lengkap')
             ->distinct()
             ->when($request->filled('tahun'), function($query) use ($request) {
@@ -183,14 +190,16 @@ class DaftarSurveiBpsController extends Controller
             ->orderBy('nama_lengkap')
             ->pluck('nama_lengkap', 'nama_lengkap');
 
-            // query daftar mitra 
-            $mitras = Mitra::with(['kecamatan', 'mitraSurvei'])
+        // Query daftar mitra
+        $mitras = Mitra::with(['kecamatan', 'mitraSurvei'])
             ->leftJoin('mitra_survei', function ($join) use ($id_survei) {
-                $join->on('mitra.id_mitra', '=', 'mitra_survei.id_mitra');
+                $join->on('mitra.id_mitra', '=', 'mitra_survei.id_mitra')
+                    ->where('mitra_survei.id_survei', '=', $id_survei);
             })
             ->select('mitra.*')
             ->selectRaw('COUNT(mitra_survei.id_survei) as mitra_survei_count')
             ->selectRaw('IF(SUM(mitra_survei.id_survei = ?), 1, 0) as isFollowingSurvey', [$id_survei])
+            ->selectRaw('mitra_survei.posisi_mitra as posisi_mitra')
             ->groupBy('mitra.id_mitra')
             ->when($request->filled('tahun'), function($query) use ($request) {
                 $query->whereYear('tahun', $request->tahun);
@@ -208,32 +217,48 @@ class DaftarSurveiBpsController extends Controller
             ->orderByRaw('mitra.id_kecamatan = ? DESC', [$survey->id_kecamatan])
             ->paginate(10);
 
-            return view('mitrabps.editSurvei', compact(
-                'survey',
-                'mitras',
-                'tahunOptions',
-                'bulanOptions',
-                'kecamatanOptions',
-                'namaMitraOptions',
-                'request'
-            ));    
+        return view('mitrabps.editSurvei', compact(
+            'survey',
+            'mitras',
+            'tahunOptions',
+            'bulanOptions',
+            'kecamatanOptions',
+            'namaMitraOptions',
+            'request'
+        ));
     }
 
+    public function deleteSurvei($id)
+    {
+        $survey = MitraSurvei::findOrFail($id);
+        $survey->delete();
 
-    public function toggleMitraSurvey($id_survei, $id_mitra)
+        return redirect()->back()->with('success', 'Survei berhasil dihapus!');
+    }
+
+    public function toggleMitraSurvey(Request $request, $id_survei, $id_mitra)
     {
         $survey = Survei::findOrFail($id_survei);
         $mitra = Mitra::findOrFail($id_mitra);
 
-        // Jika mitra sudah mengikuti survei, batalkan
-        if ($mitra->mitraSurvei->contains('id_survei', $id_survei)) {
-            $mitra->mitraSurvei()->detach($id_survei); // Menghapus relasi
+        $mitra_survei = MitraSurvei::where('id_survei', $id_survei)
+            ->where('id_mitra', $id_mitra)
+            ->first();
+
+        if ($mitra_survei) {
+            // Jika sudah ada, update posisi_mitra
+            $mitra_survei->posisi_mitra = $request->input('posisi_mitra');
+            $mitra_survei->save();
         } else {
-            $mitra->mitraSurvei()->attach($id_survei); // Menambahkan relasi
+            // Kalau belum ada, attach sekaligus input posisi_mitra
+            $mitra->mitraSurvei()->attach($id_survei, [
+                'posisi_mitra' => $request->input('posisi_mitra')
+            ]);
         }
 
         return redirect()->back();
     }
+
 
     public function upExcelMitra2Survey(Request $request, $id_survei)
     {
