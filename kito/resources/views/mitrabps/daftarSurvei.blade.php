@@ -38,7 +38,7 @@
                     <div class="container px-6 py-8 mx-auto">
                         <h3 class="text-3xl font-medium text-black">Daftar Survei</h3>
                         <div class="flex justify-end">
-                            <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-orange text-black rounded-md hover:bg-green-600 transition duration-300">
+                            <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-orange text-black rounded-md">
                                 + Tambah Survei
                             </a>
                         </div>
