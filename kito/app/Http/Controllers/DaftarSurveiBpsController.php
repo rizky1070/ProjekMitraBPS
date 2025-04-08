@@ -319,9 +319,7 @@ class DaftarSurveiBpsController extends Controller
     public function store(Request $request)
     {
         // Validasi input
-        $request->validate([
-            'id_provinsi' => '35',
-            'id_kabupaten' => '16',
+        $validated = $request->validate([
             'id_kecamatan' => 'nullable|exists:kecamatan,id_kecamatan',
             'id_desa' => 'nullable|exists:desa,id_desa',
             'nama_survei' => 'nullable|string|max:1024',
@@ -330,12 +328,17 @@ class DaftarSurveiBpsController extends Controller
             'jadwal_kegiatan' => 'nullable|date',
             'status_survei' => 'nullable|integer',
             'tim' => 'nullable|string|max:1024',
+            'honor' => 'nullable|string|max:1024',
+            'vol' => 'nullable|string|max:1024',
         ]);
 
-        // Simpan data ke database
-        Survei::create($request->all());
+        // Tambahkan nilai default
+        $validated['id_provinsi'] = 35; // Jatim
+        $validated['id_kabupaten'] = 16; // Kota Malang
 
-        // Redirect ke halaman daftar survei dengan pesan sukses
+        // Simpan data ke database
+        Survei::create($validated);
+
         return redirect()->back()->with('success', 'Survei berhasil ditambahkan!');
     }
 

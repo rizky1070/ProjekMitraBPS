@@ -88,6 +88,11 @@
                                 <label for="lokasi_survei" class="block text-sm font-medium text-gray-700 mb-1">Lokasi Survei</label>
                                 <input type="text" name="lokasi_survei" id="lokasi_survei" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Lokasi Survei">
                             </div>
+
+                            <div class="mb-5">
+                                <label for="vol" class="block text-sm font-medium text-gray-700 mb-1">Vol</label>
+                                <input type="number" name="vol" id="vol" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Jumlah Volunteer">
+                            </div>
                         </div>
                         
                         <!-- Kolom Kanan -->
@@ -115,6 +120,12 @@
                                     <option value="3">sudah dikerjakan</option>
                                 </select>
                             </div>
+
+                            <div class="mb-5">
+                                <label for="honor" class="block text-sm font-medium text-gray-700 mb-1">Honor</label>
+                                <input type="number" name="honor" id="honor" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Honor">
+                            </div>
+
                         </div>
                     </div>
                     
@@ -158,34 +169,6 @@
     <!-- Inisialisasi Tom Select -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Inisialisasi Tom Select
-            // const provinsiSelect = new TomSelect('#id_provinsi', {
-            //     placeholder: 'Pilih Provinsi',
-            //     searchField: 'text',
-            //     onChange: function(value) {
-            //         if (value) {
-            //             fetchKabupaten(value);
-            //         } else {
-            //             resetSelect('id_kabupaten');
-            //             resetSelect('id_kecamatan');
-            //             resetSelect('id_desa');
-            //         }
-            //     }
-            // });
-        
-            // const kabupatenSelect = new TomSelect('#id_kabupaten', {
-            //     placeholder: 'Pilih Kabupaten',
-            //     searchField: 'text',
-            //     onChange: function(value) {
-            //         if (value) {
-            //             fetchKecamatan(value);
-            //         } else {
-            //             resetSelect('id_kecamatan');
-            //             resetSelect('id_desa');
-            //         }
-            //     }
-            // });
-        
             const kecamatanSelect = new TomSelect('#id_kecamatan', {
                 placeholder: 'Pilih Kecamatan',
                 searchField: 'text',
