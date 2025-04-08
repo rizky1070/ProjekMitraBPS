@@ -288,8 +288,8 @@ class DaftarSurveiBpsController extends Controller
     // Method untuk menampilkan halaman input survei
     public function create()
     {
-        $provinsi = Provinsi::all(); // Ambil semua data provinsi
-        $kabupaten = Kabupaten::all(); // Ambil semua data kabupaten
+        $provinsi = Provinsi::where('id_provinsi', 35)->get();// Ambil semua data provinsi
+        $kabupaten = Kabupaten::where('id_kabupaten', 16)->get(); // Ambil semua data kabupaten
         $kecamatan = Kecamatan::all(); // Ambil semua data kecamatan
         $desa = Desa::all(); // Ambil semua data desa
 
@@ -320,8 +320,8 @@ class DaftarSurveiBpsController extends Controller
     {
         // Validasi input
         $request->validate([
-            'id_provinsi' => 'nullable|exists:provinsi,id_provinsi',
-            'id_kabupaten' => 'nullable|exists:kabupaten,id_kabupaten',
+            'id_provinsi' => '35',
+            'id_kabupaten' => '16',
             'id_kecamatan' => 'nullable|exists:kecamatan,id_kecamatan',
             'id_desa' => 'nullable|exists:desa,id_desa',
             'nama_survei' => 'nullable|string|max:1024',
