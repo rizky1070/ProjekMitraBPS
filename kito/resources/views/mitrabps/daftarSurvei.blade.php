@@ -45,7 +45,7 @@
                         <div class="p-6">
                             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                                 <!-- Header dengan tombol Tambah Survei -->
-                                <div class="flex justify-between items-center mb-4">
+                                <div class="items-center mb-4">
                                     <h2 class="text-lg font-semibold text-gray-800">Filter Survei</h2>
                                 </div>
                                 <!-- Form Filter -->
@@ -147,66 +147,55 @@
                                 surveiSelect.addEventListener('change', submitForm);
                             });
                         </script>
-                            <!-- List of Survei -->
-                            <div class="space-y-4">
-                                @foreach($surveys as $survey)
-                                <div class="flex justify-between  bg-white items-center p-4 border border-gray-300 rounded-md">
-                                    <div>
-                                        <h3 class="text-xl font-semibold">{{ $survey->nama_survei }}</h3>
-                                        <p class="text-gray-700">{{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}</p>
-                                        <p class="text-gray-700">Jadwal Kegiatan : {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }}</p>
-                                        <p class="text-gray-700">Jumlah Mitra : 
-                                            @if($survey->mitraSurvei->isNotEmpty())
-                                                {{ $survey->mitraSurvei->count() }}
-                                            @else
-                                                <strong class="text-red-500">Tidak ada mitra</strong>
-                                            @endif
-                                        </p> <!-- Menampilkan jumlah mitra -->
-                                        <!-- Menampilkan nama mitra yang mengikuti lebih dari satu survei di bulan yang dipilih -->
-                                        @if(isset($mitraWithMultipleSurveysInMonth) && $survey->mitraSurvei->isNotEmpty())
-                                            @php
-                                                // Ambil semua id_mitra dari $mitraWithMultipleSurveysInMonth
-                                                $mitraIds = $mitraWithMultipleSurveysInMonth->pluck('id_mitra');
-
-                                                // Mengumpulkan nama mitra yang mengikuti lebih dari satu survei di bulan ini
-                                                $mitraNames = $survey->mitraSurvei->filter(function($mitra) use ($mitraIds) {
-                                                    return $mitraIds->contains($mitra->id_mitra);
-                                                })->pluck('nama_lengkap')->toArray();
-
-                                                // Gabungkan nama mitra menjadi string, jika ada
-                                                $mitraText = count($mitraNames) > 0 ? implode(', ', $mitraNames) : '';
-                                            @endphp
-
-                                            @if($mitraText)
-                                                <p class="text-gray-700">Mitra yang mengikuti lebih dari 1 survei di bulan ini : {{ $mitraText }}</p>
-                                            @endif
-                                        @endif
-
-
-                                    </div>
-                                    <div class="flex flex-col items-end space-y-2">
-                                        <!-- Menempatkan status survei di atas tombol -->
-                                        <h3 class="text-xl font-semibold">
+                        <!-- List of Survei -->
+                        <div class="flex overflow-x-auto space-x-6 p-4">
+                        @foreach($surveys as $survey)
+                            <div class="bg-white h-[600px] min-w-[350px] p-6 border border-gray-300 rounded-lg shadow-md flex-shrink-0 space-y-4 flex flex-col">
+                                <!-- Informasi Survei -->
+                                <div class="flex-grow">
+                                    <h3 class="text-2xl font-bold text-gray-800">{{ $survey->nama_survei }}</h3>
+                                    <!-- Status -->
+                                    <div class="mt-auto">
+                                        <div class="text-lg font-semibold mb-2">
                                             @if($survey->status_survei == 1)
-                                                <div class="text-red-500 rounded-md px-4 py-1">Belum Dikerjakan</div>
+                                                <span class="text-red-500">Belum Dikerjakan</span>
                                             @elseif($survey->status_survei == 2)
-                                                <div class="text-yellow-300 rounded-md px-4 py-1">Sedang Dikerjakan</div>
+                                                <span class="text-yellow-500">Sedang Dikerjakan</span>
                                             @elseif($survey->status_survei == 3)
-                                                <div class="text-green-500 rounded-md px-4 py-1">Sudah Dikerjakan</div>
+                                                <span class="text-green-600">Sudah Dikerjakan</span>
                                             @else
-                                                Status Tidak Diketahui
+                                                <span class="text-gray-500">Status Tidak Diketahui</span>
                                             @endif
-                                        </h3>
-                                        <div class="flex space-x-4">
-                                            <a href="/editSurvei/{{ $survey->id_survei }}" class="px-4 py-2 bg-orange text-black rounded-md">Pilih</a>
                                         </div>
                                     </div>
-                                </div>
-                                @endforeach
-                            </div>
-                            @include('components.pagination', ['paginator' => $surveys])
-                        </div>
+                                    <span class="text-gray-600">
+                                        Kecamatan : {{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}
+                                    </span> <br>
+                                    <span class="text-gray-600">
+                                        Jadwal Kegiatan : {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }}
+                                    </span> <br>
+                                    <span class="text-gray-600">
+                                        Jumlah Mitra:
+                                        @if($survey->mitraSurvei->isNotEmpty())
+                                            {{ $survey->mitraSurvei->count() }}<br>
 
+                                            <div class="mt-2 max-h-[350px] overflow-y-auto pr-2">
+                                                @foreach($survey->mitraSurvei as $mitraName)
+                                                    <div class="text-gray-600">- {{ $mitraName->nama_lengkap }}</div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-red-500 font-semibold">Tidak ada mitra</span>
+                                        @endif
+                                    </span>
+                                </div>
+                                <div class="mt-4">
+                                    <a href="/editSurvei/{{ $survey->id_survei }}" class="px-4 py-2 bg-orange text-black rounded-md">Pilih</a>
+                                </div>
+                            </div>
+                        @endforeach
+                        </div>
+                    @include('components.pagination', ['paginator' => $surveys])
                     </div>
                 </main>
             </div>
