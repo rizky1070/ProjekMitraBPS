@@ -90,8 +90,8 @@
                             </div>
 
                             <div class="mb-5">
-                                <label for="vol" class="block text-sm font-medium text-gray-700 mb-1">Vol</label>
-                                <input type="number" name="vol" id="vol" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Jumlah Volunteer">
+                                <label for="honor" class="block text-sm font-medium text-gray-700 mb-1">Honor</label>
+                                <input type="number" name="honor" id="honor" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Honor">
                             </div>
                         </div>
                         
@@ -121,10 +121,7 @@
                                 </select>
                             </div>
 
-                            <div class="mb-5">
-                                <label for="honor" class="block text-sm font-medium text-gray-700 mb-1">Honor</label>
-                                <input type="number" name="honor" id="honor" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Honor">
-                            </div>
+                            
 
                         </div>
                     </div>

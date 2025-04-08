@@ -127,7 +127,7 @@ class DaftarSurveiBpsController extends Controller
     {
         // Ambil data survei berdasarkan ID
         $survey = Survei::with('kecamatan')
-            ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan', 'tim','vol','honor')
+            ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan', 'tim','rate_honor')
             ->where('id_survei', $id_survei)
             ->firstOrFail();
         

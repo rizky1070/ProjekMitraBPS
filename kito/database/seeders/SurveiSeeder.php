@@ -16,8 +16,6 @@ class SurveiSeeder extends Seeder
             $bulan = rand(1, 12);
             $tanggal = rand(1, 28);
             $honor = rand(10000, 50000);
-            $vol = rand(1, 10);
-            $total_honor = $vol * $honor; // Menghitung total honor
             
             $surveiData[] = [
                 'id_provinsi' => '35',
@@ -30,9 +28,7 @@ class SurveiSeeder extends Seeder
                 'jadwal_kegiatan' => $tahun . '-' . sprintf('%02d', $bulan) . '-' . sprintf('%02d', $tanggal),            
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim ' . chr(64 + $i),
-                'honor' => $honor,
-                'vol' => $vol,
-                'total_honor' => $total_honor // Menambahkan total_honor
+                'rate_honor' => $honor,
             ];
         }
 

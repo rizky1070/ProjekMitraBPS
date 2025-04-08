@@ -41,9 +41,7 @@
                 <p><strong>Jadwal :</strong> {{ $survey->jadwal_kegiatan }}</p>
                 <p><strong>Tim :</strong> {{ $survey->tim }}</p>
                 <p><strong>KRO :</strong> {{ $survey->kro }} </p>
-                <p><strong>Vol :</strong> {{ $survey->vol ?? 'Tidak Tersedia' }}</p>
-                <p><strong>Honor :</strong> {{ $survey->honor ? 'Rp ' . number_format($survey->honor, 0, ',', '.') : 'Tidak Tersedia' }}</p>
-                <p><strong>Total Honor :</strong> {{ ($survey->vol && $survey->honor) ? 'Rp ' . number_format($survey->vol * $survey->honor, 0, ',', '.') : 'Tidak Tersedia' }}</p>
+                <p><strong>Rate Honor :</strong> {{ $survey->rate_honor ?? 'Tidak Tersedia' }}</p>
                 <div class="flex items-center">
                 <p>
                     <strong>Status :</strong>
