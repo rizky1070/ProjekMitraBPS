@@ -42,7 +42,7 @@
                                 + Tambah Survei
                             </a>
                         </div>
-                        <div class="p-6">
+                        <div class="p-4">
                             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                                 <!-- Header dengan tombol Tambah Survei -->
                                 <div class="items-center mb-4">

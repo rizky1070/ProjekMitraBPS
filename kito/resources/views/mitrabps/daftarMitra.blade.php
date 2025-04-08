@@ -40,10 +40,10 @@
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-                <div class="container px-6 py-8 mx-auto">
+                <div class="container px-4 py-8 mx-auto">
                         <!-- Title -->
-                    <h3 class="text-3xl font-medium text-black">Daftar Mitra</h3>
-                    <div class="p-6">
+                    <h3 class="text-3xl font-medium text-black pb-4">Daftar Mitra</h3>
+                    <div>
                         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                             <!-- Header dengan tombol Tambah Survei -->
                             <div class="flex justify-between items-center mb-4">
