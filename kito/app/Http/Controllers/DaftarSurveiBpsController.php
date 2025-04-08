@@ -213,7 +213,7 @@ class DaftarSurveiBpsController extends Controller
             ->when($request->filled('nama_lengkap'), function($query) use ($request) {
                 $query->where('nama_lengkap', $request->nama_lengkap);
             })
-            ->orderByDesc('isFollowingSurvey')
+            ->orderByDesc('mitra_survei.posisi_mitra')
             ->orderByRaw('mitra.id_kecamatan = ? DESC', [$survey->id_kecamatan])
             ->paginate(10);
 
@@ -228,16 +228,24 @@ class DaftarSurveiBpsController extends Controller
         ));
     }
 
-    public function deleteSurvei($id)
+    public function deleteMitraFromSurvei($id_survei, $id_mitra)
     {
-        $survey = MitraSurvei::findOrFail($id);
-        $survey->delete();
+        $mitraSurvei = MitraSurvei::where('id_survei', $id_survei)
+            ->where('id_mitra', $id_mitra)
+            ->firstOrFail();
 
-        return redirect()->back()->with('success', 'Survei berhasil dihapus!');
+        $mitraSurvei->posisi_mitra = null;
+        $mitraSurvei->save();
+
+        return redirect()->back()->with('success', 'Mitra berhasil dihapus dari survei!');
     }
 
     public function toggleMitraSurvey(Request $request, $id_survei, $id_mitra)
     {
+        $request->validate([
+            'posisi_mitra' => 'required|string|max:255'
+        ]);
+
         $survey = Survei::findOrFail($id_survei);
         $mitra = Mitra::findOrFail($id_mitra);
 
@@ -256,7 +264,7 @@ class DaftarSurveiBpsController extends Controller
             ]);
         }
 
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Mitra berhasil ditambahkan ke survei!');
     }
 
 

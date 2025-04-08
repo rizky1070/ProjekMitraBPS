@@ -220,7 +220,7 @@
                                 </td>
                                 
                                 <td class="border border-gray-300 p-2 text-center">
-                                    <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                    <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="bg-orange text-black px-3 rounded">Hapus</button>
                                     </form>
