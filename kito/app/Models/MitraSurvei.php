@@ -21,6 +21,7 @@ class MitraSurvei extends Model
         'catatan',
         'nilai',
         'vol',
+        'tgl_ikut_survei'
     ];
 
     public $timestamps = false; // Nonaktifkan fitur timestamps

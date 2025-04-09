@@ -18,6 +18,7 @@ class CreateSurveiTable extends Migration
             $table->string('lokasi_survei', 1024);
             $table->string('kro', 1024)->nullable();
             $table->date('jadwal_kegiatan');
+            $table->date('jadwal_berakhir_kegiatan');
             $table->integer('status_survei');
             $table->string('tim', 1024)->nullable();
             $table->string('rate_honor', 100)->nullable();
