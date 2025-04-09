@@ -224,7 +224,7 @@
                                     {{ $mitra->vol }}
                                 </td>
                                 <td class="border border-gray-300 p-2 text-center">
-                                    {{ $mitra->honor }}
+                                    Rp{{ number_format($mitra->honor, 0, ',', '.') }}
                                 </td>
                                 <td class="border border-gray-300 p-2 text-center">
                                     {{ $mitra->posisi_mitra }}
@@ -238,10 +238,10 @@
                                 @else
                                 <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
                                     <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                        <input type="text" name="posisi_mitra" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Vol" style="width: 100%;">
+                                        <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Vol" style="width: 100%;">
                                 </td>
                                 <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
-                                        <input type="text" name="posisi_mitra" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Honor" style="width: 100%;">
+                                        <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Honor" style="width: 100%;">
                                 </td>
                                 <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
                                         <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Posisi Mitra" style="width: 100%;">

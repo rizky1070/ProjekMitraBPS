@@ -209,6 +209,8 @@ class DaftarSurveiBpsController extends Controller
             ->select('mitra.*')
             ->selectRaw('COUNT(mitra_survei.id_survei) as mitra_survei_count')
             ->selectRaw('IF(SUM(mitra_survei.id_survei = ?), 1, 0) as isFollowingSurvey', [$id_survei])
+            ->selectRaw('mitra_survei.vol as vol')
+            ->selectRaw('mitra_survei.honor as honor')
             ->selectRaw('mitra_survei.posisi_mitra as posisi_mitra')
             ->groupBy('mitra.id_mitra')
             ->when($request->filled('tahun'), function($query) use ($request) {
@@ -244,7 +246,10 @@ class DaftarSurveiBpsController extends Controller
             ->where('id_mitra', $id_mitra)
             ->firstOrFail();
 
+        $mitraSurvei->vol = null;
+        $mitraSurvei->honor = null;
         $mitraSurvei->posisi_mitra = null;
+        $mitraSurvei->tgl_ikut_survei = null;
         $mitraSurvei->save();
 
         return redirect()->back()->with('success', 'Mitra berhasil dihapus dari survei!');
@@ -253,6 +258,8 @@ class DaftarSurveiBpsController extends Controller
     public function toggleMitraSurvey(Request $request, $id_survei, $id_mitra)
     {
         $request->validate([
+            'vol' => 'required|string|max:255',
+            'honor' => 'required|integer',
             'posisi_mitra' => 'required|string|max:255'
         ]);
 
@@ -265,11 +272,15 @@ class DaftarSurveiBpsController extends Controller
 
         if ($mitra_survei) {
             // Jika sudah ada, update posisi_mitra
+            $mitra_survei->vol = $request->input('vol');
+            $mitra_survei->honor = $request->input('honor');
             $mitra_survei->posisi_mitra = $request->input('posisi_mitra');
+            $mitra_survei->tgl_ikut_survei = now();
             $mitra_survei->save();
         } else {
-            // Kalau belum ada, attach sekaligus input posisi_mitra
             $mitra->mitraSurvei()->attach($id_survei, [
+                'vol' => $request->input('vol'),
+                'honor' => $request->input('honor'),
                 'posisi_mitra' => $request->input('posisi_mitra')
             ]);
         }

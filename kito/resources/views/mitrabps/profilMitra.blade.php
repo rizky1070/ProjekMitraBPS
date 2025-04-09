@@ -92,8 +92,12 @@
                         </select>
                     </div>
                 </form>
-                <p class="font-bold">Total Gaji Mitra:</p>
-                <p class="text-xl font-bold">Rp {{ number_format($totalGaji, 0, ',', '.') }}</p>
+                @if(request()->has('bulan'))
+                    <div class="pl-4">
+                        <p class="font-bold">Total Gaji Mitra Bulan ini:</p>
+                        <p class="text-xl font-bold">Rp {{ number_format($totalGaji, 0, ',', '.') }},00</p>
+                    </div>
+                @endif
                 <div class="bg-white p-4 rounded-lg shadow">
                     <h2 class="text-xl font-bold mb-4">Survei yang sudah dikerjakan</h2>
                     <table class="w-full mb-10 border-collapse border border-gray-300">
@@ -115,7 +119,7 @@
                                 <td class="p-2">{{ $sur->survei->nama_survei }}</td>
                                 <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
                                 <td class="p-2">{{ $sur->vol?? '-' }}</td>
-                                <td class="p-2">{{ $sur->survei->rate_honor?? '-'  }}</td>
+                                <td class="p-2">Rp{{ number_format($sur->survei->rate_honor?? '-', 0, ',', '.') }}</td>
                                 @if($sur->catatan == null & $sur->nilai == null)
                                 <td class="p-2 text-center text-red-700 font-bold">Tidak ada catatan</td>
                                 <td class="p-2 text-center text-red-700 font-bold">Belum dinilai</td>
