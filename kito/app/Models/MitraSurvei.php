@@ -21,7 +21,7 @@ class MitraSurvei extends Model
         'catatan',
         'nilai',
         'vol',
-        'honor'
+        'honor',
         'tgl_ikut_survei'
     ];
 
