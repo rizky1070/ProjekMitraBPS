@@ -175,18 +175,19 @@
                                         Jadwal Kegiatan : {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }}
                                     </span> <br>
                                     <span class="text-gray-600">
-                                        Jumlah Mitra:
-                                        @if($survey->mitraSurvei->isNotEmpty())
-                                            {{ $survey->mitraSurvei->count() }}<br>
+                                    @if($survey->mitraSurvei->isNotEmpty())
+                                        Jumlah Mitra: {{ $survey->mitraSurvei->count() }}<br>
+                                        <div class="mt-2 max-h-[350px] overflow-y-auto pr-2">
+                                            @foreach($survey->mitraSurvei as $mitraName)
+                                                <div class="text-gray-600">
+                                                    - {{ $mitraName->nama_lengkap }}<br>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <span class="text-red-500 font-semibold">Tidak ada mitra</span>
+                                    @endif
 
-                                            <div class="mt-2 max-h-[350px] overflow-y-auto pr-2">
-                                                @foreach($survey->mitraSurvei as $mitraName)
-                                                    <div class="text-gray-600">- {{ $mitraName->nama_lengkap }}</div>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <span class="text-red-500 font-semibold">Tidak ada mitra</span>
-                                        @endif
                                     </span>
                                 </div>
                                 <div class="mt-4">

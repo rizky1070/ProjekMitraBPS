@@ -203,6 +203,7 @@
                                 <th class="border border-gray-300 p-2">Domisili</th>
                                 <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
                                 <th class="border border-gray-300 p-2">Tahun</th>
+                                <th class="border border-gray-300 p-2">Posisi</th>
                                 <th class="border border-gray-300 p-2">Aksi</th>
                             </tr>
                         </thead>
@@ -213,18 +214,28 @@
                                 <td class="border border-gray-300 p-2 text-center">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
                                 <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
                                 <td class="border border-gray-300 p-2 text-center">{{ $mitra->tahun }}</td>
+                                @if ($mitra->posisi_mitra)
                                 <td class="border border-gray-300 p-2 text-center">
-                                    @if ($mitra->isFollowingSurvey)
-                                        <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="bg-orange text-black px-3 py-1 rounded">Hapus</button>
-                                        </form>
-                                    @else
-                                        <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="bg-orange text-black px-3 py-1 rounded">Tambah</button>
-                                        </form>
-                                    @endif
+                                    {{ $mitra->posisi_mitra }}
+                                </td>
+                                
+                                <td class="border border-gray-300 p-2 text-center">
+                                    <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="bg-orange text-black px-3 rounded">Hapus</button>
+                                    </form>
+                                </td>
+                                @else
+                                <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
+                                    <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                        <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-100" placeholder="Masukkan Posisi Mitra" style="width: 100%;">
+                                </td>
+                                <td class="border border-gray-300 p-2 text-center">
+                                        @csrf
+                                        <button type="submit" class="bg-orange text-black px-3 rounded">Tambah</button>
+                                    </form>
+                                </td>
+                                @endif
                                 </td>
                             </tr>
                             @endforeach
