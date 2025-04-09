@@ -75,24 +75,34 @@ class DaftarSurveiBpsController extends Controller
             ->pluck('nama_survei', 'nama_survei');
 
         // Query utama
-        $surveys = Survei::with(['kecamatan', 'mitraSurvei'])
-            ->withCount(['mitraSurvei as mitra_survei_count' => function ($query) {
-                $query->whereNotNull('posisi_mitra');
-            }])
-            ->when($request->filled('tahun'), function($query) use ($request) {
+        $surveys = Survei::with([
+                'kecamatan',
+                'mitraSurvei' => function ($query) {
+                    $query->whereNotNull('mitra_survei.posisi_mitra') // ini penting!
+                        ->withPivot('posisi_mitra');
+                }
+            ])
+            ->withCount([
+                'mitraSurvei as mitra_survei_count' => function ($query) {
+                    $query->whereNotNull('mitra_survei.posisi_mitra');
+                }
+            ])
+            ->when($request->filled('tahun'), function ($query) use ($request) {
                 $query->whereYear('jadwal_kegiatan', $request->tahun);
             })
-            ->when($request->filled('bulan'), function($query) use ($request) {
+            ->when($request->filled('bulan'), function ($query) use ($request) {
                 $query->whereMonth('jadwal_kegiatan', $request->bulan);
             })
-            ->when($request->filled('kecamatan'), function($query) use ($request) {
+            ->when($request->filled('kecamatan'), function ($query) use ($request) {
                 $query->where('id_kecamatan', $request->kecamatan);
             })
-            ->when($request->filled('nama_survei'), function($query) use ($request) {
+            ->when($request->filled('nama_survei'), function ($query) use ($request) {
                 $query->where('nama_survei', $request->nama_survei);
             })
             ->orderBy('status_survei')
             ->paginate(10);
+    
+
 
         // Mitra dengan survei ganda
         $mitraWithMultipleSurveysInMonth = collect([]);
@@ -134,7 +144,7 @@ class DaftarSurveiBpsController extends Controller
                 $query->withPivot('posisi_mitra');
             }
         ])
-        ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan', 'tim','vol','honor')
+        ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan', 'tim')
         ->where('id_survei', $id_survei)
         ->firstOrFail();
 
