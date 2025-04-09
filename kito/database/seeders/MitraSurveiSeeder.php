@@ -17,7 +17,8 @@ class MitraSurveiSeeder extends Seeder
                 'posisi_mitra' => 'Posisi A',
                 'catatan' => 'Catatan untuk Mitra 1',
                 'nilai' => 4,
-                'vol' => 3
+                'vol' => 3,
+                'honor' => 100000
             ],
             // Data kedua
             [
@@ -26,7 +27,8 @@ class MitraSurveiSeeder extends Seeder
                 'posisi_mitra' => 'Posisi B',
                 'catatan' => 'Catatan untuk Mitra 2',
                 'nilai' => 5,
-                'vol' => 7
+                'vol' => 7,
+                'honor' => 100000
             ],
             // Data ketiga
             [
@@ -35,7 +37,8 @@ class MitraSurveiSeeder extends Seeder
                 'posisi_mitra' => 'Posisi C',
                 'catatan' => 'Catatan untuk Mitra 3',
                 'nilai' => 3,
-                'vol' => 8
+                'vol' => 8,
+                'honor' => 100000
             ],
             // Data keempat
             [
@@ -44,7 +47,8 @@ class MitraSurveiSeeder extends Seeder
                 'posisi_mitra' => 'Posisi D',
                 'catatan' => 'Catatan untuk Mitra 4',
                 'nilai' => 4,
-                'vol' => 2
+                'vol' => 2,
+                'honor' => 100000
             ],
             // Data kelima
             [
@@ -53,7 +57,8 @@ class MitraSurveiSeeder extends Seeder
                 'posisi_mitra' => 'Posisi E',
                 'catatan' => 'Catatan untuk Mitra 5',
                 'nilai' => 5,
-                'vol' => 5
+                'vol' => 5,
+                'honor' => 100000
             ],
             // Data keenam
             [
@@ -62,7 +67,8 @@ class MitraSurveiSeeder extends Seeder
                 'posisi_mitra' => 'Posisi F',
                 'catatan' => 'Catatan untuk Mitra 6',
                 'nilai' => 3,
-                'vol' => 6
+                'vol' => 6,
+                'honor' => 100000
             ],
             // Data ketujuh
             [
@@ -71,7 +77,8 @@ class MitraSurveiSeeder extends Seeder
                 'posisi_mitra' => 'Posisi G',
                 'catatan' => 'Catatan untuk Mitra 7',
                 'nilai' => 4,
-                'vol' => 3
+                'vol' => 3,
+                'honor' => 100000
             ],
             // Data kedelapan
             [
@@ -80,7 +87,8 @@ class MitraSurveiSeeder extends Seeder
                 'posisi_mitra' => 'Posisi H',
                 'catatan' => 'Catatan untuk Mitra 8',
                 'nilai' => 3,
-                'vol' => 2
+                'vol' => 2,
+                'honor' => 100000
             ],
             // Data kesembilan
             [
@@ -89,7 +97,8 @@ class MitraSurveiSeeder extends Seeder
                 'posisi_mitra' => 'Posisi I',
                 'catatan' => 'Catatan untuk Mitra 9',
                 'nilai' => 4,
-                'vol' => 5
+                'vol' => 5,
+                'honor' => 100000
             ],
             // Data kesepuluh
             [
@@ -98,7 +107,8 @@ class MitraSurveiSeeder extends Seeder
                 'posisi_mitra' => 'Posisi J',
                 'catatan' => 'Catatan untuk Mitra 10',
                 'nilai' => 5,
-                'vol' => 2
+                'vol' => 2,
+                'honor' => 100000
             ]
         ]);
     }
