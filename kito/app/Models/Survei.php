@@ -26,6 +26,7 @@ class Survei extends Model
         'lokasi_survei',
         'kro',
         'jadwal_kegiatan',
+        'jadwal_berakhir_kegiatan',
         'status_survei',
         'tim',
         'rate_honor',

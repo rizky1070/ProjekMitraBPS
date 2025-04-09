@@ -17,6 +17,9 @@ class SurveiSeeder extends Seeder
             $tanggal = rand(1, 28);
             $honor = rand(10000, 50000);
             
+            $startDate = $tahun . '-' . sprintf('%02d', $bulan) . '-' . sprintf('%02d', $tanggal);
+            $endDate = date('Y-m-d', strtotime($startDate . ' + ' . rand(1, 14) . ' days'));
+            
             $surveiData[] = [
                 'id_provinsi' => '35',
                 'id_kabupaten' => '16',
@@ -25,7 +28,8 @@ class SurveiSeeder extends Seeder
                 'nama_survei' => 'Survei ' . chr(64 + $i),
                 'lokasi_survei' => 'Lokasi ' . chr(64 + $i),
                 'kro' => 'Kro ' . chr(64 + $i),
-                'jadwal_kegiatan' => $tahun . '-' . sprintf('%02d', $bulan) . '-' . sprintf('%02d', $tanggal),            
+                'jadwal_kegiatan' => $startDate,
+                'jadwal_berakhir_kegiatan' => $endDate,
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim ' . chr(64 + $i),
                 'rate_honor' => $honor,

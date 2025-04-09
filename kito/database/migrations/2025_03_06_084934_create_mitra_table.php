@@ -21,6 +21,7 @@ class CreateMitraTable extends Migration
             $table->string('no_hp_mitra', 1024);
             $table->string('email_mitra', 1024);
             $table->date('tahun');
+            $table->date('tahun_selesai')->nullable();
 
 
             $table->foreign('id_desa')->references('id_desa')->on('desa')->onUpdate('restrict')->onDelete('restrict');

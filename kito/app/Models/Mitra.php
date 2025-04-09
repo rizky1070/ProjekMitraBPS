@@ -27,6 +27,7 @@ class Mitra extends Model
         'no_hp_mitra',
         'email_mitra',
         'tahun',
+        'tahun_selesai',
     ];
 
     // Relasi dengan Provinsi
