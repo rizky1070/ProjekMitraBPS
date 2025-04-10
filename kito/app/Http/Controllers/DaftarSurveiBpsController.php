@@ -122,32 +122,12 @@ class DaftarSurveiBpsController extends Controller
     }
 
 
-
-        // Mitra dengan survei ganda
-        $mitraWithMultipleSurveysInMonth = collect([]);
-        if ($request->filled('bulan')) {
-            $mitraWithMultipleSurveysInMonth = Mitra::select('mitra.id_mitra', 'mitra.nama_lengkap')
-                ->join('mitra_survei', 'mitra_survei.id_mitra', '=', 'mitra.id_mitra')
-                ->join('survei', 'survei.id_survei', '=', 'mitra_survei.id_survei')
-                ->whereMonth('survei.jadwal_kegiatan', $request->bulan)
-                ->when($request->filled('tahun'), function($query) use ($request) {
-                    $query->whereYear('survei.jadwal_kegiatan', $request->tahun);
-                })
-                ->when($request->filled('kecamatan'), function($query) use ($request) {
-                    $query->where('survei.id_kecamatan', $request->kecamatan);
-                })
-                ->groupBy('mitra.id_mitra', 'mitra.nama_lengkap')
-                ->havingRaw('COUNT(DISTINCT mitra_survei.id_survei) > 1')
-                ->get();
-        }
-
         return view('mitrabps.daftarSurvei', compact(
             'surveys',
             'tahunOptions',
             'bulanOptions',
             'kecamatanOptions',
             'namaSurveiOptions',
-            'mitraWithMultipleSurveysInMonth',
             'mitraHighlight', 
             'request'
         ));
@@ -318,10 +298,12 @@ class DaftarSurveiBpsController extends Controller
             $mitra_survei->tgl_ikut_survei = now();
             $mitra_survei->save();
         } else {
+            // Jika belum ada, buat baru dengan tgl_ikut_survei = sekarang
             $mitra->mitraSurvei()->attach($id_survei, [
                 'vol' => $request->input('vol'),
                 'honor' => $request->input('honor'),
-                'posisi_mitra' => $request->input('posisi_mitra')
+                'posisi_mitra' => $request->input('posisi_mitra'),
+                'tgl_ikut_survei' => now() // Tambahkan timestamp sekarang
             ]);
         }
 

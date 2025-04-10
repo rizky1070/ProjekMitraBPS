@@ -161,7 +161,7 @@
                                     <th class="border border-gray-350 p-2">Nama Mitra</th>
                                     <th class="border border-gray-350 p-2">Kecamatan</th>
                                     <th class="border border-gray-350 p-2">Survei yang Diikuti</th>
-                                    <th class="border border-gray-350 p-2">Tahun</th>
+                                    <th class="border border-gray-350 p-2">Tahun Mitra diterima</th>
                                     <th class="border border-gray-350 p-2">Aksi</th>
                                 </tr>
                             </thead>
