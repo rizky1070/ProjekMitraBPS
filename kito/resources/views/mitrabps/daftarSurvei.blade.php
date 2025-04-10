@@ -13,7 +13,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="/Logo BPS.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
-
     <title>Daftar Survei BPS</title>
 </head>
 <body class="h-full">
@@ -150,59 +149,58 @@
                         <!-- List of Survei -->
                         <div class="flex overflow-x-auto space-x-6 p-4">
                         @foreach($surveys as $survey)
-                            <div class="bg-white h-[500px] min-w-[350px] p-6 border border-gray-300 rounded-lg shadow-md flex-shrink-0 space-y-4 flex flex-col">
+                            <div class="bg-white h-[500px] min-w-[350px] max-w-[350px] p-6 border border-gray-300 rounded-lg shadow-md flex-shrink-0 space-y-4 flex flex-col overflow-hidden">
                                 <!-- Informasi Survei -->
-                                <div class="flex-grow">
-                                    <h3 class="text-2xl font-bold text-gray-800 transition-all duration-300 ease-in-out transform hover:text-black hover:scale-105"">
+                                <div class="flex-grow overflow-hidden">
+                                    <h3 class="text-2xl font-bold text-gray-800 truncate whitespace-nowrap overflow-hidden hover:text-black hover:scale-105 transition-all duration-300 ease-in-out transform">
                                         <a href="/editSurvei/{{ $survey->id_survei }}">{{ $survey->nama_survei }}</a>
                                     </h3>
+
                                     <!-- Status -->
-                                    <div class="mt-auto">
-                                        <div class="text-lg font-semibold mb-2">
-                                            @if($survey->status_survei == 1)
-                                                <span class="text-red-500">Belum Dikerjakan</span>
-                                            @elseif($survey->status_survei == 2)
-                                                <span class="text-yellow-500">Sedang Dikerjakan</span>
-                                            @elseif($survey->status_survei == 3)
-                                                <span class="text-green-600">Sudah Dikerjakan</span>
-                                            @else
-                                                <span class="text-gray-500">Status Tidak Diketahui</span>
-                                            @endif
-                                        </div>
+                                    <div class="mt-auto text-lg font-semibold mb-2">
+                                        @if($survey->status_survei == 1)
+                                            <span class="text-red-500">Belum Dikerjakan</span>
+                                        @elseif($survey->status_survei == 2)
+                                            <span class="text-yellow-500">Sedang Dikerjakan</span>
+                                        @elseif($survey->status_survei == 3)
+                                            <span class="text-green-600">Sudah Dikerjakan</span>
+                                        @else
+                                            <span class="text-gray-500">Status Tidak Diketahui</span>
+                                        @endif
                                     </div>
-                                    <span class="text-gray-600">
-                                        Kecamatan : {{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}
-                                    </span> <br>
-                                    <span class="text-gray-600">
-                                        Jadwal Kegiatan : {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }}
-                                    </span> <br>
-                                    <span class="text-gray-600">
-                                    @if($survey->mitraSurvei->isNotEmpty())
-                                        Jumlah Mitra: {{ $survey->mitraSurvei->count() }}<br>
-                                        <div class="mt-2 max-h-[250px] overflow-y-auto pr-2">
-                                            @foreach($survey->mitraSurvei as $mitraName)
-                                                @php
-                                                    $totalSurvei = $mitraHighlight[$mitraName->id_mitra] ?? 0;
 
-                                                    $textColor = match(true) {
-                                                        $totalSurvei > 3 => 'text-red-600',
-                                                        $totalSurvei > 1 => 'text-yellow-600',
-                                                        default => 'text-gray-500'
-                                                    };
-                                                @endphp
+                                    <span class="text-gray-600 block truncate">
+                                        Kecamatan: {{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}
+                                    </span>
+                                    <span class="text-gray-600 block">
+                                        Jadwal Kegiatan: {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }}
+                                    </span>
 
-                                                <div class="{{ $textColor }} rounded-md transition-all duration-300 ease-in-out transform hover:bg-orange hover:text-white hover:scale-105">
-                                                    - <a href="/profilMitra/{{ $mitraName->id_mitra }}">{{ $mitraName->nama_lengkap }}</a>
-                                                    @if(request()->filled('tahun') || request()->filled('bulan'))
-                                                        ({{ $totalSurvei }} survei)
-                                                    @endif
-                                                    <br>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <span class="text-red-500 font-semibold">Tidak ada mitra</span>
-                                    @endif
+                                    <span class="text-gray-600 block">
+                                        @if($survey->mitraSurvei->isNotEmpty())
+                                            Jumlah Mitra: {{ $survey->mitraSurvei->count() }}<br>
+                                            <div class="mt-2 max-h-[250px] overflow-y-auto pr-2 space-y-1">
+                                                @foreach($survey->mitraSurvei as $mitraName)
+                                                    @php
+                                                        $totalSurvei = $mitraHighlight[$mitraName->id_mitra] ?? 0;
+                                                        $textColor = match(true) {
+                                                            $totalSurvei > 3 => 'text-red-600',
+                                                            $totalSurvei > 1 => 'text-yellow-600',
+                                                            default => 'text-gray-500'
+                                                        };
+                                                    @endphp
+
+                                                    <div class="{{ $textColor }} rounded-md transition-all duration-300 ease-in-out transform hover:bg-orange hover:text-white hover:scale-105 line-clamp-2">
+                                                        - <a href="/profilMitra/{{ $mitraName->id_mitra }}" class="truncate inline-block max-w-full align-top">{{ $mitraName->nama_lengkap }}</a>
+                                                        @if(request()->filled('tahun') || request()->filled('bulan'))
+                                                            ({{ $totalSurvei }} survei)
+                                                        @endif
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-red-500 font-semibold">Tidak ada mitra</span>
+                                        @endif
                                     </span>
                                 </div>
                             </div>
