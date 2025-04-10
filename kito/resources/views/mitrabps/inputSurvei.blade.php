@@ -28,8 +28,11 @@
     swal("Error!", "{{ $errors->first() }}", "error");
     </script>
     @endif
-    <a href="{{ url('/daftarSurvei') }}" class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
-        <
+    <a href="{{ url('/daftarSurvei') }}" 
+    class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
     </a>
 
     <main class="max-w-4xl mx-auto bg-gray-200">

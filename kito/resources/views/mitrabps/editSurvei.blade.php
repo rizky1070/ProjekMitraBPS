@@ -30,9 +30,13 @@
     @endif
     
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-    <a href="{{ url('/daftarSurvei') }}" class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
-        <
+    <a href="{{ url('/daftarSurvei') }}" 
+    class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
     </a>
+
         <div class="p-6">
             <h2 class="text-2xl font-bold mb-4">Survei Terpilih</h2>
             <div class="bg-white p-4 rounded-lg shadow">
@@ -43,44 +47,44 @@
                 <p><strong>KRO :</strong> {{ $survey->kro }} </p>
                 <p><strong>Rate Honor :</strong> {{ $survey->rate_honor ?? 'Tidak Tersedia' }}</p>
                 <div class="flex items-center">
-                <p>
-                    <strong>Status :</strong>
-                    <span class="font-bold">
-                        @if($survey->status_survei == 1)
-                            <div class="bg-red-500 text-white  px-2 py-1 rounded ml-2 mr-5">Belum Dikerjakan</div>
-                        @elseif($survey->status_survei == 2)
-                            <div class="bg-yellow-300 text-white  px-2 py-1 rounded ml-2 mr-5">Sedang Dikerjakan</div>
-                        @elseif($survey->status_survei == 3)
-                            <div class="bg-green-500 text-white  px-2 py-1 rounded ml-2 mr-5">Sudah Dikerjakan</div>
-                        @else
-                            <span class="bg-gray-500 text-white rounded-md px-2 py-1 ml-2">Status Tidak Diketahui</span>
-                        @endif
-                    </span>
-                </p>
+                    <p>
+                        <strong>Status :</strong>
+                        <span class="font-bold">
+                            @if($survey->status_survei == 1)
+                                <div class="bg-red-500 text-white  px-2 py-1 rounded ml-2 mr-5">Belum Dikerjakan</div>
+                            @elseif($survey->status_survei == 2)
+                                <div class="bg-yellow-300 text-white  px-2 py-1 rounded ml-2 mr-5">Sedang Dikerjakan</div>
+                            @elseif($survey->status_survei == 3)
+                                <div class="bg-green-500 text-white  px-2 py-1 rounded ml-2 mr-5">Sudah Dikerjakan</div>
+                            @else
+                                <span class="bg-gray-500 text-white rounded-md px-2 py-1 ml-2">Status Tidak Diketahui</span>
+                            @endif
+                        </span>
+                    </p>
 
-                <!-- Dropdown -->
-                <div class="relative inline-block text-left ml-4">
-                    <button type="button" class="bg-orange text-black px-2 py-1 rounded" onclick="toggleDropdown()">Ubah Status</button>
+                    <!-- Dropdown -->
+                    <div class="relative inline-block text-left ml-4">
+                        <button type="button" class="bg-orange text-black px-2 py-1 rounded" onclick="toggleDropdown()">Ubah Status</button>
 
-                    <div id="dropdown" class="hidden absolute mt-2 bg-white border rounded shadow-lg z-10">
-                        <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
-                            @csrf
-                            <input type="hidden" name="status_survei" value="1">
-                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Belum Dikerjakan</button>
-                        </form>
-                        <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
-                            @csrf
-                            <input type="hidden" name="status_survei" value="2">
-                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Sedang Dikerjakan</button>
-                        </form>
-                        <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
-                            @csrf
-                            <input type="hidden" name="status_survei" value="3">
-                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Sudah Dikerjakan</button>
-                        </form>
+                        <div id="dropdown" class="hidden absolute mt-2 bg-white border rounded shadow-lg z-10">
+                            <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
+                                @csrf
+                                <input type="hidden" name="status_survei" value="1">
+                                <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Belum Dikerjakan</button>
+                            </form>
+                            <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
+                                @csrf
+                                <input type="hidden" name="status_survei" value="2">
+                                <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Sedang Dikerjakan</button>
+                            </form>
+                            <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
+                                @csrf
+                                <input type="hidden" name="status_survei" value="3">
+                                <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Sudah Dikerjakan</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
 
             <script>
                 function toggleDropdown() {
@@ -90,59 +94,60 @@
             </script>
 
             </div>
-
-            <h3 class="text-xl font-bold mt-8 mb-4">Daftar Mitra</h3>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold mt-4">Daftar Mitra</h3>
+                <button type="button" class="mt-4 px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+            </div>
                 <div class="bg-white rounded-lg shadow-sm p-6">
-                    <!-- Header dengan tombol Tambah Survei -->
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-lg font-semibold text-gray-800">Filter Mitra</h2>
-                        <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
-                    </div>
-                            <!-- Form Filter -->
-                    <form id="filterForm" action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="space-y-4">                                <!-- Year Row -->
+                    <!-- Year Row -->
+                    <form id="filterForm" action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="space-y-4">
+                        <!-- Survey Name Row -->
                         <div class="flex items-center relative">
-                            <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
-                            <select name="tahun" id="tahun" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
-                                <option value="">Semua Tahun</option>
-                                    @foreach($tahunOptions as $year => $yearLabel)
-                                    <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $yearLabel }}</option>
-                                    @endforeach
-                            </select>
-                        </div>
-
-                                <!-- Month Row -->
-                        <div class="flex items-center relative">
-                            <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
-                            <select name="bulan" id="bulan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
-                                <option value="">Semua Bulan</option>
-                                @foreach($bulanOptions as $month => $monthName)
-                                    <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                                <!-- District Row -->
-                        <div class="flex items-center relative">
-                            <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
-                            <select name="kecamatan" id="kecamatan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
-                                <option value="">Semua Kecamatan</option>
-                                @foreach($kecamatanOptions as $kecam)
-                                    <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan') == $kecam->id_kecamatan) selected @endif>
-                                        [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                                <!-- Survey Name Row -->
-                        <div class="flex items-center relative">
-                            <label for="nama_lengkap" class="w-32 text-sm font-medium text-gray-700">Nama Mitra</label>
+                            <label for="nama_lengkap" class="w-32 text-lg font-semibold text-gray-800 mb-4">Cari Mitra</label>
                             <select name="nama_lengkap" id="nama_mitra" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaMitraOptions) ? 'disabled' : '' }}>
                                 <option value="">Semua Mitra</option>
                                 @foreach($namaMitraOptions as $nama => $label)
                                     <option value="{{ $nama }}" @if(request('nama_lengkap') == $nama) selected @endif>{{ $label }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-semibold text-gray-800">Filter Mitra</h2>
+                        </div>
+                        <div class="flex">
+                            <div class="grid grid-cols-3 gap-x-6">
+                                <div class="flex items-center relative">
+                                    <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
+                                    <select name="tahun" id="tahun" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                        <option value="">Semua Tahun</option>
+                                            @foreach($tahunOptions as $year => $yearLabel)
+                                            <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $yearLabel }}</option>
+                                            @endforeach
+                                    </select>
+                                </div>
+                                <!-- Month Row -->
+                                <div class="flex items-center relative">
+                                    <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
+                                    <select name="bulan" id="bulan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                        <option value="">Semua Bulan</option>
+                                        @foreach($bulanOptions as $month => $monthName)
+                                            <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <!-- District Row -->
+                                <div class="flex items-center relative">
+                                    <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
+                                    <select name="kecamatan" id="kecamatan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
+                                        <option value="">Semua Kecamatan</option>
+                                        @foreach($kecamatanOptions as $kecam)
+                                            <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan') == $kecam->id_kecamatan) selected @endif>
+                                                [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -195,43 +200,45 @@
                     mitraSelect.addEventListener('change', submitForm);
                 });
                 </script>
-                <div class="overflow-x-auto mx-6 bg-white rounded-lg shadow-md">
-                    <table class="w-full border-collapse border border-gray-300">
+                <div class="overflow-x-auto mx-6 p-2 bg-white rounded-lg shadow-md">
+                    <table class="w-full border-collapse border border-gray-350">
                         <thead>
-                            <tr class="bg-gray-100">
-                                <th class="border border-gray-300 p-2">Nama Mitra</th>
-                                <th class="border border-gray-300 p-2">Domisili</th>
-                                <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
-                                <th class="border border-gray-300 p-2">Tahun</th>
-                                <th class="border border-gray-300 p-2">Vol</th>
-                                <th class="border border-gray-300 p-2">Honor</th>
-                                <th class="border border-gray-300 p-2">Posisi</th>
-                                <th class="border border-gray-300 p-2">Aksi</th>
+                            <tr class="bg-gray-300">
+                                <th class="border border-gray-350 p-2">Nama Mitra</th>
+                                <th class="border border-gray-350 p-2">Domisili</th>
+                                <th class="border border-gray-350 p-2">Survei yang Diikuti</th>
+                                <th class="border border-gray-350 p-2">Tahun</th>
+                                <th class="border border-gray-350 p-2">Vol</th>
+                                <th class="border border-gray-350 p-2">Honor</th>
+                                <th class="border border-gray-350 p-2">Posisi</th>
+                                <th class="border border-gray-350 p-2">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($mitras as $mitra)
-                            <tr class="bg-white hover:bg-gray-100">
-                                <td class="border border-gray-300 p-2" style="max-width: 120px;"><a href="/profilMitra/{{ $mitra->id_mitra }}" class="transition-all duration-300 ease-in-out transform hover:bg-orange hover:text-white hover:shadow-lg hover:scale-105"> {{ $mitra->nama_lengkap }}</a></td>
-                                <td class="border border-gray-300 p-2 text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
-                                <td class="border border-gray-300 p-2 text-center" style="max-width: 120px;">{{ $mitra->mitra_survei_count }}</td>
-                                <td class="border border-gray-300 p-2 text-center" style="max-width: 120px;">{{ $mitra->tahun }}</td>
+                            <tr class="bg-white hover:bg-gray-200">
+                                <td class="border border-gray-350 p-2 transition-all duration-300 ease-in-out transform hover:bg-orange hover:text-white hover:shadow-lg hover:scale-105" style="max-width: 120px;">
+                                    <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
+                                </td>
+                                <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
+                                <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">{{ $mitra->mitra_survei_count }}</td>
+                                <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">{{ $mitra->tahun }}</td>
 
                                 
                                 @if ($mitra->vol && $mitra->honor && $mitra->posisi_mitra)
                                 <!-- Vol -->
                                 <form action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
                                     @csrf
-                                    <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
+                                    <td class="border border-gray-350 p-0 text-center" style="max-width: 120px;">
                                         <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="{{ $mitra->vol }}" style="width: 100%;">
                                     </td>
-                                    <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
+                                    <td class="border border-gray-350 p-0 text-center" style="max-width: 120px;">
                                         <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Rp{{ number_format($mitra->honor, 0, ',', '.') }}" style="width: 100%;">
                                     </td>
-                                    <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
+                                    <td class="border border-gray-350 p-0 text-center" style="max-width: 120px;">
                                         <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="{{ $mitra->posisi_mitra }}" style="width: 100%;">
                                     </td>
-                                    <td class="flex justify-center border py-2 text-center">
+                                    <td class="flex justify-center py-2 text-center">
                                         <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Ubah</button>
                                 </form>
                                 <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
@@ -240,17 +247,17 @@
                                     </td>
                                 </form>
                                 @else
-                                <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
+                                <td class="border border-gray-350 p-0 text-center" style="max-width: 120px;">
                                     <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
                                         <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Vol" style="width: 100%;">
                                 </td>
-                                <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
+                                <td class="border border-gray-350 p-0 text-center" style="max-width: 120px;">
                                         <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Honor" style="width: 100%;">
                                 </td>
-                                <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
+                                <td class="border border-gray-350 p-0 text-center" style="max-width: 120px;">
                                         <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Posisi Mitra" style="width: 100%;">
                                 </td>
-                                <td class="border border-gray-300 p-2 text-center" style="max-width: 120px;">
+                                <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">
                                         @csrf
                                         <button type="submit" class="bg-orange text-black px-3 rounded">Tambah</button>
                                     </form>

@@ -37,61 +37,63 @@
                 <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
                     <div class="container px-4 py-8 mx-auto">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-3xl font-medium text-black">Search Mitra</h3>
+                            <h3 class="text-3xl font-medium text-black">Daftar Survei</h3>
                             <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
                         </div>
                         <div class="p-4">
                             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                                <!-- Header dengan tombol Tambah Survei -->
-                                <div class="items-center mb-4">
-                                    <h2 class="text-lg font-semibold text-gray-800">Filter Survei</h2>
-                                </div>
                                 <!-- Form Filter -->
                                 <form action="{{ route('surveys.filter') }}" method="GET" class="space-y-4" id="filterForm">
-                                    <!-- Year Row -->
+                                    <!-- Survey Name Row -->
                                     <div class="flex items-center">
-                                        <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
-                                        <select name="tahun" id="tahun" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
-                                            <option value="">Semua Tahun</option>
-                                            @foreach($tahunOptions as $year => $yearLabel)
-                                                <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $yearLabel }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                        <!-- Month Row -->
-                                    <div class="flex items-center">
-                                        <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
-                                        <select name="bulan" id="bulan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
-                                            <option value="">Semua Bulan</option>
-                                            @foreach($bulanOptions as $month => $monthName)
-                                                <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                        <!-- District Row -->
-                                    <div class="flex items-center">
-                                        <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
-                                        <select name="kecamatan" id="kecamatan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
-                                            <option value="">Semua Kecamatan</option>
-                                            @foreach($kecamatanOptions as $kecam)
-                                                <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan') == $kecam->id_kecamatan) selected @endif>
-                                                    [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                        <!-- Survey Name Row -->
-                                    <div class="flex items-center">
-                                        <label for="nama_survei" class="w-32 text-sm font-medium text-gray-700">Nama Survei</label>
+                                        <label for="nama_survei" class="w-32 text-lg font-semibold text-gray-800">Cari Survei</label>
                                         <select name="nama_survei" id="nama_survei" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaSurveiOptions) ? 'disabled' : '' }}>
                                             <option value="">Semua Survei</option>
                                             @foreach($namaSurveiOptions as $nama => $label)
                                                 <option value="{{ $nama }}" @if(request('nama_survei') == $nama) selected @endif>{{ $label }}</option>
                                             @endforeach
                                         </select>
+                                    </div>
+                                    <div class="items-center mb-4">
+                                        <h2 class="text-lg font-semibold text-gray-800">Filter Survei</h2>
+                                    </div>
+                                    <div class="flex">
+                                        <div class="grid grid-cols-3 gap-x-6">
+                                            <!-- Year Row -->
+                                            <div class="pb-2 flex items-center">
+                                                <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
+                                                <select name="tahun" id="tahun" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                                    <option value="">Semua Tahun</option>
+                                                    @foreach($tahunOptions as $year => $yearLabel)
+                                                        <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $yearLabel }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <!-- Month Row -->
+                                            <div class="pb-2 flex items-center">
+                                                <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
+                                                <select name="bulan" id="bulan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                                    <option value="">Semua Bulan</option>
+                                                    @foreach($bulanOptions as $month => $monthName)
+                                                        <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <!-- District Row (Now aligned) -->
+                                            <div class="pb-2 flex items-center">
+                                                <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
+                                                <select name="kecamatan" id="kecamatan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
+                                                    <option value="">Semua Kecamatan</option>
+                                                    @foreach($kecamatanOptions as $kecam)
+                                                        <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan') == $kecam->id_kecamatan) selected @endif>
+                                                            [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
@@ -148,7 +150,7 @@
                         <!-- List of Survei -->
                         <div class="flex overflow-x-auto space-x-6 p-4">
                         @foreach($surveys as $survey)
-                            <div class="bg-white h-[600px] min-w-[350px] p-6 border border-gray-300 rounded-lg shadow-md flex-shrink-0 space-y-4 flex flex-col">
+                            <div class="bg-white h-[500px] min-w-[350px] p-6 border border-gray-300 rounded-lg shadow-md flex-shrink-0 space-y-4 flex flex-col">
                                 <!-- Informasi Survei -->
                                 <div class="flex-grow">
                                     <h3 class="text-2xl font-bold text-gray-800 transition-all duration-300 ease-in-out transform hover:text-black hover:scale-105"">
@@ -177,7 +179,7 @@
                                     <span class="text-gray-600">
                                     @if($survey->mitraSurvei->isNotEmpty())
                                         Jumlah Mitra: {{ $survey->mitraSurvei->count() }}<br>
-                                        <div class="mt-2 max-h-[350px] overflow-y-auto pr-2">
+                                        <div class="mt-2 max-h-[250px] overflow-y-auto pr-2">
                                             @foreach($survey->mitraSurvei as $mitraName)
                                                 @php
                                                     $totalSurvei = $mitraHighlight[$mitraName->id_mitra] ?? 0;

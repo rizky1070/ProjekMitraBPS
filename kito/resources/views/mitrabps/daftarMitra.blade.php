@@ -42,7 +42,7 @@
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
                 <div class="container px-4 py-8 mx-auto">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-3xl font-medium text-black">Search Mitra</h3>
+                        <h3 class="text-3xl font-medium text-black">Daftar Mitra</h3>
                         <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
                     </div>
                     <div>
@@ -50,7 +50,7 @@
                             <!-- Form Filter -->
                             <form action="{{ route('mitras.filter') }}" method="GET" class="space-y-4" id="filterForm">
                                 <div class="flex items-center relative">
-                                    <label for="nama_lengkap" class="w-32 text-sm font-medium text-gray-700">Nama Mitra</label>
+                                    <label for="nama_lengkap" class="w-32 text-lg font-semibold text-gray-800">Cari Mitra</label>
                                     <select name="nama_lengkap" id="nama_mitra" class="w-64 
                                     border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaMitraOptions) ? 'disabled' : '' }}>
                                         <option value="">Semua Mitra</option>
@@ -61,45 +61,47 @@
                                 </div>
                                 <!-- Year Row -->
                                 <div>
-                                   <h4 class="text-lg font-semibold text-gray-800">Filter</h4>
+                                   <h4 class="text-lg font-semibold text-gray-800">Filter Mitra</h4>
                                 </div>
-                                <div class="flex items-center relative">
-                                    <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
-                                    <select name="tahun" id="tahun" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
-                                        <option value="">Semua Tahun</option>
-                                        @foreach($tahunOptions as $year => $yearLabel)
-                                            <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $yearLabel }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                <div class="flex">
+                                    <div class="grid grid-cols-3 gap-x-6">
+                                        <div class="flex items-center relative">
+                                            <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
+                                            <select name="tahun" id="tahun" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                                <option value="">Semua Tahun</option>
+                                                @foreach($tahunOptions as $year => $yearLabel)
+                                                    <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $yearLabel }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
 
-                                <!-- Month Row -->
-                                <div class="flex items-center relative">
-                                    <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
-                                    <select name="bulan" id="bulan" class="w-64 
-                                    border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
-                                        <option value="">Semua Bulan</option>
-                                        @foreach($bulanOptions as $month => $monthName)
-                                            <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                        <!-- Month Row -->
+                                        <div class="flex items-center relative">
+                                            <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
+                                            <select name="bulan" id="bulan" class="w-64 
+                                            border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                                <option value="">Semua Bulan</option>
+                                                @foreach($bulanOptions as $month => $monthName)
+                                                    <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
 
-                                <!-- District Row -->
-                                <div class="flex items-center relative">
-                                    <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
-                                    <select name="kecamatan" id="kecamatan" class="w-64 
-                                    border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
-                                        <option value="">Semua Kecamatan</option>
-                                        @foreach($kecamatanOptions as $kecam)
-                                            <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan') == $kecam->id_kecamatan) selected @endif>
-                                                [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                
+                                        <!-- District Row -->
+                                        <div class="flex items-center relative">
+                                            <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
+                                            <select name="kecamatan" id="kecamatan" class="w-64 
+                                            border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
+                                                <option value="">Semua Kecamatan</option>
+                                                @foreach($kecamatanOptions as $kecam)
+                                                    <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan') == $kecam->id_kecamatan) selected @endif>
+                                                        [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>                                
                             </form>
                         </div>
                 </div>
@@ -151,26 +153,26 @@
                         mitraSelect.addEventListener('change', submitForm);
                     });
                 </script>
-            <!-- Table -->
-                    <div class="overflow-x-auto p-4 bg-white rounded-lg shadow-md">
-                        <table class="w-full border-collapse border border-gray-300">
+                <!-- Table -->
+                    <div class="overflow-x-auto p-2 bg-white rounded-lg shadow-md">
+                        <table class="w-full border-collapse border border-gray-350">
                             <thead>
-                                <tr class="bg-gray-100">
-                                    <th class="border border-gray-300 p-2">Nama Mitra</th>
-                                    <th class="border border-gray-300 p-2">Kecamatan</th>
-                                    <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
-                                    <th class="border border-gray-300 p-2">Tahun</th>
-                                    <th class="border border-gray-300 p-2">Aksi</th>
+                                <tr class="bg-gray-400">
+                                    <th class="border border-gray-350 p-2">Nama Mitra</th>
+                                    <th class="border border-gray-350 p-2">Kecamatan</th>
+                                    <th class="border border-gray-350 p-2">Survei yang Diikuti</th>
+                                    <th class="border border-gray-350 p-2">Tahun</th>
+                                    <th class="border border-gray-350 p-2">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($mitras as $mitra)
                                 <tr class="bg-white hover:bg-gray-100">
-                                    <td class="border border-gray-300 p-2">{{ $mitra->nama_lengkap }}</td>
-                                    <td class="border border-gray-300 p-2 text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
-                                    <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
-                                    <td class="border border-gray-300 p-2 text-center">{{ $mitra->tahun }}</td>
-                                    <td class="border border-gray-300 p-2 text-center">
+                                    <td class="border border-gray-350 p-2">{{ $mitra->nama_lengkap }}</td>
+                                    <td class="border border-gray-350 p-2 text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
+                                    <td class="border border-gray-350 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
+                                    <td class="border border-gray-350 p-2 text-center">{{ $mitra->tahun }}</td>
+                                    <td class="border border-gray-350 p-2 text-center">
                                         <a href="/profilMitra/{{ $mitra->id_mitra }}"  class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
                                     </td>
                                 </tr>
