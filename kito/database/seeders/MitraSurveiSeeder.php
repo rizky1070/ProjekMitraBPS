@@ -117,6 +117,7 @@ class MitraSurveiSeeder extends Seeder
                 'catatan' => 'Catatan untuk Mitra 10',
                 'nilai' => 5,
                 'vol' => 2,
+                'honor' => 100000,
                 'tgl_ikut_survei' => '2025-05-10'
             ],
             // 
