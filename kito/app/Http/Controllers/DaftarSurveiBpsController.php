@@ -295,7 +295,7 @@ class DaftarSurveiBpsController extends Controller
             $mitra_survei->vol = $request->input('vol');
             $mitra_survei->honor = $request->input('honor');
             $mitra_survei->posisi_mitra = $request->input('posisi_mitra');
-            $mitra_survei->tgl_ikut_survei = now();
+            // $mitra_survei->tgl_ikut_survei = now();
             $mitra_survei->save();
         } else {
             // Jika belum ada, buat baru dengan tgl_ikut_survei = sekarang
