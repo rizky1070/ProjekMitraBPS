@@ -30,8 +30,11 @@
     @endif
         <!-- component -->
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-        <a href="{{ url('/daftarMitra') }}" class="px-4 py-2 bg-orange text-black rounded-bl-none rounded-br-md">
-            <
+        <a href="{{ url('/daftarMitra') }}" 
+        class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
         </a>
         <div class="max-w-4xl mx-auto mt-4">
             <h1 class="text-2xl font-bold">Profil Mitra</h1>
@@ -53,43 +56,47 @@
         <div class="max-w-4xl mx-auto">
             <h2 class="text-xl font-bold mb-4">Survei yang diikuti mitra</h2>
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <!-- Header dengan tombol Tambah Survei -->
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-semibold text-gray-800">Filter Survei</h2>
-                </div>
                 <!-- Form Filter -->
                 <form method="GET" action="{{ route('profilMitra.filter', ['id_mitra' => $mits->id_mitra]) }}" class="flex flex-wrap gap-4 items-center mb-4" id="filterForm">
-                    <!-- Year Row -->
+                    <!-- Survey Name Row -->
                     <div class="flex items-center">
-                        <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
-                        <select name="tahun" id="tahun" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
-                            <option value="">Semua Tahun</option>
-                            @foreach($tahunOptions as $year => $yearLabel)
-                                <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $yearLabel }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <!-- Month Row -->
-                    <div class="flex items-center">
-                        <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
-                        <select name="bulan" id="bulan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
-                            <option value="">Semua Bulan</option>
-                            @foreach($bulanOptions as $month => $monthName)
-                                <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                        <!-- Survey Name Row -->
-                    <div class="flex items-center">
-                        <label for="nama_survei" class="w-32 text-sm font-medium text-gray-700">Nama Survei</label>
+                        <label for="nama_survei" class="w-32 text-lg font-semibold text-gray-800">Cari Survei</label>
                         <select name="nama_survei" id="nama_survei" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaSurveiOptions) ? 'disabled' : '' }}>
                             <option value="">Semua Survei</option>
                             @foreach($namaSurveiOptions as $nama => $label)
-                                <option value="{{ $nama }}" @if(request('nama_survei') == $nama) selected @endif>{{ $label }}</option>
+                            <option value="{{ $nama }}" @if(request('nama_survei') == $nama) selected @endif>{{ $label }}</option>
                             @endforeach
                         </select>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-semibold text-gray-800">Filter Survei</h2>
+                        </div>
+                        <div class="flex">
+                            <div class="grid grid-cols-3 gap-x-6">
+                                <!-- Year Row -->
+                                <div class="flex items-center">
+                                    <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
+                                    <select name="tahun" id="tahun" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                        <option value="">Semua Tahun</option>
+                                        @foreach($tahunOptions as $year => $yearLabel)
+                                            <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $yearLabel }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <!-- Month Row -->
+                                <div class="flex items-center">
+                                    <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
+                                    <select name="bulan" id="bulan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                        <option value="">Semua Bulan</option>
+                                        @foreach($bulanOptions as $month => $monthName)
+                                            <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
                 @if(request()->has('bulan'))
@@ -99,8 +106,10 @@
                     </div>
                 @endif
                 <div class="bg-white p-4 rounded-lg shadow">
-                    <h2 class="text-xl font-bold mb-4">Survei yang sudah dikerjakan</h2>
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Survei yang sudah dikerjakan:</h2>
                     <table class="w-full mb-10 border-collapse border border-gray-300">
+                    @foreach ($survei as $sur)
+                    @if($sur->survei->status_survei == 3)
                         <thead>
                             <tr class="bg-gray-200">
                                 <th class="border border-gray-300 p-2">Nama Survei</th>
@@ -113,8 +122,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($survei as $sur)
-                            @if($sur->survei->status_survei == 3)
                             <tr class="border border-gray-300 hover:bg-gray-100">
                                 <td class="p-2">{{ $sur->survei->nama_survei }}</td>
                                 <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
@@ -132,11 +139,15 @@
                                     <a href="/penilaianMitra/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-orange text-black rounded-md">Edit</a>
                                 </td>
                             </tr>
-                            @endif
-                            @endforeach
                         </tbody>
+                    @else
+                    <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang sudah dikerjakan</h2>
+                    @endif
+                    @endforeach
                     </table>
-                <h2 class="text-xl font-bold mb-4">Survei yang belum/sedang dikerjakan</h2>
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Survei yang belum/sedang dikerjakan:</h2>
+                    @foreach ($survei as $sur)
+                    @if($sur->survei->status_survei != 3)
                     <table class="w-full border-collapse border border-gray-300">
                         <thead>
                             <tr class="bg-gray-200">
@@ -148,8 +159,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($survei as $sur)
-                            @if($sur->survei->status_survei != 3)
                             <tr class="border border-gray-300 hover:bg-gray-100">
                                 <td class="p-2">{{ $sur->survei->nama_survei }}</td>
                                 <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
@@ -159,11 +168,12 @@
                                     <a href="/editSurvei/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
                                 </td>
                             </tr>
-                            @endif
-                            @endforeach
                         </tbody>
                     </table>
-    
+                    @else
+                    <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang belum/sedang dikerjakan</h2>
+                    @endif
+                    @endforeach
                 </div>
             </div>
         </div>
