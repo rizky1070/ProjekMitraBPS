@@ -211,8 +211,8 @@
                         </thead>
                         <tbody>
                             @foreach($mitras as $mitra)
-                            <tr class="bg-white hover:bg-gray-200">
-                                <td class="border border-gray-300 p-2" style="max-width: 120px;">{{ $mitra->nama_lengkap }}</td>
+                            <tr class="bg-white hover:bg-gray-100">
+                                <td class="border border-gray-300 p-2" style="max-width: 120px;"><a href="/profilMitra/{{ $mitra->id_mitra }}" class="transition-all duration-300 ease-in-out transform hover:bg-orange hover:text-white hover:shadow-lg hover:scale-105"> {{ $mitra->nama_lengkap }}</a></td>
                                 <td class="border border-gray-300 p-2 text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
                                 <td class="border border-gray-300 p-2 text-center" style="max-width: 120px;">{{ $mitra->mitra_survei_count }}</td>
                                 <td class="border border-gray-300 p-2 text-center" style="max-width: 120px;">{{ $mitra->tahun }}</td>

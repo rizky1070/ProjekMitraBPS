@@ -151,7 +151,9 @@
                             <div class="bg-white h-[600px] min-w-[350px] p-6 border border-gray-300 rounded-lg shadow-md flex-shrink-0 space-y-4 flex flex-col">
                                 <!-- Informasi Survei -->
                                 <div class="flex-grow">
-                                    <h3 class="text-2xl font-bold text-gray-800">{{ $survey->nama_survei }}</h3>
+                                    <h3 class="text-2xl font-bold text-gray-800 transition-all duration-300 ease-in-out transform hover:text-black hover:scale-105"">
+                                        <a href="/editSurvei/{{ $survey->id_survei }}">{{ $survey->nama_survei }}</a>
+                                    </h3>
                                     <!-- Status -->
                                     <div class="mt-auto">
                                         <div class="text-lg font-semibold mb-2">
@@ -187,8 +189,8 @@
                                                     };
                                                 @endphp
 
-                                                <div class="{{ $textColor }}">
-                                                    - {{ $mitraName->nama_lengkap }}
+                                                <div class="{{ $textColor }} rounded-md transition-all duration-300 ease-in-out transform hover:bg-orange hover:text-white hover:scale-105">
+                                                    - <a href="/profilMitra/{{ $mitraName->id_mitra }}">{{ $mitraName->nama_lengkap }}</a>
                                                     @if(request()->filled('tahun') || request()->filled('bulan'))
                                                         ({{ $totalSurvei }} survei)
                                                     @endif
@@ -200,9 +202,6 @@
                                         <span class="text-red-500 font-semibold">Tidak ada mitra</span>
                                     @endif
                                     </span>
-                                </div>
-                                <div class="mt-4">
-                                    <a href="/editSurvei/{{ $survey->id_survei }}" class="px-4 py-2 bg-orange text-black rounded-md">Pilih</a>
                                 </div>
                             </div>
                         @endforeach

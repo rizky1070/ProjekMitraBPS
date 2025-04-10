@@ -4,46 +4,313 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Faker\Factory as Faker;
 
 class MitraSeeder extends Seeder
 {
     public function run()
     {
-        $faker = Faker::create('id_ID'); // Indonesian locale
-        $mitraData = [];
-
-        for ($i = 1; $i <= 20; $i++) {
-            $tahun = rand(2018, 2025); // Tahun acak antara 2018-2025
-            $bulan = rand(1, 12);
-            $tanggal = rand(1, 28); // Membatasi maksimal 28 untuk menghindari masalah bulan
-            
-            $startDate = $tahun . '-' . sprintf('%02d', $bulan) . '-' . sprintf('%02d', $tanggal);
-            $endMonth = $bulan + rand(1, 2); // Tambah 1-2 bulan
-            
-            // Handle year overflow if end month exceeds December
-            if ($endMonth > 12) {
-                $endMonth -= 12;
-                $tahun++;
-            }
-            
-            $endDate = $tahun . '-' . sprintf('%02d', $endMonth) . '-' . sprintf('%02d', $tanggal);
-
-            $mitraData[] = [
-                'id_kecamatan' => rand(1, 4),
+        $mitraData = [
+            // data 1
+            [
+                'id_kecamatan' => 2,
                 'id_kabupaten' => '16',
                 'id_provinsi' => '35',
-                'id_desa' => rand(1, 4),
-                'sobat_id' => 'S' . sprintf('%03d', $i),
-                'nama_lengkap' => 'Mitra ' . chr(64 + $i),
-                'alamat_mitra' => 'Alamat Mitra ' . chr(64 + $i),
-                'jenis_kelamin' => rand(1, 2),
-                'no_hp_mitra' => $faker->phoneNumber,
-                'email_mitra' => 'mitra' . strtolower(chr(64 + $i)) . '@example.com',
-                'tahun' => $startDate,
-                'tahun_selesai' => $endDate,
-            ];
-        }
+                'id_desa' => 1,
+                'sobat_id' => 'S001',
+                'nama_lengkap' => 'Mitra A',
+                'alamat_mitra' => 'Alamat Mitra A',
+                'jenis_kelamin' => 1,
+                'no_hp_mitra' => '081234567890',
+                'email_mitra' => 'mitraa@example.com',
+                'tahun' => '2018-03-15',
+                'tahun_selesai' => '2018-05-15',
+            ],
+            // data 2
+            [
+                'id_kecamatan' => 3,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 2,
+                'sobat_id' => 'S002',
+                'nama_lengkap' => 'Mitra B',
+                'alamat_mitra' => 'Alamat Mitra B',
+                'jenis_kelamin' => 2,
+                'no_hp_mitra' => '082345678901',
+                'email_mitra' => 'mitrab@example.com',
+                'tahun' => '2019-07-10',
+                'tahun_selesai' => '2019-09-10',
+            ],
+            // data 3
+            [
+                'id_kecamatan' => 1,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 3,
+                'sobat_id' => 'S003',
+                'nama_lengkap' => 'Mitra C',
+                'alamat_mitra' => 'Alamat Mitra C',
+                'jenis_kelamin' => 1,
+                'no_hp_mitra' => '083456789012',
+                'email_mitra' => 'mitrac@example.com',
+                'tahun' => '2020-11-05',
+                'tahun_selesai' => '2021-01-05',
+            ],
+            // data 4
+            [
+                'id_kecamatan' => 4,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 4,
+                'sobat_id' => 'S004',
+                'nama_lengkap' => 'Mitra D',
+                'alamat_mitra' => 'Alamat Mitra D',
+                'jenis_kelamin' => 2,
+                'no_hp_mitra' => '084567890123',
+                'email_mitra' => 'mitrad@example.com',
+                'tahun' => '2021-02-20',
+                'tahun_selesai' => '2021-04-20',
+            ],
+            // data 5
+            [
+                'id_kecamatan' => 2,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 1,
+                'sobat_id' => 'S005',
+                'nama_lengkap' => 'Mitra E',
+                'alamat_mitra' => 'Alamat Mitra E',
+                'jenis_kelamin' => 1,
+                'no_hp_mitra' => '085678901234',
+                'email_mitra' => 'mitrae@example.com',
+                'tahun' => '2022-05-12',
+                'tahun_selesai' => '2022-07-12',
+            ],
+            // data 6
+            [
+                'id_kecamatan' => 3,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 2,
+                'sobat_id' => 'S006',
+                'nama_lengkap' => 'Mitra F',
+                'alamat_mitra' => 'Alamat Mitra F',
+                'jenis_kelamin' => 2,
+                'no_hp_mitra' => '086789012345',
+                'email_mitra' => 'mitraf@example.com',
+                'tahun' => '2023-09-08',
+                'tahun_selesai' => '2023-11-08',
+            ],
+            // data 7
+            [
+                'id_kecamatan' => 1,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 3,
+                'sobat_id' => 'S007',
+                'nama_lengkap' => 'Mitra G',
+                'alamat_mitra' => 'Alamat Mitra G',
+                'jenis_kelamin' => 1,
+                'no_hp_mitra' => '087890123456',
+                'email_mitra' => 'mitrag@example.com',
+                'tahun' => '2024-01-20',
+                'tahun_selesai' => '2024-03-25',
+            ],
+            // data 8
+            [
+                'id_kecamatan' => 4,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 4,
+                'sobat_id' => 'S008',
+                'nama_lengkap' => 'Mitra H',
+                'alamat_mitra' => 'Alamat Mitra H',
+                'jenis_kelamin' => 2,
+                'no_hp_mitra' => '088901234567',
+                'email_mitra' => 'mitrah@example.com',
+                'tahun' => '2025-04-10',
+                'tahun_selesai' => '2025-06-10',
+            ],
+            // data 9
+            [
+                'id_kecamatan' => 4,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 3,
+                'sobat_id' => 'S009',
+                'nama_lengkap' => 'Mitra I',
+                'alamat_mitra' => 'Alamat Mitra I',
+                'jenis_kelamin' => 2,
+                'no_hp_mitra' => '088901234569',
+                'email_mitra' => 'mitrai@example.com',
+                'tahun' => '2025-04-15',
+                'tahun_selesai' => '2025-06-10',
+            ],
+            // data 10
+            [
+                'id_kecamatan' => 4,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 2,
+                'sobat_id' => 'S010',
+                'nama_lengkap' => 'Mitra J',
+                'alamat_mitra' => 'Alamat Mitra J',
+                'jenis_kelamin' => 2,
+                'no_hp_mitra' => '088901234510',
+                'email_mitra' => 'mitraj@example.com',
+                'tahun' => '2025-04-10',
+                'tahun_selesai' => '2025-06-10',
+            ],
+            // data 11
+            [
+                'id_kecamatan' => 1,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 1,
+                'sobat_id' => 'S011',
+                'nama_lengkap' => 'Mitra K',
+                'alamat_mitra' => 'Alamat Mitra K',
+                'jenis_kelamin' => 1,
+                'no_hp_mitra' => '089012345678',
+                'email_mitra' => 'mitrak@example.com',
+                'tahun' => '2025-05-01',
+                'tahun_selesai' => '2025-07-01',
+            ],
+            // data 12
+            [
+                'id_kecamatan' => 2,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 2,
+                'sobat_id' => 'S012',
+                'nama_lengkap' => 'Mitra L',
+                'alamat_mitra' => 'Alamat Mitra L',
+                'jenis_kelamin' => 2,
+                'no_hp_mitra' => '089123456789',
+                'email_mitra' => 'mitral@example.com',
+                'tahun' => '2025-06-15',
+                'tahun_selesai' => '2025-08-15',
+            ],
+            // data 13
+            [
+                'id_kecamatan' => 3,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 3,
+                'sobat_id' => 'S013',
+                'nama_lengkap' => 'Mitra M',
+                'alamat_mitra' => 'Alamat Mitra M',
+                'jenis_kelamin' => 1,
+                'no_hp_mitra' => '089234567890',
+                'email_mitra' => 'mitram@example.com',
+                'tahun' => '2025-07-10',
+                'tahun_selesai' => '2025-09-10',
+            ],
+            // data 14
+            [
+                'id_kecamatan' => 4,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 4,
+                'sobat_id' => 'S014',
+                'nama_lengkap' => 'Mitra N',
+                'alamat_mitra' => 'Alamat Mitra N',
+                'jenis_kelamin' => 2,
+                'no_hp_mitra' => '089345678901',
+                'email_mitra' => 'mitran@example.com',
+                'tahun' => '2025-08-05',
+                'tahun_selesai' => '2025-10-05',
+            ],
+            // data 15
+            [
+                'id_kecamatan' => 1,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 1,
+                'sobat_id' => 'S015',
+                'nama_lengkap' => 'Mitra O',
+                'alamat_mitra' => 'Alamat Mitra O',
+                'jenis_kelamin' => 1,
+                'no_hp_mitra' => '089456789012',
+                'email_mitra' => 'mitrao@example.com',
+                'tahun' => '2025-09-20',
+                'tahun_selesai' => '2025-11-20',
+            ],
+            // data 16
+            [
+                'id_kecamatan' => 2,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 2,
+                'sobat_id' => 'S016',
+                'nama_lengkap' => 'Mitra P',
+                'alamat_mitra' => 'Alamat Mitra P',
+                'jenis_kelamin' => 2,
+                'no_hp_mitra' => '089567890123',
+                'email_mitra' => 'mitrap@example.com',
+                'tahun' => '2025-10-15',
+                'tahun_selesai' => '2025-12-15',
+            ],
+            // data 17
+            [
+                'id_kecamatan' => 3,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 3,
+                'sobat_id' => 'S017',
+                'nama_lengkap' => 'Mitra Q',
+                'alamat_mitra' => 'Alamat Mitra Q',
+                'jenis_kelamin' => 1,
+                'no_hp_mitra' => '089678901234',
+                'email_mitra' => 'mitraq@example.com',
+                'tahun' => '2020-11-10',
+                'tahun_selesai' => '2020-01-10',
+            ],
+            // data 18
+            [
+                'id_kecamatan' => 4,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 4,
+                'sobat_id' => 'S018',
+                'nama_lengkap' => 'Mitra R',
+                'alamat_mitra' => 'Alamat Mitra R',
+                'jenis_kelamin' => 2,
+                'no_hp_mitra' => '089789012345',
+                'email_mitra' => 'mitrar@example.com',
+                'tahun' => '2020-12-05',
+                'tahun_selesai' => '2020-02-05',
+            ],
+            // data 19
+            [
+                'id_kecamatan' => 1,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 1,
+                'sobat_id' => 'S019',
+                'nama_lengkap' => 'Mitra S',
+                'alamat_mitra' => 'Alamat Mitra S',
+                'jenis_kelamin' => 1,
+                'no_hp_mitra' => '089890123456',
+                'email_mitra' => 'mitras@example.com',
+                'tahun' => '2020-01-20',
+                'tahun_selesai' => '2020-03-20',
+            ],
+            // data 20
+            [
+                'id_kecamatan' => 2,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 2,
+                'sobat_id' => 'S020',
+                'nama_lengkap' => 'Mitra T',
+                'alamat_mitra' => 'Alamat Mitra T',
+                'jenis_kelamin' => 2,
+                'no_hp_mitra' => '089901234567',
+                'email_mitra' => 'mitrat@example.com',
+                'tahun' => '2020-02-15',
+                'tahun_selesai' => '2020-04-15',
+            ],
+        ];
 
         DB::table('mitra')->insert($mitraData);
     }
