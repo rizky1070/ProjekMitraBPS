@@ -66,17 +66,17 @@
                         <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
                             @csrf
                             <input type="hidden" name="status_survei" value="1">
-                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Belum Dikerjakan</button>
+                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Belum Dikerjakan</button>
                         </form>
                         <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
                             @csrf
                             <input type="hidden" name="status_survei" value="2">
-                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sedang Dikerjakan</button>
+                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Sedang Dikerjakan</button>
                         </form>
                         <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
                             @csrf
                             <input type="hidden" name="status_survei" value="3">
-                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sudah Dikerjakan</button>
+                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Sudah Dikerjakan</button>
                         </form>
                     </div>
                 </div>
@@ -203,6 +203,8 @@
                                 <th class="border border-gray-300 p-2">Domisili</th>
                                 <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
                                 <th class="border border-gray-300 p-2">Tahun</th>
+                                <th class="border border-gray-300 p-2">Vol</th>
+                                <th class="border border-gray-300 p-2">Honor</th>
                                 <th class="border border-gray-300 p-2">Posisi</th>
                                 <th class="border border-gray-300 p-2">Aksi</th>
                             </tr>
@@ -214,11 +216,19 @@
                                 <td class="border border-gray-300 p-2 text-center">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
                                 <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
                                 <td class="border border-gray-300 p-2 text-center">{{ $mitra->tahun }}</td>
-                                @if ($mitra->posisi_mitra)
+
+                                
+                                @if ($mitra->vol && $mitra->honor && $mitra->posisi_mitra)
+                                <!-- Vol -->
+                                <td class="border border-gray-300 p-2 text-center">
+                                    {{ $mitra->vol }}
+                                </td>
+                                <td class="border border-gray-300 p-2 text-center">
+                                    Rp{{ number_format($mitra->honor, 0, ',', '.') }}
+                                </td>
                                 <td class="border border-gray-300 p-2 text-center">
                                     {{ $mitra->posisi_mitra }}
                                 </td>
-                                
                                 <td class="border border-gray-300 p-2 text-center">
                                     <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
                                         @csrf
@@ -228,7 +238,13 @@
                                 @else
                                 <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
                                     <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                        <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-100" placeholder="Masukkan Posisi Mitra" style="width: 100%;">
+                                        <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Vol" style="width: 100%;">
+                                </td>
+                                <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
+                                        <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Honor" style="width: 100%;">
+                                </td>
+                                <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
+                                        <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Posisi Mitra" style="width: 100%;">
                                 </td>
                                 <td class="border border-gray-300 p-2 text-center">
                                         @csrf
@@ -236,7 +252,6 @@
                                     </form>
                                 </td>
                                 @endif
-                                </td>
                             </tr>
                             @endforeach
                         </tbody>

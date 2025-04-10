@@ -41,18 +41,28 @@
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
                 <div class="container px-4 py-8 mx-auto">
-                        <!-- Title -->
-                    <h3 class="text-3xl font-medium text-black pb-4">Daftar Mitra</h3>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-3xl font-medium text-black">Search Mitra</h3>
+                        <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+                    </div>
                     <div>
                         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                            <!-- Header dengan tombol Tambah Survei -->
-                            <div class="flex justify-between items-center mb-4">
-                                <h2 class="text-lg font-semibold text-gray-800">Filter Mitra</h2>
-                                <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
-                            </div>
                             <!-- Form Filter -->
                             <form action="{{ route('mitras.filter') }}" method="GET" class="space-y-4" id="filterForm">
+                                <div class="flex items-center relative">
+                                    <label for="nama_lengkap" class="w-32 text-sm font-medium text-gray-700">Nama Mitra</label>
+                                    <select name="nama_lengkap" id="nama_mitra" class="w-64 
+                                    border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaMitraOptions) ? 'disabled' : '' }}>
+                                        <option value="">Semua Mitra</option>
+                                        @foreach($namaMitraOptions as $nama => $label)
+                                            <option value="{{ $nama }}" @if(request('nama_lengkap') == $nama) selected @endif>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <!-- Year Row -->
+                                <div>
+                                   <h4 class="text-lg font-semibold text-gray-800">Filter</h4>
+                                </div>
                                 <div class="flex items-center relative">
                                     <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
                                     <select name="tahun" id="tahun" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
@@ -89,17 +99,7 @@
                                     </select>
                                 </div>
 
-                                <!-- Survey Name Row -->
-                                <div class="flex items-center relative">
-                                    <label for="nama_lengkap" class="w-32 text-sm font-medium text-gray-700">Nama Mitra</label>
-                                    <select name="nama_lengkap" id="nama_mitra" class="w-64 
-                                    border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaMitraOptions) ? 'disabled' : '' }}>
-                                        <option value="">Semua Mitra</option>
-                                        @foreach($namaMitraOptions as $nama => $label)
-                                            <option value="{{ $nama }}" @if(request('nama_lengkap') == $nama) selected @endif>{{ $label }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                
                             </form>
                         </div>
                 </div>

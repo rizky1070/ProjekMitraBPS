@@ -18,6 +18,7 @@ class MitraSurveiSeeder extends Seeder
                 'catatan' => 'Catatan untuk Mitra 1',
                 'nilai' => 4,
                 'vol' => 3,
+                'honor' => 100000,
                 'tgl_ikut_survei' => '2018-03-15'
             ],
             // Data kedua
@@ -28,6 +29,7 @@ class MitraSurveiSeeder extends Seeder
                 'catatan' => 'Catatan untuk Mitra 2',
                 'nilai' => 5,
                 'vol' => 7,
+                'honor' => 100000,
                 'tgl_ikut_survei' => '2019-07-10'
             ],
             // Data ketiga
@@ -38,6 +40,7 @@ class MitraSurveiSeeder extends Seeder
                 'catatan' => 'Catatan untuk Mitra 3',
                 'nilai' => 3,
                 'vol' => 8,
+                'honor' => 100000,
                 'tgl_ikut_survei' => '2020-11-05'
             ],
             // Data keempat
@@ -48,6 +51,7 @@ class MitraSurveiSeeder extends Seeder
                 'catatan' => 'Catatan untuk Mitra 4',
                 'nilai' => 4,
                 'vol' => 2,
+                'honor' => 100000,
                 'tgl_ikut_survei' => '2021-02-20'
             ],
             // Data kelima
@@ -58,6 +62,7 @@ class MitraSurveiSeeder extends Seeder
                 'catatan' => 'Catatan untuk Mitra 5',
                 'nilai' => 5,
                 'vol' => 5,
+                'honor' => 100000,
                 'tgl_ikut_survei' => '2022-05-12'
             ],
             // Data keenam
@@ -68,6 +73,7 @@ class MitraSurveiSeeder extends Seeder
                 'catatan' => 'Catatan untuk Mitra 6',
                 'nilai' => 3,
                 'vol' => 6,
+                'honor' => 100000,
                 'tgl_ikut_survei' => '2023-09-08'
             ],
             // Data ketujuh
@@ -78,6 +84,7 @@ class MitraSurveiSeeder extends Seeder
                 'catatan' => 'Catatan untuk Mitra 7',
                 'nilai' => 4,
                 'vol' => 3,
+                'honor' => 100000,
                 'tgl_ikut_survei' => '2024-01-20'
             ],
             // Data kedelapan
@@ -88,6 +95,7 @@ class MitraSurveiSeeder extends Seeder
                 'catatan' => 'Catatan untuk Mitra 8',
                 'nilai' => 3,
                 'vol' => 2,
+                'honor' => 100000,
                 'tgl_ikut_survei' => '2025-04-10'
             ],
             // Data kesembilan
@@ -98,6 +106,7 @@ class MitraSurveiSeeder extends Seeder
                 'catatan' => 'Catatan untuk Mitra 9',
                 'nilai' => 4,
                 'vol' => 5,
+                'honor' => 100000,
                 'tgl_ikut_survei' => '2025-04-15'
             ],
             // Data kesepuluh
@@ -118,6 +127,7 @@ class MitraSurveiSeeder extends Seeder
                 'catatan' => 'Catatan untuk Mitra 10',
                 'nilai' => 5,
                 'vol' => 2,
+                'honor' => 100000,
                 'tgl_ikut_survei' => '2025-05-10'
             ]
         ]);
