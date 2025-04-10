@@ -35,12 +35,10 @@
             <div class="flex flex-col flex-1 overflow-hidden">
                 <x-navbar></x-navbar>
                 <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-                    <div class="container px-6 py-8 mx-auto">
-                        <h3 class="text-3xl font-medium text-black">Daftar Survei</h3>
-                        <div class="flex justify-end">
-                            <a href="{{ route('inputSurvei') }}" class="px-4 py-2 bg-orange text-black rounded-md">
-                                + Tambah Survei
-                            </a>
+                    <div class="container px-4 py-8 mx-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-3xl font-medium text-black">Search Mitra</h3>
+                            <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
                         </div>
                         <div class="p-4">
                             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -179,15 +177,28 @@
                                         Jumlah Mitra: {{ $survey->mitraSurvei->count() }}<br>
                                         <div class="mt-2 max-h-[350px] overflow-y-auto pr-2">
                                             @foreach($survey->mitraSurvei as $mitraName)
-                                                <div class="text-gray-600">
-                                                    - {{ $mitraName->nama_lengkap }}<br>
+                                                @php
+                                                    $totalSurvei = $mitraHighlight[$mitraName->id_mitra] ?? 0;
+
+                                                    $textColor = match(true) {
+                                                        $totalSurvei > 3 => 'text-red-600',
+                                                        $totalSurvei > 1 => 'text-yellow-600',
+                                                        default => 'text-gray-500'
+                                                    };
+                                                @endphp
+
+                                                <div class="{{ $textColor }}">
+                                                    - {{ $mitraName->nama_lengkap }}
+                                                    @if(request()->filled('tahun') || request()->filled('bulan'))
+                                                        ({{ $totalSurvei }} survei)
+                                                    @endif
+                                                    <br>
                                                 </div>
                                             @endforeach
                                         </div>
                                     @else
                                         <span class="text-red-500 font-semibold">Tidak ada mitra</span>
                                     @endif
-
                                     </span>
                                 </div>
                                 <div class="mt-4">

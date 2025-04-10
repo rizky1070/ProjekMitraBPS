@@ -13,6 +13,7 @@ use App\Imports\SurveiImport;
 use Exception; // Untuk menangani error
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use App\Models\Provinsi; // Model untuk Provinsi
 use App\Models\Kabupaten; // Model untuk Kabupaten
 use App\Models\Desa; // Model untuk Desa
@@ -102,6 +103,24 @@ class DaftarSurveiBpsController extends Controller
             ->orderBy('status_survei')
             ->paginate(10);
     
+        // Hitung total survei yang pernah diikuti oleh setiap mitra (secara global, tidak hanya di bulan yang dipilih)
+        $mitraHighlight = collect();
+
+    if ($request->filled('tahun') || $request->filled('bulan')) {
+        $mitraHighlight = DB::table('mitra_survei')
+            ->join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
+            ->select('mitra_survei.id_mitra', DB::raw('COUNT(DISTINCT mitra_survei.id_survei) as total'))
+            ->whereNotNull('mitra_survei.posisi_mitra')
+            ->when($request->filled('tahun'), function ($query) use ($request) {
+                $query->whereYear('survei.jadwal_kegiatan', $request->tahun);
+            })
+            ->when($request->filled('bulan'), function ($query) use ($request) {
+                $query->whereMonth('survei.jadwal_kegiatan', $request->bulan);
+            })
+            ->groupBy('mitra_survei.id_mitra')
+            ->pluck('total', 'mitra_survei.id_mitra');
+    }
+
 
 
         // Mitra dengan survei ganda
@@ -129,6 +148,7 @@ class DaftarSurveiBpsController extends Controller
             'kecamatanOptions',
             'namaSurveiOptions',
             'mitraWithMultipleSurveysInMonth',
+            'mitraHighlight', 
             'request'
         ));
     }
