@@ -97,9 +97,9 @@
                                 <label for="bulan" class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
                                 <select id="bulan" name="bulan" class="w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
                                     <option value="">Semua Bulan</option>
-                                    @foreach($bulanOptions as $bulan)
-                                        <option value="{{ $bulan }}" {{ request('bulan') == $bulan ? 'selected' : '' }}>
-                                            {{ \Carbon\Carbon::create()->month($bulan)->format('F') }}
+                                    @foreach($bulanOptions as $key => $value)
+                                        <option value="{{ $key }}" {{ request('bulan') == $key ? 'selected' : '' }}>
+                                            {{ $value }}
                                         </option>
                                     @endforeach
                                 </select>
