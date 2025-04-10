@@ -171,7 +171,7 @@
                                     <td class="border border-gray-350 p-2">{{ $mitra->nama_lengkap }}</td>
                                     <td class="border border-gray-350 p-2 text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
                                     <td class="border border-gray-350 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
-                                    <td class="border border-gray-350 p-2 text-center">{{ $mitra->tahun }}</td>
+                                    <td class="border border-gray-350 p-2 text-center">{{ \Carbon\Carbon::parse($mitra->tahun )->translatedFormat('j F Y') }}</td>
                                     <td class="border border-gray-350 p-2 text-center">
                                         <a href="/profilMitra/{{ $mitra->id_mitra }}"  class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
                                     </td>

@@ -42,7 +42,7 @@
             <div class="bg-white p-4 rounded-lg shadow">
                 <p><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
                 <p><strong>Kecamatan :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
-                <p><strong>Jadwal :</strong> {{ $survey->jadwal_kegiatan }}</p>
+                <p><strong>Jadwal :</strong> {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan )->translatedFormat('j F Y') }}</p>
                 <p><strong>Tim :</strong> {{ $survey->tim }}</p>
                 <p><strong>KRO :</strong> {{ $survey->kro }} </p>
                 <div class="flex items-center">
@@ -221,7 +221,7 @@
                                 </td>
                                 <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
                                 <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">{{ $mitra->mitra_survei_count }}</td>
-                                <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">{{ $mitra->tahun }}</td>
+                                <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">{{ \Carbon\Carbon::parse($mitra->tahun )->translatedFormat('j F Y') }}</td>
 
                                 
                                 @if ($mitra->vol && $mitra->honor && $mitra->posisi_mitra)
