@@ -149,10 +149,10 @@ class ReportMitraSurveiController extends Controller
 {
     \Carbon\Carbon::setLocale('id');
     
-    // Daftar tahun yang tersedia (ambil dari tahun survei dan tahun mitra)
-    $tahunOptions = Mitra::selectRaw('DISTINCT YEAR(tahun) as tahun')
+    // Daftar tahun yang tersedia (dari Mitra dan Survei)
+    $tahunOptions = Mitra::selectRaw('YEAR(tahun) as tahun')
         ->union(
-            Survei::selectRaw('DISTINCT YEAR(jadwal_kegiatan) as tahun')
+            Survei::query()->selectRaw('YEAR(jadwal_kegiatan) as tahun')
         )
         ->orderByDesc('tahun')
         ->pluck('tahun', 'tahun');
@@ -160,10 +160,10 @@ class ReportMitraSurveiController extends Controller
     // Daftar bulan berdasarkan tahun yang dipilih
     $bulanOptions = [];
     if ($request->filled('tahun')) {
-        $bulanOptions = Mitra::selectRaw('DISTINCT MONTH(tahun) as bulan')
+        $bulanOptions = Mitra::selectRaw('MONTH(tahun) as bulan')
             ->whereYear('tahun', $request->tahun)
             ->union(
-                Survei::selectRaw('DISTINCT MONTH(jadwal_kegiatan) as bulan')
+                Survei::query()->selectRaw('MONTH(jadwal_kegiatan) as bulan')
                     ->whereYear('jadwal_kegiatan', $request->tahun)
             )
             ->orderBy('bulan')
@@ -176,6 +176,43 @@ class ReportMitraSurveiController extends Controller
             });
     }
 
+    // Daftar kecamatan berdasarkan filter
+    $kecamatanOptions = Kecamatan::query()
+        ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request) {
+            $query->whereHas('mitras', function($q) use ($request) {
+                if ($request->filled('tahun')) {
+                    $q->whereYear('tahun', $request->tahun)
+                      ->orWhereYear('tahun_selesai', $request->tahun);
+                }
+                if ($request->filled('bulan')) {
+                    $q->whereMonth('tahun', $request->bulan)
+                      ->orWhereMonth('tahun_selesai', $request->bulan);
+                }
+            });
+        })
+        ->orderBy('nama_kecamatan')
+        ->get(['nama_kecamatan', 'id_kecamatan', 'kode_kecamatan']);
+
+    // Daftar nama mitra berdasarkan filter
+    $namaMitraOptions = Mitra::select('nama_lengkap')
+        ->distinct()
+        ->when($request->filled('tahun'), function($query) use ($request) {
+            $query->where(function($q) use ($request) {
+                $q->whereYear('tahun', $request->tahun)
+                  ->orWhereYear('tahun_selesai', $request->tahun);
+            });
+        })
+        ->when($request->filled('bulan'), function($query) use ($request) {
+            $query->where(function($q) use ($request) {
+                $q->whereMonth('tahun', $request->bulan)
+                  ->orWhereMonth('tahun_selesai', $request->bulan);
+            });
+        })
+        ->when($request->filled('kecamatan'), function($query) use ($request) {
+            $query->where('id_kecamatan', $request->kecamatan);
+        })
+        ->orderBy('nama_lengkap')
+        ->pluck('nama_lengkap', 'nama_lengkap');
 
     // Query utama untuk mitra dengan relasi
     $mitrasQuery = Mitra::with(['kecamatan', 'mitraSurvei' => function($query) use ($request) {
@@ -197,13 +234,13 @@ class ReportMitraSurveiController extends Controller
         ->when($request->filled('tahun'), function($query) use ($request) {
             $query->where(function($q) use ($request) {
                 $q->whereYear('tahun', $request->tahun)
-                ->orWhereYear('tahun_selesai', $request->tahun);
+                  ->orWhereYear('tahun_selesai', $request->tahun);
             });
         })
         ->when($request->filled('bulan'), function($query) use ($request) {
             $query->where(function($q) use ($request) {
                 $q->whereMonth('tahun', $request->bulan)
-                ->orWhereMonth('tahun_selesai', $request->bulan);
+                  ->orWhereMonth('tahun_selesai', $request->bulan);
             });
         })
         ->when($request->filled('kecamatan'), function($query) use ($request) {
@@ -236,7 +273,7 @@ class ReportMitraSurveiController extends Controller
         }
     }
 
-    // Query untuk menghitung total dengan filter yang sama
+    // Clone query untuk menghitung total
     $totalQuery = clone $mitrasQuery;
     $ikutSurveiQuery = clone $mitrasQuery;
     $tidakIkutSurveiQuery = clone $mitrasQuery;
@@ -271,6 +308,8 @@ class ReportMitraSurveiController extends Controller
         'mitras',
         'tahunOptions',
         'bulanOptions',
+        'kecamatanOptions',
+        'namaMitraOptions',
         'totalMitra',
         'totalIkutSurvei',
         'totalTidakIkutSurvei',
