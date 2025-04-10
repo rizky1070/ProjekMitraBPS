@@ -38,53 +38,59 @@
     </a>
 
         <div class="p-6">
-            <h2 class="text-2xl font-bold mb-4">Survei Terpilih</h2>
+            <h2 class="text-2xl font-bold mb-4">Detail Survei</h2>
             <div class="bg-white p-4 rounded-lg shadow">
-                <p><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
-                <p><strong>Kecamatan :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
-                <p><strong>Jadwal :</strong> {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan )->translatedFormat('j F Y') }}</p>
-                <p><strong>Tim :</strong> {{ $survey->tim }}</p>
-                <p><strong>KRO :</strong> {{ $survey->kro }} </p>
-                <div class="flex items-center">
-                    <p>
-                        <strong>Status :</strong>
-                        <span class="font-bold">
-                            @if($survey->status_survei == 1)
-                                <div class="bg-red-500 text-white  px-2 py-1 rounded ml-2 mr-5">Belum Dikerjakan</div>
-                            @elseif($survey->status_survei == 2)
-                                <div class="bg-yellow-300 text-white  px-2 py-1 rounded ml-2 mr-5">Sedang Dikerjakan</div>
-                            @elseif($survey->status_survei == 3)
-                                <div class="bg-green-500 text-white  px-2 py-1 rounded ml-2 mr-5">Sudah Dikerjakan</div>
-                            @else
-                                <span class="bg-gray-500 text-white rounded-md px-2 py-1 ml-2">Status Tidak Diketahui</span>
-                            @endif
-                        </span>
-                    </p>
-
-                    <!-- Dropdown -->
-                    <div class="relative inline-block text-left ml-4">
-                        <button type="button" class="bg-orange text-black px-2 py-1 rounded" onclick="toggleDropdown()">Ubah Status</button>
-
-                        <div id="dropdown" class="hidden absolute mt-2 bg-white border rounded shadow-lg z-10">
-                            <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
-                                @csrf
-                                <input type="hidden" name="status_survei" value="1">
-                                <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Belum Dikerjakan</button>
-                            </form>
-                            <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
-                                @csrf
-                                <input type="hidden" name="status_survei" value="2">
-                                <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Sedang Dikerjakan</button>
-                            </form>
-                            <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
-                                @csrf
-                                <input type="hidden" name="status_survei" value="3">
-                                <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Sudah Dikerjakan</button>
-                            </form>
-                        </div>
+                <p class="text-xl font-medium"><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
+                <div class="flex flex-col md:flex-row items-start md:items-center w-full">
+                    <div class="w-full md:w-1/2">
+                        <p><strong>Kecamatan :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
+                        <p><strong>Jadwal :</strong> {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan )->translatedFormat('j F Y') }}</p>
+                    </div>
+                    <div class="w-full md:w-1/2">
+                        <p><strong>Tim :</strong> {{ $survey->tim }}</p>
+                        <p><strong>KRO :</strong> {{ $survey->kro }} </p><div class="flex items-center">
                     </div>
                 </div>
+            </div>
+            
+            <div class="flex items-center">
+                <p><strong>Status :</strong>
+                    <span class="font-bold">
+                        @if($survey->status_survei == 1)
+                            <div class="bg-red-500 text-white  px-2 py-1 rounded ml-2 mr-5">Belum Dikerjakan</div>
+                        @elseif($survey->status_survei == 2)
+                            <div class="bg-yellow-300 text-white  px-2 py-1 rounded ml-2 mr-5">Sedang Dikerjakan</div>
+                        @elseif($survey->status_survei == 3)
+                            <div class="bg-green-500 text-white  px-2 py-1 rounded ml-2 mr-5">Sudah Dikerjakan</div>
+                        @else
+                            <span class="bg-gray-500 text-white rounded-md px-2 py-1 ml-2">Status Tidak Diketahui</span>
+                        @endif
+                    </span>
+                </p>
 
+                        <!-- Dropdown -->
+                <div class="relative inline-block text-left ml-4">
+                    <button type="button" class="bg-orange text-black px-2 py-1 rounded" onclick="toggleDropdown()">Ubah Status</button>
+                    <div id="dropdown" class="hidden absolute mt-2 bg-white border rounded shadow-lg z-10">
+                        <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
+                            @csrf
+                            <input type="hidden" name="status_survei" value="1">
+                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Belum Dikerjakan</button>
+                        </form>
+                        <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
+                            @csrf
+                            <input type="hidden" name="status_survei" value="2">
+                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Sedang Dikerjakan</button>
+                        </form>
+                        <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
+                            @csrf
+                            <input type="hidden" name="status_survei" value="3">
+                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Sudah Dikerjakan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
             <script>
                 function toggleDropdown() {
                     var dropdown = document.getElementById("dropdown");

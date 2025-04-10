@@ -57,7 +57,7 @@
             <h2 class="text-xl font-bold mb-4">Survei yang diikuti mitra</h2>
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                 <!-- Form Filter -->
-                <form method="GET" action="{{ route('profilMitra.filter', ['id_mitra' => $mits->id_mitra]) }}" class="flex flex-wrap gap-4 items-center mb-4" id="filterForm">
+                <form method="GET" action="{{ route('profilMitra.filter', ['id_mitra' => $mits->id_mitra]) }}" class="flex flex-wrap gap-4 items-center mb-2" id="filterForm">
                     <!-- Survey Name Row -->
                     <div class="flex items-center">
                         <label for="nama_survei" class="w-32 text-lg font-semibold text-gray-800">Cari Survei</label>
@@ -99,13 +99,15 @@
                         </div>
                     </div>
                 </form>
-                @if(request()->has('bulan'))
-                    <div class="pl-4">
-                        <p class="font-bold">Total Gaji Mitra Bulan ini:</p>
-                        <p class="text-xl font-bold">Rp {{ number_format($totalGaji, 0, ',', '.') }},00</p>
-                    </div>
-                @endif
-                <div class="bg-white p-4 rounded-lg shadow">
+                <div class="pl-4 mb-2">
+                    @if(request()->has('bulan'))
+                    <p class="font-bold">Total Gaji Mitra Bulan ini:</p>
+                    <p class="text-xl font-bold">Rp {{ number_format($totalGaji, 0, ',', '.') }},00</p>
+                    @else
+                    <p class="font-l text-gray-500">*Aktifkan filter bulan untuk melihat total gaji</p>
+                    @endif
+                </div>
+                <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-l">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4">Survei yang sudah dikerjakan:</h2>
                     <table class="w-full mb-10 border-collapse border border-gray-300">
                     @foreach ($survei as $sur)
