@@ -38,7 +38,7 @@
                     <div class="container px-4 py-8 mx-auto">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-3xl font-medium text-black">Search Mitra</h3>
-                            <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+                            <button type="button" class="px-4 py-2 bg-orange rounded-md"><a href="/inputSurvei"> + Tambah</a></button>
                         </div>
                         <div class="p-4">
                             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">

@@ -23,7 +23,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2018-03-22',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim A',
-                'rate_honor' => 35000,
             ],
             // data 2
             [
@@ -38,7 +37,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2019-07-18',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim B',
-                'rate_honor' => 28000,
             ],
             // data 3
             [
@@ -53,7 +51,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2020-11-12',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim C',
-                'rate_honor' => 42000,
             ],
             // data 4
             [
@@ -68,7 +65,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2021-02-27',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim D',
-                'rate_honor' => 31000,
             ],
             // data 5
             [
@@ -83,7 +79,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2022-05-19',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim E',
-                'rate_honor' => 45000,
             ],
             // data 6
             [
@@ -98,7 +93,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2023-09-15',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim F',
-                'rate_honor' => 38000,
             ],
             // data 7
             [
@@ -113,7 +107,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2024-01-25',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim G',
-                'rate_honor' => 29000,
             ],
             // data 8
             [
@@ -128,7 +121,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2025-04-15',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim H',
-                'rate_honor' => 41000,
             ],
             // data 9
             [
@@ -143,7 +135,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2025-04-20',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim I',
-                'rate_honor' => 41000,
             ],
             // data 10
             [
@@ -158,7 +149,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2025-05-20',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim J',
-                'rate_honor' => 41000,
             ],
             // data 11
             [
@@ -173,7 +163,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2025-06-08',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim K',
-                'rate_honor' => 36000,
             ],
             // data 12
             [
@@ -188,7 +177,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2025-07-22',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim L',
-                'rate_honor' => 39000,
             ],
             // data 13
             [
@@ -203,7 +191,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2025-08-17',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim M',
-                'rate_honor' => 32000,
             ],
             // data 14
             [
@@ -218,7 +205,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2025-09-12',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim N',
-                'rate_honor' => 40000,
             ],
             // data 15
             [
@@ -233,7 +219,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2025-10-27',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim O',
-                'rate_honor' => 37000,
             ],
             // data 16
             [
@@ -248,7 +233,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2025-11-22',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim P',
-                'rate_honor' => 43000,
             ],
             // data 17
             [
@@ -263,7 +247,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2020-12-08',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim Q',
-                'rate_honor' => 34000,
             ],
             // data 18
             [
@@ -278,7 +261,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2020-01-17',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim R',
-                'rate_honor' => 38000,
             ],
             // data 19
             [
@@ -293,7 +275,6 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2020-02-22',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim S',
-                'rate_honor' => 41000,
             ],
             // data 20
             [
@@ -308,10 +289,7 @@ class SurveiSeeder extends Seeder
                 'jadwal_berakhir_kegiatan' => '2020-03-12',
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim T',
-                'rate_honor' => 39000,
             ],
-            // Continue with the remaining 12 records following the same pattern
-            // I've shown 8 records as an example, you would add the remaining 12
         ];
 
         DB::table('survei')->insert($surveiData);

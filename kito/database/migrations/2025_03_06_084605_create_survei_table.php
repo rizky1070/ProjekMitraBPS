@@ -20,8 +20,7 @@ class CreateSurveiTable extends Migration
             $table->date('jadwal_kegiatan');
             $table->date('jadwal_berakhir_kegiatan');
             $table->integer('status_survei');
-            $table->string('tim', 1024)->nullable();
-            $table->string('rate_honor', 100)->nullable();
+            $table->string('tim', 1024);
 
             $table->foreign('id_provinsi')->references('id_provinsi')->on('provinsi')->onUpdate('restrict')->onDelete('restrict');
             $table->foreign('id_kecamatan')->references('id_kecamatan')->on('kecamatan')->onUpdate('restrict')->onDelete('restrict');

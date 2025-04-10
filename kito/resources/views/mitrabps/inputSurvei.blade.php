@@ -57,7 +57,7 @@
                             
                             <div class="mb-5">
                                 <label for="nama_survei" class="block text-sm font-medium text-gray-700 mb-1">Nama Survei</label>
-                                <input type="text" name="nama_survei" id="nama_survei" class="text-sm w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50" placeholder="Nama Survei">
+                                <input type="text" name="nama_survei" id="nama_survei" value="{{ old('nama_survei') }}" class="text-sm w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50" placeholder="Nama Survei">
                             </div>
                             
                             <div class="mb-5">
@@ -86,38 +86,40 @@
                             
                             <div class="mb-5">
                                 <label for="lokasi_survei" class="block text-sm font-medium text-gray-700 mb-1">Lokasi Survei</label>
-                                <input type="text" name="lokasi_survei" id="lokasi_survei" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Lokasi Survei">
+                                <input type="text" name="lokasi_survei" id="lokasi_survei" value="{{ old('lokasi_survei') }}" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Lokasi Survei">
                             </div>
-
+                            
                             <div class="mb-5">
-                                <label for="honor" class="block text-sm font-medium text-gray-700 mb-1">Honor</label>
-                                <input type="number" name="honor" id="honor" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Honor">
+                                <label for="kro" class="block text-sm font-medium text-gray-700 mb-1">KRO</label>
+                                <input type="text" name="kro" id="kro" value="{{ old('kro') }}" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="KRO">
                             </div>
                         </div>
                         
                         <!-- Kolom Kanan -->
                         <div class="w-full md:w-1/2 px-3">
-                            <div class="mb-5">
-                                <label for="kro" class="block text-sm font-medium text-gray-700 mb-1">KRO</label>
-                                <input type="text" name="kro" id="kro" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="KRO">
-                            </div>
+                            
                             
                             <div class="mb-5">
                                 <label for="tim" class="block text-sm font-medium text-gray-700 mb-1">Tim</label>
-                                <input type="text" name="tim" id="tim" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Tim">
+                                <input type="text" name="tim" id="tim" value="{{ old('tim') }}" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Tim">
                             </div>
                             
                             <div class="mb-5">
                                 <label for="jadwal_kegiatan" class="block text-sm font-medium text-gray-700 mb-1">Jadwal Kegiatan</label>
-                                <input type="date" name="jadwal_kegiatan" id="jadwal_kegiatan" class="w-full h-10 text-gray-500 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50">
+                                <input type="date" name="jadwal_kegiatan" id="jadwal_kegiatan" value="{{ old('jadwal_kegiatan') }}" class="w-full h-10 text-gray-500 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50">
+                            </div>
+
+                            <div class="mb-5">
+                                <label for="jadwal_berakhir_kegiatan" class="block text-sm font-medium text-gray-700 mb-1">Jadwal Berakhir Kegiatan</label>
+                                <input type="date" name="jadwal_berakhir_kegiatan" id="jadwal_berakhir_kegiatan" value="{{ old('jadwal_berakhir_kegiatan') }}" class="w-full h-10 text-gray-500 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50">
                             </div>
                             
                             <div class="mb-5">
                                 <label for="status_survei" class="block text-sm font-medium text-gray-700 mb-1">Status Survei</label>
                                 <select name="status_survei" id="status_survei" class="w-full h-10 text-gray-500 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50">
-                                    <option value="1">belum dikerjakan</option>
-                                    <option value="2">sedang dikerjakan</option>
-                                    <option value="3">sudah dikerjakan</option>
+                                    <option value="1" {{ old('status_survei') == '1' ? 'selected' : '' }}>belum dikerjakan</option>
+                                    <option value="2" {{ old('status_survei') == '2' ? 'selected' : '' }}>sedang dikerjakan</option>
+                                    <option value="3" {{ old('status_survei') == '3' ? 'selected' : '' }}>sudah dikerjakan</option>
                                 </select>
                             </div>
 

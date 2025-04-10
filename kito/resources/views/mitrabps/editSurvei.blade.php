@@ -204,7 +204,7 @@
                                 <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
                                 <th class="border border-gray-300 p-2">Tahun</th>
                                 <th class="border border-gray-300 p-2">Vol</th>
-                                <th class="border border-gray-300 p-2">Honor</th>
+                                <th class="border border-gray-300 p-2">Rate Honor</th>
                                 <th class="border border-gray-300 p-2">Posisi</th>
                                 <th class="border border-gray-300 p-2">Aksi</th>
                             </tr>

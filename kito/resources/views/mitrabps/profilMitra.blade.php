@@ -119,7 +119,7 @@
                                 <td class="p-2">{{ $sur->survei->nama_survei }}</td>
                                 <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
                                 <td class="p-2 text-center">{{ $sur->vol?? '-' }}</td>
-                                <td class="p-2 text-center">Rp{{ number_format($sur->survei->rate_honor?? '-', 0, ',', '.') }}</td>
+                                <td class="p-2 text-center">Rp{{ number_format($sur->honor?? '-', 0, ',', '.') }}</td>
                                 @if($sur->catatan == null & $sur->nilai == null)
                                 <td class="p-2 text-center text-red-700 font-bold">Tidak ada catatan</td>
                                 <td class="p-2 text-center text-red-700 font-bold">Belum dinilai</td>
@@ -154,7 +154,7 @@
                                 <td class="p-2">{{ $sur->survei->nama_survei }}</td>
                                 <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
                                 <td class="p-2">{{ $sur->vol ?? '-' }}</td>
-                                <td class="p-2">{{ $sur->survei->rate_honor ?? '-' }}</td>
+                                <td class="p-2">{{ $sur->honor ?? '-' }}</td>
                                 <td class="p-2 text-center">
                                     <a href="/editSurvei/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
                                 </td>

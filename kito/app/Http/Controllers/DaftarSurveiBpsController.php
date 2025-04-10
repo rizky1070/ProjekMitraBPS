@@ -414,15 +414,15 @@ class DaftarSurveiBpsController extends Controller
     {
         // Validasi input
         $validated = $request->validate([
-            'id_kecamatan' => 'nullable|exists:kecamatan,id_kecamatan',
-            'id_desa' => 'nullable|exists:desa,id_desa',
-            'nama_survei' => 'nullable|string|max:1024',
-            'lokasi_survei' => 'nullable|string|max:1024',
-            'kro' => 'nullable|string|max:1024',
-            'jadwal_kegiatan' => 'nullable|date',
-            'status_survei' => 'nullable|integer',
-            'tim' => 'nullable|string|max:1024',
-            'honor' => 'nullable|numeric',
+            'id_kecamatan' => 'required|exists:kecamatan,id_kecamatan',
+            'id_desa' => 'required|exists:desa,id_desa',
+            'nama_survei' => 'required|string|max:1024',
+            'lokasi_survei' => 'required|string|max:1024',
+            'kro' => 'required|string|max:1024',
+            'jadwal_kegiatan' => 'required|date',
+            'jadwal_berakhir_kegiatan' => 'required|date',
+            'status_survei' => 'required|integer',
+            'tim' => 'required|string|max:1024',
         ]);
 
         // Tambahkan nilai default
