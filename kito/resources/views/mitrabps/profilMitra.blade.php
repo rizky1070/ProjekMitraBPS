@@ -73,10 +73,10 @@
                             <h2 class="text-lg font-semibold text-gray-800">Filter Survei</h2>
                         </div>
                         <div class="flex">
-                            <div class="grid grid-cols-3 gap-x-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 w-full">
                                 <!-- Year Row -->
                                 <div class="flex items-center">
-                                    <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
+                                    <label for="tahun" class="w-full md:w-32 text-sm font-medium text-gray-700">Tahun</label>
                                     <select name="tahun" id="tahun" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
                                         <option value="">Semua Tahun</option>
                                         @foreach($tahunOptions as $year => $yearLabel)
@@ -87,7 +87,7 @@
 
                                 <!-- Month Row -->
                                 <div class="flex items-center">
-                                    <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
+                                    <label for="bulan" class="w-full md:w-32 text-sm font-medium text-gray-700">Bulan</label>
                                     <select name="bulan" id="bulan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
                                         <option value="">Semua Bulan</option>
                                         @foreach($bulanOptions as $month => $monthName)

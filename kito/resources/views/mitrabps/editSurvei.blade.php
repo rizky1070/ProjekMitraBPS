@@ -114,10 +114,10 @@
                             <h2 class="text-lg font-semibold text-gray-800">Filter Mitra</h2>
                         </div>
                         <div class="flex">
-                            <div class="grid grid-cols-3 gap-x-6">
-                                <div class="flex items-center relative">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 w-full">
+                                <div class="flex items-center">
                                     <label for="tahun" class="w-32 text-sm font-medium text-gray-700">Tahun</label>
-                                    <select name="tahun" id="tahun" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                    <select name="tahun" id="tahun" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
                                         <option value="">Semua Tahun</option>
                                             @foreach($tahunOptions as $year => $yearLabel)
                                             <option value="{{ $year }}" @if(request('tahun') == $year) selected @endif>{{ $yearLabel }}</option>
@@ -125,9 +125,9 @@
                                     </select>
                                 </div>
                                 <!-- Month Row -->
-                                <div class="flex items-center relative">
+                                <div class="flex items-center">
                                     <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
-                                    <select name="bulan" id="bulan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                    <select name="bulan" id="bulan" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
                                         <option value="">Semua Bulan</option>
                                         @foreach($bulanOptions as $month => $monthName)
                                             <option value="{{ $month }}" @if(request('bulan') == $month) selected @endif>{{ $monthName }}</option>
@@ -135,9 +135,9 @@
                                     </select>
                                 </div>
                                 <!-- District Row -->
-                                <div class="flex items-center relative">
+                                <div class="flex items-center">
                                     <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
-                                    <select name="kecamatan" id="kecamatan" class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
+                                    <select name="kecamatan" id="kecamatan" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
                                         <option value="">Semua Kecamatan</option>
                                         @foreach($kecamatanOptions as $kecam)
                                             <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan') == $kecam->id_kecamatan) selected @endif>
