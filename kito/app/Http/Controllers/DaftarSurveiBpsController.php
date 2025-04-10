@@ -260,6 +260,28 @@ class DaftarSurveiBpsController extends Controller
         ));
     }
 
+
+    public function updateMitraOnSurvei(Request $request, $id_survei, $id_mitra)
+    {
+        $request->validate([
+            'vol' => 'required|string|max:255',
+            'honor' => 'required|integer',
+            'posisi_mitra' => 'required|string|max:255'
+        ]);
+
+        $mitraSurvei = MitraSurvei::where('id_survei', $id_survei)
+            ->where('id_mitra', $id_mitra)
+            ->firstOrFail();
+
+        $mitraSurvei->vol = $request->input('vol');
+        $mitraSurvei->honor = $request->input('honor');
+        $mitraSurvei->posisi_mitra = $request->input('posisi_mitra');
+        $mitraSurvei->tgl_ikut_survei = now();
+        $mitraSurvei->save();
+
+        return redirect()->back()->with('success', 'Mitra berhasil diperbarui!');
+    }
+
     public function deleteMitraFromSurvei($id_survei, $id_mitra)
     {
         $mitraSurvei = MitraSurvei::where('id_survei', $id_survei)

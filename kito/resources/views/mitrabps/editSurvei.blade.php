@@ -212,29 +212,33 @@
                         <tbody>
                             @foreach($mitras as $mitra)
                             <tr class="bg-white hover:bg-gray-200">
-                                <td class="border border-gray-300 p-2">{{ $mitra->nama_lengkap }}</td>
-                                <td class="border border-gray-300 p-2 text-center">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
-                                <td class="border border-gray-300 p-2 text-center">{{ $mitra->mitra_survei_count }}</td>
-                                <td class="border border-gray-300 p-2 text-center">{{ $mitra->tahun }}</td>
+                                <td class="border border-gray-300 p-2" style="max-width: 120px;">{{ $mitra->nama_lengkap }}</td>
+                                <td class="border border-gray-300 p-2 text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
+                                <td class="border border-gray-300 p-2 text-center" style="max-width: 120px;">{{ $mitra->mitra_survei_count }}</td>
+                                <td class="border border-gray-300 p-2 text-center" style="max-width: 120px;">{{ $mitra->tahun }}</td>
 
                                 
                                 @if ($mitra->vol && $mitra->honor && $mitra->posisi_mitra)
                                 <!-- Vol -->
-                                <td class="border border-gray-300 p-2 text-center">
-                                    {{ $mitra->vol }}
-                                </td>
-                                <td class="border border-gray-300 p-2 text-center">
-                                    Rp{{ number_format($mitra->honor, 0, ',', '.') }}
-                                </td>
-                                <td class="border border-gray-300 p-2 text-center">
-                                    {{ $mitra->posisi_mitra }}
-                                </td>
-                                <td class="border border-gray-300 p-2 text-center">
-                                    <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                <form action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                    @csrf
+                                    <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
+                                        <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="{{ $mitra->vol }}" style="width: 100%;">
+                                    </td>
+                                    <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
+                                        <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Rp{{ number_format($mitra->honor, 0, ',', '.') }}" style="width: 100%;">
+                                    </td>
+                                    <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
+                                        <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="{{ $mitra->posisi_mitra }}" style="width: 100%;">
+                                    </td>
+                                    <td class="flex justify-center border py-2 text-center">
+                                        <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Ubah</button>
+                                </form>
+                                <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
                                         @csrf
-                                        <button type="submit" class="bg-orange text-black px-3 rounded">Hapus</button>
-                                    </form>
-                                </td>
+                                        <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Hapus</button>
+                                    </td>
+                                </form>
                                 @else
                                 <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
                                     <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
@@ -246,7 +250,7 @@
                                 <td class="border border-gray-300 p-0 text-center" style="max-width: 120px;">
                                         <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Posisi Mitra" style="width: 100%;">
                                 </td>
-                                <td class="border border-gray-300 p-2 text-center">
+                                <td class="border border-gray-300 p-2 text-center" style="max-width: 120px;">
                                         @csrf
                                         <button type="submit" class="bg-orange text-black px-3 rounded">Tambah</button>
                                     </form>
