@@ -49,6 +49,9 @@
                         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                             <!-- Form Filter -->
                             <form action="{{ route('mitras.filter') }}" method="GET" class="space-y-4" id="filterForm">
+                                <div>
+                                   <h4 class="text-lg font-semibold text-gray-800">Filter</h4>
+                                </div>
                                 <div class="flex items-center relative">
                                     <label for="nama_lengkap" class="w-32 text-lg font-semibold text-gray-800">Cari Mitra</label>
                                     <select name="nama_lengkap" id="nama_mitra" class="w-64 
