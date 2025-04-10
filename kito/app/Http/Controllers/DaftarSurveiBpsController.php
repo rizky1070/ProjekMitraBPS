@@ -221,33 +221,35 @@ class DaftarSurveiBpsController extends Controller
             ->pluck('nama_lengkap', 'nama_lengkap');
 
         // Query daftar mitra
-        $mitras = Mitra::with(['kecamatan', 'mitraSurvei'])
-            ->leftJoin('mitra_survei', function ($join) use ($id_survei) {
-                $join->on('mitra.id_mitra', '=', 'mitra_survei.id_mitra')
-                    ->where('mitra_survei.id_survei', '=', $id_survei);
-            })
-            ->select('mitra.*')
-            ->selectRaw('COUNT(mitra_survei.id_survei) as mitra_survei_count')
-            ->selectRaw('IF(SUM(mitra_survei.id_survei = ?), 1, 0) as isFollowingSurvey', [$id_survei])
-            ->selectRaw('mitra_survei.vol as vol')
-            ->selectRaw('mitra_survei.honor as honor')
-            ->selectRaw('mitra_survei.posisi_mitra as posisi_mitra')
-            ->groupBy('mitra.id_mitra')
-            ->when($request->filled('tahun'), function($query) use ($request) {
-                $query->whereYear('tahun', $request->tahun);
-            })
-            ->when($request->filled('bulan'), function($query) use ($request) {
-                $query->whereMonth('tahun', $request->bulan);
-            })
-            ->when($request->filled('kecamatan'), function($query) use ($request) {
-                $query->where('id_kecamatan', $request->kecamatan);
-            })
-            ->when($request->filled('nama_lengkap'), function($query) use ($request) {
-                $query->where('nama_lengkap', $request->nama_lengkap);
-            })
-            ->orderByDesc('mitra_survei.posisi_mitra')
-            ->orderByRaw('mitra.id_kecamatan = ? DESC', [$survey->id_kecamatan])
-            ->paginate(10);
+        $mitras = Mitra::with([
+            'kecamatan',
+            'mitraSurvei' => function($query) use ($id_survei) {
+                $query->where('mitra_survei.id_survei', $id_survei);
+            }
+        ])
+        ->leftJoin('mitra_survei', 'mitra.id_mitra', '=', 'mitra_survei.id_mitra')
+        ->select('mitra.*')
+        ->selectRaw('COUNT(mitra_survei.id_survei) as mitra_survei_count')
+        ->selectRaw('SUM(mitra_survei.id_survei = ?) as isFollowingSurvey', [$id_survei])
+        ->selectRaw('MAX(CASE WHEN mitra_survei.id_survei = ? THEN mitra_survei.vol ELSE NULL END) as vol', [$id_survei])
+        ->selectRaw('MAX(CASE WHEN mitra_survei.id_survei = ? THEN mitra_survei.honor ELSE NULL END) as honor', [$id_survei])
+        ->selectRaw('MAX(CASE WHEN mitra_survei.id_survei = ? THEN mitra_survei.posisi_mitra ELSE NULL END) as posisi_mitra', [$id_survei])
+        ->groupBy('mitra.id_mitra')
+        ->when($request->filled('tahun'), function($query) use ($request) {
+            $query->whereYear('tahun', $request->tahun);
+        })
+        ->when($request->filled('bulan'), function($query) use ($request) {
+            $query->whereMonth('tahun', $request->bulan);
+        })
+        ->when($request->filled('kecamatan'), function($query) use ($request) {
+            $query->where('id_kecamatan', $request->kecamatan);
+        })
+        ->when($request->filled('nama_lengkap'), function($query) use ($request) {
+            $query->where('nama_lengkap', $request->nama_lengkap);
+        })
+        ->orderByDesc('posisi_mitra')
+        ->orderByRaw('mitra.id_kecamatan = ? DESC', [$survey->id_kecamatan])
+        ->paginate(10);
 
         return view('mitrabps.editSurvei', compact(
             'survey',
@@ -266,11 +268,7 @@ class DaftarSurveiBpsController extends Controller
             ->where('id_mitra', $id_mitra)
             ->firstOrFail();
 
-        $mitraSurvei->vol = null;
-        $mitraSurvei->honor = null;
-        $mitraSurvei->posisi_mitra = null;
-        $mitraSurvei->tgl_ikut_survei = null;
-        $mitraSurvei->save();
+        $mitraSurvei->delete();
 
         return redirect()->back()->with('success', 'Mitra berhasil dihapus dari survei!');
     }
