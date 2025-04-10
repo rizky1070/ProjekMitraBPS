@@ -118,7 +118,7 @@ class MitraSurveiSeeder extends Seeder
                 'nilai' => 5,
                 'vol' => 2,
                 'honor' => 100000,
-                'tgl_ikut_survei' => '2025-05-10'
+                'tgl_ikut_survei' => '2025-04-10'
             ],
             // 
             [
@@ -129,7 +129,7 @@ class MitraSurveiSeeder extends Seeder
                 'nilai' => 5,
                 'vol' => 2,
                 'honor' => 100000,
-                'tgl_ikut_survei' => '2025-05-10'
+                'tgl_ikut_survei' => '2025-04-10'
             ]
         ]);
     }

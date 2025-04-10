@@ -45,7 +45,6 @@
                 <p><strong>Jadwal :</strong> {{ $survey->jadwal_kegiatan }}</p>
                 <p><strong>Tim :</strong> {{ $survey->tim }}</p>
                 <p><strong>KRO :</strong> {{ $survey->kro }} </p>
-                <p><strong>Rate Honor :</strong> {{ $survey->rate_honor ?? 'Tidak Tersedia' }}</p>
                 <div class="flex items-center">
                     <p>
                         <strong>Status :</strong>
@@ -207,7 +206,7 @@
                                 <th class="border border-gray-300 p-2">Nama Mitra</th>
                                 <th class="border border-gray-300 p-2">Domisili</th>
                                 <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
-                                <th class="border border-gray-300 p-2">Tahun</th>
+                                <th class="border border-gray-300 p-2">Tahun Mitra diterima</th>
                                 <th class="border border-gray-300 p-2">Vol</th>
                                 <th class="border border-gray-300 p-2">Rate Honor</th>
                                 <th class="border border-gray-300 p-2">Posisi</th>
