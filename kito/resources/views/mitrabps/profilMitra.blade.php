@@ -104,13 +104,20 @@
                     <p class="font-bold">Total Gaji Mitra Bulan ini:</p>
                     <p class="text-xl font-bold">Rp {{ number_format($totalGaji, 0, ',', '.') }},00</p>
                     @else
-                    <p class="font-l text-gray-500">*Aktifkan filter bulan untuk melihat total gaji</p>
+                    <p class="font-sm text-gray-500">*Aktifkan filter bulan untuk melihat total gaji</p>
                     @endif
                 </div>
                 <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-l">
+
                     <h2 class="text-lg font-semibold text-gray-800 mb-4">Survei yang sudah dikerjakan:</h2>
-                    @foreach ($survei as $sur)
-                    @if($sur->survei->status_survei == 3)
+
+                    @php
+                        $survei_dikerjakan = $survei->filter(fn($s) => $s->survei->status_survei == 3);
+                    @endphp
+
+                    @if($survei_dikerjakan->isEmpty())
+                        <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang sudah dikerjakan</h2>
+                    @else
                     <table class="w-full mb-10 border-collapse border border-gray-300">
                         <thead>
                             <tr class="bg-gray-200">
@@ -124,33 +131,38 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach ($survei_dikerjakan as $sur)
                             <tr class="border border-gray-300 hover:bg-gray-100">
                                 <td class="p-2">{{ $sur->survei->nama_survei }}</td>
-                                <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
-                                <td class="p-2 text-center">{{ $sur->vol?? '-' }}</td>
-                                <td class="p-2 text-center">Rp{{ number_format($sur->honor?? '-', 0, ',', '.') }}</td>
-                                @if($sur->catatan == null & $sur->nilai == null)
-                                <td class="p-2 text-center text-red-700 font-bold">Tidak ada catatan</td>
-                                <td class="p-2 text-center text-red-700 font-bold">Belum dinilai</td>
-                                @elseif($sur->catatan != null & $sur->nilai != null)
-                                <td class="p-2 text-center">{{ $sur->catatan }}</td>
-                                <?php $nilaiOutput = str_repeat('⭐', $sur->nilai); ?>
-                                <td class="p-2 text-center">{{ $nilaiOutput }}</td>
+                                <td class="p-2 text-center">{{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }}</td>
+                                <td class="p-2 text-center">{{ $sur->vol ?? '-' }}</td>
+                                <td class="p-2 text-center">Rp{{ number_format($sur->honor ?? 0, 0, ',', '.') }}</td>
+                                @if($sur->catatan == null && $sur->nilai == null)
+                                    <td class="p-2 text-center text-red-700 font-bold">Tidak ada catatan</td>
+                                    <td class="p-2 text-center text-red-700 font-bold">Belum dinilai</td>
+                                @else
+                                    <td class="p-2 text-center">{{ $sur->catatan }}</td>
+                                    <td class="p-2 text-center">{{ str_repeat('⭐', $sur->nilai) }}</td>
                                 @endif
                                 <td class="p-2 text-center">
                                     <a href="/penilaianMitra/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-orange text-black rounded-md">Edit</a>
                                 </td>
                             </tr>
+                            @endforeach
                         </tbody>
                     </table>
-                    @else
-                        <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang sudah dikerjakan</h2>
                     @endif
-                    @endforeach
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">Survei yang belum/sedang dikerjakan:</h2>
-                    @foreach ($survei as $sur)
-                    @if($sur->survei->status_survei != 3)
-                    <table class="w-full border-collapse border border-gray-300">
+
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Survei yang belum/sedang dikerjakan:</h2>
+
+                    @php
+                        $survei_belum = $survei->filter(fn($s) => $s->survei->status_survei != 3);
+                    @endphp
+
+                    @if($survei_belum->isEmpty())
+                        <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang belum/sedang dikerjakan</h2>
+                    @else
+                    <table class="w-full mb-6 border-collapse border border-gray-300">
                         <thead>
                             <tr class="bg-gray-200">
                                 <th class="border border-gray-300 p-2">Nama Survei</th>
@@ -161,22 +173,23 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach ($survei_belum as $sur)
                             <tr class="border border-gray-300 hover:bg-gray-100">
                                 <td class="p-2">{{ $sur->survei->nama_survei }}</td>
-                                <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
-                                <td class="p-2">{{ $sur->vol ?? '-' }}</td>
-                                <td class="p-2">{{ $sur->honor ?? '-' }}</td>
+                                <td class="p-2 text-center">{{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }}</td>
+                                <td class="p-2 text-center">{{ $sur->vol ?? '-' }}</td>
+                                <td class="p-2 text-center">Rp{{ number_format($sur->honor ?? 0, 0, ',', '.') }}</td>
                                 <td class="p-2 text-center">
                                     <a href="/editSurvei/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
                                 </td>
                             </tr>
+                            @endforeach
                         </tbody>
                     </table>
-                    @else
-                    <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang belum/sedang dikerjakan</h2>
                     @endif
-                    @endforeach
+
                 </div>
+
             </div>
         </div>
 
