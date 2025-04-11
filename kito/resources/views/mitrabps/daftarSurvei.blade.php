@@ -34,12 +34,12 @@
             <div class="flex flex-col flex-1 overflow-hidden">
                 <x-navbar></x-navbar>
                 <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-                    <div class="container px-4 py-8 mx-auto">
+                    <div class="container px-4 py-4 mx-auto">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-3xl font-medium text-black">Daftar Survei</h3>
                             <button type="button" class="px-4 py-2 bg-orange rounded-md"><a href="/inputSurvei"> + Tambah</a></button>
                         </div>
-                        <div class="p-4">
+                        <div>
                             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                                 <!-- Form Filter -->
                                 <form action="{{ route('surveys.filter') }}" method="GET" class="space-y-4" id="filterForm">
@@ -94,7 +94,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                 </form>
                             </div>
                         </div>
@@ -148,17 +147,17 @@
                             });
                         </script>
                         <!-- List of Survei -->
-                        <div class="flex overflow-x-auto space-x-6 p-4">
+                        <div class="flex overflow-x-auto space-x-6 pb-4">
                         @foreach($surveys as $survey)
-                            <div class="bg-white h-[500px] min-w-[350px] max-w-[350px] p-6 border border-gray-300 rounded-lg shadow-md flex-shrink-0 space-y-4 flex flex-col overflow-hidden">
+                            <div class="bg-white h-[450px] min-w-[350px] max-w-[350px] p-4 border border-gray-300 rounded-lg shadow-md flex-shrink-0 space-y-4 flex flex-col overflow-hidden">
                                 <!-- Informasi Survei -->
                                 <div class="flex-grow overflow-hidden">
-                                    <h3 class="text-2xl font-bold text-gray-800 truncate whitespace-nowrap overflow-hidden hover:text-black hover:scale-105 transition-all duration-300 ease-in-out transform">
+                                    <h3 class="pl-2 text-2xl font-bold text-gray-800 truncate whitespace-nowrap overflow-hidden hover:text-black hover:scale-105 transition-all duration-300 ease-in-out transform">
                                         <a href="/editSurvei/{{ $survey->id_survei }}">{{ $survey->nama_survei }}</a>
                                     </h3>
 
                                     <!-- Status -->
-                                    <div class="mt-auto text-lg font-semibold mb-2">
+                                    <div class="ml-2 mt-auto text-lg font-semibold mb-2">
                                         @if($survey->status_survei == 1)
                                             <span class="text-red-500">Belum Dikerjakan</span>
                                         @elseif($survey->status_survei == 2)
@@ -170,14 +169,14 @@
                                         @endif
                                     </div>
 
-                                    <span class="text-gray-600 block truncate">
+                                    <span class="ml-2 text-gray-600 block truncate">
                                         Kecamatan: {{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}
                                     </span>
-                                    <span class="text-gray-600 block">
+                                    <span class="ml-2 text-gray-600 block">
                                         Jadwal Kegiatan: {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }}
                                     </span>
 
-                                    <span class="text-gray-600 block">
+                                    <span class="ml-2 text-gray-600 block">
                                         @if($survey->mitraSurvei->isNotEmpty())
                                         Jumlah Mitra: {{ $survey->mitraSurvei->count() }}<br>
                                         <div class="mt-2 max-h-[250px] overflow-y-auto pr-2 space-y-1">
@@ -198,7 +197,7 @@
                                                     };
                                                 @endphp
                                     
-                                                <div class="{{ $textColor }} rounded-md transition-all duration-300 ease-in-out transform hover:bg-orange hover:text-white hover:scale-105 line-clamp-2">
+                                                <div class="{{ $textColor }} ml-2 pl-1 rounded-md transition-all duration-300 ease-in-out transform hover:bg-orange hover:text-white hover:scale-105 line-clamp-2">
                                                     - <a href="/profilMitra/{{ $mitraName->id_mitra }}" class="truncate inline-block max-w-full align-top">{{ $mitraName->nama_lengkap }}</a>
                                                     @if(request()->filled('tahun') || request()->filled('bulan'))
                                                         ({{ $totalSurvei }} survei)
