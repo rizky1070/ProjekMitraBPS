@@ -41,10 +41,10 @@
             <div class="flex flex-col md:flex-row items-center bg-white my-4 px-6 py-5 rounded-lg shadow">
                 <div class="flex flex-col justify-center items-center text-center mb-4 md:mb-0">
                     <img 
-                        alt="Profile picture" 
-                        src="{{ asset('person.png') }}" 
-                        class="w-24 h-24 aspect-square object-cover rounded-full border-2 border-gray-500"
-                    />
+                    alt="Profile picture" 
+                    class="w-32 rounded-full border-2 border-gray-500 object-cover" 
+                    src="{{ asset('person.png') }}">
+
                     <h2 class="text-xl font-bold mt-2">{{ $mits->nama_lengkap }}</h2>
                 </div>
                 <div class="md:pl-6 w-full">
