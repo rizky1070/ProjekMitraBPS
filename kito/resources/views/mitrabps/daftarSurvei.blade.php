@@ -198,10 +198,12 @@
                                                 @endphp
                                     
                                                 <div class="{{ $textColor }} ml-2 pl-1 rounded-md transition-all duration-300 ease-in-out transform hover:bg-orange hover:text-white hover:scale-105 line-clamp-2">
-                                                    - <a href="/profilMitra/{{ $mitraName->id_mitra }}" class="truncate inline-block max-w-full align-top">{{ $mitraName->nama_lengkap }}</a>
+                                                    <a href="/profilMitra/{{ $mitraName->id_mitra }}" class="truncate inline-block max-w-full align-top">
+                                                        - {{ $mitraName->nama_lengkap }}
                                                     @if(request()->filled('tahun') || request()->filled('bulan'))
                                                         ({{ $totalSurvei }} survei)
                                                     @endif
+                                                    </a>
                                                 </div>
                                             @endforeach
                                         </div>

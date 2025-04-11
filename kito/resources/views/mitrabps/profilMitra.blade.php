@@ -109,9 +109,9 @@
                 </div>
                 <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-l">
                     <h2 class="text-lg font-semibold text-gray-800 mb-4">Survei yang sudah dikerjakan:</h2>
-                    <table class="w-full mb-10 border-collapse border border-gray-300">
                     @foreach ($survei as $sur)
                     @if($sur->survei->status_survei == 3)
+                    <table class="w-full mb-10 border-collapse border border-gray-300">
                         <thead>
                             <tr class="bg-gray-200">
                                 <th class="border border-gray-300 p-2">Nama Survei</th>
@@ -142,11 +142,11 @@
                                 </td>
                             </tr>
                         </tbody>
+                    </table>
                     @else
-                    <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang sudah dikerjakan</h2>
+                        <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang sudah dikerjakan</h2>
                     @endif
                     @endforeach
-                    </table>
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Survei yang belum/sedang dikerjakan:</h2>
                     @foreach ($survei as $sur)
                     @if($sur->survei->status_survei != 3)
