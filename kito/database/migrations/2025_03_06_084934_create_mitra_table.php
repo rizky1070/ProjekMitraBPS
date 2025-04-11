@@ -14,6 +14,7 @@ class CreateMitraTable extends Migration
             $table->unsignedBigInteger('id_kabupaten');
             $table->unsignedBigInteger('id_provinsi');
             $table->unsignedBigInteger('id_desa');
+            $table->string('foto_profil', 1024)->nullable();
             $table->string('sobat_id', 1024);
             $table->string('nama_lengkap', 1024);
             $table->string('alamat_mitra', 1024);

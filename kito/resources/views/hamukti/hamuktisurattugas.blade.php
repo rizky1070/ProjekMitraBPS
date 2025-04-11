@@ -153,10 +153,6 @@
                                                     <div id="grid" class=" gap-2  p-4 ">
                                                         <div id="gridItem" class="relative cursor-pointer min-w-40 line-clamp-2 text-xs hover:z-50" data-tooltip="LOOK HERE">{{ $surattugas['user'] }}</div>
                                                     </div>
-                                                    <div class="bg-opacity-100 absolute shadow-md left-[calc(theme(padding.8)+theme(padding.4)+(theme(width.3)/2))] top-[calc(theme(padding.8)+theme(padding.4)-.25rem)] w-60 max-w-xs origin-bottom -translate-x-1/2 translate-y-[calc(-100%-var(--arrow-size))] rounded-[.3rem] bg-[--tooltip-color] p-2 m-2 text-center text-xs transition-transform scale-0 [#grid:has(#gridItem:nth-child(1):hover)~&]:scale-100 z-50 overflow-hidden break-words">
-    
-                                                        {{ $surattugas['tujuan'] }}
-                                                    </div>
                                                 </td>
     
                                                 <td
