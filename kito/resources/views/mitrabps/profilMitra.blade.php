@@ -38,18 +38,35 @@
         </a>
         <div class="max-w-4xl mx-auto mt-4">
             <h1 class="text-2xl font-bold">Profil Mitra</h1>
-            <div class="flex items-center bg-white my-4 px-10 py-5 rounded-lg shadow">
-                <div class="flex flex-col justify-center items-center text-center">
-                    <img alt="Profile picture" class="w-24 h-24 rounded-full border-2 border-gray-500 mr-4" src="{{ asset('person.png') }}" width="100" height="100">
-                    <h2 class="text-xl font-bold">{{ $mits->nama_lengkap }}</h2>
+            <div class="flex flex-col md:flex-row items-center bg-white my-4 px-6 py-5 rounded-lg shadow">
+                <div class="flex flex-col justify-center items-center text-center mb-4 md:mb-0">
+                    <img 
+                        alt="Profile picture" 
+                        src="{{ asset('person.png') }}" 
+                        class="w-24 h-24 aspect-square object-cover rounded-full border-2 border-gray-500"
+                    />
+                    <h2 class="text-xl font-bold mt-2">{{ $mits->nama_lengkap }}</h2>
                 </div>
-                <div class="pl-5"> 
-                    <p><strong>Kecamatan :</strong> {{ $mits->kecamatan->nama_kecamatan }}</p>
-                    <p><strong>Alamat Detail :</strong> {{ $mits->alamat_mitra }}</p>
-                    <p><strong>Nomor Handphone :</strong> {{ $mits->no_hp_mitra }}</p>
-                    <p><strong>Email :</strong> {{ $mits->email_mitra }}</p>       
+                <div class="md:pl-6 w-full">
+                    <div class="flex justify-between w-full border-b py-1">
+                        <strong>Kecamatan:</strong>
+                        <span class="text-right">{{ $mits->kecamatan->nama_kecamatan }}</span>
+                    </div>
+                    <div class="flex justify-between w-full border-b py-1">
+                        <strong>Alamat Detail:</strong>
+                        <span class="text-right">{{ $mits->alamat_mitra }}</span>
+                    </div>
+                    <div class="flex justify-between w-full border-b py-1">
+                        <strong>Nomor Handphone:</strong>
+                        <span class="text-right">{{ $mits->no_hp_mitra }}</span>
+                    </div>
+                    <div class="flex justify-between w-full py-1">
+                        <strong>Email:</strong>
+                        <span class="text-right">{{ $mits->email_mitra }}</span>
+                    </div>
                 </div>
             </div>
+
         </div>
 
         <!-- Tabel Survei -->
