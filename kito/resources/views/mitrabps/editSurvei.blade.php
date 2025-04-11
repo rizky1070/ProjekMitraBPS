@@ -37,7 +37,7 @@
         </svg>
     </a>
 
-        <div class="p-6">
+        <div class="p-4">
             <h2 class="text-2xl font-bold mb-4">Detail Survei</h2>
             <div class="bg-white p-4 rounded-lg shadow">
                 <p class="text-xl font-medium"><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>

@@ -40,7 +40,7 @@
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-                <div class="container px-4 py-8 mx-auto">
+                <div class="container px-4 py-4 mx-auto">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-3xl font-medium text-black">Daftar Mitra</h3>
                         <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
