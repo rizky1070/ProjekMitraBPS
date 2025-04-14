@@ -43,7 +43,9 @@
                     <img 
                     alt="Profile picture" 
                     class="w-32 rounded-full border-2 border-gray-500 object-cover" 
-                    src="{{ asset('person.png') }}">
+                    src="{{ $profileImage }}" 
+                    onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/mainchar42/assetgambar/main/myGambar/default.jpg'" 
+                    width="100" height="100">
 
                     <h2 class="text-xl font-bold mt-2">{{ $mits->nama_lengkap }}</h2>
                 </div>

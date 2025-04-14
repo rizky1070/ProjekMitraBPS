@@ -175,7 +175,11 @@ class MitraController extends Controller
         \Carbon\Carbon::setLocale('id');
         
         $mits = Mitra::with(['kecamatan', 'desa'])->findOrFail($id_mitra);
-        
+
+        // Generate GitHub profile image URL based on sobatid
+        $githubBaseUrl = 'https://raw.githubusercontent.com/mainchar42/assetgambar/main/myGambar/';
+        $profileImage = $githubBaseUrl . $mits->sobat_id . '.jpg'; // asumsi format gambar adalah .jpg
+            
         // Daftar tahun yang tersedia untuk mitra ini
         $tahunOptions = Survei::selectRaw('DISTINCT YEAR(jadwal_kegiatan) as tahun')
             ->join('mitra_survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
@@ -263,7 +267,8 @@ class MitraController extends Controller
             'bulanOptions',
             'namaSurveiOptions',
             'request',
-            'totalGaji'
+            'totalGaji',
+            'profileImage' // Tambahkan ini
         ));
     }
     
