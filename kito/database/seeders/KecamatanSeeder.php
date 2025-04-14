@@ -11,22 +11,22 @@ class KecamatanSeeder extends Seeder
     {
         DB::table('kecamatan')->insert([
             [
-                'kode_kecamatan' => 'KC001', 
+                'kode_kecamatan' => 'KC1', 
                 'nama_kecamatan' => 'Kecamatan A',
                 'id_kabupaten' => 16 // Sesuaikan dengan ID kabupaten yang ada
             ],
             [
-                'kode_kecamatan' => 'KC002', 
+                'kode_kecamatan' => 'KC2', 
                 'nama_kecamatan' => 'Kecamatan B',
                 'id_kabupaten' => 16
             ],
             [
-                'kode_kecamatan' => 'KC003', 
+                'kode_kecamatan' => 'KC3', 
                 'nama_kecamatan' => 'Kecamatan C',
                 'id_kabupaten' => 16
             ],
             [
-                'kode_kecamatan' => 'KC004', 
+                'kode_kecamatan' => 'KC4', 
                 'nama_kecamatan' => 'Kecamatan D',
                 'id_kabupaten' => 16
             ],

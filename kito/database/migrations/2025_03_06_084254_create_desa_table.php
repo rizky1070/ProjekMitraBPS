@@ -10,7 +10,7 @@ class CreateDesaTable extends Migration
     {
         Schema::create('desa', function (Blueprint $table) {
             $table->id('id_desa');
-            $table->string('kode_desa');
+            $table->string('kode_desa',3);
             $table->string('nama_desa');
             $table->unsignedBigInteger('id_kecamatan');
     
