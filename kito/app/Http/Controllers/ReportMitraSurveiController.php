@@ -291,15 +291,6 @@ class ReportMitraSurveiController extends Controller
 
         $mitras = $mitrasQuery->paginate(10);
 
-        // Tambahkan perhitungan total honor
-        $mitras->getCollection()->transform(function ($mitra) {
-            $totalHonor = $mitra->mitraSurvei->sum(function ($item) {
-                return ($item->honor ?? 0) * ($item->vol ?? 0);
-            });
-            $mitra->total_honor = $totalHonor;
-            return $mitra;
-        });
-
         return view('mitrabps.reportMitra', compact(
             'mitras',
             'tahunOptions',
