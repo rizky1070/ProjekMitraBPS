@@ -40,7 +40,10 @@
             <h1 class="text-2xl font-bold">Profil Mitra</h1>
             <div class="flex items-center bg-white my-4 px-10 py-5 rounded-lg shadow">
                 <div class="flex flex-col justify-center items-center text-center">
-                    <img alt="Profile picture" class="w-24 h-24 rounded-full border-2 border-gray-500 mr-4" src="{{ asset('person.png') }}" width="100" height="100">
+                    <img alt="Profile picture" class="w-24 h-24 rounded-full border-2 border-gray-500 mr-4" 
+                    src="{{ $profileImage }}" 
+                    onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/mainchar42/assetgambar/main/myGambar/default.jpg'" 
+                    width="100" height="100">
                     <h2 class="text-xl font-bold">{{ $mits->nama_lengkap }}</h2>
                 </div>
                 <div class="pl-5"> 
