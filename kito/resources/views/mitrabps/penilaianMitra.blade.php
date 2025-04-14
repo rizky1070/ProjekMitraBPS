@@ -32,7 +32,7 @@
     @endif
 
     
-    <a href="{{ url()->previous() }}" 
+    <a href="/profilMitra/{{ $surMit->survei->id_survei }}" 
     class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />

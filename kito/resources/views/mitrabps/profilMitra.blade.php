@@ -38,21 +38,35 @@
         </a>
         <div class="max-w-4xl mx-auto mt-4">
             <h1 class="text-2xl font-bold">Profil Mitra</h1>
-            <div class="flex items-center bg-white my-4 px-10 py-5 rounded-lg shadow">
-                <div class="flex flex-col justify-center items-center text-center">
-                    <img alt="Profile picture" class="w-24 h-24 rounded-full border-2 border-gray-500 mr-4" 
-                    src="{{ $profileImage }}" 
-                    onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/mainchar42/assetgambar/main/myGambar/default.jpg'" 
-                    width="100" height="100">
-                    <h2 class="text-xl font-bold">{{ $mits->nama_lengkap }}</h2>
+            <div class="flex flex-col md:flex-row items-center bg-white my-4 px-6 py-5 rounded-lg shadow">
+                <div class="flex flex-col justify-center items-center text-center mb-4 md:mb-0">
+                    <img 
+                    alt="Profile picture" 
+                    class="w-32 rounded-full border-2 border-gray-500 object-cover" 
+                    src="{{ asset('person.png') }}">
+
+                    <h2 class="text-xl font-bold mt-2">{{ $mits->nama_lengkap }}</h2>
                 </div>
-                <div class="pl-5"> 
-                    <p><strong>Kecamatan :</strong> {{ $mits->kecamatan->nama_kecamatan }}</p>
-                    <p><strong>Alamat Detail :</strong> {{ $mits->alamat_mitra }}</p>
-                    <p><strong>Nomor Handphone :</strong> {{ $mits->no_hp_mitra }}</p>
-                    <p><strong>Email :</strong> {{ $mits->email_mitra }}</p>       
+                <div class="md:pl-6 w-full">
+                    <div class="flex justify-between w-full border-b py-1">
+                        <strong>Kecamatan:</strong>
+                        <span class="text-right">{{ $mits->kecamatan->nama_kecamatan }}</span>
+                    </div>
+                    <div class="flex justify-between w-full border-b py-1">
+                        <strong>Alamat Detail:</strong>
+                        <span class="text-right">{{ $mits->alamat_mitra }}</span>
+                    </div>
+                    <div class="flex justify-between w-full border-b py-1">
+                        <strong>Nomor Handphone:</strong>
+                        <span class="text-right">{{ $mits->no_hp_mitra }}</span>
+                    </div>
+                    <div class="flex justify-between w-full py-1">
+                        <strong>Email:</strong>
+                        <span class="text-right">{{ $mits->email_mitra }}</span>
+                    </div>
                 </div>
             </div>
+
         </div>
 
         <!-- Tabel Survei -->
@@ -107,13 +121,20 @@
                     <p class="font-bold">Total Gaji Mitra Bulan ini:</p>
                     <p class="text-xl font-bold">Rp {{ number_format($totalGaji, 0, ',', '.') }},00</p>
                     @else
-                    <p class="font-l text-gray-500">*Aktifkan filter bulan untuk melihat total gaji</p>
+                    <p class="font-sm text-gray-500">*Aktifkan filter bulan untuk melihat total gaji</p>
                     @endif
                 </div>
                 <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-l">
+
                     <h2 class="text-lg font-semibold text-gray-800 mb-4">Survei yang sudah dikerjakan:</h2>
-                    @foreach ($survei as $sur)
-                    @if($sur->survei->status_survei == 3)
+
+                    @php
+                        $survei_dikerjakan = $survei->filter(fn($s) => $s->survei->status_survei == 3);
+                    @endphp
+
+                    @if($survei_dikerjakan->isEmpty())
+                        <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang sudah dikerjakan</h2>
+                    @else
                     <table class="w-full mb-10 border-collapse border border-gray-300">
                         <thead>
                             <tr class="bg-gray-200">
@@ -127,33 +148,38 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach ($survei_dikerjakan as $sur)
                             <tr class="border border-gray-300 hover:bg-gray-100">
                                 <td class="p-2">{{ $sur->survei->nama_survei }}</td>
-                                <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
-                                <td class="p-2 text-center">{{ $sur->vol?? '-' }}</td>
-                                <td class="p-2 text-center">Rp{{ number_format($sur->honor?? '-', 0, ',', '.') }}</td>
-                                @if($sur->catatan == null & $sur->nilai == null)
-                                <td class="p-2 text-center text-red-700 font-bold">Tidak ada catatan</td>
-                                <td class="p-2 text-center text-red-700 font-bold">Belum dinilai</td>
-                                @elseif($sur->catatan != null & $sur->nilai != null)
-                                <td class="p-2 text-center">{{ $sur->catatan }}</td>
-                                <?php $nilaiOutput = str_repeat('⭐', $sur->nilai); ?>
-                                <td class="p-2 text-center">{{ $nilaiOutput }}</td>
+                                <td class="p-2 text-center">{{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }}</td>
+                                <td class="p-2 text-center">{{ $sur->vol ?? '-' }}</td>
+                                <td class="p-2 text-center">Rp{{ number_format($sur->honor ?? 0, 0, ',', '.') }}</td>
+                                @if($sur->catatan == null && $sur->nilai == null)
+                                    <td class="p-2 text-center text-red-700 font-bold">Tidak ada catatan</td>
+                                    <td class="p-2 text-center text-red-700 font-bold">Belum dinilai</td>
+                                @else
+                                    <td class="p-2 text-center">{{ $sur->catatan }}</td>
+                                    <td class="p-2 text-center">{{ str_repeat('⭐', $sur->nilai) }}</td>
                                 @endif
                                 <td class="p-2 text-center">
                                     <a href="/penilaianMitra/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-orange text-black rounded-md">Edit</a>
                                 </td>
                             </tr>
+                            @endforeach
                         </tbody>
                     </table>
-                    @else
-                        <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang sudah dikerjakan</h2>
                     @endif
-                    @endforeach
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">Survei yang belum/sedang dikerjakan:</h2>
-                    @foreach ($survei as $sur)
-                    @if($sur->survei->status_survei != 3)
-                    <table class="w-full border-collapse border border-gray-300">
+
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Survei yang belum/sedang dikerjakan:</h2>
+
+                    @php
+                        $survei_belum = $survei->filter(fn($s) => $s->survei->status_survei != 3);
+                    @endphp
+
+                    @if($survei_belum->isEmpty())
+                        <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang belum/sedang dikerjakan</h2>
+                    @else
+                    <table class="w-full mb-6 border-collapse border border-gray-300">
                         <thead>
                             <tr class="bg-gray-200">
                                 <th class="border border-gray-300 p-2">Nama Survei</th>
@@ -164,22 +190,23 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach ($survei_belum as $sur)
                             <tr class="border border-gray-300 hover:bg-gray-100">
                                 <td class="p-2">{{ $sur->survei->nama_survei }}</td>
-                                <td class="p-2 text-center">{{ \Carbon\Carbon::parse( $sur->survei->jadwal_kegiatan )->translatedFormat('j F Y') }}</td>
-                                <td class="p-2">{{ $sur->vol ?? '-' }}</td>
-                                <td class="p-2">{{ $sur->honor ?? '-' }}</td>
+                                <td class="p-2 text-center">{{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }}</td>
+                                <td class="p-2 text-center">{{ $sur->vol ?? '-' }}</td>
+                                <td class="p-2 text-center">Rp{{ number_format($sur->honor ?? 0, 0, ',', '.') }}</td>
                                 <td class="p-2 text-center">
                                     <a href="/editSurvei/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
                                 </td>
                             </tr>
+                            @endforeach
                         </tbody>
                     </table>
-                    @else
-                    <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang belum/sedang dikerjakan</h2>
                     @endif
-                    @endforeach
+
                 </div>
+
             </div>
         </div>
 
