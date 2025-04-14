@@ -194,7 +194,7 @@
                 @csrf
                 <input type="file" name="file" accept=".xlsx, .xls" class="border p-2 w-full">
                     <p class="py-2 text-s">Belum punya file excel?  
-                        <a href="{{ asset('addSurvey.xlsx') }} " class=" text-blue-500 hover:text-blue-600 font-bold">
+                        <a href="{{ asset('addMitra.xlsx') }} " class=" text-blue-500 hover:text-blue-600 font-bold">
                             Download template disini.
                         </a>
                     </p>

@@ -12,7 +12,6 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Carbon\Carbon;
-use Illuminate\Validation\Rule;
 
 class MitraImport implements ToModel, WithHeadingRow, WithValidation
 {
@@ -20,53 +19,64 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
     
     public function model(array $row)
     {
+        // Skip baris yang benar-benar kosong
+        if (empty($row['sobat_id']) && empty($row['nama_lengkap']) && empty($row['alamat_mitra'])) {
+            return null;
+        }
+        
+        // Validasi minimal untuk baris yang dianggap tidak kosong
+        if (empty($row['sobat_id'])) {
+            throw new \Exception("Baris tidak valid: sobat_id harus diisi");
+        }
+        
         Log::info('Importing row: ', $row);
         
-        // Set default values jika kosong
-        $kodeProvinsi = empty($row['kode_provinsi']) ? 'P001' : $row['kode_provinsi'];
-        $kodeKabupaten = empty($row['kode_kabupaten']) ? 'K001' : $row['kode_kabupaten'];
+        // Tetapkan kode provinsi dan kabupaten secara otomatis
+        $kodeProvinsi = '35';  // Default provinsi
+        $kodeKabupaten = '16'; // Default kabupaten
         
         // Cari provinsi
-        $provinsi = Provinsi::where('kode_provinsi', $kodeProvinsi)->first();
+        $provinsi = Provinsi::where('id_provinsi', $kodeProvinsi)->first();
         if (!$provinsi) {
-            throw new \Exception("Kode provinsi {$kodeProvinsi} tidak ditemukan");
+            throw new \Exception("Provinsi default (kode: 35) tidak ditemukan di database.");
         }
         
         // Cari kabupaten
-        $kabupaten = Kabupaten::where('kode_kabupaten', $kodeKabupaten)
+        $kabupaten = Kabupaten::where('id_kabupaten', $kodeKabupaten)
             ->where('id_provinsi', $provinsi->id_provinsi)
             ->first();
         if (!$kabupaten) {
-            throw new \Exception("Kode kabupaten {$kodeKabupaten} tidak ditemukan di provinsi {$provinsi->nama_provinsi}");
+            throw new \Exception("Kabupaten default (kode: 16) tidak ditemukan di provinsi {$provinsi->nama_provinsi}.");
         }
         
-        // Cari kecamatan
+        // Cari kecamatan (harus diisi di Excel)
         $kecamatan = Kecamatan::where('kode_kecamatan', $row['kode_kecamatan'])
             ->where('id_kabupaten', $kabupaten->id_kabupaten)
             ->first();
         if (!$kecamatan) {
-            throw new \Exception("Kode kecamatan {$row['kode_kecamatan']} tidak ditemukan di kabupaten {$kabupaten->nama_kabupaten}");
+            throw new \Exception("Kode kecamatan {$row['kode_kecamatan']} tidak ditemukan di kabupaten {$kabupaten->nama_kabupaten}.");
         }
         
-        // Cari desa
+        // Cari desa (harus diisi di Excel)
         $desa = Desa::where('kode_desa', $row['kode_desa'])
             ->where('id_kecamatan', $kecamatan->id_kecamatan)
             ->first();
         if (!$desa) {
-            throw new \Exception("Kode desa {$row['kode_desa']} tidak ditemukan di kecamatan {$kecamatan->nama_kecamatan}");
+            throw new \Exception("Kode desa {$row['kode_desa']} tidak ditemukan di kecamatan {$kecamatan->nama_kecamatan}.");
         }
         
         // Parse tanggal tahun
-        $tanggal = $this->parseTanggal($row['tahun'] ?? null);
-        $tahun = $tanggal->year;
-        
-        // Cek duplikasi sobat_id dalam tahun yang sama
+        $tahunMulai = $this->parseTanggal($row['tahun'] ?? null);
+        $tahunSelesai = $this->parseTanggal($row['tahun_selesai'] ?? null);
+
+        // Cek duplikasi sobat_id dalam bulan dan tahun yang sama
         $existingMitra = Mitra::where('sobat_id', $row['sobat_id'])
-            ->whereYear('tahun', $tahun)
+            ->whereMonth('tahun', $tahunMulai->month)
+            ->whereYear('tahun', $tahunMulai->year)
             ->first();
-            
+
         if ($existingMitra) {
-            throw new \Exception("Sobat ID {$row['sobat_id']} sudah terdaftar pada tahun {$tahun}");
+            throw new \Exception("Sobat ID {$row['sobat_id']} sudah terdaftar pada bulan {$tahunMulai->month} tahun {$tahunMulai->year}");
         }
         
         return new Mitra([
@@ -80,31 +90,33 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             'jenis_kelamin' => $row['jenis_kelamin'],
             'no_hp_mitra' => $row['no_hp_mitra'],
             'email_mitra' => $row['email_mitra'],
-            'tahun' => $tanggal
+            'tahun' => $tahunMulai,
+            'tahun_selesai' => $tahunSelesai
         ]);
     }
     
     public function rules(): array
     {
         return [
+            'sobat_id' => 'required|string|max:12',
             'nama_lengkap' => 'required|string|max:255',
-            'sobat_id' => 'required|string|max:50',
             'alamat_mitra' => 'required|string',
-            'kode_desa' => 'required|string',
-            'kode_kecamatan' => 'required|string',
+            'kode_desa' => 'required|string|max:3',
+            'kode_kecamatan' => 'required|string|max:3',
             'jenis_kelamin' => 'required|in:1,2',
             'no_hp_mitra' => 'required|string|max:20',
             'email_mitra' => 'required|email|max:255',
-            'tahun' => 'nullable|date'
+            'tahun' => 'required|date',
+            'tahun_selesai' => 'required|date'
         ];
     }
-    
+
     private function parseTanggal($tanggal)
     {
         try {
-            // Jika kosong, gunakan tanggal hari ini
+            // Jika kosong, return null
             if (empty($tanggal)) {
-                return Carbon::now();
+                return null;
             }
             
             // Coba parse tanggal dari berbagai format
