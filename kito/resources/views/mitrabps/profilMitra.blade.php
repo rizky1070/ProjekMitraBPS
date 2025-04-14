@@ -49,19 +49,19 @@
                 </div>
                 <div class="md:pl-6 w-full">
                     <div class="flex justify-between w-full border-b py-1">
-                        <strong>Kecamatan:</strong>
+                        <strong>Kecamatan :</strong>
                         <span class="text-right">{{ $mits->kecamatan->nama_kecamatan }}</span>
                     </div>
                     <div class="flex justify-between w-full border-b py-1">
-                        <strong>Alamat Detail:</strong>
+                        <strong>Alamat Detail :</strong>
                         <span class="text-right">{{ $mits->alamat_mitra }}</span>
                     </div>
                     <div class="flex justify-between w-full border-b py-1">
-                        <strong>Nomor Handphone:</strong>
+                        <strong>Nomor Handphone :</strong>
                         <span class="text-right">{{ $mits->no_hp_mitra }}</span>
                     </div>
-                    <div class="flex justify-between w-full py-1">
-                        <strong>Email:</strong>
+                    <div class="flex justify-between w-full border-b py-1">
+                        <strong>Email :</strong>
                         <span class="text-right">{{ $mits->email_mitra }}</span>
                     </div>
                 </div>
