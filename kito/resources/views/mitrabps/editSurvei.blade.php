@@ -75,17 +75,17 @@
                         <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
                             @csrf
                             <input type="hidden" name="status_survei" value="1">
-                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Belum Dikerjakan</button>
+                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700">Belum Dikerjakan</button>
                         </form>
                         <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
                             @csrf
                             <input type="hidden" name="status_survei" value="2">
-                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Sedang Dikerjakan</button>
+                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700">Sedang Dikerjakan</button>
                         </form>
                         <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
                             @csrf
                             <input type="hidden" name="status_survei" value="3">
-                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Sudah Dikerjakan</button>
+                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700">Sudah Dikerjakan</button>
                         </form>
                     </div>
                 </div>
@@ -205,43 +205,43 @@
                     mitraSelect.addEventListener('change', submitForm);
                 });
                 </script>
-                <div class="overflow-x-auto mx-6 p-2 bg-white rounded-lg shadow-md">
-                    <table class="w-full border-collapse border border-gray-350">
-                        <thead>
-                            <tr class="bg-gray-100">
-                                <th class="border border-gray-300 p-2">Nama Mitra</th>
-                                <th class="border border-gray-300 p-2">Domisili</th>
-                                <th class="border border-gray-300 p-2">Survei yang Diikuti</th>
-                                <th class="border border-gray-300 p-2">Tahun Mitra diterima</th>
-                                <th class="border border-gray-300 p-2">Vol</th>
-                                <th class="border border-gray-300 p-2">Rate Honor</th>
-                                <th class="border border-gray-300 p-2">Posisi</th>
-                                <th class="border border-gray-300 p-2">Aksi</th>
+                <div class="overflow-x-auto mx-4 p-2 bg-white rounded-lg shadow-md">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mitra</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Domisili</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Survei yang Diikuti</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Tahun Mitra diterima</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Vol</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rate Honor</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Posisi</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="bg-white divide-y divide-gray-200">
                             @foreach($mitras as $mitra)
-                            <tr class="bg-white hover:bg-gray-200">
-                                <td class="border border-gray-350 p-2 transition-all duration-300 ease-in-out transform hover:bg-orange hover:text-white hover:shadow-lg hover:scale-105" style="max-width: 120px;">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-center" style="max-width: 120px;">
                                     <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
                                 </td>
-                                <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
-                                <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">{{ $mitra->mitra_survei_count }}</td>
-                                <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">{{ \Carbon\Carbon::parse($mitra->tahun )->translatedFormat('j F Y') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->mitra_survei_count }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center" style="max-width: 120px;">{{ \Carbon\Carbon::parse($mitra->tahun )->translatedFormat('j F Y') }}</td>
 
                                 
                                 @if ($mitra->vol && $mitra->honor && $mitra->posisi_mitra)
                                 <!-- Vol -->
                                 <form action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
                                     @csrf
-                                    <td class="border border-gray-350 p-0 text-center" style="max-width: 120px;">
-                                        <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="{{ $mitra->vol }}" style="width: 100%;">
+                                    <td class="px-6 py-4 whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="{{ $mitra->vol }}" style="width: 100%;">
                                     </td>
-                                    <td class="border border-gray-350 p-0 text-center" style="max-width: 120px;">
-                                        <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Rp{{ number_format($mitra->honor, 0, ',', '.') }}" style="width: 100%;">
+                                    <td class="px-6 py-4 whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none" placeholder="Rp{{ number_format($mitra->honor, 0, ',', '.') }}" style="width: 100%;">
                                     </td>
-                                    <td class="border border-gray-350 p-0 text-center" style="max-width: 120px;">
-                                        <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="{{ $mitra->posisi_mitra }}" style="width: 100%;">
+                                    <td class="px-6 py-4 whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none" placeholder="{{ $mitra->posisi_mitra }}" style="width: 100%;">
                                     </td>
                                     <td class="flex justify-center py-2 text-center">
                                         <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Ubah</button>
@@ -252,15 +252,15 @@
                                     </td>
                                 </form>
                                 @else
-                                <td class="border border-gray-350 p-0 text-center" style="max-width: 120px;">
+                                <td class="px-6 py-4 whitespace-nowrap text-center" style="max-width: 120px;">
                                     <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                        <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Vol" style="width: 100%;">
+                                        <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Vol" style="width: 100%;">
                                 </td>
-                                <td class="border border-gray-350 p-0 text-center" style="max-width: 120px;">
-                                        <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Honor" style="width: 100%;">
+                                <td class="px-6 py-4 whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Honor" style="width: 100%;">
                                 </td>
-                                <td class="border border-gray-350 p-0 text-center" style="max-width: 120px;">
-                                        <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none hover:bg-gray-200" placeholder="Masukkan Posisi Mitra" style="width: 100%;">
+                                <td class="px-6 py-4 whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Posisi Mitra" style="width: 100%;">
                                 </td>
                                 <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">
                                         @csrf
