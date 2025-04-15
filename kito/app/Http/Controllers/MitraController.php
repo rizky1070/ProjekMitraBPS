@@ -58,8 +58,12 @@ class MitraController extends Controller
     {
         \Carbon\Carbon::setLocale('id');
 
-        // Ambil daftar tahun dari tabel Mitra dan Survei (DISTINCT)
+        // Ambil daftar tahun dari tabel Mitra (tahun & tahun_selesai) dan Survei (jadwal_kegiatan)
         $tahunOptions = Mitra::selectRaw('YEAR(tahun) as tahun')
+            ->union(
+                Mitra::selectRaw('YEAR(tahun_selesai) as tahun')
+                    ->whereNotNull('tahun_selesai')
+            )
             ->union(
                 Survei::query()->selectRaw('YEAR(jadwal_kegiatan) as tahun')
             )
@@ -71,6 +75,10 @@ class MitraController extends Controller
         if ($request->filled('tahun')) {
             $bulanOptions = Mitra::selectRaw('MONTH(tahun) as bulan')
                 ->whereYear('tahun', $request->tahun)
+                ->union(
+                    Mitra::selectRaw('MONTH(tahun_selesai) as bulan')
+                        ->whereYear('tahun_selesai', $request->tahun)
+                )
                 ->union(
                     Survei::query()->selectRaw('MONTH(jadwal_kegiatan) as bulan')
                         ->whereYear('jadwal_kegiatan', $request->tahun)
@@ -123,7 +131,7 @@ class MitraController extends Controller
             ->orderBy('nama_lengkap')
             ->pluck('nama_lengkap', 'nama_lengkap');
 
-        // Query utama mitra dengan eager loading & hitung total_honor per mitra
+        // Query utama mitra
         $mitras = Mitra::with(['kecamatan', 'mitraSurvei' => function ($query) use ($request) {
                 $query->when($request->filled('tahun'), function ($q) use ($request) {
                     $q->whereYear('tgl_ikut_survei', $request->tahun);
@@ -158,13 +166,7 @@ class MitraController extends Controller
             ->when($request->filled('nama_lengkap'), function ($query) use ($request) {
                 $query->where('nama_lengkap', $request->nama_lengkap);
             })
-            ->get()
-            ->map(function ($mitra) use ($request) {
-                $mitra->total_honor = $mitra->mitraSurvei->sum(function ($item) {
-                    return $item->honor * $item->vol;
-                });
-                return $mitra;
-            });
+            ->get();
 
         return view('mitrabps.daftarMitra', compact(
             'mitras',
@@ -175,6 +177,7 @@ class MitraController extends Controller
             'request'
         ));
     }
+
 
 
     public function profilMitra(Request $request, $id_mitra)

@@ -160,10 +160,7 @@
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mitra</th>
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kecamatan</th>
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Survei yang Diikuti</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Tahun Diterima</th>
-                            @if(request()->has('bulan'))
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Honor</th>
-                            @endif
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kontrak</th>
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
@@ -173,12 +170,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->nama_lengkap }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->mitra_survei_count }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">{{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }}</td>
-                                @if(request()->has('bulan'))
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        {{ $mitra->total_honor ? number_format($mitra->total_honor, 0, ',', '.') : '-' }}
-                                    </td>
-                                @endif
+                                <td class="px-6 py-4 whitespace-nowrap text-center">{{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <a href="/profilMitra/{{ $mitra->id_mitra }}" class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
                                 </td>
