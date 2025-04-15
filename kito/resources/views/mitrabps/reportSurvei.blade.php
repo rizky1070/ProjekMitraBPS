@@ -175,7 +175,7 @@
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
-                                                <div class="ml-4">
+                                                <div>
                                                     <div class="text-sm font-medium text-gray-900">{{ $survei->nama_survei }}</div>
                                                     <div class="text-sm text-gray-500">{{ $survei->tim }}</div>
                                                 </div>
