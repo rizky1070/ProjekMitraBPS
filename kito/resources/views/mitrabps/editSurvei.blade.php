@@ -44,7 +44,7 @@
                 <div class="flex flex-col md:flex-row items-start md:items-center w-full">
                     <div class="w-full md:w-1/2">
                         <p><strong>Kecamatan :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
-                        <p><strong>Jadwal :</strong> {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan )->translatedFormat('j F Y') }}</p>
+                        <p><strong>Jadwal :</strong> {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan )->translatedFormat('j F Y') }} sampai {{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan )->translatedFormat('j F Y') }}</p>
                     </div>
                     <div class="w-full md:w-1/2">
                         <p><strong>Tim :</strong> {{ $survey->tim }}</p>
@@ -286,7 +286,7 @@
                 @csrf
                 <input type="file" name="file" accept=".xlsx, .xls" class="border p-2 w-full">
                     <p class="py-2 text-s">Belum punya file excel?  
-                        <a href="{{ asset('addSurvey.xlsx') }} " class=" text-blue-500 hover:text-blue-600 font-bold">
+                        <a href="{{ asset('addMitra2Survey.xlsx') }} " class=" text-blue-500 hover:text-blue-600 font-bold">
                             Download template disini.
                         </a>
                     </p>

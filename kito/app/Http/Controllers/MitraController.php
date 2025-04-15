@@ -143,7 +143,7 @@ class MitraController extends Controller
         ->when($request->filled('tahun'), function($query) use ($request) {
             $query->where(function($q) use ($request) {
                 $q->whereYear('tahun', $request->tahun)
-                  ->orWhereYear('tahun_selesai', $request->tahun);
+                ->orWhereYear('tahun_selesai', $request->tahun);
             });
         })
         ->when($request->filled('bulan'), function($query) use ($request) {
