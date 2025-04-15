@@ -16,7 +16,7 @@
 
     <title>Input Mitra BPS</title>
 </head>
-<body class="h-full">
+<body class="h-full bg-gray-200 mb-4">
     @if (session('success'))
     <script>
     swal("Success!", "{{ session('success') }}", "success");
@@ -44,7 +44,7 @@
                 <div class="flex flex-col md:flex-row items-start md:items-center w-full">
                     <div class="w-full md:w-1/2">
                         <p><strong>Kecamatan :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
-                        <p><strong>Jadwal :</strong> {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan )->translatedFormat('j F Y') }}</p>
+                        <p><strong>Pelaksanaan :</strong> {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan )->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan )->translatedFormat('j F Y') }}</p>
                     </div>
                     <div class="w-full md:w-1/2">
                         <p><strong>Tim :</strong> {{ $survey->tim }}</p>
@@ -205,14 +205,14 @@
                     mitraSelect.addEventListener('change', submitForm);
                 });
                 </script>
-                <div class="overflow-x-auto mx-4 p-2 bg-white rounded-lg shadow-md">
+                <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm mx-4">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mitra</th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Domisili</th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Survei yang Diikuti</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Tahun Mitra diterima</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kontrak</th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Vol</th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rate Honor</th>
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Posisi</th>
@@ -227,7 +227,7 @@
                                 </td>
                                 <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
                                 <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->mitra_survei_count }}</td>
-                                <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ \Carbon\Carbon::parse($mitra->tahun )->translatedFormat('j F Y') }}</td>
+                                <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ \Carbon\Carbon::parse($mitra->tahun )->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($mitra->tahun_selesai )->translatedFormat('j F Y') }}</td>
 
                                 
                                 @if ($mitra->vol && $mitra->honor && $mitra->posisi_mitra)

@@ -144,7 +144,7 @@ class DaftarSurveiBpsController extends Controller
                 $query->withPivot('posisi_mitra');
             }
         ])
-        ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'kro', 'id_kecamatan', 'tim')
+        ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'jadwal_berakhir_kegiatan', 'kro', 'id_kecamatan', 'tim')
         ->where('id_survei', $id_survei)
         ->firstOrFail();
 
@@ -227,6 +227,8 @@ class DaftarSurveiBpsController extends Controller
         ->when($request->filled('nama_lengkap'), function($query) use ($request) {
             $query->where('nama_lengkap', $request->nama_lengkap);
         })
+        ->whereDate('tahun', '<=', $survey->jadwal_kegiatan)
+        ->whereDate('tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan)
         ->orderByDesc('posisi_mitra')
         ->orderByRaw('mitra.id_kecamatan = ? DESC', [$survey->id_kecamatan])
         ->paginate(10);
@@ -241,6 +243,7 @@ class DaftarSurveiBpsController extends Controller
             'request'
         ));
     }
+
 
 
     public function updateMitraOnSurvei(Request $request, $id_survei, $id_mitra)
