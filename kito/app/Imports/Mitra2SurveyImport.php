@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use Illuminate\Support\Facades\Log;
 use App\Models\Mitra;
 use App\Models\MitraSurvei;
 use App\Models\Survei; // Tambahkan ini untuk mengakses model Survei
@@ -32,9 +33,8 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
     public function model(array $row)
     {
         // Convert Excel date formats to Y-m-d
-        $tahunMasuk = $this->convertExcelDate($row['tahun_masuk_mitra']);
-        $tahunBerakhir = $this->convertExcelDate($row['tahun_berakhir_mitra']);
-        $tglIkutSurvei = $this->convertExcelDate($row['tgl_ikut_survei']);
+        $tahunMasuk = $this->parseDate($row['tahun_masuk_mitra']);
+        $tglIkutSurvei = $this->parseDate($row['tgl_ikut_survei']);
 
         // Cari mitra berdasarkan sobat_id bulan dan tahun
         $mitra = Mitra::where('sobat_id', $row['sobat_id'])
@@ -50,7 +50,7 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
         $jadwalMulaiSurvei = Carbon::parse($this->survei->jadwal_kegiatan);
         $jadwalBerakhirSurvei = Carbon::parse($this->survei->jadwal_berakhir_kegiatan);
         $tahunMasukMitra = Carbon::parse($tahunMasuk);
-        $tahunBerakhirMitra = Carbon::parse($tahunBerakhir);
+        $tahunBerakhirMitra = Carbon::parse($mitra->tahun_selesai);
 
         // Cek apakah periode aktif mitra overlap dengan periode survei
         if ($tahunBerakhirMitra < $jadwalMulaiSurvei || $tahunMasukMitra > $jadwalBerakhirSurvei) {
@@ -111,11 +111,9 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
             'rate_honor' => 'required|string',
             'catatan' => 'nullable|string',
             'nilai' => 'nullable|string|min:1|max:5',
-            'tahun_masuk_mitra' => 'required|date',
-            'tahun_berakhir_mitra' => 'required|date',
+            'tahun_masuk_mitra' => 'required',
             'tgl_ikut_survei' => [
                 'required',
-                'date',
                 function ($attribute, $value, $fail) {
                     if (!$this->survei) {
                         $fail("Data survei tidak ditemukan");
@@ -123,7 +121,7 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
                     }
                     
                     try {
-                        $tglIkut = Carbon::parse($this->convertExcelDate($value));
+                        $tglIkut = Carbon::parse($this->parseDate($value));
                         $jadwalMulai = Carbon::parse($this->survei->jadwal_kegiatan);
                         $jadwalBerakhir = Carbon::parse($this->survei->jadwal_berakhir_kegiatan);
                         
@@ -138,22 +136,36 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
         ];
     }
 
-    protected function convertExcelDate($date)
+    private function parseDate($date)
     {
-        // Try to parse as Excel date (serial number)
-        if (is_numeric($date)) {
-            return Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($date))->format('Y-m-d');
-        }
-        
-        // Try to parse as string date
         try {
-            return Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
-        } catch (\Exception $e) {
-            try {
-                return Carbon::parse($date)->format('Y-m-d');
-            } catch (\Exception $e) {
-                throw new \Exception("Format tanggal tidak valid: {$date}");
+            if (empty($date)) {
+                return null;
             }
+
+            if ($date instanceof \DateTimeInterface) {
+                return Carbon::instance($date);
+            }
+
+            if (is_numeric($date)) {
+                $unixDate = ($date - 25569) * 86400;
+                return Carbon::createFromTimestamp($unixDate);
+            }
+
+            if (is_string($date)) {
+                if (preg_match('/^\d+$/', $date)) {
+                    $unixDate = ($date - 25569) * 86400;
+                    return Carbon::createFromTimestamp($unixDate);
+                }
+                
+                return Carbon::parse($date);
+            }
+
+            throw new \Exception("Format tanggal tidak dikenali");
+            
+        } catch (\Exception $e) {
+            Log::error("Gagal parsing tanggal: {$date} - Error: " . $e->getMessage());
+            throw new \Exception("Format tanggal tidak valid: {$date}");
         }
     }
 

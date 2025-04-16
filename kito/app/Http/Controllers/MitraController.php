@@ -307,7 +307,13 @@ class MitraController extends Controller
         try {
             Excel::import($import, $request->file('file'));
             
-            $allErrors = $import->getErrors();
+            // Gabungkan semua error (baik dari validasi Laravel maupun custom)
+            $allErrors = [];
+            
+            // Tangkap error dari ValidationException
+            if (!empty($import->getErrors())) {
+                $allErrors = array_merge($allErrors, $import->getErrors());
+            }
             
             if (!empty($allErrors)) {
                 return redirect()->back()
@@ -316,20 +322,14 @@ class MitraController extends Controller
             }
 
             return redirect()->back()
-                ->with('success', 'Data Mitra berhasil diimport!');
+                ->with('success', 'Data survei berhasil diimport!');
                 
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $errorMessages = collect($e->failures())
                 ->map(function($failure) {
                     return 'Baris ' . $failure->row() . ' : ' . implode(', ', $failure->errors());
                 })
-                ->take(10) // Ambil maksimal 10 error
-                ->all();
-                
-            // Tambahkan pesan jika ada lebih dari 10 error
-            if (count($e->failures()) > 10) {
-                $errorMessages[] = "Dan " . (count($e->failures()) - 10) . " error lainnya...";
-            }
+                ->toArray();
                 
             return redirect()->back()
                 ->withErrors(['file' => $errorMessages])
@@ -337,7 +337,7 @@ class MitraController extends Controller
                 
         } catch (\Exception $e) {
             return redirect()->back()
-                ->withErrors(['file' => 'Terjadi kesalahan: ' . $e->getMessage()])
+                ->withErrors(['file' => ['Terjadi kesalahan sistem: ' . $e->getMessage()]])
                 ->withInput();
         }
     }

@@ -18,7 +18,6 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
     private $errors = [];
     private $defaultProvinsi = '35';
     private $defaultKabupaten = '16';
-    private $maxErrors = 10;
     
     public function model(array $row)
     {
