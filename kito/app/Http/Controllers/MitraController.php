@@ -90,12 +90,16 @@ class MitraController extends Controller
             ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request) {
                 $query->whereHas('mitras', function($q) use ($request) {
                     if ($request->filled('tahun')) {
-                        $q->whereYear('tahun', $request->tahun)
-                        ->orWhereYear('tahun_selesai', $request->tahun);
+                        $q->where(function($query) use ($request) {
+                            $query->whereYear('tahun', '<=', $request->tahun)
+                                ->whereYear('tahun_selesai', '>=', $request->tahun);
+                        });
                     }
                     if ($request->filled('bulan')) {
-                        $q->whereMonth('tahun', $request->bulan)
-                        ->orWhereMonth('tahun_selesai', $request->bulan);
+                        $q->where(function($query) use ($request) {
+                            $query->whereMonth('tahun', '<=', $request->bulan)
+                                ->whereMonth('tahun_selesai', '>=', $request->bulan);
+                        });
                     }
                 });
             })
@@ -106,51 +110,28 @@ class MitraController extends Controller
         $namaMitraOptions = Mitra::select('nama_lengkap')
             ->distinct()
             ->when($request->filled('tahun'), function($query) use ($request) {
-                $query->where(function($q) use ($request) {
-                    $q->whereYear('tahun', $request->tahun)
-                    ->orWhereYear('tahun_selesai', $request->tahun);
-                });
+                $query->whereYear('tahun', '<=', $request->tahun)
+                      ->whereYear('tahun_selesai', '>=', $request->tahun);
             })
             ->when($request->filled('bulan'), function($query) use ($request) {
-                $query->where(function($q) use ($request) {
-                    $q->whereMonth('tahun', $request->bulan)
-                    ->orWhereMonth('tahun_selesai', $request->bulan);
-                });
+                $query->whereMonth('tahun', '<=', $request->bulan)
+                      ->whereMonth('tahun_selesai', '>=', $request->bulan);
             })
             ->when($request->filled('kecamatan'), function($query) use ($request) {
                 $query->where('id_kecamatan', $request->kecamatan);
             })
-            ->orderBy('nama_lengkap')
             ->pluck('nama_lengkap', 'nama_lengkap');
 
         // Query utama untuk data mitra (dengan relasi & pagination)
-        $mitras = Mitra::with(['kecamatan', 'mitraSurvei' => function($query) use ($request) {
-                $query->when($request->filled('tahun'), function($q) use ($request) {
-                    $q->whereYear('tgl_ikut_survei', $request->tahun);
-                })
-                ->when($request->filled('bulan'), function($q) use ($request) {
-                    $q->whereMonth('tgl_ikut_survei', $request->bulan);
-                });
-            }])
-            ->withCount(['mitraSurvei' => function($query) use ($request) {
-                $query->when($request->filled('tahun'), function($q) use ($request) {
-                    $q->whereYear('tgl_ikut_survei', $request->tahun);
-                })
-                ->when($request->filled('bulan'), function($q) use ($request) {
-                    $q->whereMonth('tgl_ikut_survei', $request->bulan);
-                });
-            }])
+        $mitras = Mitra::with(['kecamatan', 'mitraSurvei'])
+            ->withCount('mitraSurvei')
             ->when($request->filled('tahun'), function($query) use ($request) {
-                $query->where(function($q) use ($request) {
-                    $q->whereYear('tahun', $request->tahun)
-                    ->orWhereYear('tahun_selesai', $request->tahun);
-                });
+                $query->whereYear('tahun', '<=', $request->tahun)
+                      ->whereYear('tahun_selesai', '>=', $request->tahun);
             })
             ->when($request->filled('bulan'), function($query) use ($request) {
-                $query->where(function($q) use ($request) {
-                    $q->whereMonth('tahun', $request->bulan)
-                    ->orWhereMonth('tahun_selesai', $request->bulan);
-                });
+                $query->whereMonth('tahun', '<=', $request->bulan)
+                      ->whereMonth('tahun_selesai', '>=', $request->bulan);
             })
             ->when($request->filled('kecamatan'), function($query) use ($request) {
                 $query->where('id_kecamatan', $request->kecamatan);
@@ -158,15 +139,15 @@ class MitraController extends Controller
             ->when($request->filled('nama_lengkap'), function($query) use ($request) {
                 $query->where('nama_lengkap', $request->nama_lengkap);
             })
+            ->orderBy('nama_lengkap')
             ->paginate(10);
 
         return view('mitrabps.daftarMitra', compact(
-            'mitras',
-            'tahunOptions',
-            'bulanOptions',
-            'kecamatanOptions',
-            'namaMitraOptions',
-            'request'
+            'mitras', 
+            'tahunOptions', 
+            'bulanOptions', 
+            'kecamatanOptions', 
+            'namaMitraOptions'
         ));
     }
 
