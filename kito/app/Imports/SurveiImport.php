@@ -16,83 +16,178 @@ use Carbon\Carbon;
 class SurveiImport implements ToModel, WithHeadingRow, WithValidation
 {
     private $errors = [];
+    private $defaultProvinsi = '35';
+    private $defaultKabupaten = '16';
     
     public function model(array $row)
     {
-        Log::info('Importing row: ', $row);
+        static $rowNumber = 1;
+        $row['__row__'] = $rowNumber++;
         
-        // Tetapkan kode provinsi dan kabupaten secara otomatis
-        $kodeProvinsi = '35';  // Default provinsi
-        $kodeKabupaten = '16'; // Default kabupaten
-        
-        // Cari provinsi
-        $provinsi = Provinsi::where('id_provinsi', $kodeProvinsi)->first();
-        if (!$provinsi) {
-            throw new \Exception("Provinsi default (kode: 35) tidak ditemukan di database.");
+        try {
+    
+            // Skip baris kosong
+            if ($this->isEmptyRow($row)) {
+                return null;
+            }
+
+            Log::info('Importing row: ', $row);
+            
+            // Dapatkan data wilayah
+            $provinsi = $this->getProvinsi();
+            $kabupaten = $this->getKabupaten($provinsi);
+            $kecamatan = $this->getKecamatan($row, $kabupaten);
+            $desa = $this->getDesa($row, $kecamatan);
+
+            // Parse tanggal
+            $jadwalMulai = $this->parseDate($row['jadwal'] ?? null);
+            $jadwalBerakhir = $this->parseDate($row['jadwal_berakhir'] ?? null);
+
+            // Validasi tanggal
+            $this->validateDates($jadwalMulai, $jadwalBerakhir);
+            
+            return new Survei([
+                'nama_survei' => $row['nama_survei'], 
+                'lokasi_survei' => $row['lokasi_survei'] ?? null,
+                'id_desa' => $desa->id_desa,
+                'id_kecamatan' => $kecamatan->id_kecamatan,
+                'id_kabupaten' => $kabupaten->id_kabupaten,
+                'id_provinsi' => $provinsi->id_provinsi,
+                'kro' => $row['kro'],
+                'jadwal_kegiatan' => $jadwalMulai,
+                'jadwal_berakhir_kegiatan' => $jadwalBerakhir,
+                'status_survei' => 1, 
+                'tim' => $row['tim']
+            ]);
+        } catch (\Exception $e) {
+            $this->errors[] = "Baris {$row['__row__']} : " . $e->getMessage();
+            return null;
         }
-        
-        // Cari kabupaten
-        $kabupaten = Kabupaten::where('id_kabupaten', $kodeKabupaten)
+    }
+    
+    private function isEmptyRow(array $row): bool
+    {
+        return empty($row['nama_survei']) && empty($row['kro']) && empty($row['tim']);
+    }
+    
+    private function getProvinsi()
+    {
+        $provinsi = Provinsi::where('id_provinsi', $this->defaultProvinsi)->first();
+        if (!$provinsi) {
+            throw new \Exception("Provinsi default (kode: {$this->defaultProvinsi}) tidak ditemukan di database.");
+        }
+        return $provinsi;
+    }
+    
+    private function getKabupaten($provinsi)
+    {
+        $kabupaten = Kabupaten::where('id_kabupaten', $this->defaultKabupaten)
             ->where('id_provinsi', $provinsi->id_provinsi)
             ->first();
         if (!$kabupaten) {
-            throw new \Exception("Kabupaten default (kode: 16) tidak ditemukan di provinsi {$provinsi->nama}.");
+            throw new \Exception("Kabupaten default (kode: {$this->defaultKabupaten}) tidak ditemukan di provinsi {$provinsi->nama}.");
+        }
+        return $kabupaten;
+    }
+    
+    private function getKecamatan(array $row, $kabupaten)
+    {
+        if (empty($row['kode_kecamatan'])) {
+            throw new \Exception("Kode kecamatan harus diisi");
         }
         
-        // Cari kecamatan (harus diisi di Excel)
         $kecamatan = Kecamatan::where('kode_kecamatan', $row['kode_kecamatan'])
             ->where('id_kabupaten', $kabupaten->id_kabupaten)
             ->first();
         if (!$kecamatan) {
             throw new \Exception("Kode kecamatan {$row['kode_kecamatan']} tidak ditemukan di kabupaten {$kabupaten->nama_kabupaten}.");
         }
+        return $kecamatan;
+    }
+    
+    private function getDesa(array $row, $kecamatan)
+    {
+        if (empty($row['kode_desa'])) {
+            throw new \Exception("Kode desa harus diisi");
+        }
         
-        // Cari desa (harus diisi di Excel)
         $desa = Desa::where('kode_desa', $row['kode_desa'])
             ->where('id_kecamatan', $kecamatan->id_kecamatan)
             ->first();
         if (!$desa) {
             throw new \Exception("Kode desa {$row['kode_desa']} tidak ditemukan di kecamatan {$kecamatan->nama_kecamatan}.");
         }
-        
-        return new Survei([
-            'nama_survei' => $row['nama_survei'], 
-            'lokasi_survei' => $row['lokasi_survei'] ?? null,
-            'id_desa' => $desa->id_desa,
-            'id_kecamatan' => $kecamatan->id_kecamatan,
-            'id_kabupaten' => $kabupaten->id_kabupaten,
-            'id_provinsi' => $provinsi->id_provinsi,
-            'kro' => $row['kro'],
-            'jadwal_kegiatan' => isset($row['jadwal']) ? $this->parseDate($row['jadwal']) : null,
-            'jadwal_berakhir_kegiatan' => isset($row['jadwal_berakhir']) ? $this->parseDate($row['jadwal_berakhir']) : null,
-            'status_survei' => 1, 
-            'tim' => $row['tim']
-        ]);
+        return $desa;
     }
     
+    private function validateDates($jadwalMulai, $jadwalBerakhir)
+    {
+        if (!$jadwalMulai) {
+            throw new \Exception("Tanggal jadwal mulai tidak valid");
+        }
+        
+        if (!$jadwalBerakhir) {
+            throw new \Exception("Tanggal jadwal berakhir tidak valid");
+        }
+        
+        if ($jadwalBerakhir->lt($jadwalMulai)) {
+            throw new \Exception("Tanggal berakhir harus setelah tanggal mulai");
+        }
+        
+        // Validasi tahun masuk dalam range wajar
+        $currentYear = date('Y');
+        if ($jadwalMulai->year < 2000 || $jadwalMulai->year > $currentYear + 5) {
+            throw new \Exception("Tahun jadwal tidak valid (harus antara 2000-".($currentYear + 5).")");
+        }
+    }
+
     public function rules(): array
     {
         return [
-            'nama_survei' => 'required|string',
-            'kode_desa' => 'required|string',
-            'kode_kecamatan' => 'required|string',
-            'kro' => 'required|string',
-            'tim' => 'required|string',
-            'lokasi_survei' => 'required|string',
-            'jadwal' => 'required', // Format: 2024-01-01
-            'jadwal_berakhir' => 'required|after:jadwal', // Harus setelah jadwal
-            // Tidak perlu validasi kode_provinsi & kode_kabupaten karena sudah otomatis
+            'nama_survei' => 'required|string|max:255',
+            'kode_desa' => 'required|string|max:3',
+            'kode_kecamatan' => 'required|string|max:3',
+            'kro' => 'required|string|max:100',
+            'tim' => 'required|string|max:255',
+            'lokasi_survei' => 'required|string|max:255',
+            'jadwal' => 'required',
+            'jadwal_berakhir' => 'required|after:jadwal'
         ];
     }
     
     private function parseDate($date)
     {
         try {
-            return Carbon::parse($date);
+            if (empty($date)) {
+                return null;
+            }
+
+            if ($date instanceof \DateTimeInterface) {
+                return Carbon::instance($date);
+            }
+
+            if (is_numeric($date)) {
+                $unixDate = ($date - 25569) * 86400;
+                return Carbon::createFromTimestamp($unixDate);
+            }
+
+            if (is_string($date)) {
+                if (preg_match('/^\d+$/', $date)) {
+                    $unixDate = ($date - 25569) * 86400;
+                    return Carbon::createFromTimestamp($unixDate);
+                }
+                
+                return Carbon::parse($date);
+            }
+
+            throw new \Exception("Format tanggal tidak dikenali");
+            
         } catch (\Exception $e) {
-            return null;
+            Log::error("Gagal parsing tanggal: {$date} - Error: " . $e->getMessage());
+            throw new \Exception("Format tanggal tidak valid: {$date}");
         }
     }
+
     
     public function onError(\Throwable $e)
     {

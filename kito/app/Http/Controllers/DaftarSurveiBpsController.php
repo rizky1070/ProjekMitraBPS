@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\Mitra2SurveyImport;
 use App\Imports\SurveiImport;
-use Exception; // Untuk menangani error
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -334,7 +333,7 @@ class DaftarSurveiBpsController extends Controller
             
             return redirect()->back()
                 ->withErrors(['file' => $errorMessages]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return redirect()->back()
                 ->withErrors(['file' => $e->getMessage()]);
         }
@@ -424,31 +423,47 @@ class DaftarSurveiBpsController extends Controller
     public function upExcelSurvei(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:xls,xlsx'
+            'file' => 'required|file|mimes:xls,xlsx|max:2048'
         ]);
 
         $import = new SurveiImport();
         
         try {
             Excel::import($import, $request->file('file'));
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-            $failures = $e->failures();
-            $errorMessages = [];
-            foreach ($failures as $failure) {
-                $errorMessages[] = 'Baris ' . $failure->row() . ': ' . implode(', ', $failure->errors());
+            
+            // Gabungkan semua error (baik dari validasi Laravel maupun custom)
+            $allErrors = [];
+            
+            // Tangkap error dari ValidationException
+            if (!empty($import->getErrors())) {
+                $allErrors = array_merge($allErrors, $import->getErrors());
             }
-            return redirect()->back()->withErrors(['file' => $errorMessages]);
-        } catch (Exception $e) {
-            return redirect()->back()
-                ->withErrors(['file' => 'Terjadi kesalahan: ' . $e->getMessage()]);
-        }
-        
-        if (!empty($import->getErrors())) {
-            return redirect()->back()
-                ->withErrors(['file' => $import->getErrors()]);
-        }
+            
+            if (!empty($allErrors)) {
+                return redirect()->back()
+                    ->withErrors(['file' => $allErrors])
+                    ->withInput();
+            }
 
-        return redirect()->back()->with('success', 'Data survei berhasil diimport!');
+            return redirect()->back()
+                ->with('success', 'Data survei berhasil diimport!');
+                
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $errorMessages = collect($e->failures())
+                ->map(function($failure) {
+                    return 'Baris ' . $failure->row() . ' : ' . implode(', ', $failure->errors());
+                })
+                ->toArray();
+                
+            return redirect()->back()
+                ->withErrors(['file' => $errorMessages])
+                ->withInput();
+                
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['file' => ['Terjadi kesalahan sistem: ' . $e->getMessage()]])
+                ->withInput();
+        }
     }
 
 }

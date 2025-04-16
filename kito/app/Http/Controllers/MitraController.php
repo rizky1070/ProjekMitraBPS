@@ -306,31 +306,47 @@ class MitraController extends Controller
     public function upExcelMitra(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:xls,xlsx'
+            'file' => 'required|file|mimes:xls,xlsx|max:2048'
         ]);
 
         $import = new MitraImport();
         
         try {
             Excel::import($import, $request->file('file'));
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-            $failures = $e->failures();
-            $errorMessages = [];
-            foreach ($failures as $failure) {
-                $errorMessages[] = 'Baris ' . $failure->row() . ': ' . implode(', ', $failure->errors());
+            
+            $allErrors = $import->getErrors();
+            
+            if (!empty($allErrors)) {
+                return redirect()->back()
+                    ->withErrors(['file' => $allErrors])
+                    ->withInput();
             }
-            return redirect()->back()->withErrors(['file' => $errorMessages]);
+
+            return redirect()->back()
+                ->with('success', 'Data Mitra berhasil diimport!');
+                
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $errorMessages = collect($e->failures())
+                ->map(function($failure) {
+                    return 'Baris ' . $failure->row() . ' : ' . implode(', ', $failure->errors());
+                })
+                ->take(10) // Ambil maksimal 10 error
+                ->all();
+                
+            // Tambahkan pesan jika ada lebih dari 10 error
+            if (count($e->failures()) > 10) {
+                $errorMessages[] = "Dan " . (count($e->failures()) - 10) . " error lainnya...";
+            }
+                
+            return redirect()->back()
+                ->withErrors(['file' => $errorMessages])
+                ->withInput();
+                
         } catch (\Exception $e) {
             return redirect()->back()
-                ->withErrors(['file' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+                ->withErrors(['file' => 'Terjadi kesalahan: ' . $e->getMessage()])
+                ->withInput();
         }
-        
-        if (!empty($import->getErrors())) {
-            return redirect()->back()
-                ->withErrors(['file' => $import->getErrors()]);
-        }
-
-        return redirect()->back()->with('success', 'Data Mitra berhasil diimport!');
     }
 
 
