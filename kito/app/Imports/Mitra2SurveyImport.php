@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Mitra;
 use App\Models\MitraSurvei;
+use App\Models\Survei; // Tambahkan ini untuk mengakses model Survei
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -20,25 +21,46 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
     use SkipsErrors, SkipsFailures;
 
     protected $id_survei;
+    protected $survei; // Untuk menyimpan data survei
 
     public function __construct($id_survei)
     {
         $this->id_survei = $id_survei;
+        $this->survei = Survei::find($id_survei); // Ambil data survei
     }
 
     public function model(array $row)
     {
-        // Ambil tahun dari Excel dan konversi ke format Y-m-d (1 Januari tahun tersebut)
-        $tahun = $row['tahun_mitra'];
-        $tahunDate = Carbon::createFromDate($tahun, 1, 1)->format('Y-m-d');
+        // Convert Excel date formats to Y-m-d
+        $tahunMasuk = $this->convertExcelDate($row['tahun_masuk_mitra']);
+        $tahunBerakhir = $this->convertExcelDate($row['tahun_berakhir_mitra']);
+        $tglIkutSurvei = $this->convertExcelDate($row['tgl_ikut_survei']);
 
-        // Cari mitra berdasarkan sobat_id dan tahun (hanya bandingkan tahunnya saja)
+        // Cari mitra berdasarkan sobat_id bulan dan tahun
         $mitra = Mitra::where('sobat_id', $row['sobat_id'])
-                     ->whereYear('tahun', $tahun)
-                     ->first();
+                    ->whereMonth('tahun', Carbon::parse($tahunMasuk)->month)
+                    ->whereYear('tahun', Carbon::parse($tahunMasuk)->year)
+                    ->first();
 
         if (!$mitra) {
-            throw new \Exception("Mitra dengan SOBAT ID {$row['sobat_id']} dan tahun {$tahun} tidak ditemukan");
+            throw new \Exception("Mitra dengan SOBAT ID {$row['sobat_id']} pada bulan " . Carbon::parse($tahunMasuk)->month . " dan tahun masuk " . Carbon::parse($tahunMasuk)->year . " tidak ditemukan");
+        }
+
+        // Pengecekan periode aktif mitra dengan periode survei
+        $jadwalMulaiSurvei = Carbon::parse($this->survei->jadwal_kegiatan);
+        $jadwalBerakhirSurvei = Carbon::parse($this->survei->jadwal_berakhir_kegiatan);
+        $tahunMasukMitra = Carbon::parse($tahunMasuk);
+        $tahunBerakhirMitra = Carbon::parse($tahunBerakhir);
+
+        // Cek apakah periode aktif mitra overlap dengan periode survei
+        if ($tahunBerakhirMitra < $jadwalMulaiSurvei || $tahunMasukMitra > $jadwalBerakhirSurvei) {
+            throw new \Exception("Mitra dengan SOBAT ID {$row['sobat_id']} tidak aktif pada periode survei ({$jadwalMulaiSurvei->format('d-m-Y')} sampai {$jadwalBerakhirSurvei->format('d-m-Y')})");
+        }
+
+        // Cek apakah tgl ikut survei berada dalam periode survei
+        $tglIkut = Carbon::parse($tglIkutSurvei);
+        if ($tglIkut < $jadwalMulaiSurvei || $tglIkut > $jadwalBerakhirSurvei) {
+            throw new \Exception("Tanggal ikut survei {$tglIkut->format('d-m-Y')} tidak berada dalam periode survei ({$jadwalMulaiSurvei->format('d-m-Y')} sampai {$jadwalBerakhirSurvei->format('d-m-Y')})");
         }
 
         // Cek apakah kombinasi id_mitra dan id_survei sudah ada
@@ -47,9 +69,14 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
                                 ->first();
 
         if ($existingMitra) {
-            // Jika sudah ada, lakukan update posisi_mitra
+            // Jika sudah ada, lakukan update
             $existingMitra->update([
-                'posisi_mitra' => $row['posisi']
+                'posisi_mitra' => $row['posisi'],
+                'vol' => $row['vol'],
+                'honor' => $row['rate_honor'],
+                'catatan' => $row['catatan'],
+                'nilai' => $row['nilai'],
+                'tgl_ikut_survei' => $tglIkutSurvei,
             ]);
             return null; // Tidak perlu menambah data baru
         }
@@ -59,6 +86,11 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
             'id_mitra' => $mitra->id_mitra,
             'id_survei' => $this->id_survei,
             'posisi_mitra' => $row['posisi'],
+            'vol' => $row['vol'],
+            'honor' => $row['rate_honor'],
+            'catatan' => $row['catatan'],
+            'nilai' => $row['nilai'],
+            'tgl_ikut_survei' => $tglIkutSurvei,
         ]);
     }
 
@@ -74,21 +106,55 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
                     }
                 }
             ],
-            'tahun_mitra' => [
+            'posisi' => 'required|string',
+            'vol' => 'required|string',
+            'rate_honor' => 'required|string',
+            'catatan' => 'nullable|string',
+            'nilai' => 'nullable|string|min:1|max:5',
+            'tahun_masuk_mitra' => 'required|date',
+            'tahun_berakhir_mitra' => 'required|date',
+            'tgl_ikut_survei' => [
                 'required',
-                'numeric',
-                'digits:4',
+                'date',
                 function ($attribute, $value, $fail) {
-                    $sobatId = request()->input('sobat_id');
-                    if (!Mitra::where('sobat_id', $sobatId)
-                            ->whereYear('tahun', $value)
-                            ->exists()) {
-                        $fail("Mitra dengan SOBAT ID pada baris ini dan tahun {$value} tidak ditemukan");
+                    if (!$this->survei) {
+                        $fail("Data survei tidak ditemukan");
+                        return;
+                    }
+                    
+                    try {
+                        $tglIkut = Carbon::parse($this->convertExcelDate($value));
+                        $jadwalMulai = Carbon::parse($this->survei->jadwal_kegiatan);
+                        $jadwalBerakhir = Carbon::parse($this->survei->jadwal_berakhir_kegiatan);
+                        
+                        if ($tglIkut < $jadwalMulai || $tglIkut > $jadwalBerakhir) {
+                            $fail("Tanggal ikut survei harus berada antara {$jadwalMulai->format('d-m-Y')} sampai {$jadwalBerakhir->format('d-m-Y')}");
+                        }
+                    } catch (\Exception $e) {
+                        $fail("Format tanggal tidak valid: {$value}");
                     }
                 }
             ],
-            'posisi' => 'required|string',
         ];
+    }
+
+    protected function convertExcelDate($date)
+    {
+        // Try to parse as Excel date (serial number)
+        if (is_numeric($date)) {
+            return Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($date))->format('Y-m-d');
+        }
+        
+        // Try to parse as string date
+        try {
+            return Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
+        } catch (\Exception $e) {
+            try {
+                return Carbon::parse($date)->format('Y-m-d');
+            } catch (\Exception $e) {
+                throw new \Exception("Format tanggal tidak valid: {$date}");
+            }
+        }
     }
 
     public function onError(Throwable $e)
