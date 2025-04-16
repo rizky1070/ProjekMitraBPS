@@ -154,33 +154,48 @@
                     });
                 </script>
                 <!-- Table -->
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mitra</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kecamatan</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Survei yang Diikuti</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kontrak</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach ($mitras as $mitra)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->nama_lengkap }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->mitra_survei_count }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">{{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <a href="/profilMitra/{{ $mitra->id_mitra }}" class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                <div class="border rounded-lg shadow-sm bg-white bg-white p-1">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mitra</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kecamatan</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Survei yang Diikuti</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kontrak</th>
+                                    @if(request()->has('bulan'))
+                                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Honor</th>
+                                    @endif
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach ($mitras as $mitra)
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->nama_lengkap }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->mitra_survei_count }}</td>
+                                        <td class="text-center whitespace-normal break-words" style="max-width: 120px;">{{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}</td>
+                                        @if(request()->has('bulan'))
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            @php
+                                            $totalHonor = $mitra->mitraSurvei->sum(function($survei) {
+                                                return $survei->honor * $survei->vol;
+                                            })
+                                            @endphp
+                                            Rp{{ number_format($totalHonor, 0, ',', '.') }}
+                                            </td>
+                                        @endif
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <a href="/profilMitra/{{ $mitra->id_mitra }}" class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
-                    @include('components.pagination', ['paginator' => $mitras])
                 </div>
+                @include('components.pagination', ['paginator' => $mitras])
             </main>
         </div>
     </div>

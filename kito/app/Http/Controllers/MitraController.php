@@ -123,24 +123,36 @@ class MitraController extends Controller
             ->pluck('nama_lengkap', 'nama_lengkap');
 
         // Query utama untuk data mitra (dengan relasi & pagination)
-        $mitras = Mitra::with(['kecamatan', 'mitraSurvei'])
+        $mitras = Mitra::with(['kecamatan','mitraSurvei' 
+            => function ($query) {$query->select('id_mitra', 'honor', 'vol');}])
             ->withCount('mitraSurvei')
-            ->when($request->filled('tahun'), function($query) use ($request) {
-                $query->whereYear('tahun', '<=', $request->tahun)
-                      ->whereYear('tahun_selesai', '>=', $request->tahun);
-            })
-            ->when($request->filled('bulan'), function($query) use ($request) {
-                $query->whereMonth('tahun', '<=', $request->bulan)
-                      ->whereMonth('tahun_selesai', '>=', $request->bulan);
-            })
-            ->when($request->filled('kecamatan'), function($query) use ($request) {
-                $query->where('id_kecamatan', $request->kecamatan);
-            })
-            ->when($request->filled('nama_lengkap'), function($query) use ($request) {
-                $query->where('nama_lengkap', $request->nama_lengkap);
-            })
+                ->when($request->filled('tahun'), function($query) use ($request) {
+                    $query->whereYear('tahun', '<=', $request->tahun)
+                        ->whereYear('tahun_selesai', '>=', $request->tahun);
+                })
+                ->when($request->filled('bulan'), function($query) use ($request) {
+                    $query->whereMonth('tahun', '<=', $request->bulan)
+                        ->whereMonth('tahun_selesai', '>=', $request->bulan);
+                })
+                ->when($request->filled('kecamatan'), function($query) use ($request) {
+                    $query->where('id_kecamatan', $request->kecamatan);
+                })
+                ->when($request->filled('nama_lengkap'), function($query) use ($request) {
+                    $query->where('nama_lengkap', $request->nama_lengkap);
+                })
             ->orderBy('nama_lengkap')
             ->paginate(10);
+
+
+            $mitras->getCollection()->transform(function ($mitra) {
+                $totalHonor = $mitra->mitraSurvei->sum(function ($item) {
+                    return $item->honor * $item->vol;
+                });
+            
+                $mitra->total_honor = number_format($totalHonor, 0, ',', '.'); // Format rupiah tanpa Rp
+                return $mitra;
+            });
+            
 
         return view('mitrabps.daftarMitra', compact(
             'mitras', 

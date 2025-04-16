@@ -13,7 +13,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="/Logo BPS.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
-
     <title>Input Mitra BPS</title>
 </head>
 <body class="h-full bg-gray-200 mb-4">
@@ -204,74 +203,78 @@
                     kecamatanSelect.addEventListener('change', submitForm);
                     mitraSelect.addEventListener('change', submitForm);
                 });
-                </script>
-                <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm mx-4">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mitra</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Domisili</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Survei yang Diikuti</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kontrak</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Vol</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rate Honor</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Posisi</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($mitras as $mitra)
-                            <tr class="hover:bg-gray-50">
-                                <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                    <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
-                                </td>
-                                <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
-                                <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->mitra_survei_count }}</td>
-                                <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ \Carbon\Carbon::parse($mitra->tahun )->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($mitra->tahun_selesai )->translatedFormat('j F Y') }}</td>
 
-                                
-                                @if ($mitra->vol && $mitra->honor && $mitra->posisi_mitra)
-                                <!-- Vol -->
-                                <form action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                    @csrf
+                </script>
+                <div class="border rounded-lg shadow-sm bg-white bg-white p-1 mx-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mitra</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Domisili</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Survei yang Diikuti</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kontrak</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Vol</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rate Honor</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Posisi</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($mitras as $mitra)
+                                <tr class="hover:bg-gray-50">
                                     <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                        <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="{{ $mitra->vol }}" style="width: 100%;">
+                                        <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
                                     </td>
-                                    <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                        <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none" placeholder="Rp{{ number_format($mitra->honor, 0, ',', '.') }}" style="width: 100%;">
+                                    <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
+                                    <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->mitra_survei_count }}</td>
+                                    <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
+                                        {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - 
+                                        {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}
                                     </td>
-                                    <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                        <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none" placeholder="{{ $mitra->posisi_mitra }}" style="width: 100%;">
-                                    </td>
-                                    <td class="flex justify-center items-center py-2 text-center">
-                                        <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Ubah</button>
-                                </form>
-                                <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                    @if ($mitra->vol && $mitra->honor && $mitra->posisi_mitra)
+                                    <!-- Vol -->
+                                    <form action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
                                         @csrf
-                                        <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Hapus</button>
-                                    </td>
-                                </form>
-                                @else
-                                <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                    <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                        <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Vol" style="width: 100%;">
-                                </td>
-                                <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                        <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Honor" style="width: 100%;">
-                                </td>
-                                <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                        <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Posisi Mitra" style="width: 100%;">
-                                </td>
-                                <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">
-                                        @csrf
-                                        <button type="submit" class="bg-orange text-black px-3 rounded">Tambah</button>
+                                        <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
+                                            <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="{{ $mitra->vol }}" style="width: 100%;">
+                                        </td>
+                                        <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
+                                            <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none" placeholder="Rp{{ number_format($mitra->honor, 0, ',', '.') }}" style="width: 100%;">
+                                        </td>
+                                        <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
+                                            <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none" placeholder="{{ $mitra->posisi_mitra }}" style="width: 100%;">
+                                        </td>
+                                        <td class="flex justify-center items-center py-2 text-center">
+                                            <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Ubah</button>
                                     </form>
-                                </td>
-                                @endif
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                    <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Hapus</button>
+                                        </td>
+                                    </form>
+                                    @else
+                                    <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                            <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Vol" style="width: 100%;">
+                                    </td>
+                                    <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
+                                            <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Honor" style="width: 100%;">
+                                    </td>
+                                    <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
+                                            <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Posisi Mitra" style="width: 100%;">
+                                    </td>
+                                    <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">
+                                            @csrf
+                                            <button type="submit" class="bg-orange text-black px-3 rounded">Tambah</button>
+                                        </form>
+                                    </td>
+                                    @endif
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             @include('components.pagination', ['paginator' => $mitras])
