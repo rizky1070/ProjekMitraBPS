@@ -57,27 +57,22 @@ class MitraController extends Controller
     public function index(Request $request)
     {
         \Carbon\Carbon::setLocale('id');
-        
-        // Ambil daftar tahun dari tabel Mitra dan Survei (DISTINCT)
-        $tahunOptions = Mitra::selectRaw('YEAR(tahun) as tahun')
-            ->union(
-                Survei::query()->selectRaw('YEAR(jadwal_kegiatan) as tahun')
-            )
+
+        // Ambil daftar tahun dari survei_mitra.tgl_ikut_survei
+        $tahunOptions = mitraSurvei::selectRaw('YEAR(tgl_ikut_survei) as tahun')
+            ->distinct()
             ->orderByDesc('tahun')
             ->pluck('tahun', 'tahun');
 
         // Daftar bulan berdasarkan tahun yang dipilih
         $bulanOptions = [];
         if ($request->filled('tahun')) {
-            $bulanOptions = Mitra::selectRaw('MONTH(tahun) as bulan')
-                ->whereYear('tahun', $request->tahun)
-                ->union(
-                    Survei::query()->selectRaw('MONTH(jadwal_kegiatan) as bulan')
-                        ->whereYear('jadwal_kegiatan', $request->tahun)
-                )
+            $bulanOptions = mitraSurvei::selectRaw('MONTH(tgl_ikut_survei) as bulan')
+                ->whereYear('tgl_ikut_survei', $request->tahun)
+                ->distinct()
                 ->orderBy('bulan')
-                ->pluck('bulan', 'bulan')
-                ->mapWithKeys(function($month) {
+                ->pluck('bulan')
+                ->mapWithKeys(function ($month) {
                     $monthNumber = str_pad($month, 2, '0', STR_PAD_LEFT);
                     return [
                         $monthNumber => \Carbon\Carbon::create()->month($month)->translatedFormat('F')
@@ -85,83 +80,72 @@ class MitraController extends Controller
                 });
         }
 
-        // Filter kecamatan berdasarkan tahun/bulan (jika ada)
-        $kecamatanOptions = Kecamatan::query()
-            ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request) {
-                $query->whereHas('mitras', function($q) use ($request) {
-                    if ($request->filled('tahun')) {
-                        $q->where(function($query) use ($request) {
-                            $query->whereYear('tahun', '<=', $request->tahun)
-                                ->whereYear('tahun_selesai', '>=', $request->tahun);
-                        });
-                    }
-                    if ($request->filled('bulan')) {
-                        $q->where(function($query) use ($request) {
-                            $query->whereMonth('tahun', '<=', $request->bulan)
-                                ->whereMonth('tahun_selesai', '>=', $request->bulan);
-                        });
-                    }
-                });
-            })
-            ->orderBy('nama_kecamatan')
-            ->get(['nama_kecamatan', 'id_kecamatan', 'kode_kecamatan']);
+        // Filter kecamatan dari mitra yang punya survei_mitra sesuai filter
+        $kecamatanOptions = Kecamatan::whereHas('mitras.mitraSurvei', function ($query) use ($request) {
+            if ($request->filled('tahun')) {
+                $query->whereYear('tgl_ikut_survei', $request->tahun);
+            }
+            if ($request->filled('bulan')) {
+                $query->whereMonth('tgl_ikut_survei', $request->bulan);
+            }
+        })->orderBy('nama_kecamatan')->get(['nama_kecamatan', 'id_kecamatan', 'kode_kecamatan']);
 
-        // Filter nama mitra berdasarkan input pengguna
-        $namaMitraOptions = Mitra::select('nama_lengkap')
-            ->distinct()
-            ->when($request->filled('tahun'), function($query) use ($request) {
-                $query->whereYear('tahun', '<=', $request->tahun)
-                      ->whereYear('tahun_selesai', '>=', $request->tahun);
-            })
-            ->when($request->filled('bulan'), function($query) use ($request) {
-                $query->whereMonth('tahun', '<=', $request->bulan)
-                      ->whereMonth('tahun_selesai', '>=', $request->bulan);
+        // Filter nama mitra berdasarkan survei_mitra
+        $namaMitraOptions = Mitra::whereHas('mitraSurvei', function ($query) use ($request) {
+                if ($request->filled('tahun')) {
+                    $query->whereYear('tgl_ikut_survei', $request->tahun);
+                }
+                if ($request->filled('bulan')) {
+                    $query->whereMonth('tgl_ikut_survei', $request->bulan);
+                }
             })
             ->when($request->filled('kecamatan'), function($query) use ($request) {
                 $query->where('id_kecamatan', $request->kecamatan);
             })
+            ->select('nama_lengkap')
+            ->distinct()
             ->pluck('nama_lengkap', 'nama_lengkap');
 
-        // Query utama untuk data mitra (dengan relasi & pagination)
-        $mitras = Mitra::with(['kecamatan','mitraSurvei' 
-            => function ($query) {$query->select('id_mitra', 'honor', 'vol');}])
+        // Query utama daftar mitra
+        $mitras = Mitra::with(['kecamatan', 'mitraSurvei' => function ($query) {
+                $query->select('id_mitra', 'honor', 'vol', 'tgl_ikut_survei');
+            }])
             ->withCount('mitraSurvei')
-                ->when($request->filled('tahun'), function($query) use ($request) {
-                    $query->whereYear('tahun', '<=', $request->tahun)
-                        ->whereYear('tahun_selesai', '>=', $request->tahun);
-                })
-                ->when($request->filled('bulan'), function($query) use ($request) {
-                    $query->whereMonth('tahun', '<=', $request->bulan)
-                        ->whereMonth('tahun_selesai', '>=', $request->bulan);
-                })
-                ->when($request->filled('kecamatan'), function($query) use ($request) {
-                    $query->where('id_kecamatan', $request->kecamatan);
-                })
-                ->when($request->filled('nama_lengkap'), function($query) use ($request) {
-                    $query->where('nama_lengkap', $request->nama_lengkap);
-                })
+            ->whereHas('mitraSurvei', function ($query) use ($request) {
+                if ($request->filled('tahun')) {
+                    $query->whereYear('tgl_ikut_survei', $request->tahun);
+                }
+                if ($request->filled('bulan')) {
+                    $query->whereMonth('tgl_ikut_survei', $request->bulan);
+                }
+            })
+            ->when($request->filled('kecamatan'), function($query) use ($request) {
+                $query->where('id_kecamatan', $request->kecamatan);
+            })
+            ->when($request->filled('nama_lengkap'), function($query) use ($request) {
+                $query->where('nama_lengkap', $request->nama_lengkap);
+            })
             ->orderBy('nama_lengkap')
             ->paginate(10);
 
-
-            $mitras->getCollection()->transform(function ($mitra) {
-                $totalHonor = $mitra->mitraSurvei->sum(function ($item) {
-                    return $item->honor * $item->vol;
-                });
-            
-                $mitra->total_honor = number_format($totalHonor, 0, ',', '.'); // Format rupiah tanpa Rp
-                return $mitra;
+        // Hitung total honor per mitra
+        $mitras->getCollection()->transform(function ($mitra) {
+            $totalHonor = $mitra->mitraSurvei->sum(function ($item) {
+                return $item->honor * $item->vol;
             });
-            
+            $mitra->total_honor = number_format($totalHonor, 0, ',', '.');
+            return $mitra;
+        });
 
         return view('mitrabps.daftarMitra', compact(
-            'mitras', 
-            'tahunOptions', 
-            'bulanOptions', 
-            'kecamatanOptions', 
+            'mitras',
+            'tahunOptions',
+            'bulanOptions',
+            'kecamatanOptions',
             'namaMitraOptions'
         ));
     }
+
 
 
 
