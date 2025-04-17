@@ -150,6 +150,33 @@ class MitraController extends Controller
             
             $mitras = $mitrasQuery->paginate(10);
 
+            $mitras->getCollection()->transform(function ($mitra) use ($request) {
+                // Hitung total honor seperti sebelumnya
+                $totalHonor = $mitra->mitraSurvei->filter(function ($item) use ($request) {
+                    return (!$request->filled('tahun') || \Carbon\Carbon::parse($item->tgl_ikut_survei)->year == $request->tahun)
+                        && (!$request->filled('bulan') || \Carbon\Carbon::parse($item->tgl_ikut_survei)->month == $request->bulan);
+                })->sum(function ($item) {
+                    return $item->honor * $item->vol;
+                });
+                $mitra->total_honor = $totalHonor;
+            
+                // Hitung jumlah survei per bulan dan per tahun
+                $mitra->survei_bulan_count = $request->filled('bulan')
+                    ? $mitra->mitraSurvei->filter(function ($item) use ($request) {
+                        return \Carbon\Carbon::parse($item->tgl_ikut_survei)->month == $request->bulan;
+                    })->count()
+                    : null;
+            
+                $mitra->survei_tahun_count = $request->filled('tahun')
+                    ? $mitra->mitraSurvei->filter(function ($item) use ($request) {
+                        return \Carbon\Carbon::parse($item->tgl_ikut_survei)->year == $request->tahun;
+                    })->count()
+                    : null;
+            
+                return $mitra;
+            });
+            
+
         return view('mitrabps.daftarMitra', compact(
             'mitras',
             'tahunOptions',

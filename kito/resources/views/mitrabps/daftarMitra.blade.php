@@ -174,7 +174,17 @@
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->nama_lengkap }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->mitra_survei_count }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            @if(request()->has('bulan') && request()->has('tahun'))
+                                                {{ $mitra->survei_bulan_count }}
+                                            @elseif(request()->has('bulan'))
+                                                {{ $mitra->survei_bulan_count }}
+                                            @elseif(request()->has('tahun'))
+                                                {{ $mitra->survei_tahun_count }}
+                                            @else
+                                                {{ $mitra->mitra_survei_count }}
+                                            @endif
+                                        </td>
                                         <td class="text-center whitespace-normal break-words" style="max-width: 120px;">{{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}</td>
                                         @if(request()->has('bulan'))
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
