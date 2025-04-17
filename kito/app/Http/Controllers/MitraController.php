@@ -11,6 +11,7 @@ use App\Models\Desa;
 use App\Models\MitraSurvei;
 use App\Imports\MitraImport;
 use Maatwebsite\Excel\Facades\Excel;    
+use Illuminate\Support\Facades\DB;
 
 
 class MitraController extends Controller
@@ -107,35 +108,47 @@ class MitraController extends Controller
             ->pluck('nama_lengkap', 'nama_lengkap');
 
         // Query utama daftar mitra
-        $mitras = Mitra::with(['kecamatan', 'mitraSurvei' => function ($query) {
-                $query->select('id_mitra', 'honor', 'vol', 'tgl_ikut_survei');
-            }])
-            ->withCount('mitraSurvei')
-            ->whereHas('mitraSurvei', function ($query) use ($request) {
-                if ($request->filled('tahun')) {
-                    $query->whereYear('tgl_ikut_survei', $request->tahun);
-                }
-                if ($request->filled('bulan')) {
-                    $query->whereMonth('tgl_ikut_survei', $request->bulan);
-                }
-            })
-            ->when($request->filled('kecamatan'), function($query) use ($request) {
-                $query->where('id_kecamatan', $request->kecamatan);
-            })
-            ->when($request->filled('nama_lengkap'), function($query) use ($request) {
-                $query->where('nama_lengkap', $request->nama_lengkap);
-            })
-            ->orderBy('nama_lengkap')
-            ->paginate(10);
-
-        // Hitung total honor per mitra
-        $mitras->getCollection()->transform(function ($mitra) {
-            $totalHonor = $mitra->mitraSurvei->sum(function ($item) {
-                return $item->honor * $item->vol;
-            });
-            $mitra->total_honor = number_format($totalHonor, 0, ',', '.');
-            return $mitra;
-        });
+        $mitrasQuery = Mitra::with(['kecamatan', 'mitraSurvei' => function ($query) {
+                    $query->select('id_mitra', 'honor', 'vol', 'tgl_ikut_survei');
+                }])
+                ->withCount('mitraSurvei')
+                ->whereHas('mitraSurvei', function ($query) use ($request) {
+                    if ($request->filled('tahun')) {
+                        $query->whereYear('tgl_ikut_survei', $request->tahun);
+                    }
+                    if ($request->filled('bulan')) {
+                        $query->whereMonth('tgl_ikut_survei', $request->bulan);
+                    }
+                })
+                ->when($request->filled('kecamatan'), function($query) use ($request) {
+                    $query->where('id_kecamatan', $request->kecamatan);
+                })
+                ->when($request->filled('nama_lengkap'), function($query) use ($request) {
+                    $query->where('nama_lengkap', $request->nama_lengkap);
+                });
+            
+            // Kalau filter bulan aktif → urutkan berdasarkan total_honor
+            if ($request->filled('bulan')) {
+                $mitrasQuery->select('mitra.*')
+                    ->addSelect([
+                        'total_honor' => function ($query) use ($request) {
+                            $query->select(DB::raw('SUM(honor * vol)'))
+                                ->from('mitra_survei')
+                                ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
+                                ->when($request->filled('tahun'), function ($q) use ($request) {
+                                    $q->whereYear('tgl_ikut_survei', $request->tahun);
+                                })
+                                ->when($request->filled('bulan'), function ($q) use ($request) {
+                                    $q->whereMonth('tgl_ikut_survei', $request->bulan);
+                                });
+                        }
+                    ])
+                    ->orderByDesc('total_honor');
+            } else {
+                $mitrasQuery->orderBy('nama_lengkap');
+            }
+            
+            $mitras = $mitrasQuery->paginate(10);
 
         return view('mitrabps.daftarMitra', compact(
             'mitras',

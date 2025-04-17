@@ -177,14 +177,9 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->mitra_survei_count }}</td>
                                         <td class="text-center whitespace-normal break-words" style="max-width: 120px;">{{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}</td>
                                         @if(request()->has('bulan'))
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            @php
-                                            $totalHonor = $mitra->mitraSurvei->sum(function($survei) {
-                                                return $survei->honor * $survei->vol;
-                                            })
-                                            @endphp
-                                            Rp{{ number_format($totalHonor, 0, ',', '.') }}
-                                            </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            Rp{{ number_format($mitra->total_honor ?? 0, 0, ',', '.') }}
+                                        </td>
                                         @endif
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
                                             <a href="/profilMitra/{{ $mitra->id_mitra }}" class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
