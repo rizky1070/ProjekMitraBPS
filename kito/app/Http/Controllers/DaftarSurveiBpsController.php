@@ -288,24 +288,44 @@ class DaftarSurveiBpsController extends Controller
         $survey = Survei::findOrFail($id_survei);
         $mitra = Mitra::findOrFail($id_mitra);
 
+        // Cek apakah mitra sudah terdaftar di survei ini
         $mitra_survei = MitraSurvei::where('id_survei', $id_survei)
             ->where('id_mitra', $id_mitra)
             ->first();
 
         if ($mitra_survei) {
-            // Jika sudah ada, update posisi_mitra
-            $mitra_survei->vol = $request->input('vol');
-            $mitra_survei->honor = $request->input('honor');
-            $mitra_survei->posisi_mitra = $request->input('posisi_mitra');
-            // $mitra_survei->tgl_ikut_survei = now();
-            $mitra_survei->save();
+            // Jika sudah ada, update data
+            $mitra_survei->update([
+                'vol' => $request->vol,
+                'honor' => $request->honor,
+                'posisi_mitra' => $request->posisi_mitra
+            ]);
         } else {
-            // Jika belum ada, buat baru dengan tgl_ikut_survei = sekarang
-            $mitra->mitraSurvei()->attach($id_survei, [
-                'vol' => $request->input('vol'),
-                'honor' => $request->input('honor'),
-                'posisi_mitra' => $request->input('posisi_mitra'),
-                'tgl_ikut_survei' => now() // Tambahkan timestamp sekarang
+            // Cek jadwal tumpang tindih dan dapatkan data survei yang bertabrakan
+            $conflictingSurveys = $mitra->survei()
+                ->where(function($query) use ($survey) {
+                    $query->where(function($q) use ($survey) {
+                        $q->where('jadwal_kegiatan', '<', $survey->jadwal_berakhir_kegiatan)
+                        ->where('jadwal_berakhir_kegiatan', '>', $survey->jadwal_kegiatan);
+                    });
+                })
+                ->get();
+
+            if ($conflictingSurveys->isNotEmpty()) {
+                $conflictingNames = $conflictingSurveys->pluck('nama_survei')->implode(', ');
+                return redirect()->back()
+                    ->with('error', "Mitra sudah terdaftar di survei berikut dengan jadwal yang tumpang tindih : $conflictingNames")
+                    ->withInput();
+            }
+
+            // Jika tidak ada konflik, tambahkan mitra ke survei
+            MitraSurvei::create([
+                'id_mitra' => $id_mitra,
+                'id_survei' => $id_survei,
+                'vol' => $request->vol,
+                'honor' => $request->honor,
+                'posisi_mitra' => $request->posisi_mitra,
+                'tgl_ikut_survei' => now()
             ]);
         }
 
