@@ -5,7 +5,7 @@ namespace App\Imports;
 use Illuminate\Support\Facades\Log;
 use App\Models\Mitra;
 use App\Models\MitraSurvei;
-use App\Models\Survei; // Tambahkan ini untuk mengakses model Survei
+use App\Models\Survei;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -22,17 +22,16 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
     use SkipsErrors, SkipsFailures;
 
     protected $id_survei;
-    protected $survei; // Untuk menyimpan data survei
+    protected $survei;
 
     public function __construct($id_survei)
     {
         $this->id_survei = $id_survei;
-        $this->survei = Survei::find($id_survei); // Ambil data survei
+        $this->survei = Survei::find($id_survei);
     }
 
     public function model(array $row)
     {
-        // Convert Excel date formats to Y-m-d
         $tahunMasuk = $this->parseDate($row['tahun_masuk_mitra']);
         $tglIkutSurvei = $this->parseDate($row['tgl_ikut_survei']);
 
@@ -63,6 +62,28 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
             throw new \Exception("Tanggal ikut survei {$tglIkut->format('d-m-Y')} tidak berada dalam periode survei ({$jadwalMulaiSurvei->format('d-m-Y')} sampai {$jadwalBerakhirSurvei->format('d-m-Y')})");
         }
 
+        // Cek apakah mitra sudah terdaftar di survei lain dengan periode yang sama
+        $existingSurvei = MitraSurvei::with('survei')
+        ->where('id_mitra', $mitra->id_mitra)
+        ->whereHas('survei', function($query) use ($jadwalMulaiSurvei, $jadwalBerakhirSurvei) {
+            $query->where(function($q) use ($jadwalMulaiSurvei, $jadwalBerakhirSurvei) {
+                $q->whereBetween('jadwal_kegiatan', [$jadwalMulaiSurvei, $jadwalBerakhirSurvei])
+                ->orWhereBetween('jadwal_berakhir_kegiatan', [$jadwalMulaiSurvei, $jadwalBerakhirSurvei])
+                ->orWhere(function($q2) use ($jadwalMulaiSurvei, $jadwalBerakhirSurvei) {
+                    $q2->where('jadwal_kegiatan', '<=', $jadwalMulaiSurvei)
+                        ->where('jadwal_berakhir_kegiatan', '>=', $jadwalBerakhirSurvei);
+                });
+            });
+        })
+        ->where('id_survei', '!=', $this->id_survei)
+        ->first();
+
+        if ($existingSurvei) {
+        $surveiName = $existingSurvei->survei->nama_survei ?? 'Survei Tanpa Nama';
+
+        throw new \Exception("Mitra dengan SOBAT ID {$row['sobat_id']} sudah terdaftar di survei berikut dengan jadwal yang tumpang tindih : {$surveiName}");
+        }
+
         // Cek apakah kombinasi id_mitra dan id_survei sudah ada
         $existingMitra = MitraSurvei::where('id_mitra', $mitra->id_mitra)
                                 ->where('id_survei', $this->id_survei)
@@ -78,10 +99,9 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
                 'nilai' => $row['nilai'],
                 'tgl_ikut_survei' => $tglIkutSurvei,
             ]);
-            return null; // Tidak perlu menambah data baru
+            return null;
         }
 
-        // Jika belum ada, buat data baru
         return new MitraSurvei([
             'id_mitra' => $mitra->id_mitra,
             'id_survei' => $this->id_survei,

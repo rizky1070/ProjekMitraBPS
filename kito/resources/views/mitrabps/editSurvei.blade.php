@@ -24,13 +24,13 @@
 
     @if (session('error'))
     <script>
-    swal("Error!", "{{ session('error') }}", "error");
+    swal("Error!", "{!! session('error') !!}", "error");
     </script>
     @endif
-
+    
     @if ($errors->any())
     <script>
-    swal("Error!", "{{ implode(', ', $errors->all()) }}", "error");
+    swal("Error!", "{!! implode(', ', $errors->all()) !!}", "error");
     </script>
     @endif
     
