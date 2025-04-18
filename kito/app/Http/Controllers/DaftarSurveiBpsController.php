@@ -318,6 +318,13 @@ class DaftarSurveiBpsController extends Controller
                     ->withInput();
             }
 
+            // Tentukan tgl_ikut_survei berdasarkan kondisi tanggal hari ini
+            $today = now()->toDateString(); // Format YYYY-MM-DD
+            $start = $survey->jadwal_kegiatan;
+            $end = $survey->jadwal_berakhir_kegiatan;
+
+            $tgl_ikut_survei = ($today >= $start && $today <= $end) ? $today : $start;
+
             // Jika tidak ada konflik, tambahkan mitra ke survei
             MitraSurvei::create([
                 'id_mitra' => $id_mitra,
@@ -325,12 +332,13 @@ class DaftarSurveiBpsController extends Controller
                 'vol' => $request->vol,
                 'honor' => $request->honor,
                 'posisi_mitra' => $request->posisi_mitra,
-                'tgl_ikut_survei' => now()
+                'tgl_ikut_survei' => $tgl_ikut_survei
             ]);
         }
 
         return redirect()->back()->with('success', 'Mitra berhasil ditambahkan ke survei!');
     }
+
 
 
     public function upExcelMitra2Survey(Request $request, $id_survei)
