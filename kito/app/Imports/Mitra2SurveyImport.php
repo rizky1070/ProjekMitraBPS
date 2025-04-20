@@ -58,8 +58,8 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
 
         // Cek apakah tgl ikut survei berada dalam periode survei
         $tglIkut = Carbon::parse($tglIkutSurvei);
-        if ($tglIkut < $jadwalMulaiSurvei || $tglIkut > $jadwalBerakhirSurvei) {
-            throw new \Exception("Tanggal ikut survei {$tglIkut->format('d-m-Y')} tidak berada dalam periode survei ({$jadwalMulaiSurvei->format('d-m-Y')} sampai {$jadwalBerakhirSurvei->format('d-m-Y')})");
+        if ($tglIkut > $jadwalBerakhirSurvei) {
+            throw new \Exception("Tanggal ikut survei {$tglIkut->format('d-m-Y')} melebihi jadwal berakhir survei : {$jadwalBerakhirSurvei->format('d-m-Y')})");
         }
 
         // Cek apakah mitra sudah terdaftar di survei lain dengan periode yang sama
@@ -145,8 +145,8 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
                         $jadwalMulai = Carbon::parse($this->survei->jadwal_kegiatan);
                         $jadwalBerakhir = Carbon::parse($this->survei->jadwal_berakhir_kegiatan);
                         
-                        if ($tglIkut < $jadwalMulai || $tglIkut > $jadwalBerakhir) {
-                            $fail("Tanggal ikut survei harus berada antara {$jadwalMulai->format('d-m-Y')} sampai {$jadwalBerakhir->format('d-m-Y')}");
+                        if ($tglIkut > $jadwalBerakhir) {
+                            $fail("Tanggal ikut survei tidak boleh melebihi {$jadwalBerakhir->format('d-m-Y')}");
                         }
                     } catch (\Exception $e) {
                         $fail("Format tanggal tidak valid: {$value}");

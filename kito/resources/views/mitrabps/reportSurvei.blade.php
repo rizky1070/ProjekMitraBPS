@@ -189,9 +189,11 @@
                                                 {{ $survei->mitra_survei_count }} mitra
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $survei->jadwal_kegiatan }}
-                                        </td>
+                                        </td> --}}
+                                        <td class="text-center whitespace-normal break-words" style="max-width: 120px;">{{ \Carbon\Carbon::parse($survei->jadwal_kegiatan )->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($survei->jadwal_berakhir_kegiatan )->translatedFormat('j F Y') }}</td>
+
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @if($survei->mitra_survei_count > 0)
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">

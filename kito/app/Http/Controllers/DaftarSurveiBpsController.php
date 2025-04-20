@@ -149,16 +149,20 @@ class DaftarSurveiBpsController extends Controller
 
         \Carbon\Carbon::setLocale('id');
 
-        // Daftar tahun yang tersedia
-        $tahunOptions = Mitra::selectRaw('DISTINCT YEAR(tahun) as tahun')
+        // Daftar tahun yang tersedia (filter berdasarkan tanggal survei)
+        $tahunOptions = Mitra::whereDate('tahun', '<=', $survey->jadwal_kegiatan)
+            ->whereDate('tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan)
+            ->selectRaw('DISTINCT YEAR(tahun) as tahun')
             ->orderByDesc('tahun')
             ->pluck('tahun', 'tahun');
 
-        // Daftar bulan berdasarkan tahun yang dipilih
+        // Daftar bulan berdasarkan tahun yang dipilih (filter berdasarkan tanggal survei)
         $bulanOptions = [];
         if ($request->filled('tahun')) {
-            $bulanOptions = Mitra::selectRaw('DISTINCT MONTH(tahun) as bulan')
+            $bulanOptions = Mitra::whereDate('tahun', '<=', $survey->jadwal_kegiatan)
+                ->whereDate('tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan)
                 ->whereYear('tahun', $request->tahun)
+                ->selectRaw('DISTINCT MONTH(tahun) as bulan')
                 ->orderBy('bulan')
                 ->pluck('bulan', 'bulan')
                 ->mapWithKeys(function($month) {
@@ -169,10 +173,13 @@ class DaftarSurveiBpsController extends Controller
                 });
         }
 
-        // Daftar kecamatan berdasarkan tahun dan bulan yang dipilih
+        // Daftar kecamatan berdasarkan tahun dan bulan yang dipilih (filter berdasarkan tanggal survei)
         $kecamatanOptions = Kecamatan::query()
-            ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request) {
-                $query->whereHas('mitras', function($q) use ($request) {
+            ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request, $survey) {
+                $query->whereHas('mitras', function($q) use ($request, $survey) {
+                    $q->whereDate('tahun', '<=', $survey->jadwal_kegiatan)
+                    ->whereDate('tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan);
+                    
                     if ($request->filled('tahun')) {
                         $q->whereYear('tahun', $request->tahun);
                     }
@@ -184,8 +191,10 @@ class DaftarSurveiBpsController extends Controller
             ->orderBy('nama_kecamatan')
             ->get(['id_kecamatan', 'kode_kecamatan', 'nama_kecamatan']);
 
-        // Daftar nama mitra (nama lengkap)
-        $namaMitraOptions = Mitra::select('nama_lengkap')
+        // Daftar nama mitra (nama lengkap) (filter berdasarkan tanggal survei)
+        $namaMitraOptions = Mitra::whereDate('tahun', '<=', $survey->jadwal_kegiatan)
+            ->whereDate('tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan)
+            ->select('nama_lengkap')
             ->distinct()
             ->when($request->filled('tahun'), function($query) use ($request) {
                 $query->whereYear('tahun', $request->tahun);
@@ -199,7 +208,7 @@ class DaftarSurveiBpsController extends Controller
             ->orderBy('nama_lengkap')
             ->pluck('nama_lengkap', 'nama_lengkap');
 
-        // Query daftar mitra
+        // Query daftar mitra (sudah ada filter tanggal survei)
         $mitras = Mitra::with([
             'kecamatan',
             'mitraSurvei' => function($query) use ($id_survei) {
@@ -214,20 +223,20 @@ class DaftarSurveiBpsController extends Controller
         ->selectRaw('MAX(CASE WHEN mitra_survei.id_survei = ? THEN mitra_survei.honor ELSE NULL END) as honor', [$id_survei])
         ->selectRaw('MAX(CASE WHEN mitra_survei.id_survei = ? THEN mitra_survei.posisi_mitra ELSE NULL END) as posisi_mitra', [$id_survei])
         ->groupBy('mitra.id_mitra')
+        ->whereDate('mitra.tahun', '<=', $survey->jadwal_kegiatan)
+        ->whereDate('mitra.tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan)
         ->when($request->filled('tahun'), function($query) use ($request) {
-            $query->whereYear('tahun', $request->tahun);
+            $query->whereYear('mitra.tahun', $request->tahun);
         })
         ->when($request->filled('bulan'), function($query) use ($request) {
-            $query->whereMonth('tahun', $request->bulan);
+            $query->whereMonth('mitra.tahun', $request->bulan);
         })
         ->when($request->filled('kecamatan'), function($query) use ($request) {
-            $query->where('id_kecamatan', $request->kecamatan);
+            $query->where('mitra.id_kecamatan', $request->kecamatan);
         })
         ->when($request->filled('nama_lengkap'), function($query) use ($request) {
-            $query->where('nama_lengkap', $request->nama_lengkap);
+            $query->where('mitra.nama_lengkap', $request->nama_lengkap);
         })
-        ->whereDate('tahun', '<=', $survey->jadwal_kegiatan)
-        ->whereDate('tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan)
         ->orderByDesc('posisi_mitra')
         ->orderByRaw('mitra.id_kecamatan = ? DESC', [$survey->id_kecamatan])
         ->paginate(10);
@@ -288,6 +297,14 @@ class DaftarSurveiBpsController extends Controller
         $survey = Survei::findOrFail($id_survei);
         $mitra = Mitra::findOrFail($id_mitra);
 
+        // Cek apakah survei sudah lewat dari jadwal berakhir
+        $today = now()->toDateString();
+        if ($today > $survey->jadwal_berakhir_kegiatan) {
+            return redirect()->back()
+                ->with('error', "Tidak bisa menambahkan mitra karena survei sudah berakhir pada {$survey->jadwal_berakhir_kegiatan}")
+                ->withInput();
+        }
+
         // Cek apakah mitra sudah terdaftar di survei ini
         $mitra_survei = MitraSurvei::where('id_survei', $id_survei)
             ->where('id_mitra', $id_mitra)
@@ -319,7 +336,6 @@ class DaftarSurveiBpsController extends Controller
             }
 
             // Tentukan tgl_ikut_survei berdasarkan kondisi tanggal hari ini
-            $today = now()->toDateString(); // Format YYYY-MM-DD
             $start = $survey->jadwal_kegiatan;
             $end = $survey->jadwal_berakhir_kegiatan;
 
