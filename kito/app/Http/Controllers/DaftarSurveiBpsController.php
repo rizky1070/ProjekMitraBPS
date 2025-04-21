@@ -287,72 +287,120 @@ class DaftarSurveiBpsController extends Controller
     }
 
     public function toggleMitraSurvey(Request $request, $id_survei, $id_mitra)
-    {
-        $request->validate([
-            'vol' => 'required|string|max:255',
-            'honor' => 'required|integer',
-            'posisi_mitra' => 'required|string|max:255'
+{
+    $request->validate([
+        'vol' => 'required|string|max:255',
+        'honor' => 'required|integer',
+        'posisi_mitra' => 'required|string|max:255'
+    ]);
+
+    $survey = Survei::findOrFail($id_survei);
+    $mitra = Mitra::findOrFail($id_mitra);
+
+    // Cek apakah survei sudah lewat dari jadwal berakhir
+    $today = now()->toDateString();
+    if ($today > $survey->jadwal_berakhir_kegiatan) {
+        return redirect()->back()
+            ->with('error', "Tidak bisa menambahkan mitra karena survei sudah berakhir pada {$survey->jadwal_berakhir_kegiatan}")
+            ->withInput();
+    }
+
+    // Cek apakah mitra sudah terdaftar di survei ini
+    $mitra_survei = MitraSurvei::where('id_survei', $id_survei)
+        ->where('id_mitra', $id_mitra)
+        ->first();
+
+    if ($mitra_survei) {
+        // Jika sudah ada, update data
+        $mitra_survei->update([
+            'vol' => $request->vol,
+            'honor' => $request->honor,
+            'posisi_mitra' => $request->posisi_mitra
         ]);
+    } else {
+        // Cek jadwal tumpang tindih dan dapatkan data survei yang bertabrakan
+        $conflictingSurveys = $mitra->survei()
+            ->where(function($query) use ($survey) {
+                $query->where(function($q) use ($survey) {
+                    $q->where('jadwal_kegiatan', '<', $survey->jadwal_berakhir_kegiatan)
+                    ->where('jadwal_berakhir_kegiatan', '>', $survey->jadwal_kegiatan);
+                });
+            })
+            ->get();
 
-        $survey = Survei::findOrFail($id_survei);
-        $mitra = Mitra::findOrFail($id_mitra);
-
-        // Cek apakah survei sudah lewat dari jadwal berakhir
-        $today = now()->toDateString();
-        if ($today > $survey->jadwal_berakhir_kegiatan) {
+        if ($conflictingSurveys->isNotEmpty()) {
+            $conflictingNames = $conflictingSurveys->pluck('nama_survei')->implode(', ');
             return redirect()->back()
-                ->with('error', "Tidak bisa menambahkan mitra karena survei sudah berakhir pada {$survey->jadwal_berakhir_kegiatan}")
+                ->with('error', "Mitra sudah terdaftar di survei berikut dengan jadwal yang tumpang tindih : $conflictingNames")
                 ->withInput();
         }
 
-        // Cek apakah mitra sudah terdaftar di survei ini
-        $mitra_survei = MitraSurvei::where('id_survei', $id_survei)
-            ->where('id_mitra', $id_mitra)
-            ->first();
+        // Tentukan tgl_ikut_survei berdasarkan kondisi tanggal hari ini
+        $start = $survey->jadwal_kegiatan;
+        $end = $survey->jadwal_berakhir_kegiatan;
 
-        if ($mitra_survei) {
-            // Jika sudah ada, update data
-            $mitra_survei->update([
-                'vol' => $request->vol,
-                'honor' => $request->honor,
-                'posisi_mitra' => $request->posisi_mitra
-            ]);
-        } else {
-            // Cek jadwal tumpang tindih dan dapatkan data survei yang bertabrakan
-            $conflictingSurveys = $mitra->survei()
-                ->where(function($query) use ($survey) {
-                    $query->where(function($q) use ($survey) {
-                        $q->where('jadwal_kegiatan', '<', $survey->jadwal_berakhir_kegiatan)
-                        ->where('jadwal_berakhir_kegiatan', '>', $survey->jadwal_kegiatan);
-                    });
-                })
-                ->get();
+        $tgl_ikut_survei = ($today >= $start && $today <= $end) ? $today : $start;
 
-            if ($conflictingSurveys->isNotEmpty()) {
-                $conflictingNames = $conflictingSurveys->pluck('nama_survei')->implode(', ');
-                return redirect()->back()
-                    ->with('error', "Mitra sudah terdaftar di survei berikut dengan jadwal yang tumpang tindih : $conflictingNames")
-                    ->withInput();
-            }
+        // Jika tidak ada konflik, tambahkan mitra ke survei
+        $mitraSurvei = MitraSurvei::create([
+            'id_mitra' => $id_mitra,
+            'id_survei' => $id_survei,
+            'vol' => $request->vol,
+            'honor' => $request->honor,
+            'posisi_mitra' => $request->posisi_mitra,
+            'tgl_ikut_survei' => $tgl_ikut_survei
+        ]);
 
-            // Tentukan tgl_ikut_survei berdasarkan kondisi tanggal hari ini
-            $start = $survey->jadwal_kegiatan;
-            $end = $survey->jadwal_berakhir_kegiatan;
+        // Kirim notifikasi WhatsApp dengan data yang diperlukan
+        $this->sendWhatsAppNotification($mitra, $survey, $request->vol, $request->honor, $request->posisi_mitra);
+    }
 
-            $tgl_ikut_survei = ($today >= $start && $today <= $end) ? $today : $start;
+    return redirect()->back()->with('success', 'Mitra berhasil ditambahkan ke survei!');
+}
 
-            // Jika tidak ada konflik, tambahkan mitra ke survei
-            MitraSurvei::create([
-                'id_mitra' => $id_mitra,
-                'id_survei' => $id_survei,
-                'vol' => $request->vol,
-                'honor' => $request->honor,
-                'posisi_mitra' => $request->posisi_mitra,
-                'tgl_ikut_survei' => $tgl_ikut_survei
-            ]);
-        }
+    private function sendWhatsAppNotification($mitra, $survey, $vol, $honor, $posisiMitra)
+    {
+        $token = "avqc2cbuFymVuKpMW3e2"; // Ganti dengan token Fonnte Anda
 
-        return redirect()->back()->with('success', 'Mitra berhasil ditambahkan ke survei!');
+        $message = "Halo {$mitra->nama_lengkap},\n\n"
+            . "Anda telah ditambahkan ke dalam survei:\n"
+            . "Nama Survei: {$survey->nama_survei}\n"
+            . "Jadwal Kegiatan: {$survey->jadwal_kegiatan} hingga {$survey->jadwal_berakhir_kegiatan}\n"
+            . "Posisi: {$posisiMitra}\n"
+            . "Volume: {$vol}\n"
+            . "Honor: Rp " . number_format($honor, 0, ',', '.') . "\n\n"
+            . "Terima kasih telah berpartisipasi.";
+
+        $data = [
+            "target" => $mitra->no_hp_mitra,
+            "message" => $message
+        ];
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array(
+                'target' => $data["target"],
+                'message' => $data["message"],
+            ),
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: ' . $token
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        // Anda bisa log response jika diperlukan
+        // \Log::info('Fonnte API Response: ' . $response);
     }
 
 
