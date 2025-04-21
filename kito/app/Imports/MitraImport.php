@@ -37,18 +37,24 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                 throw new \Exception("Baris tidak valid: sobat_id harus diisi");
             }
 
+            $this->validatePhoneNumber($row['no_hp_mitra']);
+
             // Dapatkan data wilayah
             $provinsi = $this->getProvinsi();
             $kabupaten = $this->getKabupaten($provinsi);
             $kecamatan = $this->getKecamatan($row, $kabupaten);
             $desa = $this->getDesa($row, $kecamatan);
 
+             // Validasi nomor HP harus diawali +62
+
             // Parse tanggal
             $tahunMulai = $this->parseTanggal($row['tahun'] ?? null);
-            $tahunSelesai = $this->parseTanggal($row['tahun_selesai'] ?? null);
+            
+            // Set tahun selesai otomatis 1 bulan setelah tahun mulai
+            $tahunSelesai = $tahunMulai ? $tahunMulai->copy()->addMonth() : null;
 
             // Validasi tanggal
-            $this->validateDates($tahunMulai, $tahunSelesai);
+            $this->validateDates($tahunMulai);
 
             // Cek duplikasi
             $this->checkDuplicate($row['sobat_id'], $tahunMulai);
@@ -128,14 +134,10 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
         return $desa;
     }
     
-    private function validateDates($tahunMulai, $tahunSelesai)
+    private function validateDates($tahunMulai)
     {
         if (!$tahunMulai) {
             throw new \Exception("Tahun mulai tidak valid");
-        }
-        
-        if ($tahunSelesai && $tahunSelesai->lt($tahunMulai)) {
-            throw new \Exception("Tahun selesai harus setelah tahun mulai");
         }
         
         // Validasi tahun masuk dalam range wajar (misal 2000-2100)
@@ -156,6 +158,26 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             throw new \Exception("Sobat ID {$sobatId} sudah terdaftar pada bulan {$tahunMulai->month} tahun {$tahunMulai->year}");
         }
     }
+
+    private function validatePhoneNumber($phoneNumber)
+    {
+        if (empty($phoneNumber)) {
+            throw new \Exception("Nomor HP harus diisi");
+        }
+
+        // Hilangkan spasi dan karakter khusus jika ada
+        $cleanedPhone = preg_replace('/[^0-9+]/', '', $phoneNumber);
+
+        // Cek apakah diawali dengan +62
+        if (!preg_match('/^\+62/', $cleanedPhone)) {
+            throw new \Exception("Nomor HP harus diawali dengan +62");
+        }
+
+        // Validasi panjang minimal (contoh: +628123456789 = 12 digit)
+        if (strlen($cleanedPhone) < 12) {
+            throw new \Exception("Nomor HP terlalu pendek");
+        }
+    }
     
     public function rules(): array
     {
@@ -166,10 +188,23 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             'kode_desa' => 'required|string|max:3',
             'kode_kecamatan' => 'required|string|max:3',
             'jenis_kelamin' => 'required|in:1,2',
-            'no_hp_mitra' => 'required|string|max:20',
+            'no_hp_mitra' => [
+                'required',
+                'string',
+                'max:20',
+                function ($attribute, $value, $fail) {
+                    $cleanedPhone = preg_replace('/[^0-9+]/', '', $value);
+                    if (!preg_match('/^\+62/', $cleanedPhone)) {
+                        $fail('Nomor HP harus diawali dengan +62');
+                    }
+                    if (strlen($cleanedPhone) < 12) {
+                        $fail('Nomor HP terlalu pendek');
+                    }
+                },
+            ],
             'email_mitra' => 'required|email|max:255',
-            'tahun' => 'required',
-            'tahun_selesai' => 'required|after:tahun'
+            'tahun' => 'required'
+            // tahun_selesai dihapus dari rules karena akan diisi otomatis
         ];
     }
 
