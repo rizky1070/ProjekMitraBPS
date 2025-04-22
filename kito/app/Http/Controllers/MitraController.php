@@ -59,123 +59,151 @@ class MitraController extends Controller
     {
         \Carbon\Carbon::setLocale('id');
 
-        // Ambil daftar tahun dari survei_mitra.tgl_ikut_survei
-        $tahunOptions = mitraSurvei::selectRaw('YEAR(tgl_ikut_survei) as tahun')
+        // Ambil daftar tahun berdasarkan bulan dominan dari survei
+        $tahunOptions = Survei::selectRaw('YEAR(jadwal_kegiatan) as tahun')
             ->distinct()
             ->orderByDesc('tahun')
             ->pluck('tahun', 'tahun');
 
-        // Daftar bulan berdasarkan tahun yang dipilih
         $bulanOptions = [];
         if ($request->filled('tahun')) {
-            $bulanOptions = mitraSurvei::selectRaw('MONTH(tgl_ikut_survei) as bulan')
-                ->whereYear('tgl_ikut_survei', $request->tahun)
-                ->distinct()
-                ->orderBy('bulan')
-                ->pluck('bulan')
+            // Ambil semua survei di tahun tersebut
+            $survei = Survei::whereYear('jadwal_kegiatan', $request->tahun)->get();
+
+            $bulanDominan = [];
+
+            foreach ($survei as $s) {
+                $start = \Carbon\Carbon::parse($s->jadwal_kegiatan);
+                $end = \Carbon\Carbon::parse($s->jadwal_berakhir_kegiatan);
+                $period = \Carbon\CarbonPeriod::create($start, $end);
+
+                $bulanCount = [];
+                foreach ($period as $date) {
+                    $bln = $date->format('m');
+                    $bulanCount[$bln] = ($bulanCount[$bln] ?? 0) + 1;
+                }
+
+                if (!empty($bulanCount)) {
+                    arsort($bulanCount);
+                    $dominantMonth = array_key_first($bulanCount);
+                    $bulanDominan[$dominantMonth] = true;
+                }
+            }
+
+            $bulanOptions = collect(array_keys($bulanDominan))
+                ->sort()
                 ->mapWithKeys(function ($month) {
-                    $monthNumber = str_pad($month, 2, '0', STR_PAD_LEFT);
                     return [
-                        $monthNumber => \Carbon\Carbon::create()->month($month)->translatedFormat('F')
+                        $month => \Carbon\Carbon::create()->month($month)->translatedFormat('F')
                     ];
                 });
         }
 
-        // Filter kecamatan dari mitra yang punya survei_mitra sesuai filter
-        $kecamatanOptions = Kecamatan::whereHas('mitras.mitraSurvei', function ($query) use ($request) {
-            if ($request->filled('tahun')) {
-                $query->whereYear('tgl_ikut_survei', $request->tahun);
+        // Ambil survei_id yang memiliki bulan dominan sesuai filter
+        $filteredSurveiIds = Survei::all()->filter(function ($s) use ($request) {
+            $start = \Carbon\Carbon::parse($s->jadwal_kegiatan);
+            $end = \Carbon\Carbon::parse($s->jadwal_berakhir_kegiatan);
+            $period = \Carbon\CarbonPeriod::create($start, $end);
+
+            $bulanCount = [];
+            foreach ($period as $date) {
+                $month = $date->format('m');
+                $year = $date->format('Y');
+                if ($request->filled('tahun') && $year != $request->tahun) continue;
+                $bulanCount[$month] = ($bulanCount[$month] ?? 0) + 1;
             }
-            if ($request->filled('bulan')) {
-                $query->whereMonth('tgl_ikut_survei', $request->bulan);
-            }
+
+            if (empty($bulanCount)) return false;
+
+            arsort($bulanCount);
+            $dominantMonth = array_key_first($bulanCount);
+
+            return (!$request->filled('bulan') || $dominantMonth == $request->bulan);
+        })->pluck('id_survei');
+
+        // Filter kecamatan
+        $kecamatanOptions = Kecamatan::whereHas('mitras.mitraSurvei.survei', function ($query) use ($filteredSurveiIds) {
+            $query->whereIn('mitra_survei.id_survei', $filteredSurveiIds);
         })->orderBy('nama_kecamatan')->get(['nama_kecamatan', 'id_kecamatan', 'kode_kecamatan']);
 
-        // Filter nama mitra berdasarkan survei_mitra
-        $namaMitraOptions = Mitra::whereHas('mitraSurvei', function ($query) use ($request) {
-                if ($request->filled('tahun')) {
-                    $query->whereYear('tgl_ikut_survei', $request->tahun);
-                }
-                if ($request->filled('bulan')) {
-                    $query->whereMonth('tgl_ikut_survei', $request->bulan);
-                }
+        // Filter nama mitra
+        $namaMitraOptions = Mitra::whereHas('mitraSurvei.survei', function ($query) use ($filteredSurveiIds) {
+            $query->whereIn('mitra_survei.id_survei', $filteredSurveiIds);
+        })
+        ->when($request->filled('kecamatan'), function($query) use ($request) {
+            $query->where('id_kecamatan', $request->kecamatan);
+        })
+        ->select('nama_lengkap')
+        ->distinct()
+        ->pluck('nama_lengkap', 'nama_lengkap');
+
+        // Query utama daftar mitra
+        $mitrasQuery = Mitra::with(['kecamatan', 'mitraSurvei.survei'])
+            ->withCount(['mitraSurvei as survei_count' => function ($query) use ($filteredSurveiIds) {
+                $query->whereIn('mitra_survei.id_survei', $filteredSurveiIds);
+            }])
+            ->whereHas('mitraSurvei.survei', function ($query) use ($filteredSurveiIds) {
+                $query->whereIn('mitra_survei.id_survei', $filteredSurveiIds);
             })
             ->when($request->filled('kecamatan'), function($query) use ($request) {
                 $query->where('id_kecamatan', $request->kecamatan);
             })
-            ->select('nama_lengkap')
-            ->distinct()
-            ->pluck('nama_lengkap', 'nama_lengkap');
-
-        // Query utama daftar mitra
-        $mitrasQuery = Mitra::with(['kecamatan', 'mitraSurvei' => function ($query) {
-                    $query->select('id_mitra', 'honor', 'vol', 'tgl_ikut_survei');
-                }])
-                ->withCount('mitraSurvei')
-                ->whereHas('mitraSurvei', function ($query) use ($request) {
-                    if ($request->filled('tahun')) {
-                        $query->whereYear('tgl_ikut_survei', $request->tahun);
-                    }
-                    if ($request->filled('bulan')) {
-                        $query->whereMonth('tgl_ikut_survei', $request->bulan);
-                    }
-                })
-                ->when($request->filled('kecamatan'), function($query) use ($request) {
-                    $query->where('id_kecamatan', $request->kecamatan);
-                })
-                ->when($request->filled('nama_lengkap'), function($query) use ($request) {
-                    $query->where('nama_lengkap', $request->nama_lengkap);
-                });
-            
-            // Kalau filter bulan aktif → urutkan berdasarkan total_honor
-            if ($request->filled('bulan')) {
-                $mitrasQuery->select('mitra.*')
-                    ->addSelect([
-                        'total_honor' => function ($query) use ($request) {
-                            $query->select(DB::raw('SUM(honor * vol)'))
-                                ->from('mitra_survei')
-                                ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
-                                ->when($request->filled('tahun'), function ($q) use ($request) {
-                                    $q->whereYear('tgl_ikut_survei', $request->tahun);
-                                })
-                                ->when($request->filled('bulan'), function ($q) use ($request) {
-                                    $q->whereMonth('tgl_ikut_survei', $request->bulan);
-                                });
-                        }
-                    ])
-                    ->orderByDesc('total_honor');
-            } else {
-                $mitrasQuery->orderBy('nama_lengkap');
-            }
-            
-            $mitras = $mitrasQuery->paginate(10);
-
-            $mitras->getCollection()->transform(function ($mitra) use ($request) {
-                // Hitung total honor seperti sebelumnya
-                $totalHonor = $mitra->mitraSurvei->filter(function ($item) use ($request) {
-                    return (!$request->filled('tahun') || \Carbon\Carbon::parse($item->tgl_ikut_survei)->year == $request->tahun)
-                        && (!$request->filled('bulan') || \Carbon\Carbon::parse($item->tgl_ikut_survei)->month == $request->bulan);
-                })->sum(function ($item) {
-                    return $item->honor * $item->vol;
-                });
-                $mitra->total_honor = $totalHonor;
-            
-                // Hitung jumlah survei per bulan dan per tahun
-                $mitra->survei_bulan_count = $request->filled('bulan')
-                    ? $mitra->mitraSurvei->filter(function ($item) use ($request) {
-                        return \Carbon\Carbon::parse($item->tgl_ikut_survei)->month == $request->bulan;
-                    })->count()
-                    : null;
-            
-                $mitra->survei_tahun_count = $request->filled('tahun')
-                    ? $mitra->mitraSurvei->filter(function ($item) use ($request) {
-                        return \Carbon\Carbon::parse($item->tgl_ikut_survei)->year == $request->tahun;
-                    })->count()
-                    : null;
-            
-                return $mitra;
+            ->when($request->filled('nama_lengkap'), function($query) use ($request) {
+                $query->where('nama_lengkap', $request->nama_lengkap);
             });
-            
+
+        // Urut berdasarkan total honor jika filter bulan aktif
+        if ($request->filled('bulan')) {
+            $mitrasQuery->select('mitra.*')
+                ->addSelect([
+                    'total_honor' => function ($query) use ($filteredSurveiIds) {
+                        $query->select(DB::raw('SUM(honor * vol)'))
+                            ->from('mitra_survei')
+                            ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
+                            ->whereIn('id_survei', $filteredSurveiIds);
+                    }
+                ])
+                ->orderByDesc('total_honor');
+        } else {
+            $mitrasQuery->orderBy('nama_lengkap');
+        }
+
+        $mitras = $mitrasQuery->paginate(10);
+
+        $mitras->getCollection()->transform(function ($mitra) use ($request, $filteredSurveiIds) {
+            $mitraSurveiFiltered = $mitra->mitraSurvei->filter(function ($item) use ($filteredSurveiIds, $request, $mitra) {
+                // Jika tidak ada filter tahun/bulan, ambil semua yang posisi_mitra tidak null
+                if (!$request->filled('tahun') && !$request->filled('bulan')) {
+                    return $item->id_mitra === $mitra->id_mitra && !is_null($item->posisi_mitra);
+                }
+        
+                return $filteredSurveiIds->contains($item->id_survei);
+            });
+        
+            $totalHonor = $mitraSurveiFiltered->sum(function ($item) {
+                return $item->honor * $item->vol;
+            });
+        
+            $mitra->total_honor = $totalHonor;
+        
+            $mitra->survei_bulan_count = $request->filled('bulan')
+                ? $mitra->mitraSurvei->filter(fn ($item) => $filteredSurveiIds->contains($item->id_survei))->count()
+                : null;
+        
+            $mitra->survei_tahun_count = $request->filled('tahun')
+                ? $mitra->mitraSurvei->filter(fn ($item) => $filteredSurveiIds->contains($item->id_survei))->count()
+                : null;
+        
+            // Tambahan ketika tidak ada filter
+            $mitra->mitra_survei_count = (!$request->filled('bulan') && !$request->filled('tahun')) 
+                && $mitra->mitraSurvei->filter(function ($item) {
+                    return !empty($item->posisi_mitra);
+                })->count();
+        
+            return $mitra;
+        });
+        
+        
 
         return view('mitrabps.daftarMitra', compact(
             'mitras',
@@ -185,6 +213,10 @@ class MitraController extends Controller
             'namaMitraOptions'
         ));
     }
+
+
+    
+
 
 
 

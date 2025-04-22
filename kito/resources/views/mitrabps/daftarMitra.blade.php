@@ -186,6 +186,7 @@
                                                 {{ $mitra->mitra_survei_count }}
                                             @endif
                                         </td>
+
                                         <td class="text-center whitespace-normal break-words" style="max-width: 120px;">{{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}</td>
                                         @if(request()->has('bulan'))
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
