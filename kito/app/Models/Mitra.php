@@ -24,6 +24,7 @@ class Mitra extends Model
         'nama_lengkap',
         'alamat_mitra',
         'jenis_kelamin',
+        'status_pekerjaan',
         'no_hp_mitra',
         'email_mitra',
         'tahun',
