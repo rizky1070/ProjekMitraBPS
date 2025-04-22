@@ -346,7 +346,7 @@ class MitraController extends Controller
             }
 
             return redirect()->back()
-                ->with('success', 'Data survei berhasil diimport!');
+                ->with('success', 'Data Mitra berhasil diimport!');
                 
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $errorMessages = collect($e->failures())
