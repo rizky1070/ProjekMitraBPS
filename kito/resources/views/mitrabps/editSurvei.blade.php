@@ -238,8 +238,8 @@
                                     @endphp
                                     <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
                                         <div class="flex justify-center items-center">
-                                            <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
                                             <p class="{{ $bgStatus }} m-1 p-1 border rounded-lg"> </p>
+                                            <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
                                         </div>
                                     </td>
                                     <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>

@@ -104,7 +104,7 @@
                         <script>
                             document.addEventListener('DOMContentLoaded', function() {
                                 new TomSelect('#nama_survei', {
-                                    placeholder: 'Pilih Survei',
+                                    placeholder: 'Cari Survei',
                                     searchField: 'text',
                                 });
                                 
