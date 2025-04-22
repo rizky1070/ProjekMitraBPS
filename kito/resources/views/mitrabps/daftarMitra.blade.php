@@ -173,7 +173,19 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach ($mitras as $mitra)
                                     <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->nama_lengkap }}</td>
+                                        @php
+                                            if ($mitra->status_pekerjaan == 1) {
+                                                $bgStatus = 'bg-red-500';
+                                            } else {
+                                                $bgStatus = 'bg-green-500';
+                                            }
+                                        @endphp
+                                        <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
+                                            <div class="flex justify-center items-center">
+                                                <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
+                                                <p class="{{ $bgStatus }} m-1 p-1 border rounded-lg"> </p>
+                                            </div>
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
                                             @if(request()->has('bulan') && request()->has('tahun'))
