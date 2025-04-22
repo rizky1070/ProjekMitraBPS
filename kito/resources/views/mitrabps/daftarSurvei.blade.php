@@ -170,15 +170,18 @@
                                     </div>
 
                                     <span class="ml-2 text-gray-600 block truncate">
-                                        Kecamatan: {{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}
+                                        <strong>Kecamatan: </strong>
+                                        {{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}
                                     </span>
                                     <span class="ml-2 text-gray-600 block">
-                                        Jadwal Kegiatan: {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }}
+                                        <strong>Jadwal Kegiatan: </strong></br>
+                                        {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
                                     </span>
 
                                     <span class="ml-2 text-gray-600 block">
                                         @if($survey->mitraSurvei->isNotEmpty())
-                                        Jumlah Mitra: {{ $survey->mitraSurvei->count() }}<br>
+                                        <strong>Jumlah Mitra: </strong>
+                                        {{ $survey->mitraSurvei->count() }}<br>
                                         <div class="mt-2 max-h-[250px] overflow-y-auto pr-2 space-y-1">
                                             @php
                                                 // Urutkan mitra berdasarkan total survei (descending)
