@@ -45,10 +45,12 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             $kecamatan = $this->getKecamatan($row, $kabupaten);
             $desa = $this->getDesa($row, $kecamatan);
 
-             // Validasi nomor HP harus diawali +62
-
             // Parse tanggal
             $tahunMulai = $this->parseTanggal($row['tahun'] ?? null);
+            // Jika tahun kosong, log informasi
+            if (empty($row['tahun'])) {
+                Log::info("Data baris ke-{$row['__row__']}: Kolom tahun kosong, menggunakan tanggal sekarang");
+            }
             
             // Set tahun selesai otomatis 1 bulan setelah tahun mulai
             $tahunSelesai = $tahunMulai ? $tahunMulai->copy()->addMonth() : null;
@@ -68,6 +70,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                 'id_kabupaten' => $kabupaten->id_kabupaten,
                 'id_provinsi' => $provinsi->id_provinsi,
                 'jenis_kelamin' => $row['jenis_kelamin'],
+                'status_pekerjaan' => $row['status_pekerjaan'],
                 'no_hp_mitra' => $row['no_hp_mitra'],
                 'email_mitra' => $row['email_mitra'],
                 'tahun' => $tahunMulai,
@@ -174,9 +177,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
         }
 
         // Validasi panjang minimal (contoh: +628123456789 = 12 digit)
-        if (strlen($cleanedPhone) < 12) {
-            throw new \Exception("Nomor HP terlalu pendek");
-        }
+        // if (strlen($cleanedPhone) < 12) {
+        //     throw new \Exception("Nomor HP terlalu pendek");
+        // }
     }
     
     public function rules(): array
@@ -188,6 +191,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             'kode_desa' => 'required|string|max:3',
             'kode_kecamatan' => 'required|string|max:3',
             'jenis_kelamin' => 'required|in:1,2',
+            'status_pekerjaan' => 'required|in:0,1',
             'no_hp_mitra' => [
                 'required',
                 'string',
@@ -197,13 +201,13 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                     if (!preg_match('/^\+62/', $cleanedPhone)) {
                         $fail('Nomor HP harus diawali dengan +62');
                     }
-                    if (strlen($cleanedPhone) < 12) {
-                        $fail('Nomor HP terlalu pendek');
-                    }
+                    // if (strlen($cleanedPhone) < 12) {
+                    //     $fail('Nomor HP terlalu pendek');
+                    // }
                 },
             ],
             'email_mitra' => 'required|email|max:255',
-            'tahun' => 'required'
+            'tahun' => 'nullable'
             // tahun_selesai dihapus dari rules karena akan diisi otomatis
         ];
     }
@@ -212,7 +216,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
     {
         try {
             if (empty($tanggal)) {
-                return null;
+                return Carbon::now(); // Return current date if empty
             }
 
             if ($tanggal instanceof \DateTimeInterface) {

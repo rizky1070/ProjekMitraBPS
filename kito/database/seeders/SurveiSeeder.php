@@ -290,6 +290,34 @@ class SurveiSeeder extends Seeder
                 'status_survei' => rand(1, 3),
                 'tim' => 'tim T',
             ],
+            // data 21
+            [
+                'id_provinsi' => '35',
+                'id_kabupaten' => '16',
+                'id_kecamatan' => rand(1, 4),
+                'id_desa' => rand(1, 4),
+                'nama_survei' => 'Survei anomali 1',
+                'lokasi_survei' => 'Lokasi anomali',
+                'kro' => 'anomali',
+                'jadwal_kegiatan' => '2025-03-27',
+                'jadwal_berakhir_kegiatan' => '2025-04-10',
+                'status_survei' => rand(1, 3),
+                'tim' => 'tim T',
+            ],
+            // data 22
+            [
+                'id_provinsi' => '35',
+                'id_kabupaten' => '16',
+                'id_kecamatan' => rand(1, 4),
+                'id_desa' => rand(1, 4),
+                'nama_survei' => 'Survei anomali 2',
+                'lokasi_survei' => 'Lokasi anomali',
+                'kro' => 'anomali',
+                'jadwal_kegiatan' => '2025-03-23',
+                'jadwal_berakhir_kegiatan' => '2025-04-01',
+                'status_survei' => rand(1, 3),
+                'tim' => 'tim T',
+            ],
         ];
 
         DB::table('survei')->insert($surveiData);

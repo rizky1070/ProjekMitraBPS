@@ -18,10 +18,11 @@ class CreateMitraTable extends Migration
             $table->string('nama_lengkap', 1024);
             $table->string('alamat_mitra', 1024);
             $table->smallInteger('jenis_kelamin');
-            $table->string('no_hp_mitra', 1024);
-            $table->string('email_mitra', 1024);
+            $table->smallInteger('status_pekerjaan');
+            $table->string('no_hp_mitra', );
+            $table->string('email_mitra', );
             $table->date('tahun');
-            $table->date('tahun_selesai')->nullable();
+            $table->date('tahun_selesai');
 
 
             $table->foreign('id_desa')->references('id_desa')->on('desa')->onUpdate('restrict')->onDelete('restrict');

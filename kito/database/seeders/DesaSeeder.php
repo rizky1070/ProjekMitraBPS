@@ -28,7 +28,27 @@ class DesaSeeder extends Seeder
             [
                 'kode_desa' => 'D04', 
                 'nama_desa' => 'Desa D',
+                'id_kecamatan' => 2
+            ],
+            [
+                'kode_desa' => 'D05', 
+                'nama_desa' => 'Desa E',
                 'id_kecamatan' => 3
+            ],
+            [
+                'kode_desa' => 'D06', 
+                'nama_desa' => 'Desa F',
+                'id_kecamatan' => 3
+            ],
+            [
+                'kode_desa' => 'D07', 
+                'nama_desa' => 'Desa G',
+                'id_kecamatan' => 4
+            ],
+            [
+                'kode_desa' => 'D08', 
+                'nama_desa' => 'Desa H',
+                'id_kecamatan' => 4
             ],
         ]);
     }

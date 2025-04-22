@@ -352,7 +352,7 @@ class DaftarSurveiBpsController extends Controller
         ]);
 
         // Kirim notifikasi WhatsApp dengan data yang diperlukan
-        $this->sendWhatsAppNotification($mitra, $survey, $request->vol, $request->honor, $request->posisi_mitra);
+        // $this->sendWhatsAppNotification($mitra, $survey, $request->vol, $request->honor, $request->posisi_mitra);
     }
 
     return redirect()->back()->with('success', 'Mitra berhasil ditambahkan ke survei!');
