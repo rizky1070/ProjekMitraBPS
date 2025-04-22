@@ -287,76 +287,60 @@ class DaftarSurveiBpsController extends Controller
     }
 
     public function toggleMitraSurvey(Request $request, $id_survei, $id_mitra)
-{
-    $request->validate([
-        'vol' => 'required|string|max:255',
-        'honor' => 'required|integer',
-        'posisi_mitra' => 'required|string|max:255'
-    ]);
-
-    $survey = Survei::findOrFail($id_survei);
-    $mitra = Mitra::findOrFail($id_mitra);
-
-    // Cek apakah survei sudah lewat dari jadwal berakhir
-    $today = now()->toDateString();
-    if ($today > $survey->jadwal_berakhir_kegiatan) {
-        return redirect()->back()
-            ->with('error', "Tidak bisa menambahkan mitra karena survei sudah berakhir pada {$survey->jadwal_berakhir_kegiatan}")
-            ->withInput();
-    }
-
-    // Cek apakah mitra sudah terdaftar di survei ini
-    $mitra_survei = MitraSurvei::where('id_survei', $id_survei)
-        ->where('id_mitra', $id_mitra)
-        ->first();
-
-    if ($mitra_survei) {
-        // Jika sudah ada, update data
-        $mitra_survei->update([
-            'vol' => $request->vol,
-            'honor' => $request->honor,
-            'posisi_mitra' => $request->posisi_mitra
+    {
+        $request->validate([
+            'vol' => 'required|string|max:255',
+            'honor' => 'required|integer',
+            'posisi_mitra' => 'required|string|max:255'
         ]);
-    } else {
-        // Cek jadwal tumpang tindih dan dapatkan data survei yang bertabrakan
-        $conflictingSurveys = $mitra->survei()
-            ->where(function($query) use ($survey) {
-                $query->where(function($q) use ($survey) {
-                    $q->where('jadwal_kegiatan', '<', $survey->jadwal_berakhir_kegiatan)
-                    ->where('jadwal_berakhir_kegiatan', '>', $survey->jadwal_kegiatan);
-                });
-            })
-            ->get();
-
-        if ($conflictingSurveys->isNotEmpty()) {
-            $conflictingNames = $conflictingSurveys->pluck('nama_survei')->implode(', ');
+    
+        $survey = Survei::findOrFail($id_survei);
+        $mitra = Mitra::findOrFail($id_mitra);
+    
+        // Cek apakah survei sudah lewat dari jadwal berakhir
+        $today = now()->toDateString();
+        if ($today > $survey->jadwal_berakhir_kegiatan) {
             return redirect()->back()
-                ->with('error', "Mitra sudah terdaftar di survei berikut dengan jadwal yang tumpang tindih : $conflictingNames")
+                ->with('error', "Tidak bisa menambahkan mitra karena survei sudah berakhir pada {$survey->jadwal_berakhir_kegiatan}")
                 ->withInput();
         }
-
-        // Tentukan tgl_ikut_survei berdasarkan kondisi tanggal hari ini
-        $start = $survey->jadwal_kegiatan;
-        $end = $survey->jadwal_berakhir_kegiatan;
-
-        $tgl_ikut_survei = ($today >= $start && $today <= $end) ? $today : $start;
-
-        // Jika tidak ada konflik, tambahkan mitra ke survei
-        $mitraSurvei = MitraSurvei::create([
-            'id_mitra' => $id_mitra,
-            'id_survei' => $id_survei,
-            'vol' => $request->vol,
-            'honor' => $request->honor,
-            'posisi_mitra' => $request->posisi_mitra,
-            'tgl_ikut_survei' => $tgl_ikut_survei
-        ]);
-
-        // Kirim notifikasi WhatsApp dengan data yang diperlukan
-        // $this->sendWhatsAppNotification($mitra, $survey, $request->vol, $request->honor, $request->posisi_mitra);
+    
+        // Cek apakah mitra sudah terdaftar di survei ini
+        $mitra_survei = MitraSurvei::where('id_survei', $id_survei)
+            ->where('id_mitra', $id_mitra)
+            ->first();
+    
+        if ($mitra_survei) {
+            // Jika sudah ada, update data
+            $mitra_survei->update([
+                'vol' => $request->vol,
+                'honor' => $request->honor,
+                'posisi_mitra' => $request->posisi_mitra
+            ]);
+        } else {
+            // Tentukan tgl_ikut_survei berdasarkan kondisi tanggal hari ini
+            $start = $survey->jadwal_kegiatan;
+            $end = $survey->jadwal_berakhir_kegiatan;
+    
+            $tgl_ikut_survei = ($today >= $start && $today <= $end) ? $today : $start;
+    
+            // Jika belum ada, tambahkan mitra ke survei
+            $mitraSurvei = MitraSurvei::create([
+                'id_mitra' => $id_mitra,
+                'id_survei' => $id_survei,
+                'vol' => $request->vol,
+                'honor' => $request->honor,
+                'posisi_mitra' => $request->posisi_mitra,
+                'tgl_ikut_survei' => $tgl_ikut_survei
+            ]);
+    
+            // Kirim notifikasi WhatsApp dengan data yang diperlukan
+            // $this->sendWhatsAppNotification($mitra, $survey, $request->vol, $request->honor, $request->posisi_mitra);
+        }
+    
+        return redirect()->back()->with('success', 'Mitra berhasil ditambahkan ke survei!');
     }
-
-    return redirect()->back()->with('success', 'Mitra berhasil ditambahkan ke survei!');
-}
+    
 
     private function sendWhatsAppNotification($mitra, $survey, $vol, $honor, $posisiMitra)
     {

@@ -229,8 +229,18 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($mitras as $mitra)
                                 <tr class="hover:bg-gray-50">
+                                    @php
+                                        if ($mitra->status_pekerjaan == 1) {
+                                            $bgStatus = 'bg-red-500';
+                                        } else {
+                                            $bgStatus = 'bg-green-500';
+                                        }
+                                    @endphp
                                     <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                        <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
+                                        <div class="flex justify-center items-center">
+                                            <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
+                                            <p class="{{ $bgStatus }} m-1 p-1 border rounded-lg"> </p>
+                                        </div>
                                     </td>
                                     <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
                                     <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->mitra_survei_count }}</td>
