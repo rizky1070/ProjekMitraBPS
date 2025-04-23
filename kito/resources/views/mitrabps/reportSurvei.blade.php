@@ -76,43 +76,49 @@
 
                     <!-- Filter Section -->
                     <div class="bg-white rounded-lg shadow-sm p-6 mb-6 no-print">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Filter Data</h2>
-                        <form id="filterForm" action="{{ route('reports.survei.filter') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <form id="filterForm" action="{{ route('reports.survei.filter') }}" method="GET" class="space-y-4">
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-800 mb-4">Filter Data</h2>
+                            </div>
                             <!-- Tahun Filter -->
-                            <div>
-                                <label for="jadwal_kegiatan" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
-                                <select id="tahun" name="tahun" class="w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
-                                    <option value="">Semua Tahun</option>
-                                    @foreach($tahunOptions as $tahun)
-                                        <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>
-                                            {{ $tahun }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                            <div class="flex">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 w-full">
+                                    <div class="flex items-center">
+                                        <label for="jadwal_kegiatan" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
+                                        <select id="tahun" name="tahun" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                            <option value="">Semua Tahun</option>
+                                            @foreach($tahunOptions as $tahun)
+                                                <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>
+                                                    {{ $tahun }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <!-- Bulan Filter -->
+                                    <div class="flex items-center">
+                                        <label for="bulan" class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
+                                        <select id="bulan" name="bulan" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2"{{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                            <option value="">Semua Bulan</option>
+                                            @foreach($bulanOptions as $bulan)
+                                                <option value="{{ $bulan }}" {{ request('bulan') == $bulan ? 'selected' : '' }}>
+                                                    {{ \Carbon\Carbon::create()->month($bulan)->format('F') }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Partisipasi Filter -->
+                                    <div class="flex items-center">
+                                        <label for="status_survei" class="block text-sm font-medium text-gray-700 mb-1">Status Survei</label>
+                                        <select id="status_survei" name="status_survei" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                            <option value="">Semua Survei</option>
+                                            <option value="aktif" {{ request('status_survei') == 'aktif' ? 'selected' : '' }}>Survei Aktif</option>
+                                            <option value="tidak_aktif" {{ request('status_survei') == 'tidak_aktif' ? 'selected' : '' }}>Survei Tidak aktif</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                             
-                            <!-- Bulan Filter -->
-                            <div>
-                                <label for="bulan" class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
-                                <select id="bulan" name="bulan" class="w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"{{ empty($bulanOptions) ? 'disabled' : '' }}>
-                                    <option value="">Semua Bulan</option>
-                                    @foreach($bulanOptions as $bulan)
-                                        <option value="{{ $bulan }}" {{ request('bulan') == $bulan ? 'selected' : '' }}>
-                                            {{ \Carbon\Carbon::create()->month($bulan)->format('F') }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            
-                            <!-- Partisipasi Filter -->
-                            <div>
-                                <label for="status_survei" class="block text-sm font-medium text-gray-700 mb-1">Status Survei</label>
-                                <select id="status_survei" name="status_survei" class="w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
-                                    <option value="">Semua Survei</option>
-                                    <option value="aktif" {{ request('status_survei') == 'aktif' ? 'selected' : '' }}>Survei Aktif</option>
-                                    <option value="tidak_aktif" {{ request('status_survei') == 'tidak_aktif' ? 'selected' : '' }}>Survei Tidak aktif</option>
-                                </select>
-                            </div>
                         </form>
                     </div>
 
