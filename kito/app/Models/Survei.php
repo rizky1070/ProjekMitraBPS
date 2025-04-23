@@ -27,6 +27,7 @@ class Survei extends Model
         'kro',
         'jadwal_kegiatan',
         'jadwal_berakhir_kegiatan',
+        'bulan_dominan',
         'status_survei',
         'tim',
     ];
