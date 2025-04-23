@@ -66,9 +66,34 @@
                         <strong>Email :</strong>
                         <span class="text-right">{{ $mits->email_mitra }}</span>
                     </div>
+                    <div class="flex justify-between w-full border-b py-1">
+                        <strong>Masa Kontrak :</strong>
+                        <span class="text-right">{{ \Carbon\Carbon::parse($mits->tahun)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($mits->tahun_selesai)->translatedFormat('j F Y') }}</span>
+                    </div>
+                    <div class="flex justify-between w-full border-b py-1">
+                        <strong>Status Pekerjaan :</strong>
+                        <form action="{{ route('mitra.updateStatus', $mits->id_mitra) }}" method="POST" class="inline">
+                            @csrf
+                            @method('PUT')
+                            @if($mits->status_pekerjaan == 1)
+                            <div class="bg-red-500 text-white px-2 py-1 rounded-md">
+                                Memiliki Pekerjaan
+                                <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600 transition">
+                                    <strong>(Klik untuk ubah)</strong>
+                                </button>
+                            </div>
+                            @else
+                            <div class="bg-green-500 text-white px-2 py-1 rounded-md">
+                                Tidak Memiliki Pekerjaan
+                                <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded-md hover:bg-green-600 transition">
+                                    <strong>(Klik untuk ubah)</strong>
+                                </button>
+                            </div>
+                            @endif
+                        </form>
+                    </div>
                 </div>
             </div>
-
         </div>
 
         <!-- Tabel Survei -->
@@ -130,7 +155,7 @@
                     <div class="overflow-x-auto mb-2 pb-2 border-b border-gray-300">
 
                         <h2 class="text-lg font-semibold text-gray-800">Survei yang sudah dikerjakan:</h2>
-    
+
                         @php
                             $survei_dikerjakan = $survei->filter(fn($s) => $s->survei->status_survei == 3);
                         @endphp

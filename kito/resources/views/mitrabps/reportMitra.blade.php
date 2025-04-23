@@ -74,46 +74,62 @@
                             </button>
                         </div>
                     </div>
-
                     <!-- Filter Section -->
                     <div class="bg-white rounded-lg shadow-sm p-6 mb-6 no-print">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Filter Data</h2>
-                        <form id="filterForm" action="{{ route('reports.Mitra.filter') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <form id="filterForm" action="{{ route('reports.Mitra.filter') }}" method="GET" class="space-y-4">
                             <!-- Tahun Filter -->
-                            <div>
-                                <label for="tahun" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
-                                <select id="tahun" name="tahun" class="w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
-                                    <option value="">Semua Tahun</option>
-                                    @foreach($tahunOptions as $tahun)
-                                        <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>
-                                            {{ $tahun }}
-                                        </option>
+                            <div class="flex items-center relative">
+                                <label for="nama_lengkap" class="w-32 text-lg font-semibold text-gray-800">Cari Mitra</label>
+                                <select name="nama_lengkap" id="nama_mitra" class="w-full md:w-64 
+                                border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaMitraOptions) ? 'disabled' : '' }}>
+                                    <option value="">Semua Mitra</option>
+                                    @foreach($namaMitraOptions as $nama => $label)
+                                        <option value="{{ $nama }}" @if(request('nama_lengkap') == $nama) selected @endif>{{ $label }}</option>
                                     @endforeach
                                 </select>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-800 mb-4">Filter Data</h2>
+                            </div>
+                            <div class="flex">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 w-full">
+                                    <div class="flex items-center">
+                                        <label for="tahun" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
+                                        <select id="tahun" name="tahun" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                            <option value="">Semua Tahun</option>
+                                            @foreach($tahunOptions as $tahun)
+                                                <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>
+                                                    {{ $tahun }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Bulan Filter -->
+                                    <div class="flex items-center">
+                                        <label for="bulan" class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
+                                        <select id="bulan" name="bulan" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                            <option value="">Semua Bulan</option>
+                                            @foreach($bulanOptions as $key => $value)
+                                                <option value="{{ $key }}" {{ request('bulan') == $key ? 'selected' : '' }}>
+                                                    {{ $value }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+        
+                                    <!-- Partisipasi Filter -->
+                                    <div class="flex items-center">
+                                        <label for="status_mitra" class="block text-sm font-medium text-gray-700 mb-1">Status Partisipasi</label>
+                                        <select id="status_mitra" name="status_mitra" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                            <option value="">Semua Mitra</option>
+                                            <option value="ikut" {{ request('status_mitra') == 'ikut' ? 'selected' : '' }}>Mengikuti Survei</option>
+                                            <option value="tidak_ikut" {{ request('status_mitra') == 'tidak_ikut' ? 'selected' : '' }}>Tidak Mengikuti Survei</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                             
-                            <!-- Bulan Filter -->
-                            <div>
-                                <label for="bulan" class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
-                                <select id="bulan" name="bulan" class="w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500" {{ empty($bulanOptions) ? 'disabled' : '' }}>
-                                    <option value="">Semua Bulan</option>
-                                    @foreach($bulanOptions as $key => $value)
-                                        <option value="{{ $key }}" {{ request('bulan') == $key ? 'selected' : '' }}>
-                                            {{ $value }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <!-- Partisipasi Filter -->
-                            <div>
-                                <label for="status_mitra" class="block text-sm font-medium text-gray-700 mb-1">Status Partisipasi</label>
-                                <select id="status_mitra" name="status_mitra" class="w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500">
-                                    <option value="">Semua Mitra</option>
-                                    <option value="ikut" {{ request('status_mitra') == 'ikut' ? 'selected' : '' }}>Mengikuti Survei</option>
-                                    <option value="tidak_ikut" {{ request('status_mitra') == 'tidak_ikut' ? 'selected' : '' }}>Tidak Mengikuti Survei</option>
-                                </select>
-                            </div>
                         </form>
                     </div>
 
@@ -177,7 +193,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div>
-                                                    <div class="text-sm font-medium text-gray-900">{{ $mitra->nama_lengkap }}</div>
+                                                    <div class="text-sm font-medium text-gray-900"><a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a></div>
                                                     <div class="text-sm text-gray-500">{{ $mitra->email_mitra }}</div>
                                                     <div class="text-sm text-gray-500">{{ $mitra->no_hp_mitra }}</div>
                                                 </div>
@@ -221,6 +237,11 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            new TomSelect('#nama_mitra', {
+                placeholder: 'Cari Mitra',
+                searchField: 'text',
+            });
+
             new TomSelect('#bulan', {
                 placeholder: 'Pilih Bulan',
                 searchField: 'text',
@@ -240,6 +261,7 @@
             const tahunSelect = document.getElementById('tahun');
             const bulanSelect = document.getElementById('bulan');
             const statusSelect = document.getElementById('status_mitra');
+            const mitraSelect = document.getElementById('nama_mitra');
 
             // Ganti fungsi submitForm dengan ini
             let timeout;
@@ -254,6 +276,7 @@
             tahunSelect.addEventListener('change', submitForm);
             bulanSelect.addEventListener('change', submitForm);
             statusSelect.addEventListener('change', submitForm);
+            mitraSelect.addEventListener('change', submitForm);
         });
     </script>
 </body>
