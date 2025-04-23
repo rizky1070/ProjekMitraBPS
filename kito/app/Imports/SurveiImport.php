@@ -23,16 +23,15 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
     {
         static $rowNumber = 1;
         $row['__row__'] = $rowNumber++;
-        
+
         try {
-    
             // Skip baris kosong
             if ($this->isEmptyRow($row)) {
                 return null;
             }
 
             Log::info('Importing row: ', $row);
-            
+
             // Dapatkan data wilayah
             $provinsi = $this->getProvinsi();
             $kabupaten = $this->getKabupaten($provinsi);
@@ -45,9 +44,12 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
 
             // Validasi tanggal
             $this->validateDates($jadwalMulai, $jadwalBerakhir);
-            
+
+            // Hitung bulan dominan
+            $bulanDominan = $this->calculateDominantMonth($jadwalMulai, $jadwalBerakhir);
+
             return new Survei([
-                'nama_survei' => $row['nama_survei'], 
+                'nama_survei' => $row['nama_survei'],
                 'lokasi_survei' => $row['lokasi_survei'] ?? null,
                 'id_desa' => $desa->id_desa,
                 'id_kecamatan' => $kecamatan->id_kecamatan,
@@ -56,7 +58,8 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
                 'kro' => $row['kro'],
                 'jadwal_kegiatan' => $jadwalMulai,
                 'jadwal_berakhir_kegiatan' => $jadwalBerakhir,
-                'status_survei' => 1, 
+                'bulan_dominan' => $bulanDominan,
+                'status_survei' => 1,
                 'tim' => $row['tim']
             ]);
         } catch (\Exception $e) {
@@ -64,6 +67,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             return null;
         }
     }
+
     
     private function isEmptyRow(array $row): bool
     {
@@ -140,6 +144,19 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             throw new \Exception("Tahun jadwal tidak valid (harus antara 2000-".($currentYear + 5).")");
         }
     }
+
+    private function calculateDominantMonth(Carbon $start, Carbon $end): string
+    {
+        $months = collect();
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            $months->push($date->format('m-Y'));
+        }
+
+        $mostFrequentMonth = $months->countBy()->sortDesc()->keys()->first(); // contoh: "04-2029"
+        [$bulan, $tahun] = explode('-', $mostFrequentMonth);
+        return Carbon::createFromDate($tahun, $bulan, 1)->toDateString(); // hasil akhir: "2029-04-01"
+    }
+
 
     public function rules(): array
     {

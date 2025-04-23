@@ -472,7 +472,7 @@ class DaftarSurveiBpsController extends Controller
     // Method untuk menyimpan data survei
     public function store(Request $request)
     {
-        // Validasi input
+        // Validasi input (hapus 'bulan_dominan')
         $validated = $request->validate([
             'id_kecamatan' => 'required|exists:kecamatan,id_kecamatan',
             'id_desa' => 'required|exists:desa,id_desa',
@@ -484,16 +484,35 @@ class DaftarSurveiBpsController extends Controller
             'status_survei' => 'required|integer',
             'tim' => 'required|string|max:1024',
         ]);
-
+    
+        // Fungsi cari bulan dominan
+        $getDominantMonthYear = function ($startDate, $endDate) {
+            $start = \Carbon\Carbon::parse($startDate);
+            $end = \Carbon\Carbon::parse($endDate);
+    
+            $months = collect();
+            for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+                $months->push($date->format('m-Y'));
+            }
+    
+            return $months->countBy()->sortDesc()->keys()->first(); // e.g. "04-2029"
+        };
+    
+        // Hitung dan set nilai bulan_dominan
+        $dominantMonthYear = $getDominantMonthYear($validated['jadwal_kegiatan'], $validated['jadwal_berakhir_kegiatan']);
+        [$bulan, $tahun] = explode('-', $dominantMonthYear);
+        $validated['bulan_dominan'] = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->toDateString(); // format date
+    
         // Tambahkan nilai default
         $validated['id_provinsi'] = 35; // Jatim
-        $validated['id_kabupaten'] = 16; // mojokerto
-
+        $validated['id_kabupaten'] = 16; // Mojokerto
+    
         // Simpan data ke database
         Survei::create($validated);
-
+    
         return redirect()->back()->with('success', 'Survei berhasil ditambahkan!');
     }
+    
 
 
     public function upExcelSurvei(Request $request)
