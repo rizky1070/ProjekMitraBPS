@@ -25,15 +25,15 @@ class DaftarSurveiBpsController extends Controller
         \Carbon\Carbon::setLocale('id');
         
         // Daftar tahun yang tersedia
-        $tahunOptions = Survei::selectRaw('DISTINCT YEAR(jadwal_kegiatan) as tahun')
+        $tahunOptions = Survei::selectRaw('DISTINCT YEAR(bulan_dominan) as tahun')
             ->orderByDesc('tahun')
             ->pluck('tahun', 'tahun');
 
         // Daftar bulan berdasarkan tahun yang dipilih
         $bulanOptions = [];
         if ($request->filled('tahun')) {
-            $bulanOptions = Survei::selectRaw('DISTINCT MONTH(jadwal_kegiatan) as bulan')
-                ->whereYear('jadwal_kegiatan', $request->tahun)
+            $bulanOptions = Survei::selectRaw('DISTINCT MONTH(bulan_dominan) as bulan')
+                ->whereYear('bulan_dominan', $request->tahun)
                 ->orderBy('bulan')
                 ->pluck('bulan', 'bulan')
                 ->mapWithKeys(function($month) {
@@ -49,10 +49,10 @@ class DaftarSurveiBpsController extends Controller
             ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request) {
                 $query->whereHas('surveis', function($q) use ($request) {
                     if ($request->filled('tahun')) {
-                        $q->whereYear('jadwal_kegiatan', $request->tahun);
+                        $q->whereYear('bulan_dominan', $request->tahun);
                     }
                     if ($request->filled('bulan')) {
-                        $q->whereMonth('jadwal_kegiatan', $request->bulan);
+                        $q->whereMonth('bulan_dominan', $request->bulan);
                     }
                 });
             })
@@ -63,10 +63,10 @@ class DaftarSurveiBpsController extends Controller
         $namaSurveiOptions = Survei::select('nama_survei')
             ->distinct()
             ->when($request->filled('tahun'), function($query) use ($request) {
-                $query->whereYear('jadwal_kegiatan', $request->tahun);
+                $query->whereYear('bulan_dominan', $request->tahun);
             })
             ->when($request->filled('bulan'), function($query) use ($request) {
-                $query->whereMonth('jadwal_kegiatan', $request->bulan);
+                $query->whereMonth('bulan_dominan', $request->bulan);
             })
             ->when($request->filled('kecamatan'), function($query) use ($request) {
                 $query->where('id_kecamatan', $request->kecamatan);
@@ -88,10 +88,10 @@ class DaftarSurveiBpsController extends Controller
                 }
             ])
             ->when($request->filled('tahun'), function ($query) use ($request) {
-                $query->whereYear('jadwal_kegiatan', $request->tahun);
+                $query->whereYear('bulan_dominan', $request->tahun);
             })
             ->when($request->filled('bulan'), function ($query) use ($request) {
-                $query->whereMonth('jadwal_kegiatan', $request->bulan);
+                $query->whereMonth('bulan_dominan', $request->bulan);
             })
             ->when($request->filled('kecamatan'), function ($query) use ($request) {
                 $query->where('id_kecamatan', $request->kecamatan);
@@ -111,10 +111,10 @@ class DaftarSurveiBpsController extends Controller
             ->select('mitra_survei.id_mitra', DB::raw('COUNT(DISTINCT mitra_survei.id_survei) as total'))
             ->whereNotNull('mitra_survei.posisi_mitra')
             ->when($request->filled('tahun'), function ($query) use ($request) {
-                $query->whereYear('survei.jadwal_kegiatan', $request->tahun);
+                $query->whereYear('survei.bulan_dominan', $request->tahun);
             })
             ->when($request->filled('bulan'), function ($query) use ($request) {
-                $query->whereMonth('survei.jadwal_kegiatan', $request->bulan);
+                $query->whereMonth('survei.bulan_dominan', $request->bulan);
             })
             ->groupBy('mitra_survei.id_mitra')
             ->pluck('total', 'mitra_survei.id_mitra');

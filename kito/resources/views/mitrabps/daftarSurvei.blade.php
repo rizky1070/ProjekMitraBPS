@@ -176,6 +176,7 @@
                                     <span class="ml-2 text-gray-600 block">
                                         <strong>Jadwal Kegiatan: </strong></br>
                                         {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
+                                        </br>{{ $survey->bulan_dominan}}
                                     </span>
 
                                     <span class="ml-2 text-gray-600 block">
