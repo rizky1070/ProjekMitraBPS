@@ -112,7 +112,7 @@
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
                         new TomSelect('#nama_mitra', {
-                            placeholder: 'Pilih Mitra',
+                            placeholder: 'Cari Mitra',
                             searchField: 'text',
                         });
                         
@@ -182,8 +182,8 @@
                                         @endphp
                                         <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
                                             <div class="flex justify-center items-center">
-                                                <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
                                                 <p class="{{ $bgStatus }} m-1 p-1 border rounded-lg"> </p>
+                                                <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
