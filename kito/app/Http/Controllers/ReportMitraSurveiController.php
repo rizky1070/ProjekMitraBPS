@@ -11,6 +11,7 @@ use App\Models\Kecamatan;
 use App\Models\Desa;
 use App\Models\MitraSurvei;
 use App\Imports\MitraImport;
+use App\Exports\MitraExport;
 use Maatwebsite\Excel\Facades\Excel;  
 use Illuminate\Support\Facades\DB; 
 
@@ -295,6 +296,30 @@ class ReportMitraSurveiController extends Controller
         'totalTidakIkutSurvei',
         'request'
     ));
+}
+
+public function exportMitra(Request $request)
+{
+    // Gunakan filter yang sama dengan report
+    $mitrasQuery = Mitra::with(['kecamatan'])
+        ->when($request->filled('tahun'), function ($query) use ($request) {
+            $query->whereYear('tahun', $request->tahun);
+        })
+        ->when($request->filled('bulan'), function ($query) use ($request) {
+            $query->whereMonth('tahun', $request->bulan);
+        })
+        ->when($request->filled('nama_lengkap'), function ($query) use ($request) {
+            $query->where('nama_lengkap', $request->nama_lengkap);
+        })
+        ->when($request->filled('status_mitra'), function ($query) use ($request) {
+            if ($request->status_mitra == 'ikut') {
+                $query->whereHas('mitraSurvei');
+            } elseif ($request->status_mitra == 'tidak_ikut') {
+                $query->whereDoesntHave('mitraSurvei');
+            }
+        });
+
+    return Excel::download(new MitraExport($mitrasQuery), 'data_mitra.xlsx');
 }
 
 

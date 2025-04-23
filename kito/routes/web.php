@@ -353,13 +353,14 @@ Route::post('/simpan-penilaian', [MitraController::class, 'simpanPenilaian'])->n
 // Route::post('/penilaian-mitra/{id}', [PenilaianMitraController::class, 'store'])->name('penilaian.mitra.store');
 
 // Halaman Report
-//Halaman Report > Report Mitra
+//Halaman Report > Report Survei
 Route::get('/ReportSurvei', [ReportMitraSurveiController::class, 'SurveiReport'])->name('reports.survei');
 Route::get('/ReportSurvei', [ReportMitraSurveiController::class, 'SurveiReport'])->name('reports.survei.filter');
 
 
-//Halaman Report > Report Survei
+//Halaman Report > Report Mitra
 Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra');
 Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra.filter');
+Route::get('/ReportMitra/export-mitra', [ReportMitraSurveiController::class, 'exportMitra'])->name('export.mitra');
 
 require __DIR__ . '/auth.php';

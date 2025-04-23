@@ -182,7 +182,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div>
-                                                    <div class="text-sm font-medium text-gray-900">{{ $survei->nama_survei }}</div>
+                                                    <div class="text-sm font-medium text-gray-900 whitespace-normal break-words" style="max-width: 120px;">{{ $survei->nama_survei }}</div>
                                                     <div class="text-sm text-gray-500">{{ $survei->tim }}</div>
                                                 </div>
                                             </div>
@@ -195,9 +195,7 @@
                                                 {{ $survei->mitra_survei_count }} mitra
                                             </span>
                                         </td>
-                                        {{-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $survei->jadwal_kegiatan }}
-                                        </td> --}}
+
                                         <td class="text-center whitespace-normal break-words" style="max-width: 120px;">{{ \Carbon\Carbon::parse($survei->jadwal_kegiatan )->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($survei->jadwal_berakhir_kegiatan )->translatedFormat('j F Y') }}</td>
 
                                         <td class="px-6 py-4 whitespace-nowrap">
