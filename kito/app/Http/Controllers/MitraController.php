@@ -293,8 +293,17 @@ class MitraController extends Controller
             'profileImage' // Tambahkan ini
         ));
     }
-    
-    
+
+    public function updateStatus(Request $request, $id_mitra)
+    {
+        $mitra = Mitra::findOrFail($id_mitra);
+        
+        // Toggle status pekerjaan (0 menjadi 1, 1 menjadi 0)
+        $mitra->status_pekerjaan = $mitra->status_pekerjaan == 1 ? 0 : 1;
+        $mitra->save();
+        
+        return redirect()->back()->with('success', 'Status pekerjaan berhasil diubah');
+    }
     
     public function penilaianMitra($id_survei)
     {
