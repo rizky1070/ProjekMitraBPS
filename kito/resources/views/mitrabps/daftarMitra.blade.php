@@ -178,7 +178,13 @@
                                             {{ $mitra->kecamatan->nama_kecamatan ?? '-' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            {{ $mitra->mitra_survei_count }}
+                                            @if(request()->has('tahun'))
+                                            {{ $mitra->survei_tahun_count }}
+                                            @elseif(request()->has('bulan'))
+                                            {{ $mitra->survei_bulan_count }}
+                                            @else
+                                            {{ $mitra->survei_all_count }}
+                                            @endif
                                         </td>
                                         <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
                                             {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - 

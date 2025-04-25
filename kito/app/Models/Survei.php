@@ -64,7 +64,7 @@ class Survei extends Model
     // Model Survei
     public function survei()
     {
-        return $this->belongsToMany(Survei::class, 'mitra_survei', 'id_survei', 'id_mitra');
+        return $this->hasOne(Survei::class, 'id_survei', 'id_survei');
     }
 
     public function mitra()
