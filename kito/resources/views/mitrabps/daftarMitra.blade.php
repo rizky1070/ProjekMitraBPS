@@ -16,7 +16,7 @@
     <title>Input Mitra BPS</title>
 </head>
 <body class="h-full">
-        <!-- SweetAlert Logic -->
+    <!-- SweetAlert Logic -->
     @if (session('success'))
     <script>
     swal("Success!", "{{ session('success') }}", "success");
@@ -34,7 +34,7 @@
     swal("Error!", "{{ session('error') }}", "error");
     </script>
     @endif
-        <!-- component -->
+    <!-- component -->
     <div x-data="{ sidebarOpen: false }" class="flex h-screen">
         <x-sidebar></x-sidebar>
         <div class="flex flex-col flex-1 overflow-hidden">
@@ -111,47 +111,39 @@
                 <!-- Inisialisasi Tom Select -->
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
-                        new TomSelect('#nama_mitra', {
-                            placeholder: 'Cari Mitra',
-                            searchField: 'text',
-                        });
-                        
-                        new TomSelect('#tahun', {
-                            placeholder: 'Pilih Tahun',
-                            searchField: 'text',
-                        });
+                        // Fungsi untuk inisialisasi TomSelect
+                        function initTomSelect() {
+                            new TomSelect('#nama_mitra', {
+                                placeholder: 'Cari Mitra',
+                                searchField: 'text',
+                            });
+                            
+                            new TomSelect('#tahun', {
+                                placeholder: 'Pilih Tahun',
+                                searchField: 'text',
+                            });
 
-                        new TomSelect('#bulan', {
-                            placeholder: 'Pilih Bulan',
-                            searchField: 'text',
-                        });
+                            new TomSelect('#bulan', {
+                                placeholder: 'Pilih Bulan',
+                                searchField: 'text',
+                            });
 
-                        new TomSelect('#kecamatan', {
-                            placeholder: 'Pilih Kecamatan',
-                            searchField: 'text',
-                        });
+                            new TomSelect('#kecamatan', {
+                                placeholder: 'Pilih Kecamatan',
+                                searchField: 'text',
+                            });
+                        }
+
+                        // Inisialisasi pertama kali
+                        initTomSelect();
 
                         // Auto submit saat filter berubah
                         const filterForm = document.getElementById('filterForm');
-                        const tahunSelect = document.getElementById('tahun');
-                        const bulanSelect = document.getElementById('bulan');
-                        const kecamatanSelect = document.getElementById('kecamatan');
-                        const mitraSelect = document.getElementById('nama_mitra');
-
-                        // Ganti fungsi submitForm dengan ini
-                        let timeout;
-                        function submitForm() {
-                            clearTimeout(timeout);
-                            timeout = setTimeout(() => {
+                        filterForm.addEventListener('change', function() {
+                            setTimeout(() => {
                                 filterForm.submit();
-                            }, 500); // Delay 500ms sebelum submit
-                        }
-
-                        // Tambahkan event listener untuk setiap select
-                        tahunSelect.addEventListener('change', submitForm);
-                        bulanSelect.addEventListener('change', submitForm);
-                        kecamatanSelect.addEventListener('change', submitForm);
-                        mitraSelect.addEventListener('change', submitForm);
+                            }, 500);
+                        });
                     });
                 </script>
                 <!-- Table -->
@@ -174,32 +166,24 @@
                                 @foreach ($mitras as $mitra)
                                     <tr class="hover:bg-gray-50">
                                         @php
-                                            if ($mitra->status_pekerjaan == 1) {
-                                                $bgStatus = 'bg-red-500';
-                                            } else {
-                                                $bgStatus = 'bg-green-500';
-                                            }
+                                            $bgStatus = $mitra->status_pekerjaan == 1 ? 'bg-red-500' : 'bg-green-500';
                                         @endphp
-                                        <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
                                             <div class="flex justify-center items-center">
                                                 <p class="{{ $bgStatus }} m-1 p-1 border rounded-lg"> </p>
                                                 <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            @if(request()->has('bulan') && request()->has('tahun'))
-                                                {{ $mitra->survei_bulan_count }}
-                                            @elseif(request()->has('bulan'))
-                                                {{ $mitra->survei_bulan_count }}
-                                            @elseif(request()->has('tahun'))
-                                                {{ $mitra->survei_tahun_count }}
-                                            @else
-                                                {{ $mitra->mitra_survei_count }}
-                                            @endif
+                                            {{ $mitra->kecamatan->nama_kecamatan ?? '-' }}
                                         </td>
-
-                                        <td class="text-center whitespace-normal break-words" style="max-width: 120px;">{{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            {{ $mitra->mitra_survei_count }}
+                                        </td>
+                                        <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
+                                            {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - 
+                                            {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}
+                                        </td>
                                         @if(request()->has('bulan'))
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
                                             Rp{{ number_format($mitra->total_honor ?? 0, 0, ',', '.') }}
