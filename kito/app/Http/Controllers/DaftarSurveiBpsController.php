@@ -305,6 +305,19 @@ class DaftarSurveiBpsController extends Controller
                 ->withInput();
         }
     
+        // Hitung total honor mitra di bulan yang sama dengan survei ini (SEBELUM penambahan)
+        $totalHonorBulanIni = MitraSurvei::join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
+            ->where('mitra_survei.id_mitra', $id_mitra)
+            ->where('survei.bulan_dominan', $survey->bulan_dominan)
+            ->sum(DB::raw('mitra_survei.honor * mitra_survei.vol'));
+    
+        // Cek apakah total honor SEBELUM penambahan sudah mencapai batas
+        if ($totalHonorBulanIni >= 4000000) {
+            return redirect()->back()
+                ->with('error', "Mitra tidak bisa ditambahkan karena total honor di bulan {$survey->bulan_dominan} sudah mencapai Rp 4.000.000")
+                ->withInput();
+        }
+    
         // Cek apakah mitra sudah terdaftar di survei ini
         $mitra_survei = MitraSurvei::where('id_survei', $id_survei)
             ->where('id_mitra', $id_mitra)
@@ -333,13 +346,11 @@ class DaftarSurveiBpsController extends Controller
                 'posisi_mitra' => $request->posisi_mitra,
                 'tgl_ikut_survei' => $tgl_ikut_survei
             ]);
-    
-            // Kirim notifikasi WhatsApp dengan data yang diperlukan
-            // $this->sendWhatsAppNotification($mitra, $survey, $request->vol, $request->honor, $request->posisi_mitra);
         }
     
         return redirect()->back()->with('success', 'Mitra berhasil ditambahkan ke survei!');
     }
+    
     
 
     private function sendWhatsAppNotification($mitra, $survey, $vol, $honor, $posisiMitra)
