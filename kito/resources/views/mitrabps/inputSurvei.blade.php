@@ -91,16 +91,15 @@
                                 <label for="lokasi_survei" class="block text-sm font-medium text-gray-700 mb-1">Lokasi Survei</label>
                                 <input type="text" name="lokasi_survei" id="lokasi_survei" value="{{ old('lokasi_survei') }}" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Lokasi Survei">
                             </div>
-                            
-                            <div class="mb-5">
-                                <label for="kro" class="block text-sm font-medium text-gray-700 mb-1">KRO</label>
-                                <input type="text" name="kro" id="kro" value="{{ old('kro') }}" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="KRO">
-                            </div>
                         </div>
                         
                         <!-- Kolom Kanan -->
                         <div class="w-full md:w-1/2 px-3">
                             
+                            <div class="mb-5">
+                                <label for="kro" class="block text-sm font-medium text-gray-700 mb-1">KRO</label>
+                                <input type="text" name="kro" id="kro" value="{{ old('kro') }}" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="KRO">
+                            </div>
                             
                             <div class="mb-5">
                                 <label for="tim" class="block text-sm font-medium text-gray-700 mb-1">Tim</label>
@@ -116,18 +115,6 @@
                                 <label for="jadwal_berakhir_kegiatan" class="block text-sm font-medium text-gray-700 mb-1">Jadwal Berakhir Kegiatan</label>
                                 <input type="date" name="jadwal_berakhir_kegiatan" id="jadwal_berakhir_kegiatan" value="{{ old('jadwal_berakhir_kegiatan') }}" class="w-full h-10 text-gray-500 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50">
                             </div>
-                            
-                            <div class="mb-5">
-                                <label for="status_survei" class="block text-sm font-medium text-gray-700 mb-1">Status Survei</label>
-                                <select name="status_survei" id="status_survei" class="w-full h-10 text-gray-500 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50">
-                                    <option value="1" {{ old('status_survei') == '1' ? 'selected' : '' }}>belum dikerjakan</option>
-                                    <option value="2" {{ old('status_survei') == '2' ? 'selected' : '' }}>sedang dikerjakan</option>
-                                    <option value="3" {{ old('status_survei') == '3' ? 'selected' : '' }}>sudah dikerjakan</option>
-                                </select>
-                            </div>
-
-                            
-
                         </div>
                     </div>
                     

@@ -483,7 +483,7 @@ class DaftarSurveiBpsController extends Controller
     // Method untuk menyimpan data survei
     public function store(Request $request)
     {
-        // Validasi input (hapus 'bulan_dominan')
+        // Validasi input (hapus 'bulan_dominan' dan 'status_survei')
         $validated = $request->validate([
             'id_kecamatan' => 'required|exists:kecamatan,id_kecamatan',
             'id_desa' => 'required|exists:desa,id_desa',
@@ -492,7 +492,6 @@ class DaftarSurveiBpsController extends Controller
             'kro' => 'required|string|max:1024',
             'jadwal_kegiatan' => 'required|date',
             'jadwal_berakhir_kegiatan' => 'required|date',
-            'status_survei' => 'required|integer',
             'tim' => 'required|string|max:1024',
         ]);
     
@@ -512,7 +511,20 @@ class DaftarSurveiBpsController extends Controller
         // Hitung dan set nilai bulan_dominan
         $dominantMonthYear = $getDominantMonthYear($validated['jadwal_kegiatan'], $validated['jadwal_berakhir_kegiatan']);
         [$bulan, $tahun] = explode('-', $dominantMonthYear);
-        $validated['bulan_dominan'] = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->toDateString(); // format date
+        $validated['bulan_dominan'] = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->toDateString();
+    
+        // Set status_survei berdasarkan tanggal hari ini
+        $today = now();
+        $startDate = \Carbon\Carbon::parse($validated['jadwal_kegiatan']);
+        $endDate = \Carbon\Carbon::parse($validated['jadwal_berakhir_kegiatan']);
+    
+        if ($today->lt($startDate)) {
+            $validated['status_survei'] = 1; // Belum dimulai
+        } elseif ($today->gt($endDate)) {
+            $validated['status_survei'] = 3; // Sudah selesai
+        } else {
+            $validated['status_survei'] = 2; // Sedang berjalan
+        }
     
         // Tambahkan nilai default
         $validated['id_provinsi'] = 35; // Jatim

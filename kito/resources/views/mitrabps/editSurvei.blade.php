@@ -72,28 +72,6 @@
                         @endif
                     </span>
                 </p>
-
-                        <!-- Dropdown -->
-                <div class="relative inline-block text-left ml-4">
-                    <button type="button" class="bg-orange text-black px-2 py-1 rounded" onclick="toggleDropdown()">Ubah Status</button>
-                    <div id="dropdown" class="hidden absolute mt-2 bg-white border rounded shadow-lg z-10">
-                        <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
-                            @csrf
-                            <input type="hidden" name="status_survei" value="1">
-                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700">Belum Dikerjakan</button>
-                        </form>
-                        <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
-                            @csrf
-                            <input type="hidden" name="status_survei" value="2">
-                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700">Sedang Dikerjakan</button>
-                        </form>
-                        <form action="{{ route('survey.updateStatus', $survey->id_survei) }}" method="POST" class="block">
-                            @csrf
-                            <input type="hidden" name="status_survei" value="3">
-                            <button type="submit" class="block px-4 py-2 text-sm text-gray-700">Sudah Dikerjakan</button>
-                        </form>
-                    </div>
-                </div>
             </div>
             
             <script>
