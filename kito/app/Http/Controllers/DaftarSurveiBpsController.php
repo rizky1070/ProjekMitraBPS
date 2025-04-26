@@ -152,6 +152,7 @@ class DaftarSurveiBpsController extends Controller
         // Daftar tahun yang tersedia (filter berdasarkan tanggal survei)
         $tahunOptions = Mitra::whereDate('tahun', '<=', $survey->jadwal_kegiatan)
             ->whereDate('tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan)
+            ->where('mitra.status_pekerjaan', '=',0)
             ->selectRaw('DISTINCT YEAR(tahun) as tahun')
             ->orderByDesc('tahun')
             ->pluck('tahun', 'tahun');
@@ -161,6 +162,7 @@ class DaftarSurveiBpsController extends Controller
         if ($request->filled('tahun')) {
             $bulanOptions = Mitra::whereDate('tahun', '<=', $survey->jadwal_kegiatan)
                 ->whereDate('tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan)
+                ->where('mitra.status_pekerjaan', '=',0)
                 ->whereYear('tahun', $request->tahun)
                 ->selectRaw('DISTINCT MONTH(tahun) as bulan')
                 ->orderBy('bulan')
@@ -178,7 +180,8 @@ class DaftarSurveiBpsController extends Controller
             ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request, $survey) {
                 $query->whereHas('mitras', function($q) use ($request, $survey) {
                     $q->whereDate('tahun', '<=', $survey->jadwal_kegiatan)
-                    ->whereDate('tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan);
+                    ->whereDate('tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan)
+                    ->where('mitra.status_pekerjaan', '=',0);
                     
                     if ($request->filled('tahun')) {
                         $q->whereYear('tahun', $request->tahun);
@@ -194,6 +197,7 @@ class DaftarSurveiBpsController extends Controller
         // Daftar nama mitra (nama lengkap) (filter berdasarkan tanggal survei)
         $namaMitraOptions = Mitra::whereDate('tahun', '<=', $survey->jadwal_kegiatan)
             ->whereDate('tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan)
+            ->where('mitra.status_pekerjaan', '=',0)
             ->select('nama_lengkap')
             ->distinct()
             ->when($request->filled('tahun'), function($query) use ($request) {
@@ -225,6 +229,7 @@ class DaftarSurveiBpsController extends Controller
         ->groupBy('mitra.id_mitra')
         ->whereDate('mitra.tahun', '<=', $survey->jadwal_kegiatan)
         ->whereDate('mitra.tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan)
+        ->where('mitra.status_pekerjaan', '=',0)
         ->when($request->filled('tahun'), function($query) use ($request) {
             $query->whereYear('mitra.tahun', $request->tahun);
         })
