@@ -71,6 +71,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                 'id_provinsi' => $provinsi->id_provinsi,
                 'jenis_kelamin' => $row['jenis_kelamin'],
                 'status_pekerjaan' => $row['status_pekerjaan'],
+                'detail_pekerjaan' => empty($row['detail_pekerjaan']) ? '-' : $row['detail_pekerjaan'],
                 'no_hp_mitra' => $row['no_hp_mitra'],
                 'email_mitra' => $row['email_mitra'],
                 'tahun' => $tahunMulai,
@@ -192,6 +193,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             'kode_kecamatan' => 'required|string|max:3',
             'jenis_kelamin' => 'required|in:1,2',
             'status_pekerjaan' => 'required|in:0,1',
+            'detail_pekerjaan' => 'nullable',
             'no_hp_mitra' => [
                 'required',
                 'string',
