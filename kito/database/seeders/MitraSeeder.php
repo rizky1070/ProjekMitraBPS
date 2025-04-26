@@ -25,7 +25,8 @@ class MitraSeeder extends Seeder
                 'email_mitra' => 'mitraa@example.com',
                 'tahun' => '2018-03-15',
                 'tahun_selesai' => '2018-04-15', // 1 bulan setelah tahun
-                'status_pekerjaan' => 1,
+                'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra A',
             ],
             // data 2
             [
@@ -42,6 +43,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2019-07-10',
                 'tahun_selesai' => '2019-08-10',
                 'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra B',
             ],
             // data 3
             [
@@ -57,7 +59,8 @@ class MitraSeeder extends Seeder
                 'email_mitra' => 'mitrac@example.com',
                 'tahun' => '2020-11-05',
                 'tahun_selesai' => '2020-12-05',
-                'status_pekerjaan' => 1,
+                'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra C',
             ],
             // data 4
             [
@@ -74,6 +77,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2021-02-20',
                 'tahun_selesai' => '2021-03-20',
                 'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra D',
             ],
             // data 5
             [
@@ -89,7 +93,8 @@ class MitraSeeder extends Seeder
                 'email_mitra' => 'mitrae@example.com',
                 'tahun' => '2022-05-12',
                 'tahun_selesai' => '2022-06-12',
-                'status_pekerjaan' => 1,
+                'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra E',
             ],
             // data 6
             [
@@ -106,6 +111,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2023-09-08',
                 'tahun_selesai' => '2023-10-08',
                 'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra F',
             ],
             // data 7
             [
@@ -121,7 +127,8 @@ class MitraSeeder extends Seeder
                 'email_mitra' => 'mitrag@example.com',
                 'tahun' => '2024-01-20',
                 'tahun_selesai' => '2024-02-20',
-                'status_pekerjaan' => 1,
+                'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra G',
             ],
             // data 8
             [
@@ -138,6 +145,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2025-04-10',
                 'tahun_selesai' => '2025-05-10',
                 'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra H',
             ],
             // data 9
             [
@@ -153,7 +161,8 @@ class MitraSeeder extends Seeder
                 'email_mitra' => 'mitrai@example.com',
                 'tahun' => '2025-04-15',
                 'tahun_selesai' => '2025-05-15',
-                'status_pekerjaan' => 1,
+                'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra I',
             ],
             // data 10
             [
@@ -170,6 +179,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2025-04-10',
                 'tahun_selesai' => '2025-05-10',
                 'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra J',
             ],
             // data 11
             [
@@ -186,6 +196,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2025-05-01',
                 'tahun_selesai' => '2025-06-01',
                 'status_pekerjaan' => 1,
+                'detail_pekerjaan' => 'Pekerjaan Mitra K',
             ],
             // data 12
             [
@@ -202,6 +213,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2025-06-15',
                 'tahun_selesai' => '2025-07-15',
                 'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra L',
             ],
             // data 13
             [
@@ -218,6 +230,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2025-07-10',
                 'tahun_selesai' => '2025-08-10',
                 'status_pekerjaan' => 1,
+                'detail_pekerjaan' => 'Pekerjaan Mitra M',
             ],
             // data 14
             [
@@ -234,6 +247,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2025-08-05',
                 'tahun_selesai' => '2025-09-05',
                 'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra N',
             ],
             // data 15
             [
@@ -250,6 +264,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2025-09-20',
                 'tahun_selesai' => '2025-10-20',
                 'status_pekerjaan' => 1,
+                'detail_pekerjaan' => 'Pekerjaan Mitra O',
             ],
             // data 16
             [
@@ -266,6 +281,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2025-10-15',
                 'tahun_selesai' => '2025-11-15',
                 'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra P',
             ],
             // data 17
             [
@@ -282,6 +298,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2020-11-10',
                 'tahun_selesai' => '2020-12-10',
                 'status_pekerjaan' => 1,
+                'detail_pekerjaan' => 'Pekerjaan Mitra Q',
             ],
             // data 18
             [
@@ -298,6 +315,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2020-12-05',
                 'tahun_selesai' => '2021-01-05',
                 'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra R',
             ],
             // data 19
             [
@@ -314,6 +332,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2020-01-20',
                 'tahun_selesai' => '2020-02-20',
                 'status_pekerjaan' => 1,
+                'detail_pekerjaan' => 'Pekerjaan Mitra S',
             ],
             // data 20
             [
@@ -330,6 +349,7 @@ class MitraSeeder extends Seeder
                 'tahun' => '2020-02-15',
                 'tahun_selesai' => '2020-03-15',
                 'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra T',
             ],
         ];
 

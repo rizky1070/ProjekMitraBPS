@@ -71,6 +71,10 @@
                         <span class="text-right">{{ \Carbon\Carbon::parse($mits->tahun)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($mits->tahun_selesai)->translatedFormat('j F Y') }}</span>
                     </div>
                     <div class="flex justify-between w-full border-b py-1">
+                        <strong>Pekerjaan :</strong>
+                        <span class="text-right">{{ $mits->detail_pekerjaan }}</span>
+                    </div>
+                    <div class="flex justify-between w-full border-b py-1">
                         <strong>Status Pekerjaan :</strong>
                         <form action="{{ route('mitra.updateStatus', $mits->id_mitra) }}" method="POST" class="inline">
                             @csrf

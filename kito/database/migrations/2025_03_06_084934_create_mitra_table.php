@@ -19,6 +19,7 @@ class CreateMitraTable extends Migration
             $table->string('alamat_mitra', 1024);
             $table->smallInteger('jenis_kelamin');
             $table->smallInteger('status_pekerjaan');
+            $table->string('detail_pekerjaan', );
             $table->string('no_hp_mitra', );
             $table->string('email_mitra', );
             $table->date('tahun');
