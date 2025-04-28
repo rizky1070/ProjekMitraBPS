@@ -62,7 +62,6 @@
                                 <!-- Year Row -->
                                 <div>
                                    <h4 class="text-lg font-semibold text-gray-800">Filter Mitra</h4>
-                                   <p class="text-xs text-gray-500">aktifkan filter bulan untuk melihat total honor mitra</p>
                                 </div>
                                 <div class="flex">
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 w-full">
