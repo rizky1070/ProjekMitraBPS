@@ -48,6 +48,10 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             // Hitung bulan dominan
             $bulanDominan = $this->calculateDominantMonth($jadwalMulai, $jadwalBerakhir);
 
+            // Set status_survei berdasarkan tanggal hari ini
+            $today = now();
+            $statusSurvei = $this->determineSurveyStatus($today, $jadwalMulai, $jadwalBerakhir);
+
             return new Survei([
                 'nama_survei' => $row['nama_survei'],
                 'lokasi_survei' => $row['lokasi_survei'] ?? null,
@@ -59,7 +63,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
                 'jadwal_kegiatan' => $jadwalMulai,
                 'jadwal_berakhir_kegiatan' => $jadwalBerakhir,
                 'bulan_dominan' => $bulanDominan,
-                'status_survei' => 1,
+                'status_survei' => $statusSurvei, // Diatur otomatis
                 'tim' => $row['tim']
             ]);
         } catch (\Exception $e) {
@@ -67,6 +71,19 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             return null;
         }
     }
+
+    // Fungsi baru untuk menentukan status survei
+    private function determineSurveyStatus(Carbon $today, Carbon $startDate, Carbon $endDate): int
+    {
+        if ($today->lt($startDate)) {
+            return 0; // Belum dimulai
+        } elseif ($today->gt($endDate)) {
+            return 2; // Sudah selesai
+        } else {
+            return 1; // Sedang berjalan
+        }
+    }
+
 
     
     private function isEmptyRow(array $row): bool
