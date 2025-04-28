@@ -98,10 +98,10 @@
                                     <div class="flex items-center">
                                         <label for="bulan" class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
                                         <select id="bulan" name="bulan" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2"{{ empty($bulanOptions) ? 'disabled' : '' }}>
-                                            <option value="">Semua Bulan</option>
-                                            @foreach($bulanOptions as $bulan)
-                                                <option value="{{ $bulan }}" {{ request('bulan') == $bulan ? 'selected' : '' }}>
-                                                    {{ \Carbon\Carbon::create()->month($bulan)->format('F') }}
+                                            <option value="">Pilih Bulan</option>
+                                            @foreach($bulanOptions as $key => $bulan)
+                                                <option value="{{ $key }}" {{ request('bulan') == $key ? 'selected' : '' }}>
+                                                    {{ $bulan }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -192,14 +192,14 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $survei->mitra_survei_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
-                                                {{ $survei->mitra_survei_count }} mitra
+                                                {{ $survei->total_mitra }} mitra
                                             </span>
                                         </td>
 
                                         <td class="text-center whitespace-normal break-words" style="max-width: 120px;">{{ \Carbon\Carbon::parse($survei->jadwal_kegiatan )->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($survei->jadwal_berakhir_kegiatan )->translatedFormat('j F Y') }}</td>
 
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($survei->mitra_survei_count > 0)
+                                            @if($survei->total_mitra > 0)
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                     Aktif
                                                 </span>

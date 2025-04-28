@@ -18,134 +18,137 @@ use Illuminate\Support\Facades\DB;
 class ReportMitraSurveiController extends Controller
 {
     public function SurveiReport(Request $request)
-    {
-        \Carbon\Carbon::setLocale('id');
-        // Daftar kecamatan untuk dropdown filter
-        $kecamatans = Kecamatan::pluck('nama_kecamatan', 'id_kecamatan');
+{
+    \Carbon\Carbon::setLocale('id');
 
-        // Daftar mitra untuk dropdown filter
-        $surveisForDropdown = Survei::select('id_survei', 'nama_survei')
-            ->orderBy('nama_survei', 'asc')
-            ->get();
+    // OPTION FILTER TAHUN
+    $tahunOptions = Survei::selectRaw('YEAR(jadwal_kegiatan) as tahun')
+        ->orderByDesc('tahun')
+        ->pluck('tahun', 'tahun');
 
-        // Mengambil daftar tahun yang unik dari kolom tahun pada tabel mitra
-        $tahunOptions = Survei::selectRaw('DISTINCT YEAR(jadwal_kegiatan) as tahun')
-            ->orderByDesc('jadwal_kegiatan')
-            ->pluck('tahun', 'tahun');
-
-        // Mengambil daftar bulan berdasarkan tahun yang dipilih (jika ada)
-        $bulanOptions = [];
-        if ($request->filled('tahun')) {
-            $bulanOptions = Survei::selectRaw('DISTINCT MONTH(jadwal_kegiatan) as bulan')
-                ->whereYear('jadwal_kegiatan', $request->tahun)
-                ->orderBy('bulan')
-                ->pluck('bulan', 'bulan');
-        }
-
-        // Query awal dengan relasi dan count mitra survei
-        $surveis = Survei::with('kecamatan')
-            ->withCount('mitraSurvei');
-
-        // Filter berdasarkan status partisipasi survei
-        if ($request->filled('status_survei')) {
-            if ($request->status_survei == 'aktif') {
-                $surveis->has('mitraSurvei');
-            } elseif ($request->status_survei == 'tidak_aktif') {
-                $surveis->doesntHave('mitraSurvei');
-            }
-        }
-
-        // Filter berdasarkan tahun (bila ada)
-        if ($request->filled('tahun')) {
-            $surveis->whereYear('tahun', $request->tahun);
-        }
-
-        // Filter berdasarkan bulan (bila ada)
-        if ($request->filled('bulan')) {
-            $surveis->whereMonth('tahun', $request->bulan);
-        }
-
-        // Filter nama mitra
-        if ($request->filled('search')) {
-            $surveis->where('nama_lengkap', 'like', '%' . $request->search . '%');
-        }
-
-        // Filter kecamatan
-        if ($request->filled('kecamatan')) {
-            $surveis->whereHas('kecamatan', function ($query) use ($request) {
-                $query->where('nama_kecamatan', 'like', '%' . $request->kecamatan . '%');
+    // OPTION FILTER BULAN (hanya muncul jika tahun dipilih)
+    $bulanOptions = [];
+    if ($request->filled('tahun')) {
+        $bulanOptions = Survei::selectRaw('MONTH(bulan_dominan) as bulan')
+            ->whereYear('bulan_dominan', $request->tahun)
+            ->whereNotNull('bulan_dominan') // Pastikan bulan_dominan tidak NULL
+            ->orderBy('bulan')
+            ->distinct()
+            ->get()
+            ->mapWithKeys(function ($item) {
+                $monthName = \Carbon\Carbon::create()
+                    ->month($item->bulan)
+                    ->translatedFormat('F');
+                return [
+                    str_pad($item->bulan, 2, '0', STR_PAD_LEFT) => $monthName
+                ];
             });
-        }
+    }
 
-        // Filter berdasarkan mitra yang dipilih dari dropdown
-        if ($request->filled('mitra')) {
-            $surveis->where('id_mitra', $request->mitra);
-        }
+    // FILTER KECAMATAN
+    $kecamatanOptions = Kecamatan::query()
+        ->when($request->filled('tahun') || $request->filled('bulan'), function ($query) use ($request) {
+            $query->whereHas('surveis', function ($q) use ($request) {
+                if ($request->filled('tahun')) {
+                    $q->whereYear('bulan_dominan', $request->tahun);
+                }
+                if ($request->filled('bulan')) {
+                    $q->whereMonth('bulan_dominan', $request->bulan);
+                }
+            });
+        })
+        ->orderBy('nama_kecamatan')
+        ->get(['nama_kecamatan', 'id_kecamatan', 'kode_kecamatan']);
 
-        // Query untuk menghitung total dengan filter yang sama
-        $totalQuery = Survei::query();
-        $SurveiAktifQuery = Survei::has('mitraSurvei');
-        $SurveiTidakAktifQuery = Survei::doesntHave('mitraSurvei');
+    // Filter Nama Survei (hanya yang ada di tahun & bulan yang dipilih)
+    $namaSurveiOptions = Survei::select('nama_survei')
+        ->distinct()
+        ->when($request->filled('tahun'), function ($query) use ($request) {
+            $query->whereYear('bulan_dominan', $request->tahun);
+        })
+        ->when($request->filled('bulan'), function ($query) use ($request) {
+            $query->whereMonth('bulan_dominan', $request->bulan);
+        })
+        ->when($request->filled('kecamatan'), function ($query) use ($request) {
+            $query->where('id_kecamatan', $request->kecamatan);
+        })
+        ->orderBy('nama_survei')
+        ->pluck('nama_survei', 'nama_survei');
 
-        // Terapkan filter yang sama ke semua query
-        $applyFilters = function($query) use ($request) {
+    // QUERY UTAMA
+    $surveisQuery = Survei::with(['kecamatan'])
+        ->withCount(['mitraSurvei as total_mitra' => function($query) use ($request) {
             if ($request->filled('tahun')) {
-                $query->whereYear('jadwal_kegiatan', $request->tahun);
+                $query->whereYear('bulan_dominan', $request->tahun);
             }
             if ($request->filled('bulan')) {
-                $query->whereMonth('jadwal_kegiatan', $request->bulan);
+                $query->whereMonth('bulan_dominan', $request->bulan);
             }
-            if ($request->filled('search')) {
-                $query->where('nama_lengkap', 'like', '%' . $request->search . '%');
+        }])
+        ->when($request->filled('tahun'), function ($query) use ($request) {
+            $query->whereYear('bulan_dominan', $request->tahun);
+        })
+        ->when($request->filled('bulan'), function ($query) use ($request) {
+            $query->whereMonth('bulan_dominan', $request->bulan);
+        })
+        ->when($request->filled('kecamatan'), function ($query) use ($request) {
+            $query->where('id_kecamatan', $request->kecamatan);
+        })
+        ->when($request->filled('nama_survei'), function ($query) use ($request) {
+            $query->where('nama_survei', $request->nama_survei);
+        });
+
+    // FILTER STATUS PARTISIPASI
+    if ($request->filled('status_survei')) {
+        if ($request->status_survei == 'aktif') {
+            $surveisQuery->has('mitraSurvei');
+        } elseif ($request->status_survei == 'tidak_aktif') {
+            $surveisQuery->doesntHave('mitraSurvei');
+        }
+    }
+
+    // HITUNG TOTAL-TOTAL
+    $totalSurvei = $surveisQuery->count();
+    
+    $totalSurveiAktif = clone $surveisQuery;
+    $totalSurveiAktif = $totalSurveiAktif->has('mitraSurvei')->count();
+
+    $totalSurveiTidakAktif = $totalSurvei - $totalSurveiAktif;
+
+    // HITUNG TOTAL MITRA YANG IKUT SURVEI
+    $totalMitraIkut = MitraSurvei::whereHas('survei', function($q) use ($request, $surveisQuery) {
+            if ($request->filled('tahun')) {
+                $q->whereYear('bulan_dominan', $request->tahun);
+            }
+            if ($request->filled('bulan')) {
+                $q->whereMonth('bulan_dominan', $request->bulan);
             }
             if ($request->filled('kecamatan')) {
-                $query->whereHas('kecamatan', function ($q) use ($request) {
-                    $q->where('nama_kecamatan', 'like', '%' . $request->kecamatan . '%');
-                });
+                $q->where('id_kecamatan', $request->kecamatan);
             }
-            if ($request->filled('mitra')) {
-                $query->where('id_mitra', $request->mitra);
+            if ($request->filled('nama_survei')) {
+                $q->where('nama_survei', $request->nama_survei);
             }
-        };
+        })
+        ->count();
 
-        // Terapkan filter ke semua query
-        $applyFilters($totalQuery);
-        $applyFilters($SurveiAktifQuery);
-        $applyFilters($SurveiTidakAktifQuery);
+    // PAGINASI
+    $surveis = $surveisQuery->paginate(10);
 
-        // Hitung total
-        $totalSurvei = $totalQuery->count();
-        $totalSurveiAktif = $SurveiAktifQuery->count();
-        $totalSurveiTidakAktif = $SurveiTidakAktifQuery->count();
-
-        // Query untuk data Survei (dengan pagination)
-        $surveisQuery = Survei::with('kecamatan')->withCount('mitraSurvei');
-        $applyFilters($surveisQuery);
-        
-        // Filter partisipasi khusus untuk query utama
-        if ($request->filled('status_survei')) {
-            if ($request->status_survei == 'aktif') {
-                $surveisQuery->has('mitraSurvei');
-            } elseif ($request->status_survei == 'tidak_aktif') {
-                $surveisQuery->doesntHave('mitraSurvei');
-            }
-        }
-
-        $surveis = $surveisQuery->paginate(10);
-
-
-        // Return view dengan data filter dan hasil query
-        return view('mitrabps.reportSurvei', compact(
-            'surveis', 
-            'kecamatans', 
-            'surveisForDropdown', 
-            'tahunOptions', 
-            'bulanOptions',
-            'totalSurvei',
-            'totalSurveiAktif',
-            'totalSurveiTidakAktif'
-        ));
-    }
+    // RETURN VIEW
+    return view('mitrabps.reportSurvei', compact(
+        'surveis',
+        'tahunOptions',
+        'bulanOptions',
+        'kecamatanOptions',
+        'namaSurveiOptions',
+        'totalSurvei',
+        'totalSurveiAktif',
+        'totalSurveiTidakAktif',
+        'totalMitraIkut',
+        'request'
+    ));
+}
 
     public function MitraReport(Request $request)
 {
