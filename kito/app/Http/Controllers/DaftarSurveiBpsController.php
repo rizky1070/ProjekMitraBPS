@@ -314,7 +314,9 @@ class DaftarSurveiBpsController extends Controller
         // Cek apakah total honor SEBELUM penambahan sudah mencapai batas
         if ($totalHonorBulanIni >= 4000000) {
             return redirect()->back()
-                ->with('error', "Mitra tidak bisa ditambahkan karena total honor di bulan {$survey->bulan_dominan} sudah mencapai Rp 4.000.000")
+                ->with('error', "Mitra tidak bisa ditambahkan karena total honor di bulan " . 
+                \Carbon\Carbon::parse($survey->bulan_dominan)->locale('id')->translatedFormat('F Y') . 
+                " sudah mencapai Rp 4.000.000")
                 ->withInput();
         }
     
