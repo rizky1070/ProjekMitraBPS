@@ -20,7 +20,7 @@ class MitraExport implements FromQuery, WithHeadings, WithMapping, WithColumnFor
 
     public function query()
     {
-        return $this->query;
+        return $this->query->withCount('survei')->with('survei');
     }
 
     public function headings(): array
@@ -35,12 +35,24 @@ class MitraExport implements FromQuery, WithHeadings, WithMapping, WithColumnFor
             'Tanggal Mulai Kontrak',
             'Tanggal Selesai Kontrak',
             'Jumlah Survei Diikuti',
+            'Nama Survei',
             'Status'
         ];
     }
 
     public function map($mitra): array
     {
+        // Handle ketika tidak ada mitra
+        $jumlahSurvei = $mitra->survei_count ?? 0;
+        
+        // Ambil nama-nama mitra/responden, beri '-' jika kosong
+        $namaSurvei = $mitra->survei->isNotEmpty() 
+            ? $mitra->survei->pluck('nama_survei')->filter()->implode(', ') 
+            : '-';
+        
+        // Pastikan tidak ada string kosong jika nama_lengkap null
+        $namaSurvei = empty(trim($namaSurvei)) ? '-' : $namaSurvei;
+        
         return [
             $mitra->sobat_id,
             $mitra->nama_lengkap,
@@ -50,8 +62,9 @@ class MitraExport implements FromQuery, WithHeadings, WithMapping, WithColumnFor
             $mitra->alamat_mitra,
             $mitra->tahun,
             $mitra->tahun_selesai,
-            $mitra->mitra_survei_count,
-            $mitra->mitra_survei_count > 0 ? 'Aktif' : 'Tidak Aktif'
+            $jumlahSurvei, // Jumlah survei (0 jika kosong)
+            $namaSurvei,   // Nama survei ('-' jika kosong)
+            $jumlahSurvei > 0 ? 'Aktif' : 'Tidak Aktif'
         ];
     }
     public function columnFormats(): array
