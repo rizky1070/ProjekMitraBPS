@@ -12,6 +12,7 @@ use App\Models\Desa;
 use App\Models\MitraSurvei;
 use App\Imports\MitraImport;
 use App\Exports\MitraExport;
+use App\Exports\SurveiExport;
 use Maatwebsite\Excel\Facades\Excel;  
 use Illuminate\Support\Facades\DB; 
 
@@ -340,24 +341,67 @@ public function exportMitra(Request $request)
 {
     // Gunakan filter yang sama dengan report
     $mitrasQuery = Mitra::with(['kecamatan'])
+        ->addSelect([
+            'total_survei' => MitraSurvei::selectRaw('COUNT(*)')
+                ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
+                ->whereHas('survei', function($q) use ($request) {
+                    $q->whereDate('jadwal_kegiatan', '>=', DB::raw('mitra.tahun'))
+                      ->whereDate('jadwal_kegiatan', '<=', DB::raw('mitra.tahun_selesai'));
+                    
+                    if ($request->filled('bulan')) {
+                        $q->whereMonth('bulan_dominan', $request->bulan);
+                    }
+                    if ($request->filled('tahun')) {
+                        $q->whereYear('bulan_dominan', $request->tahun);
+                    }
+                }),
+            
+        ])
+        
         ->when($request->filled('tahun'), function ($query) use ($request) {
-            $query->whereYear('tahun', $request->tahun);
+            $query->whereYear('tahun', '<=', $request->tahun)
+                  ->whereYear('tahun_selesai', '>=', $request->tahun);
         })
         ->when($request->filled('bulan'), function ($query) use ($request) {
-            $query->whereMonth('tahun', $request->bulan);
+            $query->whereMonth('tahun', '<=', $request->bulan)
+                  ->whereMonth('tahun_selesai', '>=', $request->bulan);
+        })
+        ->when($request->filled('kecamatan'), function ($query) use ($request) {
+            $query->where('id_kecamatan', $request->kecamatan);
         })
         ->when($request->filled('nama_lengkap'), function ($query) use ($request) {
             $query->where('nama_lengkap', $request->nama_lengkap);
-        })
-        ->when($request->filled('status_mitra'), function ($query) use ($request) {
-            if ($request->status_mitra == 'ikut') {
-                $query->whereHas('mitraSurvei');
-            } elseif ($request->status_mitra == 'tidak_ikut') {
-                $query->whereDoesntHave('mitraSurvei');
-            }
         });
 
     return Excel::download(new MitraExport($mitrasQuery), 'data_mitra.xlsx');
+}
+
+public function exportSurvei(Request $request)
+{
+    // Gunakan filter yang sama dengan report
+    $surveisQuery = Survei::with(['kecamatan'])
+    ->withCount(['mitraSurvei as total_mitra' => function($query) use ($request) {
+        if ($request->filled('tahun')) {
+            $query->whereYear('bulan_dominan', $request->tahun);
+        }
+        if ($request->filled('bulan')) {
+            $query->whereMonth('bulan_dominan', $request->bulan);
+        }
+    }])
+    ->when($request->filled('tahun'), function ($query) use ($request) {
+        $query->whereYear('bulan_dominan', $request->tahun);
+    })
+    ->when($request->filled('bulan'), function ($query) use ($request) {
+        $query->whereMonth('bulan_dominan', $request->bulan);
+    })
+    ->when($request->filled('kecamatan'), function ($query) use ($request) {
+        $query->where('id_kecamatan', $request->kecamatan);
+    })
+    ->when($request->filled('nama_survei'), function ($query) use ($request) {
+        $query->where('nama_survei', $request->nama_survei);
+    });
+
+    return Excel::download(new SurveiExport($surveisQuery), 'data_survei.xlsx');
 }
 
 

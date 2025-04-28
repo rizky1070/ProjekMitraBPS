@@ -71,6 +71,9 @@
                             <button onclick="window.print()" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 no-print">
                                 <i class="fas fa-print mr-2"></i>Print Report
                             </button>
+                            <button onclick="exportData()" class="px-4 py-2 bg-green-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 no-print">
+                                <i class="fas fa-file-excel mr-2"></i>Export Excel
+                            </button>
                         </div>
                     </div>
 
@@ -262,6 +265,16 @@
             bulanSelect.addEventListener('change', submitForm);
             statusSelect.addEventListener('change', submitForm);
         });
+
+        function exportData() {
+            // Ambil parameter filter dari form
+            const form = document.getElementById('filterForm');
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData).toString();
+            
+            // Redirect ke route export dengan parameter filter
+            window.location.href = `/ReportSurvei/export-survei?${params}`;
+        }
     </script>
 </body>
 </html>

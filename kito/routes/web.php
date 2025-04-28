@@ -356,6 +356,7 @@ Route::post('/simpan-penilaian', [MitraController::class, 'simpanPenilaian'])->n
 //Halaman Report > Report Survei
 Route::get('/ReportSurvei', [ReportMitraSurveiController::class, 'SurveiReport'])->name('reports.survei');
 Route::get('/ReportSurvei', [ReportMitraSurveiController::class, 'SurveiReport'])->name('reports.survei.filter');
+Route::get('/ReportSurvei/export-survei', [ReportMitraSurveiController::class, 'exportSurvei'])->name('export.survei');
 
 
 //Halaman Report > Report Mitra
