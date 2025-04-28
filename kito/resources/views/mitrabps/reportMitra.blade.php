@@ -188,6 +188,7 @@
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Survei Diikuti</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Masa kontrak</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -207,12 +208,12 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $mitra->mitra_survei_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
-                                                {{ $mitra->mitra_survei_count }} survei
+                                                {{ $mitra->total_survei }} survei
                                             </span>
                                         </td>
                                         <td class="text-center whitespace-normal break-words" style="max-width: 120px;">{{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($mitra->mitra_survei_count > 0)
+                                            @if($mitra->total_survei > 0)
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                     Aktif
                                                 </span>
@@ -222,6 +223,7 @@
                                                 </span>
                                             @endif
                                         </td>
+
                                     </tr>
                                     @endforeach
                                 </tbody>

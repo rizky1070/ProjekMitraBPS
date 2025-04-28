@@ -156,9 +156,8 @@
                                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kecamatan</th>
                                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Survei yang Diikuti</th>
                                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kontrak</th>
-                                    @if(request()->has('bulan'))
-                                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Honor</th>
-                                    @endif
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Honor</th>
+                                    
                                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
@@ -168,7 +167,7 @@
                                         @php
                                             $bgStatus = $mitra->status_pekerjaan == 1 ? 'bg-red-500' : 'bg-green-500';
                                         @endphp
-                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <td class="text-sm font-medium text-gray-900 whitespace-normal break-words" style="max-width: 120px;">
                                             <div class="flex justify-center items-center">
                                                 <p class="{{ $bgStatus }} m-1 p-1 border rounded-lg"> </p>
                                                 <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
@@ -178,23 +177,18 @@
                                             {{ $mitra->kecamatan->nama_kecamatan ?? '-' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            @if(request()->has('tahun'))
-                                            {{ $mitra->survei_tahun_count }}
-                                            @elseif(request()->has('bulan'))
-                                            {{ $mitra->survei_bulan_count }}
-                                            @else
-                                            {{ $mitra->survei_all_count }}
-                                            @endif
+                                            {{ $mitra->total_survei }}
                                         </td>
                                         <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
                                             {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - 
                                             {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}
                                         </td>
-                                        @if(request()->has('bulan'))
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            Rp{{ number_format($mitra->total_honor ?? 0, 0, ',', '.') }}
-                                        </td>
-                                        @endif
+                                            @if($mitra->total_survei > 0)
+                                                Rp {{ number_format($mitra->total_honor, 0, ',', '.') }}
+                                            @else
+                                                -
+                                            @endif                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
                                             <a href="/profilMitra/{{ $mitra->id_mitra }}" class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
                                         </td>
