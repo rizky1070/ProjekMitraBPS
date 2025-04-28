@@ -279,10 +279,7 @@ class MitraController extends Controller
         $totalGaji = 0;
         foreach ($survei as $item) {
             if ($item->survei && $item->vol && $item->honor) {
-                // Tambahkan pengecekan status survei
-                if ($item->survei->status_survei == 3) { // Misalnya status 3 berarti survei selesai
-                    $totalGaji += $item->vol * $item->honor;
-                }
+                $totalGaji += $item->vol * $item->honor;
             }
         }
 
