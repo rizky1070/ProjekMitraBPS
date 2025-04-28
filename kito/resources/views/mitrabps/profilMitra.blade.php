@@ -72,24 +72,31 @@
                     </div>
                     <div class="flex justify-between w-full border-b py-1">
                         <strong>Status Pekerjaan :</strong>
-                        <form action="{{ route('mitra.updateStatus', $mits->id_mitra) }}" method="POST" class="inline">
+                        <form action="{{ route('mitra.updateStatus', $mits->id_mitra) }}" method="POST" class="inline relative">
                             @csrf
                             @method('PUT')
-                            @if($mits->status_pekerjaan == 1)
-                            <div class="bg-red-500 text-white px-2 py-1 rounded-md">
-                                Memiliki Pekerjaan
-                                <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600 transition">
-                                    <strong>(Klik untuk ubah)</strong>
-                                </button>
-                            </div>
-                            @else
-                            <div class="bg-green-500 text-white px-2 py-1 rounded-md">
-                                Tidak Memiliki Pekerjaan
-                                <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded-md hover:bg-green-600 transition">
-                                    <strong>(Klik untuk ubah)</strong>
-                                </button>
-                            </div>
-                            @endif
+                            @php
+                                $isActive = $mits->status_pekerjaan == 1;
+                                $colorClasses = $isActive 
+                                    ? 'bg-red-500 hover:bg-red-600' 
+                                    : 'bg-green-500 hover:bg-green-600';
+                                $statusText = $isActive ? 'Memiliki Pekerjaan' : 'Tidak Memiliki Pekerjaan';
+                            @endphp
+                            
+                            <!-- Button dengan tooltip -->
+                            <button 
+                                type="submit"
+                                class="{{ $colorClasses }} text-white px-3 py-1 rounded-md transition-all duration-200 relative group"
+                                aria-label="Ubah status pekerjaan"
+                            >
+                                {{ $statusText }}
+                                
+                                <!-- Tooltip -->
+                                <span class="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                                    Klik untuk mengubah
+                                    <span class="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-800 rotate-45"></span>
+                                </span>
+                            </button>
                         </form>
                     </div>
                 </div>
