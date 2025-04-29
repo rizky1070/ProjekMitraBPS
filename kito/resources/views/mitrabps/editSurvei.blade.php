@@ -13,6 +13,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="/Logo BPS.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <!-- Add jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <title>Input Mitra BPS</title>
     <style>
         .honor-modal {
@@ -293,6 +296,7 @@
                                     @if($survey->status_survei != 3)
                                     <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                     @endif
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">SK</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -335,7 +339,7 @@
                                             <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
                                                 <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none" placeholder="{{ $mitra->posisi_mitra }}" style="width: 100%;">
                                             </td>
-                                            <td class="flex justify-center items-center py-2 text-center">
+                                            <td class="flex justify-center items-center pt-3 text-center">
                                                 <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Ubah</button>
                                         </form>
                                         <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
@@ -354,13 +358,16 @@
                                         <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
                                                 <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Posisi Mitra" style="width: 100%;">
                                         </td>
-                                        <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">
+                                        <td class="p-2 text-center" style="max-width: 120px;">
                                                 @csrf
                                                 <button type="submit" class="bg-orange text-black px-3 rounded">Tambah</button>
                                             </form>
                                         </td>
                                         @endif
                                     @endif
+                                    <td class="p-2 text-center" style="max-width: 120px;">
+                                        <button type="button" onclick="generatePDF('{{ $mitra->id_mitra }}', '{{ $mitra->nama_lengkap }}')" class="bg-orange text-black px-3 rounded">Cetak</button>
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -398,6 +405,64 @@
         }
         function closeModal() {
             document.getElementById('uploadModal').classList.add('hidden');
+        }
+
+        // PDF Generation Function
+        function generatePDF(mitraId, mitraName) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Set font to Times New Roman
+            doc.setFont('times', 'normal');
+            doc.setFontSize(12);
+            
+            // Add survey information
+            doc.text(`Detail Survei: ${'{{ $survey->nama_survei }}'}`, 14, 20);
+            doc.text(`Kecamatan: ${'{{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}'}`, 14, 30);
+            doc.text(`Pelaksanaan: ${'{{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }}'} - ${'{{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}'}`, 14, 40);
+            doc.text(`Tim: ${'{{ $survey->tim }}'}`, 14, 50);
+            doc.text(`KRO: ${'{{ $survey->kro }}'}`, 14, 60);
+            
+            // Add mitra information
+            doc.text(`Detail Mitra: ${mitraName}`, 14, 80);
+            
+            // Create table for mitra data
+            const headers = [['Field', 'Value']];
+            const data = [
+                ['Nama Lengkap', mitraName],
+                ['Domisili', '{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}'],
+                ['Masa Kontrak', `${'{{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }}'} - ${'{{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}'}`],
+                ['Posisi', '{{ $mitra->posisi_mitra }}']
+            ];
+            
+            doc.autoTable({
+                startY: 90,
+                head: headers,
+                body: data,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [41, 128, 185],
+                    textColor: 255,
+                    fontStyle: 'bold'
+                },
+                styles: {
+                    font: 'times',
+                    fontSize: 12,
+                    cellPadding: 5
+                }
+            });
+            
+            // Add lorem ipsum text
+            const loremText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.";
+            
+            doc.text('Keterangan:', 14, doc.autoTable.previous.finalY + 20);
+            doc.text(loremText, 14, doc.autoTable.previous.finalY + 30, {
+                maxWidth: 180,
+                align: 'justify'
+            });
+            
+            // Save the PDF
+            doc.save(`SK_{{ $survey->nama_survei }}_${mitraName}.pdf`);
         }
     </script>
 </body>

@@ -118,7 +118,14 @@ class MitraController extends Controller
                         }
                     })
             ])
-            ->orderByDesc('total_honor')
+            // Modified sorting logic
+            ->when($request->filled('bulan'), function ($query) {
+                // If month filter is applied, sort by total_honor
+                $query->orderByDesc('total_honor');
+            }, function ($query) {
+                // Default sorting by total_survei
+                $query->orderByDesc('total_survei');
+            })
             ->when($request->filled('tahun'), function ($query) use ($request) {
                 $query->whereYear('tahun', '<=', $request->tahun)
                       ->whereYear('tahun_selesai', '>=', $request->tahun);
