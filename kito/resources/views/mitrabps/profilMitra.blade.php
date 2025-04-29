@@ -92,7 +92,7 @@
                                 <!-- Button submit untuk detail pekerjaan -->
                                 <button 
                                     type="submit"
-                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md transition-all duration-200 relative group"
+                                    class="bg-orange text-black px-3 py-1 rounded-md transition-all duration-200 relative group"
                                     aria-label="Simpan detail pekerjaan"
                                     title="Klik untuk menyimpan detail pekerjaan"
                                 >
@@ -111,8 +111,8 @@
                             @php
                                 $isActive = $mits->status_pekerjaan == 1;
                                 $colorClasses = $isActive 
-                                    ? 'bg-green-500 hover:bg-green-600' 
-                                    : 'bg-red-500 hover:bg-red-600';
+                                    ? 'bg-green-500' 
+                                    : 'bg-red-500';
                                 $statusText = $isActive ? 'Aktif' : 'Non-Aktif';
                             @endphp
                             
