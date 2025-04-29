@@ -342,8 +342,8 @@ Route::post('/upExcelMitra', [MitraController::class, 'upExcelMitra'])->name('up
 //Halaman Mitra > Daftar Mitra > Profil Mitra
 Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profilMitra');
 Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profilMitra.filter');
-Route::put('/profilMitra/{id_mitra}/update-status', [MitraController::class, 'updateStatus'])->name('mitra.updateStatus');
-
+Route::put('/mitra/{id_mitra}/detail', [MitraController::class, 'updateDetailPekerjaan'])->name('mitra.updateDetailPekerjaan');
+Route::put('/mitra/{id_mitra}/status', [MitraController::class, 'updateStatus'])->name('mitra.updateStatus');
 
 //Halaman Mitra > Daftar Mitra > Penilaian Mitra
 Route::get('/penilaianMitra/{id_mitra_survei}', [MitraController::class, 'penilaianMitra'])->name('penilaian.mitra');

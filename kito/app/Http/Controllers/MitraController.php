@@ -295,16 +295,22 @@ class MitraController extends Controller
         ));
     }
 
-    public function updateStatus(Request $request, $id_mitra)
+    public function updateDetailPekerjaan(Request $request, $id_mitra)
     {
         $mitra = Mitra::findOrFail($id_mitra);
-        
-        // Toggle status pekerjaan (0 menjadi 1, 1 menjadi 0)
+        $mitra->detail_pekerjaan = $request->detail_pekerjaan;
+        $mitra->save();
+        return back()->with('success', 'Detail pekerjaan berhasil diperbarui');
+    }
+    
+    public function updateStatus($id_mitra)
+    {
+        $mitra = Mitra::findOrFail($id_mitra);
         $mitra->status_pekerjaan = $mitra->status_pekerjaan == 1 ? 0 : 1;
         $mitra->save();
-        
-        return redirect()->back()->with('success', 'Status pekerjaan berhasil diubah');
+        return back()->with('success', 'Status pekerjaan berhasil diperbarui');
     }
+
     
     public function penilaianMitra($id_survei)
     {

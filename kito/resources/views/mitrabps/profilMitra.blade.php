@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -72,34 +73,57 @@
                     </div>
                     <div class="flex justify-between w-full border-b py-1">
                         <strong>Pekerjaan :</strong>
-                        <span class="text-right">{{ $mits->detail_pekerjaan }}</span>
+                        <div class="flex items-center gap-2">
+                            <!-- Form untuk update detail pekerjaan -->
+                            <form action="{{ route('mitra.updateDetailPekerjaan', $mits->id_mitra) }}" method="POST" class="flex items-center gap-2">
+                                @csrf
+                                @method('PUT')
+                                <!-- Input detail pekerjaan -->
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        name="detail_pekerjaan" 
+                                        value="{{ $mits->detail_pekerjaan }}" 
+                                        class="border-0 px-2 py-1 text-right w-64 focus:outline-none focus:ring-2 focus:ring-orange-500" 
+                                        placeholder="Masukkan detail pekerjaan" 
+                                        title="Ubah detail pekerjaan">
+                                </div>
+                                
+                                <!-- Button submit untuk detail pekerjaan -->
+                                <button 
+                                    type="submit"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md transition-all duration-200 relative group"
+                                    aria-label="Simpan detail pekerjaan"
+                                    title="Klik untuk menyimpan detail pekerjaan"
+                                >
+                                    Simpan
+                                </button>
+                            </form>
+
+                            <!-- Form untuk update status -->
+                        </div>
                     </div>
                     <div class="flex justify-between w-full border-b py-1">
-                        <strong>Status Pekerjaan :</strong>
-                        <form action="{{ route('mitra.updateStatus', $mits->id_mitra) }}" method="POST" class="inline relative">
+                        <strong>Status :</strong>
+                        <form action="{{ route('mitra.updateStatus', $mits->id_mitra) }}" method="POST">
                             @csrf
                             @method('PUT')
                             @php
                                 $isActive = $mits->status_pekerjaan == 1;
                                 $colorClasses = $isActive 
-                                    ? 'bg-red-500 hover:bg-red-600' 
-                                    : 'bg-green-500 hover:bg-green-600';
-                                $statusText = $isActive ? 'Memiliki Pekerjaan' : 'Tidak Memiliki Pekerjaan';
+                                    ? 'bg-green-500 hover:bg-green-600' 
+                                    : 'bg-red-500 hover:bg-red-600';
+                                $statusText = $isActive ? 'Aktif' : 'Non-Aktif';
                             @endphp
                             
-                            <!-- Button dengan tooltip -->
+                            <!-- Button untuk status -->
                             <button 
                                 type="submit"
                                 class="{{ $colorClasses }} text-white px-3 py-1 rounded-md transition-all duration-200 relative group"
                                 aria-label="Ubah status pekerjaan"
+                                title="Klik untuk mengubah status"
                             >
                                 {{ $statusText }}
-                                
-                                <!-- Tooltip -->
-                                <span class="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                                    Klik untuk mengubah
-                                    <span class="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-800 rotate-45"></span>
-                                </span>
                             </button>
                         </form>
                     </div>
