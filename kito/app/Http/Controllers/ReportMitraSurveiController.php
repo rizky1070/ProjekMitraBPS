@@ -429,13 +429,20 @@ public function exportMitra(Request $request)
         ->sum(DB::raw('vol * honor'));
 
     // Kumpulkan informasi filter
-    $filters = [
-        'tahun' => $request->tahun,
-        'bulan' => $request->bulan,
-        'kecamatan' => $request->kecamatan ? Kecamatan::find($request->kecamatan)->nama_kecamatan : null,
-        'nama_lengkap' => $request->nama_lengkap,
-        'status_mitra' => $request->status_mitra,
-    ];
+    $filters = [];
+        if ($request->filled('tahun')) $filters['tahun'] = $request->tahun;
+        if ($request->filled('bulan')) {
+            $monthName = \Carbon\Carbon::create()->month($request->bulan)->translatedFormat('F');
+            $filters['bulan'] = $monthName;
+        }
+        if ($request->filled('kecamatan')) {
+            $kecamatan = Kecamatan::find($request->kecamatan);
+            $filters['kecamatan'] = $kecamatan ? $kecamatan->nama_kecamatan : $request->kecamatan;
+        }
+        if ($request->filled('nama_lengkap')) $filters['nama_lengkap'] = $request->nama_lengkap;
+        if ($request->filled('status_mitra')) {
+            $filters['status_mitra'] = $request->status_mitra == 'aktif' ? 'Aktif' : 'Tidak Aktif';
+        }
 
     // Hitung total honor berdasarkan filter
     $totalHonorQuery = MitraSurvei::whereHas('mitra', function($q) use ($mitrasQuery) {
@@ -460,7 +467,7 @@ public function exportMitra(Request $request)
         'totalHonor' => $totalHonor,
     ];
 
-    return Excel::download(new MitraExport($mitrasQuery, $filters, $totals), 'laporan_mitra.xlsx');
+    return Excel::download(new MitraExport($mitrasQuery, $filters, $totals), 'laporan_mitra_' . now()->format('Ymd_His') . '.xlsx');
 }
 
 public function exportSurvei(Request $request)
@@ -544,7 +551,7 @@ public function exportSurvei(Request $request)
 
     return Excel::download(
         new SurveiExport($surveisQuery, $filters, $totals), 
-        'laporan_survei_' . now()->format('YmdHis') . '.xlsx'
+        'laporan_survei_' . now()->format('Ymd_His') . '.xlsx'
     );
 }
 
