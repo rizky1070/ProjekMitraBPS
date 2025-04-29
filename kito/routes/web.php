@@ -316,9 +316,9 @@ Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index'])->name('
 Route::post('/upExcelSurvei', [DaftarSurveiBpsController::class, 'upExcelSurvei'])->name('upload.excelSurvei');
 
 // Halaman Survei > Daftar Survei > Edit Survei
+Route::post('/survey/{id}/update-status', [DaftarSurveiBpsController::class, 'updateStatus'])->name('survey.updateStatus');
 Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei');
 Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei.filter');
-Route::post('/survey/{id}/update-status', [DaftarSurveiBpsController::class, 'updateStatus'])->name('survey.updateStatus');
 Route::post('/survey/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController::class, 'toggleMitraSurvey'])->name('mitra.toggle');
 Route::post('/survey/{id_survei}/{id_mitra}/update', [DaftarSurveiBpsController::class, 'updateMitraOnSurvei'])->name('mitra.update');
 Route::post('/survey/{id_survei}/{id_mitra}/delete', [DaftarSurveiBpsController::class, 'deleteMitraFromSurvei'])->name('mitra.delete');

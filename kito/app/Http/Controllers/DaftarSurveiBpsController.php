@@ -302,7 +302,7 @@ class DaftarSurveiBpsController extends Controller
         $survey = Survei::findOrFail($id_survei);
         $mitra = Mitra::findOrFail($id_mitra);
     
-        // Cek apakah survei sudah lewat dari jadwal berakhir
+        // Cek jadwal survei
         $today = now()->toDateString();
         if ($today > $survey->jadwal_berakhir_kegiatan) {
             return redirect()->back()
@@ -310,42 +310,45 @@ class DaftarSurveiBpsController extends Controller
                 ->withInput();
         }
     
-        // Hitung total honor mitra di bulan yang sama dengan survei ini (SEBELUM penambahan)
+        // Hitung total honor
         $totalHonorBulanIni = MitraSurvei::join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
             ->where('mitra_survei.id_mitra', $id_mitra)
             ->where('survei.bulan_dominan', $survey->bulan_dominan)
             ->sum(DB::raw('mitra_survei.honor * mitra_survei.vol'));
     
-        // Cek apakah total honor SEBELUM penambahan sudah mencapai batas
-        if ($totalHonorBulanIni >= 4000000) {
+        $honorYangAkanDitambahkan = $request->honor * $request->vol;
+        $totalHonorSetelahDitambah = $totalHonorBulanIni + $honorYangAkanDitambahkan;
+    
+        // Validasi honor
+        if ($totalHonorSetelahDitambah > 4000000 && !$request->has('force_add')) {
             return redirect()->back()
-                ->with('error', "Mitra tidak bisa ditambahkan karena total honor di bulan " . 
-                \Carbon\Carbon::parse($survey->bulan_dominan)->locale('id')->translatedFormat('F Y') . 
-                " sudah mencapai Rp 4.000.000")
-                ->withInput();
+                ->with('confirm', [
+                    'message' => "Mitra tidak bisa ditambahkan karena total honor di bulan " .
+                    \Carbon\Carbon::parse($survey->bulan_dominan)->locale('id')->translatedFormat('F Y') .
+                    " akan melebihi Rp 4.000.000 (Total saat ini: Rp ".number_format($totalHonorBulanIni, 0, ',', '.') .
+                    "). Tetap ingin menambahkan mitra ini?",
+                    'data' => $request->all()
+                ])
+                ->with('id_mitra', $id_mitra);
         }
     
-        // Cek apakah mitra sudah terdaftar di survei ini
+        // Proses tambah/update mitra
         $mitra_survei = MitraSurvei::where('id_survei', $id_survei)
             ->where('id_mitra', $id_mitra)
             ->first();
     
         if ($mitra_survei) {
-            // Jika sudah ada, update data
             $mitra_survei->update([
                 'vol' => $request->vol,
                 'honor' => $request->honor,
                 'posisi_mitra' => $request->posisi_mitra
             ]);
         } else {
-            // Tentukan tgl_ikut_survei berdasarkan kondisi tanggal hari ini
-            $start = $survey->jadwal_kegiatan;
-            $end = $survey->jadwal_berakhir_kegiatan;
+            $tgl_ikut_survei = ($today >= $survey->jadwal_kegiatan && $today <= $survey->jadwal_berakhir_kegiatan) 
+                ? $today 
+                : $survey->jadwal_kegiatan;
     
-            $tgl_ikut_survei = ($today >= $start && $today <= $end) ? $today : $start;
-    
-            // Jika belum ada, tambahkan mitra ke survei
-            $mitraSurvei = MitraSurvei::create([
+            MitraSurvei::create([
                 'id_mitra' => $id_mitra,
                 'id_survei' => $id_survei,
                 'vol' => $request->vol,
@@ -355,8 +358,13 @@ class DaftarSurveiBpsController extends Controller
             ]);
         }
     
-        return redirect()->back()->with('success', 'Mitra berhasil ditambahkan ke survei!');
-    }
+        $message = 'Mitra berhasil ditambahkan ke survei!';
+        if ($totalHonorSetelahDitambah > 4000000) {
+            $message .= ' Perhatian: Total honor mitra melebihi batas Rp 4.000.000';
+        }
+    
+        return redirect()->back()->with('success', $message);
+    } 
     
     
 

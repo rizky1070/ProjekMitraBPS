@@ -14,6 +14,27 @@
     <link rel="icon" href="/Logo BPS.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <title>Input Mitra BPS</title>
+    <style>
+        .honor-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .honor-modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+    </style>
 </head>
 <body class="h-full bg-gray-200 mb-4">
     @if (session('success'))
@@ -34,6 +55,71 @@
     </script>
     @endif
     
+    <!-- Add this section for honor limit confirmation -->
+    @if (session('confirm'))
+    <div class="honor-modal" id="honorConfirmModal">
+        <div class="honor-modal-content">
+            <h3 class="text-lg font-bold mb-4">Konfirmasi Tambah Mitra</h3>
+            <p class="mb-4">{!! session('confirm')['message'] !!}</p>
+            
+            <div class="flex justify-end space-x-3">
+                <form method="POST" action="{{ route('mitra.toggle', [
+                    'id_survei' => $survey->id_survei, 
+                    'id_mitra' => session('id_mitra')
+                ]) }}">
+                    @csrf
+                    @foreach(session('confirm')['data'] as $key => $value)
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endforeach
+                    <input type="hidden" name="force_add" value="1">
+                    <button type="submit" class="px-4 py-2 bg-red-500 text-black rounded">
+                        Ya, Tambahkan
+                    </button>
+                </form>
+                <button onclick="closeHonorModal()" class="px-4 py-2 bg-gray-300 rounded">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tampilkan modal saat ada konfirmasi
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (session('confirm'))
+                document.getElementById('honorConfirmModal').style.display = 'flex';
+            @endif
+        });
+
+        function closeHonorModal() {
+            document.getElementById('honorConfirmModal').style.display = 'none';
+        }
+    </script>
+    @endif
+
+    <!-- Form Tambah/Edit Mitra -->
+    @foreach($mitras as $mitra)
+        @if ($mitra->vol && $mitra->honor && $mitra->posisi_mitra)
+            <!-- Form Edit -->
+            <form action="{{ route('mitra.update', [
+                'id_survei' => $survey->id_survei,
+                'id_mitra' => $mitra->id_mitra
+            ]) }}" method="POST">
+                @csrf
+                <!-- Input fields -->
+            </form>
+        @else
+            <!-- Form Tambah -->
+            <form action="{{ route('mitra.toggle', [
+                'id_survei' => $survey->id_survei,
+                'id_mitra' => $mitra->id_mitra
+            ]) }}" method="POST">
+                @csrf
+                <!-- Input fields -->
+            </form>
+        @endif
+    @endforeach
+
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
     <a href="{{ url('/daftarSurvei') }}" 
     class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
@@ -84,9 +170,10 @@
             </div>
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold mt-4">Daftar Mitra</h3>
-                @if($survey->status_survei != 3)
+                <!-- perkondisian agar survei yang sudah dikerjakan tidak bisa diedit -->
+                <!-- @if($survey->status_survei != 3) -->  
                 <button type="button" class="mt-4 px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
-                @endif
+                <!-- @endif -->
             </div>
                 <div class="bg-white rounded-lg shadow-sm p-6">
                     <!-- Year Row -->
