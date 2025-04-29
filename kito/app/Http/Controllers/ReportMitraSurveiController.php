@@ -236,9 +236,9 @@ class ReportMitraSurveiController extends Controller
                     if ($request->filled('tahun')) {
                         $q->whereYear('bulan_dominan', $request->tahun);
                     }
-                }),
-            
+                })
         ])
+        ->orderByDesc('total_survei')
         
         ->when($request->filled('tahun'), function ($query) use ($request) {
             $query->whereYear('tahun', '<=', $request->tahun)
