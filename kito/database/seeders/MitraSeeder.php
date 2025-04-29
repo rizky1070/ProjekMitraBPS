@@ -351,6 +351,23 @@ class MitraSeeder extends Seeder
                 'status_pekerjaan' => 0,
                 'detail_pekerjaan' => 'Pekerjaan Mitra T',
             ],
+            // data 21
+            [
+                'id_kecamatan' => 2,
+                'id_kabupaten' => '16',
+                'id_provinsi' => '35',
+                'id_desa' => 2,
+                'sobat_id' => 'S021',
+                'nama_lengkap' => 'anomali mitra',
+                'alamat_mitra' => 'Alamat Mitra anomali',
+                'jenis_kelamin' => 2,
+                'no_hp_mitra' => '089901238888',
+                'email_mitra' => 'mitrat@example.com',
+                'tahun' => '2025-01-15',
+                'tahun_selesai' => '2025-12-15',
+                'status_pekerjaan' => 0,
+                'detail_pekerjaan' => 'Pekerjaan Mitra anomali',
+            ],
         ];
 
         DB::table('mitra')->insert($mitraData);

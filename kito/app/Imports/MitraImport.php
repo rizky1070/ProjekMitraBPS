@@ -46,9 +46,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             $desa = $this->getDesa($row, $kecamatan);
 
             // Parse tanggal
-            $tahunMulai = $this->parseTanggal($row['tahun'] ?? null);
+            $tahunMulai = $this->parseTanggal($row['tgl_mitra_diterima'] ?? null);
             // Jika tahun kosong, log informasi
-            if (empty($row['tahun'])) {
+            if (empty($row['tgl_mitra_diterima'])) {
                 Log::info("Data baris ke-{$row['__row__']}: Kolom tahun kosong, menggunakan tanggal sekarang");
             }
             
@@ -141,13 +141,13 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
     private function validateDates($tahunMulai)
     {
         if (!$tahunMulai) {
-            throw new \Exception("Tahun mulai tidak valid");
+            throw new \Exception("tgl_mitra_diterima tidak valid");
         }
         
         // Validasi tahun masuk dalam range wajar (misal 2000-2100)
         $currentYear = date('Y');
         if ($tahunMulai->year < 2000 || $tahunMulai->year > $currentYear + 10) {
-            throw new \Exception("Tahun mulai tidak valid (harus antara 2000-".($currentYear + 10).")");
+            throw new \Exception("tgl_mitra_diterima tidak valid (harus antara 2000-".($currentYear + 10).")");
         }
     }
     
@@ -209,7 +209,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                 },
             ],
             'email_mitra' => 'required|email|max:255',
-            'tahun' => 'nullable'
+            'tgl_mitra_diterima' => 'nullable'
             // tahun_selesai dihapus dari rules karena akan diisi otomatis
         ];
     }
