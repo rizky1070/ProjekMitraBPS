@@ -214,7 +214,9 @@
                                 @foreach ($survei_dikerjakan as $sur)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->survei->nama_survei }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">{{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        {{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }} - 
+                                        {{ \Carbon\Carbon::parse($sur->survei->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->vol ?? '-' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">Rp{{ number_format($sur->honor ?? 0, 0, ',', '.') }}</td>
                                     @if($sur->catatan == null && $sur->nilai == null)
@@ -258,7 +260,9 @@
                                 @foreach ($survei_belum as $sur)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->survei->nama_survei }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">{{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        {{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }}
+                                        {{ \Carbon\Carbon::parse($sur->survei->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->vol ?? '-' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">Rp{{ number_format($sur->honor ?? 0, 0, ',', '.') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
