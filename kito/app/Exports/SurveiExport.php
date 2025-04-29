@@ -26,6 +26,10 @@ class SurveiExport implements FromQuery, WithHeadings, WithMapping
     {
         return [
             'Nama Survei',
+            'Provinsi',
+            'Kabupaten',
+            'Kecamatan',
+            'Desa',
             'Lokasi Survei',
             'KRO',
             'Tim',
@@ -52,6 +56,10 @@ class SurveiExport implements FromQuery, WithHeadings, WithMapping
         
         return [
             $survei->nama_survei,
+            $survei->provinsi->kode_provinsi?? '-',
+            $survei->kabupaten->kode_kabupaten?? '-',
+            $survei->kecamatan->kode_kecamatan?? '-',
+            $survei->desa->kode_desa?? '-',
             $survei->lokasi_survei,
             $survei->kro,
             $survei->tim,
