@@ -460,6 +460,30 @@
                 maxWidth: 180,
                 align: 'justify'
             });
+
+            // Add first blank page
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
+            doc.addPage();
             
             // Save the PDF
             doc.save(`SK_{{ $survey->nama_survei }}_${mitraName}.pdf`);
