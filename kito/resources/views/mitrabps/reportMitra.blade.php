@@ -54,24 +54,8 @@
                             <button class="px-2 py-1 bg-orange text-black rounded-md no-print"><a href="/ReportSurvei">Report Survei</a></button>
                             <h1 class="text-2xl font-bold text-gray-800">Report Mitra</h1>
                             <p class="text-gray-600 no-print">Data partisipasi mitra dalam survei BPS</p>
-                            <h4 class="text-1xl font-bold text-gray-800 only-print">
-                                Status: 
-                                @if(request('status_mitra')) {{ request('status_mitra') == 'ikut' ? 'Mengikuti Survei' : 'Tidak Mengikuti Survei' }} @endif
-                            </h4>
-                            <h4 class="text-1xl font-bold text-gray-800 only-print">
-                                Tahun: 
-                                @if(request('tahun')) {{ request('tahun') }} @endif
-                            </h4>
-                            <h4 class="text-1xl font-bold text-gray-800 only-print">
-                                Bulan: 
-                                @if(request('bulan')) {{ \Carbon\Carbon::create()->month(request('bulan'))->format('F') }} @endif
-                            </h4>
-
                         </div>
                         <div class="mt-4 md:mt-0">
-                            <button onclick="window.print()" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 no-print">
-                                <i class="fas fa-print mr-2"></i>Print Report
-                            </button>
                             <button onclick="exportData()" class="px-4 py-2 bg-green-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 no-print">
                                 <i class="fas fa-file-excel mr-2"></i>Export Excel
                             </button>
