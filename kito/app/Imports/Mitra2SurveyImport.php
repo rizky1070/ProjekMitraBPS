@@ -32,17 +32,28 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
 
     public function model(array $row)
     {
-        $tahunMasuk = $this->parseDate($row['tahun_masuk_mitra']);
+        $tahunMasuk = $this->parseDate($row['tgl_mitra_diterima']);
         $tglIkutSurvei = $this->parseDate($row['tgl_ikut_survei']);
 
+        // Konversi nilai numerik dari berbagai format
+        $sobatId = $this->convertToNumeric($row['sobat_id']);
+        $vol = $this->convertToNumeric($row['vol']);
+        $honor = $this->convertToNumeric($row['rate_honor']);
+        $nilai = isset($row['nilai']) ? $this->convertToNumeric($row['nilai']) : null;
+
         // Cari mitra berdasarkan sobat_id bulan dan tahun
-        $mitra = Mitra::where('sobat_id', $row['sobat_id'])
+        $mitra = Mitra::where('sobat_id', $sobatId)
                     ->whereMonth('tahun', Carbon::parse($tahunMasuk)->month)
                     ->whereYear('tahun', Carbon::parse($tahunMasuk)->year)
                     ->first();
 
         if (!$mitra) {
-            throw new \Exception("Mitra dengan SOBAT ID {$row['sobat_id']} pada bulan " . Carbon::parse($tahunMasuk)->month . " dan tahun masuk " . Carbon::parse($tahunMasuk)->year . " tidak ditemukan");
+            throw new \Exception("Mitra dengan SOBAT ID {$sobatId} pada bulan " . Carbon::parse($tahunMasuk)->month . " dan tahun masuk " . Carbon::parse($tahunMasuk)->year . " tidak ditemukan");
+        }
+
+        // Cek status pekerjaan mitra
+        if ($mitra->status_pekerjaan == 1) {
+            throw new \Exception("Mitra dengan SOBAT ID {$sobatId} tidak dapat ditambahkan karena status pekerjaan bernilai 1");
         }
 
         // Pengecekan periode aktif mitra dengan periode survei
@@ -53,7 +64,7 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
 
         // Cek apakah periode aktif mitra overlap dengan periode survei
         if ($tahunBerakhirMitra < $jadwalMulaiSurvei || $tahunMasukMitra > $jadwalBerakhirSurvei) {
-            throw new \Exception("Mitra dengan SOBAT ID {$row['sobat_id']} tidak aktif pada periode survei ({$jadwalMulaiSurvei->format('d-m-Y')} sampai {$jadwalBerakhirSurvei->format('d-m-Y')})");
+            throw new \Exception("Mitra dengan SOBAT ID {$sobatId} tidak aktif pada periode survei ({$jadwalMulaiSurvei->format('d-m-Y')} sampai {$jadwalBerakhirSurvei->format('d-m-Y')})");
         }
 
         // Cek apakah tgl ikut survei berada dalam periode survei
@@ -81,7 +92,7 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
         if ($existingSurvei) {
         $surveiName = $existingSurvei->survei->nama_survei ?? 'Survei Tanpa Nama';
 
-        throw new \Exception("Mitra dengan SOBAT ID {$row['sobat_id']} sudah terdaftar di survei berikut dengan jadwal yang tumpang tindih : {$surveiName}");
+        throw new \Exception("Mitra dengan SOBAT ID {$sobatId} sudah terdaftar di survei berikut dengan jadwal yang tumpang tindih : {$surveiName}");
         }
 
         // Cek apakah kombinasi id_mitra dan id_survei sudah ada
@@ -93,10 +104,10 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
             // Jika sudah ada, lakukan update
             $existingMitra->update([
                 'posisi_mitra' => $row['posisi'],
-                'vol' => $row['vol'],
-                'honor' => $row['rate_honor'],
+                'vol' => $vol,
+                'honor' => $honor,
                 'catatan' => $row['catatan'],
-                'nilai' => $row['nilai'],
+                'nilai' => $nilai,
                 'tgl_ikut_survei' => $tglIkutSurvei,
             ]);
             return null;
@@ -106,10 +117,10 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
             'id_mitra' => $mitra->id_mitra,
             'id_survei' => $this->id_survei,
             'posisi_mitra' => $row['posisi'],
-            'vol' => $row['vol'],
-            'honor' => $row['rate_honor'],
+            'vol' => $vol,
+            'honor' => $honor,
             'catatan' => $row['catatan'],
-            'nilai' => $row['nilai'],
+            'nilai' => $nilai,
             'tgl_ikut_survei' => $tglIkutSurvei,
         ]);
     }
@@ -119,19 +130,52 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
         return [
             'sobat_id' => [
                 'required',
-                'string',
                 function ($attribute, $value, $fail) {
-                    if (!Mitra::where('sobat_id', $value)->exists()) {
-                        $fail("Mitra dengan SOBAT ID {$value} tidak ditemukan");
+                    // Cek apakah nilai bisa dikonversi ke numerik
+                    if (!is_numeric($this->convertToNumeric($value))) {
+                        $fail("SOBAT ID harus berupa angka");
+                    }
+                    
+                    // Cek apakah mitra ada di database
+                    $sobatId = $this->convertToNumeric($value);
+                    if (!Mitra::where('sobat_id', $sobatId)->exists()) {
+                        $fail("Mitra dengan SOBAT ID {$sobatId} tidak ditemukan");
                     }
                 }
             ],
             'posisi' => 'required|string',
-            'vol' => 'required|string',
-            'rate_honor' => 'required|string',
+            'vol' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (!is_numeric($this->convertToNumeric($value))) {
+                        $fail("Volume harus berupa angka");
+                    }
+                }
+            ],
+            'rate_honor' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (!is_numeric($this->convertToNumeric($value))) {
+                        $fail("Honor harus berupa angka");
+                    }
+                }
+            ],
             'catatan' => 'nullable|string',
-            'nilai' => 'nullable|string|min:1|max:5',
-            'tahun_masuk_mitra' => 'required',
+            'nilai' => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if ($value !== null && !is_numeric($this->convertToNumeric($value))) {
+                        $fail("Nilai harus berupa angka");
+                    }
+                },
+                function ($attribute, $value, $fail) {
+                    $nilai = $this->convertToNumeric($value);
+                    if ($nilai !== null && ($nilai < 1 || $nilai > 5)) {
+                        $fail("Nilai harus antara 1 dan 5");
+                    }
+                }
+            ],
+            'tgl_mitra_diterima' => 'required',
             'tgl_ikut_survei' => [
                 'required',
                 function ($attribute, $value, $fail) {
@@ -154,6 +198,31 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
                 }
             ],
         ];
+    }
+
+    /**
+     * Konversi berbagai format input ke numerik
+     */
+    private function convertToNumeric($value)
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            return $value;
+        }
+
+        // Handle string dengan karakter non-numerik (seperti koma, titik, dll)
+        $cleaned = preg_replace('/[^0-9,.-]/', '', $value);
+        $cleaned = str_replace(',', '.', $cleaned); // Ganti koma dengan titik untuk format desimal
+
+        // Jika setelah pembersihan masih berupa angka
+        if (is_numeric($cleaned)) {
+            return $cleaned;
+        }
+
+        return $value; // Kembalikan aslinya jika tidak bisa dikonversi
     }
 
     private function parseDate($date)

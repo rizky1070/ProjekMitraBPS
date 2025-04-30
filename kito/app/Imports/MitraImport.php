@@ -32,8 +32,15 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             
             Log::info('Importing row: ', $row);
             
+            // Validasi ketat sobat_id harus angka semua
+            $sobatId = $this->ensurePureNumeric($row['sobat_id'], 'sobat_id');
+                    
+            // Konversi nilai lainnya
+            $jenisKelamin = $this->ensurePureNumeric($row['jenis_kelamin'], 'jenis_kelamin');
+            $statusPekerjaan = $this->ensurePureNumeric($row['status_pekerjaan'], 'status_pekerjaan');
+
             // Validasi minimal
-            if (empty($row['sobat_id'])) {
+            if (empty($sobatId)) {
                 throw new \Exception("Baris tidak valid: sobat_id harus diisi");
             }
 
@@ -59,18 +66,18 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             $this->validateDates($tahunMulai);
 
             // Cek duplikasi
-            $this->checkDuplicate($row['sobat_id'], $tahunMulai);
+            $this->checkDuplicate($sobatId, $tahunMulai);
             
             return new Mitra([
                 'nama_lengkap' => $row['nama_lengkap'],
-                'sobat_id' => $row['sobat_id'],
+                'sobat_id' => $sobatId,
                 'alamat_mitra' => $row['alamat_mitra'],
                 'id_desa' => $desa->id_desa,
                 'id_kecamatan' => $kecamatan->id_kecamatan,
                 'id_kabupaten' => $kabupaten->id_kabupaten,
                 'id_provinsi' => $provinsi->id_provinsi,
-                'jenis_kelamin' => $row['jenis_kelamin'],
-                'status_pekerjaan' => $row['status_pekerjaan'],
+                'jenis_kelamin' => $jenisKelamin,
+                'status_pekerjaan' => $statusPekerjaan,
                 'detail_pekerjaan' => empty($row['detail_pekerjaan']) ? '-' : $row['detail_pekerjaan'],
                 'no_hp_mitra' => $row['no_hp_mitra'],
                 'email_mitra' => $row['email_mitra'],
@@ -81,6 +88,32 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             $this->errors[] = "Baris {$row['__row__']} : " . $e->getMessage();
             return null;
         }
+    }
+    
+    /**
+     * Konversi berbagai format input ke numerik
+     */
+    private function isPureNumeric($value): bool
+    {
+        // Cek jika nilai sudah numerik (integer/float)
+        if (is_numeric($value)) {
+            return true;
+        }
+
+        // Cek jika string hanya berisi angka
+        if (is_string($value) && preg_match('/^\d+$/', $value)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function ensurePureNumeric($value, $fieldName)
+    {
+        if (!$this->isPureNumeric($value)) {
+            throw new \Exception("{$fieldName} harus berupa angka semua (tidak boleh mengandung karakter non-numerik)");
+        }
+        return $value;
     }
     
     private function isEmptyRow(array $row): bool
@@ -176,7 +209,6 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
         if (!preg_match('/^\+62/', $cleanedPhone)) {
             throw new \Exception("Nomor HP harus diawali dengan +62");
         }
-
         // Validasi panjang minimal (contoh: +628123456789 = 12 digit)
         // if (strlen($cleanedPhone) < 12) {
         //     throw new \Exception("Nomor HP terlalu pendek");
@@ -186,13 +218,37 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
     public function rules(): array
     {
         return [
-            'sobat_id' => 'required|string|max:12',
+            'sobat_id' => [
+            'required',
+                function ($attribute, $value, $fail) {
+                    if (!$this->isPureNumeric($value)) {
+                        $fail("SOBAT ID harus berupa angka semua (tidak boleh mengandung karakter non-numerik)");
+                    }
+                },
+                'max:12'
+            ],
             'nama_lengkap' => 'required|string|max:255',
             'alamat_mitra' => 'required|string',
             'kode_desa' => 'required|string|max:3',
             'kode_kecamatan' => 'required|string|max:3',
-            'jenis_kelamin' => 'required|in:1,2',
-            'status_pekerjaan' => 'required|in:0,1',
+            'jenis_kelamin' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    $jenisKelamin = $this->isPureNumeric($value);
+                    if (!in_array($jenisKelamin, [1, 2])) {
+                        $fail("Jenis kelamin harus 1 atau 2");
+                    }
+                }
+            ],
+            'status_pekerjaan' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    $statusPekerjaan = $this->isPureNumeric($value);
+                    if (!in_array($statusPekerjaan, [0, 1])) {
+                        $fail("Status pekerjaan harus 0 atau 1");
+                    }
+                }
+            ],
             'detail_pekerjaan' => 'nullable',
             'no_hp_mitra' => [
                 'required',
@@ -210,7 +266,6 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             ],
             'email_mitra' => 'required|email|max:255',
             'tgl_mitra_diterima' => 'nullable'
-            // tahun_selesai dihapus dari rules karena akan diisi otomatis
         ];
     }
 

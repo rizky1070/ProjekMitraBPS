@@ -49,6 +49,7 @@
                     width="100" height="100">
 
                     <h2 class="text-xl font-bold mt-2">{{ $mits->nama_lengkap }}</h2>
+                    <h5 class=" mt-2">{{ $mits->sobat_id }}</h5>
                 </div>
                 <div class="md:pl-6 w-full">
                     <div class="flex justify-between w-full border-b py-1">

@@ -167,7 +167,7 @@
                                             $bgStatus = $mitra->status_pekerjaan == 1 ? 'bg-red-500' : 'bg-green-500';
                                         @endphp
                                         <td class="text-sm font-medium text-gray-900 whitespace-normal break-words" style="max-width: 120px;">
-                                            <div class="flex justify-center items-center text-center">
+                                            <div class="ml-3 flex justify-center items-center text-center text-center">
                                                 <p class="{{ $bgStatus }} m-1 p-1 border rounded-lg"> </p>
                                                 <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
                                             </div>
