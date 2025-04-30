@@ -146,7 +146,7 @@
                     });
                 </script>
                 <!-- Table -->
-                <div class="border rounded-lg shadow-sm bg-white bg-white p-1">
+                <div class="border rounded-lg shadow-sm bg-white bg-white p-3">
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -162,12 +162,12 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach ($mitras as $mitra)
-                                    <tr class="hover:bg-gray-50">
+                                    <tr class="hover:bg-gray-50" style=" border-top-width: 2px; border-color: #D1D5DB;">
                                         @php
                                             $bgStatus = $mitra->status_pekerjaan == 1 ? 'bg-red-500' : 'bg-green-500';
                                         @endphp
                                         <td class="text-sm font-medium text-gray-900 whitespace-normal break-words" style="max-width: 120px;">
-                                            <div class="flex justify-center items-center">
+                                            <div class="flex justify-center items-center text-center">
                                                 <p class="{{ $bgStatus }} m-1 p-1 border rounded-lg"> </p>
                                                 <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
                                             </div>

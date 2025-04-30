@@ -168,55 +168,55 @@
 
                     <!-- Table Section -->
                     <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Survei</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kecamatan</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah Mitra</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal Kegiatan</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach ($surveis as $survei)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div>
-                                                    <div class="text-sm font-medium text-gray-900 whitespace-normal break-words" style="max-width: 120px;">{{ $survei->nama_survei }}</div>
-                                                    <div class="text-sm text-gray-500">{{ $survei->tim }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">{{ $survei->kecamatan->nama_kecamatan ?? '-' }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $survei->mitra_survei_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
-                                                {{ $survei->total_mitra }} mitra
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Survei</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kecamatan</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah Mitra</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal Kegiatan</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach ($surveis as $survei)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 text-center">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <div class="text-sm font-medium text-gray-900 whitespace-normal break-words">{{ $survei->nama_survei }}</div>
+                                            <div class="text-sm text-gray-500">{{ $survei->tim }}</div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <div class="text-sm text-gray-900">{{ $survei->kecamatan->nama_kecamatan ?? '-' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $survei->mitra_survei_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                            {{ $survei->total_mitra }} mitra
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center whitespace-normal break-words">
+                                        <div class="flex flex-col">
+                                            <span>{{ \Carbon\Carbon::parse($survei->jadwal_kegiatan)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($survei->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        @if($survei->total_mitra > 0)
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Aktif
                                             </span>
-                                        </td>
-
-                                        <td class="text-center whitespace-normal break-words" style="max-width: 120px;">{{ \Carbon\Carbon::parse($survei->jadwal_kegiatan )->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($survei->jadwal_berakhir_kegiatan )->translatedFormat('j F Y') }}</td>
-
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($survei->total_mitra > 0)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    Aktif
-                                                </span>
-                                            @else
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                    Tidak Aktif
-                                                </span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                        @else
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                Tidak Aktif
+                                            </span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                         <!-- Pagination -->
                         <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
                             @include('components.pagination', ['paginator' => $surveis])
