@@ -130,6 +130,29 @@ class MitraSurveiSeeder extends Seeder
                 'vol' => 2,
                 'honor' => 100000,
                 'tgl_ikut_survei' => '2025-04-10'
+            ],
+
+            // Data kesepuluh
+            [
+                'id_mitra' => 21,
+                'id_survei' => 21,
+                'posisi_mitra' => 'Posisi J',
+                'catatan' => 'Catatan untuk Mitra 21',
+                'nilai' => 5,
+                'vol' => 2,
+                'honor' => 100000,
+                'tgl_ikut_survei' => '2025-03-10'
+            ],
+            // 
+            [
+                'id_mitra' => 21,
+                'id_survei' => 22,
+                'posisi_mitra' => 'Posisi J',
+                'catatan' => 'Catatan untuk Mitra 21',
+                'nilai' => 5,
+                'vol' => 2,
+                'honor' => 10000,
+                'tgl_ikut_survei' => '2025-03-10'
             ]
         ]);
     }
