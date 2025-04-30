@@ -306,7 +306,6 @@
                                     @endphp
                                     <td class="whitespace-normal text-center break-words" style="max-width: 120px;">
                                         <div class="flex justify-center items-center">
-                                            <p class="{{ $bgStatus }} m-1 p-1 border rounded-lg"> </p>
                                             <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
                                         </div>
                                     </td>
