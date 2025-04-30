@@ -32,7 +32,7 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
 
     public function model(array $row)
     {
-        $tahunMasuk = $this->parseDate($row['tahun_masuk_mitra']);
+        $tahunMasuk = $this->parseDate($row['tgl_mitra_diterima']);
         $tglIkutSurvei = $this->parseDate($row['tgl_ikut_survei']);
 
         // Cari mitra berdasarkan sobat_id bulan dan tahun
@@ -43,6 +43,11 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
 
         if (!$mitra) {
             throw new \Exception("Mitra dengan SOBAT ID {$row['sobat_id']} pada bulan " . Carbon::parse($tahunMasuk)->month . " dan tahun masuk " . Carbon::parse($tahunMasuk)->year . " tidak ditemukan");
+        }
+
+        // Cek status pekerjaan mitra
+        if ($mitra->status_pekerjaan == 1) {
+            throw new \Exception("Mitra dengan SOBAT ID {$row['sobat_id']} tidak dapat ditambahkan karena status pekerjaan bernilai 1");
         }
 
         // Pengecekan periode aktif mitra dengan periode survei
@@ -131,7 +136,7 @@ class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
             'rate_honor' => 'required|string',
             'catatan' => 'nullable|string',
             'nilai' => 'nullable|string|min:1|max:5',
-            'tahun_masuk_mitra' => 'required',
+            'tgl_mitra_diterima' => 'required',
             'tgl_ikut_survei' => [
                 'required',
                 function ($attribute, $value, $fail) {
