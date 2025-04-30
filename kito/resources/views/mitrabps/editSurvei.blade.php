@@ -337,6 +337,9 @@
                                             <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Hapus</button>
                                         </td>
                                     </form>
+                                    <td class="p-2 text-center" style="max-width: 120px;">
+                                        <button type="button" onclick="generatePDF('{{ $mitra->id_mitra }}', '{{ $mitra->nama_lengkap }}')" class="bg-orange text-black px-3 rounded">Cetak</button>
+                                    </td>
                                     @else
                                     <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
                                         <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
@@ -353,10 +356,10 @@
                                             <button type="submit" class="bg-orange text-black px-3 rounded">Tambah</button>
                                         </form>
                                     </td>
-                                    @endif
                                     <td class="p-2 text-center" style="max-width: 120px;">
-                                        <button type="button" onclick="generatePDF('{{ $mitra->id_mitra }}', '{{ $mitra->nama_lengkap }}')" class="bg-orange text-black px-3 rounded">Cetak</button>
+                                        <!-- Tombol cetak tidak ditampilkan karena mitra belum ditambahkan -->
                                     </td>
+                                    @endif
                                 </tr>
                                 @endforeach
                             </tbody>
