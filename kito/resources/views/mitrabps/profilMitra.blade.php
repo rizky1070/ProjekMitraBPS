@@ -112,9 +112,9 @@
                             @php
                                 $isActive = $mits->status_pekerjaan == 1;
                                 $colorClasses = $isActive 
-                                    ? 'bg-green-500' 
-                                    : 'bg-red-500';
-                                $statusText = $isActive ? 'Aktif' : 'Non-Aktif';
+                                    ? 'bg-red-500' 
+                                    : 'bg-green-500';
+                                $statusText = $isActive ? 'Non-Aktif' : 'Aktif';
                             @endphp
                             
                             <!-- Button untuk status -->
@@ -187,8 +187,8 @@
                         <p class="font-sm text-gray-500">*Aktifkan filter bulan untuk melihat total gaji</p>
                     @endif
                 </div>
-                <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-l">
-                    <div class="overflow-x-auto mb-2 pb-2 border-b border-gray-300">
+                <div class="bg-white p-4 border border-gray-300 rounded-lg shadow-l">
+                    <div class="overflow-x-auto mb-2 pb-2">
 
                         <h2 class="text-lg font-semibold text-gray-800">Survei yang sudah dikerjakan:</h2>
 
@@ -213,9 +213,9 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach ($survei_dikerjakan as $sur)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->survei->nama_survei }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <tr class="hover:bg-gray-50" style=" border-top-width: 2px; border-color: #D1D5DB;">
+                                    <td class="text-sm font-medium text-gray-900 whitespace-normal break-words" style="max-width: 120px;">{{ $sur->survei->nama_survei }}</td>
+                                    <td class="text-center whitespace-normal break-words" style="max-width: 200px;">
                                         {{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }} - 
                                         {{ \Carbon\Carbon::parse($sur->survei->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->vol ?? '-' }}</td>
@@ -236,7 +236,7 @@
                         </table>
                         @endif
                     </div>
-                    <div class="overflow-x-auto mb-4">
+                    <div class="overflow-x-auto mb-4 pt-2" style=" border-top-width: 2px; border-color: #9CA3AF;">
 
                         <h2 class="text-lg font-semibold text-gray-800">Survei yang belum/sedang dikerjakan:</h2>
     
@@ -259,10 +259,10 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach ($survei_belum as $sur)
-                                <tr class="hover:bg-gray-50">
+                                <tr class="hover:bg-gray-50" style=" border-top-width: 2px; border-color: #D1D5DB;">
                                     <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->survei->nama_survei }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        {{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }}
+                                        {{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }} -
                                         {{ \Carbon\Carbon::parse($sur->survei->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->vol ?? '-' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">Rp{{ number_format($sur->honor ?? 0, 0, ',', '.') }}</td>

@@ -278,25 +278,25 @@
                 });
 
                 </script>
-                <div class="border rounded-lg shadow-sm bg-white bg-white p-1 mx-4">
+                <div class="border rounded-lg shadow-sm bg-white bg-white p-2 mx-4">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-500">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mitra</th>
-                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Domisili</th>
-                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Survei yang Diikuti</th>
-                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kontrak</th>
-                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Vol</th>
-                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rate Honor</th>
-                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Posisi</th>
-                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">SK</th>
+                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mitra</th>
+                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Domisili</th>
+                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Survei yang Diikuti</th>
+                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kontrak</th>
+                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Vol</th>
+                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rate Honor</th>
+                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Posisi</th>
+                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">SK</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tbody class="bg-white divide-y divide-gray-500">
                                 @foreach($mitras as $mitra)
-                                <tr class="hover:bg-gray-50">
+                                <tr class="hover:bg-gray-50" style=" border-top-width: 2px; border-color: #D1D5DB;">
                                     @php
                                         if ($mitra->status_pekerjaan == 1) {
                                             $bgStatus = 'bg-red-500';
@@ -304,14 +304,14 @@
                                             $bgStatus = 'bg-green-500';
                                         }
                                     @endphp
-                                    <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
+                                    <td class="whitespace-normal text-center break-words" style="max-width: 120px;">
                                         <div class="flex justify-center items-center">
                                             <p class="{{ $bgStatus }} m-1 p-1 border rounded-lg"> </p>
                                             <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
                                         </div>
                                     </td>
-                                    <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
-                                    <td class=" whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->mitra_survei_count }}</td>
+                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
+                                    <td class="whitespace-nowrap text-center" style="max-width: 100px;">{{ $mitra->mitra_survei_count }}</td>
                                     <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
                                         {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - 
                                         {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}
@@ -329,12 +329,14 @@
                                         <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
                                             <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none" placeholder="{{ $mitra->posisi_mitra }}" style="width: 100%;">
                                         </td>
-                                        <td class="flex justify-center items-center py-2 text-center">
-                                            <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Ubah</button>
-                                    </form>
-                                    <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Hapus</button>
+                                        <td>
+                                            <div class="flex justify-center items-center py-2 text-center">
+                                                <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Ubah</button>
+                                        </form>
+                                        <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Hapus</button>
+                                            </div>
                                         </td>
                                     </form>
                                     <td class="p-2 text-center" style="max-width: 120px;">
@@ -351,7 +353,7 @@
                                     <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
                                             <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Posisi Mitra" style="width: 100%;">
                                     </td>
-                                    <td class="border border-gray-350 p-2 text-center" style="max-width: 120px;">
+                                    <td class=" whitespace-nowrap p-2 text-center" style="max-width: 120px;">
                                             @csrf
                                             <button type="submit" class="bg-orange text-black px-3 rounded">Tambah</button>
                                         </form>
