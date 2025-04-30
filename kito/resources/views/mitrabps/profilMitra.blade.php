@@ -179,11 +179,11 @@
                     </div>
                 </form>
                 <div class="pl-4 mb-2">
-                    @if(request()->has('bulan'))
-                    <p class="font-bold">Total Gaji Mitra Bulan ini:</p>
-                    <p class="text-xl font-bold">Rp {{ number_format($totalGaji, 0, ',', '.') }},00</p>
+                    @if($showTotalGaji)
+                        <p class="font-bold">Total Gaji Mitra Bulan ini:</p>
+                        <p class="text-xl font-bold">Rp {{ number_format($totalGaji, 0, ',', '.') }},00</p>
                     @else
-                    <p class="font-sm text-gray-500">*Aktifkan filter bulan untuk melihat total gaji</p>
+                        <p class="font-sm text-gray-500">*Aktifkan filter bulan untuk melihat total gaji</p>
                     @endif
                 </div>
                 <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-l">

@@ -205,102 +205,107 @@ class MitraController extends Controller
 
 
     public function profilMitra(Request $request, $id_mitra)
-    {
-        \Carbon\Carbon::setLocale('id');
-        
-        $mits = Mitra::with(['kecamatan', 'desa'])->findOrFail($id_mitra);
+{
+    \Carbon\Carbon::setLocale('id');
+    
+    $mits = Mitra::with(['kecamatan', 'desa'])->findOrFail($id_mitra);
 
-        // Generate GitHub profile image URL based on sobatid
-        $githubBaseUrl = 'https://raw.githubusercontent.com/mainchar42/assetgambar/main/myGambar/';
-        $profileImage = $githubBaseUrl . $mits->sobat_id . '.jpg'; // asumsi format gambar adalah .jpg
-            
-        // Daftar tahun yang tersedia untuk mitra ini
-        $tahunOptions = Survei::selectRaw('DISTINCT YEAR(jadwal_kegiatan) as tahun')
+    // Generate GitHub profile image URL
+    $githubBaseUrl = 'https://raw.githubusercontent.com/mainchar42/assetgambar/main/myGambar/';
+    $profileImage = $githubBaseUrl . $mits->sobat_id . '.jpg';
+        
+    // Daftar tahun yang tersedia untuk mitra ini
+    $tahunOptions = Survei::selectRaw('DISTINCT YEAR(bulan_dominan) as tahun')
+        ->join('mitra_survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
+        ->where('mitra_survei.id_mitra', $id_mitra)
+        ->orderByDesc('tahun')
+        ->pluck('tahun', 'tahun');
+    
+    // Daftar bulan berdasarkan tahun yang dipilih untuk mitra ini
+    $bulanOptions = [];
+    if ($request->filled('tahun')) {
+        $bulanOptions = Survei::selectRaw('DISTINCT MONTH(bulan_dominan) as bulan')
             ->join('mitra_survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
             ->where('mitra_survei.id_mitra', $id_mitra)
-            ->orderByDesc('tahun')
-            ->pluck('tahun', 'tahun');
-        
-        // Daftar bulan berdasarkan tahun yang dipilih untuk mitra ini
-        $bulanOptions = [];
-        if ($request->filled('tahun')) {
-            $bulanOptions = Survei::selectRaw('DISTINCT MONTH(jadwal_kegiatan) as bulan')
-                ->join('mitra_survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
-                ->where('mitra_survei.id_mitra', $id_mitra)
-                ->whereYear('jadwal_kegiatan', $request->tahun)
-                ->orderBy('bulan')
-                ->pluck('bulan', 'bulan')
-                ->mapWithKeys(function($month) {
-                    $monthNumber = str_pad($month, 2, '0', STR_PAD_LEFT);
-                    return [
-                        $monthNumber => \Carbon\Carbon::create()->month($month)->translatedFormat('F')
-                    ];
-                });
-        }
-        
-        // Daftar nama survei untuk mitra ini
-        $namaSurveiOptions = Survei::select('nama_survei')
-            ->distinct()
-            ->join('mitra_survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
-            ->where('mitra_survei.id_mitra', $id_mitra)
-            ->when($request->filled('tahun'), function($query) use ($request) {
-                $query->whereYear('jadwal_kegiatan', $request->tahun);
-            })
-            ->when($request->filled('bulan'), function($query) use ($request) {
-                $query->whereMonth('jadwal_kegiatan', $request->bulan);
-            })
-            ->orderBy('nama_survei')
-            ->pluck('nama_survei', 'nama_survei');
-        
-        // Query survei mitra dengan filter
-        $query = MitraSurvei::with(['survei' => function($query) {
-            $query->with('kecamatan');
-        }])->where('id_mitra', $id_mitra);
-        
-        // Filter nama survei
-        if ($request->filled('nama_survei')) {
-            $query->whereHas('survei', function ($q) use ($request) {
-                $q->where('nama_survei', $request->nama_survei);
+            ->whereYear('bulan_dominan', $request->tahun)
+            ->orderBy('bulan')
+            ->pluck('bulan', 'bulan')
+            ->mapWithKeys(function($month) {
+                $monthNumber = str_pad($month, 2, '0', STR_PAD_LEFT);
+                return [
+                    $monthNumber => \Carbon\Carbon::create()->month($month)->translatedFormat('F')
+                ];
             });
-        }
-        
-        // Filter bulan
-        if ($request->filled('bulan')) {
-            $query->whereHas('survei', function ($q) use ($request) {
-                $q->whereMonth('jadwal_kegiatan', $request->bulan);
-            });
-        }
-        
-        // Filter tahun
-        if ($request->filled('tahun')) {
-            $query->whereHas('survei', function ($q) use ($request) {
-                $q->whereYear('jadwal_kegiatan', $request->tahun);
-            });
-        }
-        
-        $survei = $query->get()
-            ->sortByDesc(fn($item) => optional($item->survei)->jadwal_kegiatan)
-            ->sortByDesc(fn($item) => is_null($item->nilai)); // Prioritaskan yang belum dinilai
-        
-        // Hitung total gaji
-        $totalGaji = 0;
+    }
+    
+    // Daftar nama survei untuk mitra ini
+    $namaSurveiOptions = Survei::select('nama_survei')
+        ->distinct()
+        ->join('mitra_survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
+        ->where('mitra_survei.id_mitra', $id_mitra)
+        ->when($request->filled('tahun'), function($query) use ($request) {
+            $query->whereYear('bulan_dominan', $request->tahun);
+        })
+        ->when($request->filled('bulan'), function($query) use ($request) {
+            $query->whereMonth('bulan_dominan', $request->bulan);
+        })
+        ->orderBy('nama_survei')
+        ->pluck('nama_survei', 'nama_survei');
+    
+    // Query survei mitra dengan filter
+    $query = MitraSurvei::with(['survei' => function($query) {
+        $query->with('kecamatan');
+    }])->where('id_mitra', $id_mitra);
+    
+    // Filter nama survei
+    if ($request->filled('nama_survei')) {
+        $query->whereHas('survei', function ($q) use ($request) {
+            $q->where('nama_survei', $request->nama_survei);
+        });
+    }
+    
+    // Filter bulan
+    if ($request->filled('bulan')) {
+        $query->whereHas('survei', function ($q) use ($request) {
+            $q->whereMonth('bulan_dominan', $request->bulan);
+        });
+    }
+    
+    // Filter tahun
+    if ($request->filled('tahun')) {
+        $query->whereHas('survei', function ($q) use ($request) {
+            $q->whereYear('bulan_dominan', $request->tahun);
+        });
+    }
+    
+    $survei = $query->get()
+        ->sortByDesc(fn($item) => optional($item->survei)->bulan_dominan)
+        ->sortByDesc(fn($item) => is_null($item->nilai));
+    
+    // Hitung total gaji HANYA jika filter bulan diisi
+    $totalGaji = 0;
+    $showTotalGaji = $request->filled('bulan'); // Flag untuk menentukan apakah menampilkan total gaji
+    
+    if ($showTotalGaji) {
         foreach ($survei as $item) {
             if ($item->survei && $item->vol && $item->honor) {
                 $totalGaji += $item->vol * $item->honor;
             }
         }
-
-        return view('mitrabps.profilMitra', compact(
-            'mits', 
-            'survei',
-            'tahunOptions',
-            'bulanOptions',
-            'namaSurveiOptions',
-            'request',
-            'totalGaji',
-            'profileImage' // Tambahkan ini
-        ));
     }
+
+    return view('mitrabps.profilMitra', compact(
+        'mits', 
+        'survei',
+        'tahunOptions',
+        'bulanOptions',
+        'namaSurveiOptions',
+        'request',
+        'totalGaji',
+        'showTotalGaji', // Kirim flag ini ke view
+        'profileImage'
+    ));
+}
 
     public function updateDetailPekerjaan(Request $request, $id_mitra)
     {
