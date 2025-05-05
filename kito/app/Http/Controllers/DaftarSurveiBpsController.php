@@ -366,8 +366,6 @@ class DaftarSurveiBpsController extends Controller
         return redirect()->back()->with('success', $message);
     } 
     
-    
-
     private function sendWhatsAppNotification($mitra, $survey, $vol, $honor, $posisiMitra)
     {
         $token = "avqc2cbuFymVuKpMW3e2"; // Ganti dengan token Fonnte Anda
@@ -551,7 +549,24 @@ class DaftarSurveiBpsController extends Controller
         return redirect()->back()->with('success', 'Survei berhasil ditambahkan!');
     }
     
+    public function deleteSurvei($id_survei)
+    {
+        $survei = Survei::findOrFail($id_survei);
+        $namaSurvei = $survei->nama_survei;
 
+        DB::transaction(function () use ($id_survei) {
+            // 1. Hapus semua relasi di tabel pivot terlebih dahulu
+            DB::table('mitra_survei')
+                ->where('id_survei', $id_survei)
+                ->delete();
+            
+            // 2. Baru hapus surveinya
+            Survei::findOrFail($id_survei)->delete();
+        });
+        
+        return redirect()->route('surveys.filter')
+            ->with('success', "Survei $namaSurvei beserta relasi mitra berhasil dihapus");
+    }
 
     public function upExcelSurvei(Request $request)
     {

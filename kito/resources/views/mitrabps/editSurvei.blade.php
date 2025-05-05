@@ -173,7 +173,17 @@
             </div>
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold mt-4">Daftar Mitra</h3>
-                <button type="button" class="mt-4 px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+                <div class="flex gap-2">
+                    <form action="{{ route('survey.delete', ['id_survei' => $survey->id_survei]) }}" method="POST" 
+                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus survei {{ $survey->nama_survei }}? SEMUA MITRA YANG TERKAIT AKAN DIPUTUSKAN RELASINYA.')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+                            Hapus Survei
+                        </button>
+                    </form>
+                    <button type="button" class="mt-4 px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+                </div>
             </div>
                 <div class="bg-white rounded-lg shadow-sm p-6">
                     <!-- Year Row -->
@@ -403,7 +413,26 @@
         }
 
         // PDF Generation Function
-        function generatePDF(mitraId, mitraName) {
+        async function generatePDF(mitraId, mitraName) {
+        try {
+            // Tampilkan loading
+            swal({
+                title: "Membuat PDF",
+                text: "Sedang memproses data...",
+                button: false,
+                closeOnClickOutside: false,
+                closeOnEsc: false
+            });
+
+            // Ambil data mitra dari API
+            const response = await fetch(`/api/mitra/${mitraId}`);
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Gagal mengambil data mitra');
+            }
+
+            const mitra = result.data;
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
@@ -419,15 +448,17 @@
             doc.text(`KRO: ${'{{ $survey->kro }}'}`, 14, 60);
             
             // Add mitra information
-            doc.text(`Detail Mitra: ${mitraName}`, 14, 80);
+            doc.text(`Detail Mitra: ${mitra.nama_lengkap}`, 14, 80);
             
             // Create table for mitra data
             const headers = [['Field', 'Value']];
             const data = [
-                ['Nama Lengkap', mitraName],
-                ['Domisili', '{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}'],
-                ['Masa Kontrak', `${'{{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }}'} - ${'{{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}'}`],
-                ['Posisi', '{{ $mitra->posisi_mitra }}']
+                ['Nama Lengkap', mitra.nama_lengkap],
+                ['Domisili', mitra.kecamatan],
+                ['Masa Kontrak', `${mitra.tahun_mulai} - ${mitra.tahun_selesai}`],
+                ['Posisi', mitra.posisi_mitra],
+                ['Volume', mitra.vol],
+                ['Honor', `Rp${mitra.honor.toLocaleString('id-ID')}`]
             ];
             
             doc.autoTable({
@@ -447,22 +478,29 @@
                 }
             });
             
-            // Add lorem ipsum text
-            const loremText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.";
+            // Add additional information
+            const infoText = "Dokumen ini merupakan bukti partisipasi mitra dalam survei.";
             
             doc.text('Keterangan:', 14, doc.autoTable.previous.finalY + 20);
-            doc.text(loremText, 14, doc.autoTable.previous.finalY + 30, {
+            doc.text(infoText, 14, doc.autoTable.previous.finalY + 30, {
                 maxWidth: 180,
                 align: 'justify'
             });
 
-            // Add first blank page
+            // Add blank pages if needed
             doc.addPage();
             doc.addPage();
             
             // Save the PDF
-            doc.save(`SK_{{ $survey->nama_survei }}_${mitraName}.pdf`);
+            doc.save(`SK_{{ $survey->nama_survei }}_${mitra.nama_lengkap}.pdf`);
+            
+            // Tutup loading
+            swal.close();
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            swal("Error!", "Gagal membuat PDF: " + error.message, "error");
         }
+    }
     </script>
 </body>
 </html>

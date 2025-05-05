@@ -351,6 +351,45 @@ class MitraController extends Controller
         return redirect()->back()->with('success', 'Penilaian berhasil disimpan!');
     }
 
+    public function deleteMitra($id_mitra)
+    {
+        $mitra = Mitra::findOrFail($id_mitra);
+        $namaMitra = $mitra->nama_lengkap; // Ambil nama mitra sebelum dihapus
+
+        DB::transaction(function () use ($id_mitra) {
+            // 1. Hapus semua relasi di tabel pivot terlebih dahulu
+            DB::table('mitra_survei')
+                ->where('id_mitra', $id_mitra)
+                ->delete();
+            
+            // 2. Baru hapus mitranya
+            Mitra::findOrFail($id_mitra)->delete();
+        });
+        
+        return redirect()->route('mitras.filter')
+            ->with('success', "Mitra $namaMitra beserta semua relasinya berhasil dihapus");
+    }
+
+    public function getMitraData($id)
+{
+    $mitra = Mitra::with(['kecamatan', 'mitraSurvei' => function($query) {
+        $query->select('id_mitra', 'posisi_mitra');
+    }])->findOrFail($id);
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'nama_lengkap' => $mitra->nama_lengkap,
+            'kecamatan' => $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia',
+            'tahun_mulai' => \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y'),
+            'tahun_selesai' => \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y'),
+            'posisi_mitra' => $mitra->mitraSurvei->first()->posisi_mitra ?? '-',
+            'vol' => $mitra->mitraSurvei->first()->vol ?? '-',
+            'honor' => $mitra->mitraSurvei->first()->honor ?? 0
+        ]
+    ]);
+}
+
     public function upExcelMitra(Request $request)
     {
         $request->validate([
