@@ -370,6 +370,26 @@ class MitraController extends Controller
             ->with('success', "Mitra $namaMitra beserta semua relasinya berhasil dihapus");
     }
 
+    public function getMitraData($id)
+{
+    $mitra = Mitra::with(['kecamatan', 'mitraSurvei' => function($query) {
+        $query->select('id_mitra', 'posisi_mitra');
+    }])->findOrFail($id);
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'nama_lengkap' => $mitra->nama_lengkap,
+            'kecamatan' => $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia',
+            'tahun_mulai' => \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y'),
+            'tahun_selesai' => \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y'),
+            'posisi_mitra' => $mitra->mitraSurvei->first()->posisi_mitra ?? '-',
+            'vol' => $mitra->mitraSurvei->first()->vol ?? '-',
+            'honor' => $mitra->mitraSurvei->first()->honor ?? 0
+        ]
+    ]);
+}
+
     public function upExcelMitra(Request $request)
     {
         $request->validate([

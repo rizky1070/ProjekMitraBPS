@@ -346,6 +346,7 @@ Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->
 Route::put('/mitra/{id_mitra}/detail', [MitraController::class, 'updateDetailPekerjaan'])->name('mitra.updateDetailPekerjaan');
 Route::put('/mitra/{id_mitra}/status', [MitraController::class, 'updateStatus'])->name('mitra.updateStatus');
 Route::delete('/mitra/{id_mitra}', [MitraController::class, 'deleteMitra'])->name('mitra.destroy');
+Route::get('/api/mitra/{id}', [MitraController::class, 'getMitraData']);
 
 //Halaman Mitra > Daftar Mitra > Penilaian Mitra
 Route::get('/penilaianMitra/{id_mitra_survei}', [MitraController::class, 'penilaianMitra'])->name('penilaian.mitra');
