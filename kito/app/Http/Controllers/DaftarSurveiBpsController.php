@@ -551,6 +551,9 @@ class DaftarSurveiBpsController extends Controller
     
     public function deleteSurvei($id_survei)
     {
+        $survei = Survei::findOrFail($id_survei);
+        $namaSurvei = $survei->nama_survei;
+
         DB::transaction(function () use ($id_survei) {
             // 1. Hapus semua relasi di tabel pivot terlebih dahulu
             DB::table('mitra_survei')
@@ -561,7 +564,8 @@ class DaftarSurveiBpsController extends Controller
             Survei::findOrFail($id_survei)->delete();
         });
         
-        return redirect()->route('surveys.filter')->with('success', 'Survei beserta relasi mitra berhasil dihapus');
+        return redirect()->route('surveys.filter')
+            ->with('success', "Survei $namaSurvei beserta relasi mitra berhasil dihapus");
     }
 
     public function upExcelSurvei(Request $request)

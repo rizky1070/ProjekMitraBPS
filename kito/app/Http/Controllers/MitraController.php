@@ -351,6 +351,25 @@ class MitraController extends Controller
         return redirect()->back()->with('success', 'Penilaian berhasil disimpan!');
     }
 
+    public function deleteMitra($id_mitra)
+    {
+        $mitra = Mitra::findOrFail($id_mitra);
+        $namaMitra = $mitra->nama_lengkap; // Ambil nama mitra sebelum dihapus
+
+        DB::transaction(function () use ($id_mitra) {
+            // 1. Hapus semua relasi di tabel pivot terlebih dahulu
+            DB::table('mitra_survei')
+                ->where('id_mitra', $id_mitra)
+                ->delete();
+            
+            // 2. Baru hapus mitranya
+            Mitra::findOrFail($id_mitra)->delete();
+        });
+        
+        return redirect()->route('mitras.filter')
+            ->with('success', "Mitra $namaMitra beserta semua relasinya berhasil dihapus");
+    }
+
     public function upExcelMitra(Request $request)
     {
         $request->validate([

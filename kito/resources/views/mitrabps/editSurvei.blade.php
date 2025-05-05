@@ -175,7 +175,7 @@
                 <h3 class="text-xl font-bold mt-4">Daftar Mitra</h3>
                 <div class="flex gap-2">
                     <form action="{{ route('survey.delete', ['id_survei' => $survey->id_survei]) }}" method="POST" 
-                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus survei ini? SEMUA MITRA YANG TERKAIT AKAN DIPUTUSKAN RELASINYA.')">
+                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus survei {{ $survey->nama_survei }}? SEMUA MITRA YANG TERKAIT AKAN DIPUTUSKAN RELASINYA.')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
