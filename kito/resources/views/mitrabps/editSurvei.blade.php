@@ -173,7 +173,17 @@
             </div>
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold mt-4">Daftar Mitra</h3>
-                <button type="button" class="mt-4 px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+                <div class="flex gap-2">
+                    <form action="{{ route('survey.delete', ['id_survei' => $survey->id_survei]) }}" method="POST" 
+                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus survei ini? SEMUA MITRA YANG TERKAIT AKAN DIPUTUSKAN RELASINYA.')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+                            Hapus Survei
+                        </button>
+                    </form>
+                    <button type="button" class="mt-4 px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+                </div>
             </div>
                 <div class="bg-white rounded-lg shadow-sm p-6">
                     <!-- Year Row -->
