@@ -26,6 +26,7 @@ use App\Http\Controllers\InputMitraBpsController;
 use App\Http\Controllers\DaftarSurveiBpsController;
 use App\Http\Controllers\MitraController;
 use App\Http\Controllers\ReportMitraSurveiController;
+use App\Http\Controllers\SKMitraController;
 
 /*
 |--------------------------------------------------------------------------
@@ -363,5 +364,12 @@ Route::get('/ReportSurvei/export-survei', [ReportMitraSurveiController::class, '
 Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra');
 Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra.filter');
 Route::get('/ReportMitra/export-mitra', [ReportMitraSurveiController::class, 'exportMitra'])->name('export.mitra');
+
+
+// Halaman Edit SK
+Route::get('/editSk/{id_survei}/{id_mitra}', [SKMitraController::class, 'showUploadForm'])->name('editSk');
+Route::post('/editSk/{id_survei}/{id_mitra}', [SKMitraController::class, 'handleUpload'])->name('editSk');
+Route::get('/download/{filename}', [SKMitraController::class, 'downloadFile'])->name('downloadFile');
+
 
 require __DIR__ . '/auth.php';

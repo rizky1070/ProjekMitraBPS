@@ -339,8 +339,10 @@
                                         </td>
                                     </form>
                                     <td class="p-2 text-center" style="max-width: 120px;">
-                                        <button type="button" onclick="generatePDF('{{ $mitra->id_mitra }}', '{{ $mitra->nama_lengkap }}')" class="bg-orange text-black px-3 rounded">Cetak</button>
+                                        <a href="{{ route('editSk', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" 
+                                        class="bg-orange text-black px-3 rounded">Cetak</a>
                                     </td>
+
                                     @else
                                     <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
                                         <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
