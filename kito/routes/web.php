@@ -308,70 +308,71 @@ Route::middleware('guest')->group(function () {
 });
 
 
-
-// MITRA SURVEI
-// Halaman Survei > Daftar Survei
-// Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index']);
-// Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index']);
-Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index'])->name('surveys.filter');
-Route::post('/upExcelSurvei', [DaftarSurveiBpsController::class, 'upExcelSurvei'])->name('upload.excelSurvei');
-
-// Halaman Survei > Daftar Survei > Edit Survei
-Route::post('/survey/{id}/update-status', [DaftarSurveiBpsController::class, 'updateStatus'])->name('survey.updateStatus');
-Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei');
-Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei.filter');
-Route::post('/survey/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController::class, 'toggleMitraSurvey'])->name('mitra.toggle');
-Route::post('/survey/{id_survei}/{id_mitra}/update', [DaftarSurveiBpsController::class, 'updateMitraOnSurvei'])->name('mitra.update');
-Route::post('/survey/{id_survei}/{id_mitra}/delete', [DaftarSurveiBpsController::class, 'deleteMitraFromSurvei'])->name('mitra.delete');
-Route::post('/upExcelMitra2Survey/{id_survei}', [DaftarSurveiBpsController::class, 'upExcelMitra2Survey'])->name('upload.excel');
-Route::delete('/survey/delete/{id_survei}', [DaftarSurveiBpsController::class, 'deleteSurvei'])->name('survey.delete');
-
-// Halaman Survei > Daftar Survei > Input Survei
-Route::get('/inputSurvei', action: [DaftarSurveiBpsController::class, 'create'])->name('inputSurvei');
-Route::get('/get-kabupaten/{id_provinsi}', [DaftarSurveiBpsController::class, 'getKabupaten']);
-Route::get('/get-kecamatan/{id_kabupaten}', [DaftarSurveiBpsController::class, 'getKecamatan']);
-Route::get('/get-desa/{id_kecamatan}', [DaftarSurveiBpsController::class, 'getDesa']);
-Route::post('/simpanSurvei', [DaftarSurveiBpsController::class, 'store'])->name('simpanSurvei');
-
-
-// Halaman Mitra
-//Halaman Mitra > Daftar Mitra
-Route::get('/daftarMitra', [MitraController::class, 'index'])->name('index');
-Route::get('/daftarMitra', [MitraController::class, 'index'])->name('mitras.filter');
-Route::post('/upExcelMitra', [MitraController::class, 'upExcelMitra'])->name('upload.excelMitra');
-
-
-//Halaman Mitra > Daftar Mitra > Profil Mitra
-Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profilMitra');
-Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profilMitra.filter');
-Route::put('/mitra/{id_mitra}/detail', [MitraController::class, 'updateDetailPekerjaan'])->name('mitra.updateDetailPekerjaan');
-Route::put('/mitra/{id_mitra}/status', [MitraController::class, 'updateStatus'])->name('mitra.updateStatus');
-Route::delete('/mitra/{id_mitra}', [MitraController::class, 'deleteMitra'])->name('mitra.destroy');
-
-//Halaman Mitra > Daftar Mitra > Penilaian Mitra
-Route::get('/penilaianMitra/{id_mitra_survei}', [MitraController::class, 'penilaianMitra'])->name('penilaian.mitra');
-Route::post('/simpan-penilaian', [MitraController::class, 'simpanPenilaian'])->name('simpan.penilaian');
-// Route::get('/penilaian-mitra', [PenilaianMitraController::class, 'index'])->name('penilaian.mitra');
-// Route::get('/penilaian-mitra/{id}', [PenilaianMitraController::class, 'show'])->name('penilaian.mitra.show');
-// Route::post('/penilaian-mitra/{id}', [PenilaianMitraController::class, 'store'])->name('penilaian.mitra.store');
-
-// Halaman Report
-//Halaman Report > Report Survei
-Route::get('/ReportSurvei', [ReportMitraSurveiController::class, 'SurveiReport'])->name('reports.survei');
-Route::get('/ReportSurvei', [ReportMitraSurveiController::class, 'SurveiReport'])->name('reports.survei.filter');
-Route::get('/ReportSurvei/export-survei', [ReportMitraSurveiController::class, 'exportSurvei'])->name('export.survei');
-
-
-//Halaman Report > Report Mitra
-Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra');
-Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra.filter');
-Route::get('/ReportMitra/export-mitra', [ReportMitraSurveiController::class, 'exportMitra'])->name('export.mitra');
-
-
-// Halaman Edit SK
-Route::get('/editSk/{id_survei}/{id_mitra}', [SKMitraController::class, 'showUploadForm'])->name('editSk');
-Route::post('/editSk/{id_survei}/{id_mitra}', [SKMitraController::class, 'handleUpload'])->name('editSk');
-Route::get('/download/{filename}', [SKMitraController::class, 'downloadFile'])->name('downloadFile');
+Route::middleware('auth')->group(function () {    
+    // MITRA SURVEI
+    // Halaman Survei > Daftar Survei
+    // Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index']);
+    // Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index']);
+    Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index'])->name('surveys.filter');
+    Route::post('/upExcelSurvei', [DaftarSurveiBpsController::class, 'upExcelSurvei'])->name('upload.excelSurvei');
+    
+    // Halaman Survei > Daftar Survei > Edit Survei
+    Route::post('/survey/{id}/update-status', [DaftarSurveiBpsController::class, 'updateStatus'])->name('survey.updateStatus');
+    Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei');
+    Route::get('/editSurvei/{id_survei}', [DaftarSurveiBpsController::class, 'editSurvei'])->name('editSurvei.filter');
+    Route::post('/survey/{id_survei}/{id_mitra}/toggle', [DaftarSurveiBpsController::class, 'toggleMitraSurvey'])->name('mitra.toggle');
+    Route::post('/survey/{id_survei}/{id_mitra}/update', [DaftarSurveiBpsController::class, 'updateMitraOnSurvei'])->name('mitra.update');
+    Route::post('/survey/{id_survei}/{id_mitra}/delete', [DaftarSurveiBpsController::class, 'deleteMitraFromSurvei'])->name('mitra.delete');
+    Route::post('/upExcelMitra2Survey/{id_survei}', [DaftarSurveiBpsController::class, 'upExcelMitra2Survey'])->name('upload.excel');
+    Route::delete('/survey/delete/{id_survei}', [DaftarSurveiBpsController::class, 'deleteSurvei'])->name('survey.delete');
+    
+    // Halaman Survei > Daftar Survei > Input Survei
+    Route::get('/inputSurvei', action: [DaftarSurveiBpsController::class, 'create'])->name('inputSurvei');
+    Route::get('/get-kabupaten/{id_provinsi}', [DaftarSurveiBpsController::class, 'getKabupaten']);
+    Route::get('/get-kecamatan/{id_kabupaten}', [DaftarSurveiBpsController::class, 'getKecamatan']);
+    Route::get('/get-desa/{id_kecamatan}', [DaftarSurveiBpsController::class, 'getDesa']);
+    Route::post('/simpanSurvei', [DaftarSurveiBpsController::class, 'store'])->name('simpanSurvei');
+    
+    
+    // Halaman Mitra
+    //Halaman Mitra > Daftar Mitra
+    Route::get('/daftarMitra', [MitraController::class, 'index'])->name('index');
+    Route::get('/daftarMitra', [MitraController::class, 'index'])->name('mitras.filter');
+    Route::post('/upExcelMitra', [MitraController::class, 'upExcelMitra'])->name('upload.excelMitra');
+    
+    
+    //Halaman Mitra > Daftar Mitra > Profil Mitra
+    Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profilMitra');
+    Route::get('/profilMitra/{id_mitra}', [MitraController::class, 'profilMitra'])->name('profilMitra.filter');
+    Route::put('/mitra/{id_mitra}/detail', [MitraController::class, 'updateDetailPekerjaan'])->name('mitra.updateDetailPekerjaan');
+    Route::put('/mitra/{id_mitra}/status', [MitraController::class, 'updateStatus'])->name('mitra.updateStatus');
+    Route::delete('/mitra/{id_mitra}', [MitraController::class, 'deleteMitra'])->name('mitra.destroy');
+    
+    //Halaman Mitra > Daftar Mitra > Penilaian Mitra
+    Route::get('/penilaianMitra/{id_mitra_survei}', [MitraController::class, 'penilaianMitra'])->name('penilaian.mitra');
+    Route::post('/simpan-penilaian', [MitraController::class, 'simpanPenilaian'])->name('simpan.penilaian');
+    // Route::get('/penilaian-mitra', [PenilaianMitraController::class, 'index'])->name('penilaian.mitra');
+    // Route::get('/penilaian-mitra/{id}', [PenilaianMitraController::class, 'show'])->name('penilaian.mitra.show');
+    // Route::post('/penilaian-mitra/{id}', [PenilaianMitraController::class, 'store'])->name('penilaian.mitra.store');
+    
+    // Halaman Report
+    //Halaman Report > Report Survei
+    Route::get('/ReportSurvei', [ReportMitraSurveiController::class, 'SurveiReport'])->name('reports.survei');
+    Route::get('/ReportSurvei', [ReportMitraSurveiController::class, 'SurveiReport'])->name('reports.survei.filter');
+    Route::get('/ReportSurvei/export-survei', [ReportMitraSurveiController::class, 'exportSurvei'])->name('export.survei');
+    
+    
+    //Halaman Report > Report Mitra
+    Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra');
+    Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra.filter');
+    Route::get('/ReportMitra/export-mitra', [ReportMitraSurveiController::class, 'exportMitra'])->name('export.mitra');
+    
+    
+    // Halaman Edit SK
+    Route::get('/editSk/{id_survei}/{id_mitra}', [SKMitraController::class, 'showUploadForm'])->name('editSk');
+    Route::post('/editSk/{id_survei}/{id_mitra}', [SKMitraController::class, 'handleUpload'])->name('editSk');
+    Route::get('/download/{filename}', [SKMitraController::class, 'downloadFile'])->name('downloadFile');
+});
 
 
 require __DIR__ . '/auth.php';
