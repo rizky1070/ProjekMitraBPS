@@ -5,40 +5,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload and Edit Document</title>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="icon" href="/Logo BPS.png" type="image/png">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <!-- Add jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <title>Generate SK</title>
 </head>
-<body>
+<body class="h-full bg-gray-200">
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200"> 
+        <a href="{{ url('/editSurvei/' . $survei->id_survei) }}" 
+        class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </a>
+        <div class="px-4 pt-4">
+            <h1 class="text-2xl font-bold mb-4">Surat Kerja</h1>
+        </div>
+    
+        <!-- Form untuk upload file dan mengedit template -->
+        <div class ="flex items-center justify-between m-4 bg-white p-4 rounded-lg shadow-md">
 
-    <h1>Upload and Edit Your Document</h1>
-
-    <!-- Form untuk upload file dan mengedit template -->
-    <form action="{{ route('editSk', ['id_survei' => $survei->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <!-- Input untuk Nomor SK -->
-        <label for="nomor_sk">Nomor SK:</label>
-        <input type="text" name="nomor_sk" required>
-        <br><br>
-
-        <!-- Input untuk Nama -->
-        <label for="nama">Your Name:</label>
-        <input type="text" name="nama" required>
-        <br><br>
-
-        <!-- Input untuk Denda -->
-        <label for="denda">Denda:</label>
-        <input type="number" name="denda" required>
-        <br><br>
-
-        <!-- Data dari database (misalnya mitra dan survei) disertakan di dalam input tersembunyi -->
-        <input type="hidden" name="id_survei" value="{{ $survei->id_survei }}">
-        <input type="hidden" name="id_mitra" value="{{ $mitra->id_mitra }}">
-
-        <label for="file">Choose a DOCX file:</label>
-        <input type="file" name="file" required>
-        <br><br>
-
-        <button type="submit">Upload and Edit</button>
-    </form>
+            <form action="{{ route('editSk', ['id_survei' => $survei->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST" enctype="multipart/form-data">
+                 @csrf
+                <div class="flex justify-between w-full border border-gray-300">
+                    <input type="file" name="file" required>
+                </div>
+                 <!-- Input untuk Nomor SK -->
+                 <div class="flex justify-between items-center w-full border-gray-400 border-b-2 py-1">
+                    <label for="nomor_sk" class="text-gray-700 pr-8">Nomor SK:</label>
+                    <input type="text" name="nomor_sk" required class="text-right border-0 border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Masukkan Nomor SK" style="width: 300px;">
+                </div>
+                
+                <!-- Input untuk Nama -->
+                <div class="flex justify-between items-center w-full border-gray-400 border-b-2 py-1">
+                    <label for="nama" class="text-gray-700 pr-8">Nama Pihak Pertama:</label>
+                    <input type="text" name="nama" required class="text-right border-0 border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Masukkan Nama Pihak Pertama" style="width: 300px;">
+                </div>
+                
+                <!-- Input untuk Denda -->
+                <div class="flex justify-between items-center w-full border-gray-400 border-b-2 py-1">
+                    <label for="denda" class="text-gray-700 pr-8">Denda:</label>
+                    <input type="number" name="denda" required class="text-right border-0 border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Masukkan Nilai Denda" style="width: 300px;">
+                </div>
+         
+                 <!-- Data dari database (misalnya mitra dan survei) disertakan di dalam input tersembunyi -->
+                <input type="hidden" name="id_survei" value="{{ $survei->id_survei }}">
+                <input type="hidden" name="id_mitra" value="{{ $mitra->id_mitra }}">
+         
+                <div class="mt-4">
+                    <button type="submit" class="px-4 py-1 bg-orange text-black rounded-md">Upload and Edit</button>
+                </div>
+            </form>
+        </div>
+    </main>
 
 
 </body>
