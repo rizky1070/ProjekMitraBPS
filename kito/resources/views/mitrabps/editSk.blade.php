@@ -33,39 +33,68 @@
         </div>
     
         <!-- Form untuk upload file dan mengedit template -->
-        <div class ="flex items-center justify-between m-4 bg-white p-4 rounded-lg shadow-md">
+        <div class="flex items-center justify-between m-4 bg-white p-4 rounded-lg shadow-md">
+            <div class="flex flex-col md:flex-row w-full gap-4">
+                <form action="{{ route('editSk', ['id_survei' => $survei->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST" enctype="multipart/form-data" class="w-full">
+                    @csrf
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Kolom Kiri -->
+                        <div class="space-y-4">
+                            <!-- Input File -->
+                            <div class="flex justify-between items-center border-gray-400 border-b-2 py-1 mt-4 relative">
+                                <input 
+                                    type="file" 
+                                    name="file" 
+                                    id="file-input" 
+                                    required 
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                >
+                                <div class="flex justify-between items-center w-full pointer-events-none">
+                                    <span id="file-label" class="text-gray-700 pr-8">Pilih File :</span>
+                                    <span id="file-name" class="text-gray-500 pr-3 truncate max-w-xs">Belum ada file dipilih</span>
+                                </div>
+                            </div>
 
-            <form action="{{ route('editSk', ['id_survei' => $survei->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST" enctype="multipart/form-data">
-                 @csrf
-                <div class="flex justify-between w-full border border-gray-300">
-                    <input type="file" name="file" required>
-                </div>
-                 <!-- Input untuk Nomor SK -->
-                 <div class="flex justify-between items-center w-full border-gray-400 border-b-2 py-1">
-                    <label for="nomor_sk" class="text-gray-700 pr-8">Nomor SK:</label>
-                    <input type="text" name="nomor_sk" required class="text-right border-0 border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Masukkan Nomor SK" style="width: 300px;">
-                </div>
-                
-                <!-- Input untuk Nama -->
-                <div class="flex justify-between items-center w-full border-gray-400 border-b-2 py-1">
-                    <label for="nama" class="text-gray-700 pr-8">Nama Pihak Pertama:</label>
-                    <input type="text" name="nama" required class="text-right border-0 border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Masukkan Nama Pihak Pertama" style="width: 300px;">
-                </div>
-                
-                <!-- Input untuk Denda -->
-                <div class="flex justify-between items-center w-full border-gray-400 border-b-2 py-1">
-                    <label for="denda" class="text-gray-700 pr-8">Denda:</label>
-                    <input type="number" name="denda" required class="text-right border-0 border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Masukkan Nilai Denda" style="width: 300px;">
-                </div>
-         
-                 <!-- Data dari database (misalnya mitra dan survei) disertakan di dalam input tersembunyi -->
-                <input type="hidden" name="id_survei" value="{{ $survei->id_survei }}">
-                <input type="hidden" name="id_mitra" value="{{ $mitra->id_mitra }}">
-         
-                <div class="mt-4">
-                    <button type="submit" class="px-4 py-1 bg-orange text-black rounded-md">Upload and Edit</button>
-                </div>
-            </form>
+                            <!-- Input Nomor SK -->
+                            <div class="flex justify-between items-center w-full border-gray-400 border-b-2 py-1">
+                                <label for="nomor_sk" class="text-gray-700 pr-8">Nomor SK :</label>
+                                <input type="text" name="nomor_sk" required class="text-right border-0 border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Masukkan Nomor SK" style="width: 300px;">
+                            </div>
+                        </div>
+
+                        <!-- Kolom Kanan -->
+                        <div class="space-y-4">
+                            <!-- Input Nama -->
+                            <div class="flex justify-between items-center w-full border-gray-400 border-b-2 py-1">
+                                <label for="nama" class="text-gray-700 pr-8">Nama Pihak Pertama :</label>
+                                <input type="text" name="nama" required class="text-right border-0 border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Masukkan Nama Pihak Pertama" style="width: 300px;">
+                            </div>
+
+                            <!-- Input Denda -->
+                            <div class="flex justify-between items-center w-full border-gray-400 border-b-2 py-1">
+                                <label for="denda" class="text-gray-700 pr-8">Denda :</label>
+                                <input type="number" name="denda" required class="text-right border-0 border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Masukkan Nilai Denda" style="width: 300px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input tersembunyi -->
+                    <input type="hidden" name="id_survei" value="{{ $survei->id_survei }}">
+                    <input type="hidden" name="id_mitra" value="{{ $mitra->id_mitra }}">
+
+                    <!-- Tombol Submit -->
+                    <div class="mt-4">
+                        <button type="submit" class="px-4 py-1 bg-orange text-black rounded-md">Upload and Edit</button>
+                    </div>
+
+                    <script>
+                        document.getElementById('file-input').addEventListener('change', function(e) {
+                            document.getElementById('file-name').textContent = 
+                            e.target.files.length ? e.target.files[0].name : "Belum ada file dipilih";
+                        });
+                    </script>
+                </form>
+            </div>
         </div>
     </main>
 
