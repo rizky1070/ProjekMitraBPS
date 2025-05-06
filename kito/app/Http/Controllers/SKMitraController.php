@@ -16,16 +16,32 @@ class SKMitraController extends Controller
     public function showUploadForm($id_survei, $id_mitra)
     {
         // Fetch the mitra and survei data from the database based on the provided IDs
-        $mitra = Mitra::find($id_mitra); // Replace Mitra with your model name
-        $survei = Survei::find($id_survei); // Replace Survei with your model name
-    
+        $mitra = Mitra::with('kecamatan')->find($id_mitra); // Load all related data for Mitra, including 'kecamatan'
+        $survei = Survei::with('mitraSurvei')->find($id_survei); // Load all related data for Survei, including 'mitraSurvei'
+
         // Ensure the mitra and survei are found, otherwise return an error
         if (!$mitra || !$survei) {
             return redirect()->route('someErrorRoute'); // Redirect to an error page if not found
         }
-    
-        // Pass the mitra and survei to the view
-        return view('mitrabps.editSk', compact('mitra', 'survei'));
+
+        // Fetch the MitraSurvei data based on the relationship between survei and mitra
+        $mitraSurvei = MitraSurvei::where('id_survei', $id_survei)
+            ->where('id_mitra', $id_mitra)
+            ->first();
+
+        // Ensure the MitraSurvei data is found, otherwise return an error
+        if (!$mitraSurvei) {
+            return redirect()->route('someErrorRoute'); // Redirect to an error page if not found
+        }
+
+        // Extract posisi_mitra, vol, and honor from MitraSurvei
+        $vol = $mitraSurvei->vol;
+        $honor = $mitraSurvei->honor;
+        
+        $posisi_mitra = $mitraSurvei->posisi_mitra;
+        $total_honor = $vol * $honor;
+        // Pass the mitra, survei, and MitraSurvei data to the view
+        return view('mitrabps.editSk', compact('mitra', 'survei', 'posisi_mitra', 'total_honor'));
     }
     
 
@@ -56,6 +72,7 @@ class SKMitraController extends Controller
         // Ambil data lainnya dari database
         $namaLengkapMitra = $mitra->nama_lengkap;
         $namaKecamatan = $mitra->kecamatan->nama_kecamatan;
+        $namaSurvei = $survey->nama_survei;
         $jadwalKegiatan = \Carbon\Carbon::parse($survey->jadwal_kegiatan)->locale('id')->translatedFormat('d-F-Y');
         $jadwalBerakhirKegiatan = \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan)->locale('id')->translatedFormat('d-F-Y');
         $vol = $mitraSurvei->vol;
@@ -98,7 +115,7 @@ class SKMitraController extends Controller
         $templateProcessor->setValue('{{tahun}}', $tahunHariIni);
     
         // Simpan file yang sudah diubah
-        $outputFile = storage_path('app/temp/edited_template.docx');
+        $outputFile = storage_path('app/temp/SK_' . $namaLengkapMitra . '_' . $namaSurvei . '.pdf');
         $templateProcessor->saveAs($outputFile);
     
         // Kembalikan file yang sudah diubah untuk diunduh

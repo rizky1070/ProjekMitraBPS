@@ -33,7 +33,27 @@
         </div>
     
         <!-- Form untuk upload file dan mengedit template -->
-        <div class="flex items-center justify-between m-4 bg-white p-4 rounded-lg shadow-md">
+        <div class="items-center justify-between m-4 bg-white p-4 rounded-lg shadow-md">
+            <h1 class="text-gray-900 text-xl font-bold mb-1">
+                Detail Mitra pada Survei {{$survei->nama_survei}}
+            </h1>
+            <div class="flex gap-4 border-gray-400 border-b-2 px-1">
+                <h2 class="text-lg font-semibold text-gray-800 my-1">Mitra (Pihak Kedua) : </h2>
+                <h2 class="text-lg font-semibold text-gray-800 my-1 ml-auto"> {{$mitra->nama_lengkap}}</h2>  
+            </div>
+            <div class="flex flex-col md:flex-row gap-4 mt-2 justify-between">
+                <div class="flex border-gray-400 w-full border-b-2 px-1">
+                    <h2 class="text-lg font-semibold text-gray-800 my-1">Posisi : </h2>
+                    <h2 class="text-lg font-semibold text-gray-800 my-1 ml-auto"> {{$posisi_mitra}}</h2>  
+                </div>
+                <div class="flex border-gray-400 w-full border-b-2 px-1">
+                    <h2 class="text-lg font-semibold text-gray-800 my-1">Total Honor : </h2>
+                    <h2 class="text-lg font-semibold text-gray-800 my-1 ml-auto"> {{$total_honor}}</h2>  
+                </div>
+            </div>
+            <h1 class="text-gray-900 text-xl font-bold mt-4">
+                Form SK {{$mitra->nama_lengkap}} pada Survei {{$survei->nama_survei}}
+            </h1>
             <div class="flex flex-col md:flex-row w-full gap-4">
                 <form action="{{ route('editSk', ['id_survei' => $survei->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST" enctype="multipart/form-data" class="w-full">
                     @csrf
@@ -50,14 +70,14 @@
                                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                 >
                                 <div class="flex justify-between items-center w-full pointer-events-none">
-                                    <span id="file-label" class="text-gray-700 pr-8">Pilih File :</span>
+                                    <span id="file-label" class="font-semibold text-gray-800 pr-8">Pilih File :</span>
                                     <span id="file-name" class="text-gray-500 pr-3 truncate max-w-xs">Belum ada file dipilih</span>
                                 </div>
                             </div>
 
                             <!-- Input Nomor SK -->
                             <div class="flex justify-between items-center w-full border-gray-400 border-b-2 py-1">
-                                <label for="nomor_sk" class="text-gray-700 pr-8">Nomor SK :</label>
+                                <label for="nomor_sk" class="font-semibold text-gray-800 pr-8">Nomor SK :</label>
                                 <input type="text" name="nomor_sk" required class="text-right border-0 border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Masukkan Nomor SK" style="width: 300px;">
                             </div>
                         </div>
@@ -66,13 +86,13 @@
                         <div class="space-y-4">
                             <!-- Input Nama -->
                             <div class="flex justify-between items-center w-full border-gray-400 border-b-2 py-1">
-                                <label for="nama" class="text-gray-700 pr-8">Nama Pihak Pertama :</label>
+                                <label for="nama" class="font-semibold text-gray-800 pr-8">Nama Pihak Pertama :</label>
                                 <input type="text" name="nama" required class="text-right border-0 border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Masukkan Nama Pihak Pertama" style="width: 300px;">
                             </div>
 
                             <!-- Input Denda -->
                             <div class="flex justify-between items-center w-full border-gray-400 border-b-2 py-1">
-                                <label for="denda" class="text-gray-700 pr-8">Denda :</label>
+                                <label for="denda" class="font-semibold text-gray-800 pr-8">Denda :</label>
                                 <input type="number" name="denda" required class="text-right border-0 border-gray-300 focus:outline-none focus:border-blue-500" placeholder="Masukkan Nilai Denda" style="width: 300px;">
                             </div>
                         </div>
