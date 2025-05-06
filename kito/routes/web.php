@@ -307,9 +307,9 @@ Route::middleware('guest')->group(function () {
     // Route::post('/register', [RegisteredUserController::class, 'store'])->name('register.store');
 });
 
-
-Route::middleware('auth')->group(function () {    
-    // MITRA SURVEI
+  
+    // ROUTE APLIKASI PENGELOLAAN MITRA SURVEI
+Route::middleware('auth')->group(function () {  
     // Halaman Survei > Daftar Survei
     // Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index']);
     // Route::get('/daftarSurvei', [DaftarSurveiBpsController::class, 'index']);
