@@ -12,7 +12,7 @@ class KabupatenSeeder extends Seeder
         DB::table('kabupaten')->insert([
             [
                 'id_kabupaten' => '16',
-                'kode_kabupaten' => 'K001', 
+                'kode_kabupaten' => '16', 
                 'nama_kabupaten' => 'Mojokerto',
                 'id_provinsi' => 35 // Sesuaikan dengan ID provinsi yang ada
             ]

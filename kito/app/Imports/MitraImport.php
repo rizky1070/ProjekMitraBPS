@@ -18,7 +18,12 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
     private $errors = [];
     private $defaultProvinsi = '35';
     private $defaultKabupaten = '16';
-    
+      private $currentDate;
+
+    public function __construct()
+    {
+        $this->currentDate = Carbon::now();
+    }
     public function model(array $row)
     {
         static $rowNumber = 1;
@@ -185,16 +190,29 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
     }
     
     private function checkDuplicate($sobatId, $tahunMulai)
-    {
-        $existingMitra = Mitra::where('sobat_id', $sobatId)
-            ->whereMonth('tahun', $tahunMulai->month)
-            ->whereYear('tahun', $tahunMulai->year)
-            ->first();
-
-        if ($existingMitra) {
-            throw new \Exception("Sobat ID {$sobatId} sudah terdaftar pada bulan {$tahunMulai->month} tahun {$tahunMulai->year}");
-        }
+{
+    // Pastikan $tahunMulai adalah objek Carbon yang valid
+    $tahunMulai = $tahunMulai ?: $this->currentDate;
+    
+    if (!($tahunMulai instanceof Carbon)) {
+        $tahunMulai = $this->parseTanggal($tahunMulai);
     }
+
+    Log::debug("Checking duplicate for:", [
+        'sobat_id' => $sobatId,
+        'month' => $tahunMulai->month,
+        'year' => $tahunMulai->year
+    ]);
+
+    $existing = Mitra::where('sobat_id', $sobatId)
+        ->whereMonth('tahun', $tahunMulai->month)
+        ->whereYear('tahun', $tahunMulai->year)
+        ->exists();
+
+    if ($existing) {
+        throw new \Exception("Data dengan SOBAT ID {$sobatId} sudah terdaftar untuk periode {$tahunMulai->format('m/Y')}");
+    }
+}
 
     private function validatePhoneNumber($phoneNumber)
     {
@@ -220,12 +238,34 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
         return [
             'sobat_id' => [
             'required',
-                function ($attribute, $value, $fail) {
-                    if (!$this->isPureNumeric($value)) {
-                        $fail("SOBAT ID harus berupa angka semua (tidak boleh mengandung karakter non-numerik)");
+            function ($attribute, $value, $fail) {
+                if (!$this->isPureNumeric($value)) {
+                    $fail("SOBAT ID harus berupa angka semua");
+                }
+            },
+            function ($attribute, $value, $fail) {
+                try {
+                    $tahunMulai = $this->parseTanggal($this->row['tgl_mitra_diterima'] ?? null);
+                    
+                    Log::debug("Rules validation checking:", [
+                        'sobat_id' => $value,
+                        'month' => $tahunMulai->month,
+                        'year' => $tahunMulai->year
+                    ]);
+                    
+                    $exists = Mitra::where('sobat_id', $value)
+                        ->whereMonth('tahun', $tahunMulai->month)
+                        ->whereYear('tahun', $tahunMulai->year)
+                        ->exists();
+                        
+                    if ($exists) {
+                        $fail("SOBAT ID {$value} sudah terdaftar untuk periode {$tahunMulai->format('m/Y')}");
                     }
-                },
-                'max:12'
+                } catch (\Exception $e) {
+                    $fail("Gagal validasi tanggal: " . $e->getMessage());
+                }
+            },
+            'max:12'
             ],
             'nama_lengkap' => 'required|string|max:255',
             'alamat_mitra' => 'required|string',
@@ -265,42 +305,65 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                 },
             ],
             'email_mitra' => 'required|email|max:255',
-            'tgl_mitra_diterima' => 'nullable'
+            'tgl_mitra_diterima' => 'nullable','string'
         ];
     }
 
     private function parseTanggal($tanggal)
-    {
-        try {
-            if (empty($tanggal)) {
-                return Carbon::now(); // Return current date if empty
-            }
-
-            if ($tanggal instanceof \DateTimeInterface) {
-                return Carbon::instance($tanggal);
-            }
-
-            if (is_numeric($tanggal)) {
-                $unixDate = ($tanggal - 25569) * 86400;
-                return Carbon::createFromTimestamp($unixDate);
-            }
-
-            if (is_string($tanggal)) {
-                if (preg_match('/^\d+$/', $tanggal)) {
-                    $unixDate = ($tanggal - 25569) * 86400;
-                    return Carbon::createFromTimestamp($unixDate);
-                }
-                
-                return Carbon::parse($tanggal);
-            }
-
-            throw new \Exception("Format tanggal tidak dikenali");
-            
-        } catch (\Exception $e) {
-            Log::error("Gagal parsing tanggal: {$tanggal} - Error: " . $e->getMessage());
-            throw new \Exception("Format tanggal tidak valid: {$tanggal}");
+{
+    try {
+        if (empty($tanggal)) {
+            Log::info("Tanggal kosong, menggunakan tanggal sekarang");
+            return $this->currentDate;
         }
+
+        // Jika sudah objek Carbon/DateTime
+        if ($tanggal instanceof \DateTimeInterface) {
+            return Carbon::instance($tanggal);
+        }
+
+        // Handle jika tanggal dalam format Y-m-d (format date dari database)
+        if (is_string($tanggal) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
+            return Carbon::createFromFormat('Y-m-d', $tanggal);
+        }
+
+        // Handle Excel numeric date (angka hari sejak 1900)
+        if (is_numeric($tanggal) && $tanggal > 1000) {
+            $unixDate = ($tanggal - 25569) * 86400; // Konversi dari Excel date ke Unix timestamp
+            $parsed = Carbon::createFromTimestamp($unixDate);
+            Log::info("Parsed Excel date {$tanggal} to: " . $parsed->format('Y-m-d'));
+            return $parsed;
+        }
+
+        // Handle string date (01/01/2024)
+        if (is_string($tanggal)) {
+            // Normalisasi pemisah tanggal (ganti / atau - dengan -)
+            $normalized = str_replace(['/', '.'], '-', $tanggal);
+            
+            // Coba format yang mungkin
+            foreach (['d-m-Y', 'm-d-Y', 'Y-m-d'] as $format) {
+                try {
+                    $parsed = Carbon::createFromFormat($format, $normalized);
+                    Log::info("Parsed string date {$tanggal} as {$format} to: " . $parsed->format('Y-m-d'));
+                    return $parsed;
+                } catch (\Exception $e) {
+                    continue;
+                }
+            }
+            
+            // Fallback ke parsing loose
+            $parsed = Carbon::parse($normalized);
+            Log::info("Loose parsed string date {$tanggal} to: " . $parsed->format('Y-m-d'));
+            return $parsed;
+        }
+
+        throw new \Exception("Format tanggal tidak dikenali: " . print_r($tanggal, true));
+        
+    } catch (\Exception $e) {
+        Log::error("Gagal parsing tanggal: {$tanggal} - Error: " . $e->getMessage());
+        throw new \Exception("Format tanggal tidak valid: {$tanggal}");
     }
+}
     
     public function onError(\Throwable $e)
     {

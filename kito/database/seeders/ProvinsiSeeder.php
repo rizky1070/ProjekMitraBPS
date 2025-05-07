@@ -10,7 +10,7 @@ class ProvinsiSeeder extends Seeder
     public function run()
     {
         DB::table('provinsi')->insert([
-            ['id_provinsi' => '35', 'kode_provinsi' => 'P001', 'nama_provinsi' => 'Jawa Timur']
+            ['id_provinsi' => '35', 'kode_provinsi' => '35', 'nama_provinsi' => 'Jawa Timur']
         ]);
     }
 }
