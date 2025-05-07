@@ -132,6 +132,8 @@
     </a>
 
         <div class="p-4">
+        <a href="{{ route('editSk', ['id_survei' => $survey->id_survei]) }}" 
+        class="bg-orange text-black px-3 rounded">Cetak SK untuk Semua Mitra</a>
             <h2 class="text-2xl font-bold mb-4">Detail Survei</h2>
             <div class="bg-white p-4 rounded-lg shadow">
                 <p class="text-xl font-medium"><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
@@ -301,7 +303,6 @@
                                     <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rate Honor</th>
                                     <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Posisi</th>
                                     <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">SK</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-500">
@@ -348,10 +349,6 @@
                                             </div>
                                         </td>
                                     </form>
-                                    <td class="p-2 text-center" style="max-width: 120px;">
-                                        <a href="{{ route('editSk', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" 
-                                        class="bg-orange text-black px-3 rounded">Cetak</a>
-                                    </td>
 
                                     @else
                                     <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
@@ -368,9 +365,6 @@
                                             @csrf
                                             <button type="submit" class="bg-orange text-black px-3 rounded">Tambah</button>
                                         </form>
-                                    </td>
-                                    <td class="p-2 text-center" style="max-width: 120px;">
-                                        <!-- Tombol cetak tidak ditampilkan karena mitra belum ditambahkan -->
                                     </td>
                                     @endif
                                 </tr>

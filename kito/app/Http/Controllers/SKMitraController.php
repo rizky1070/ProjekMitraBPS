@@ -1,50 +1,32 @@
 <?php
 namespace App\Http\Controllers;
 
-// app/Http/Controllers/DocumentController.php
-
 use Illuminate\Http\Request;
 use PhpOffice\PhpWord\TemplateProcessor;
-use App\Models\MitraSurvei; // Pastikan Anda menggunakan model yang sesuai  
+use App\Models\MitraSurvei;
 use App\Models\Survei;
 use App\Models\Mitra;
 use File;
 use Response;
+use ZipArchive;
 
 class SKMitraController extends Controller
 {
-    public function showUploadForm($id_survei, $id_mitra)
+    public function showUploadForm($id_survei)
     {
-        // Fetch the mitra and survei data from the database based on the provided IDs
-        $mitra = Mitra::with('kecamatan')->find($id_mitra); // Load all related data for Mitra, including 'kecamatan'
-        $survei = Survei::with('mitraSurvei')->find($id_survei); // Load all related data for Survei, including 'mitraSurvei'
-
-        // Ensure the mitra and survei are found, otherwise return an error
-        if (!$mitra || !$survei) {
-            return redirect()->route('someErrorRoute'); // Redirect to an error page if not found
+        // Ambil data survei dengan relasi yang benar
+        $survei = Survei::with(['mitraSurvei.mitra' => function($query) {
+            $query->with('kecamatan');
+        }])->findOrFail($id_survei);
+    
+        // Pastikan data mitra ada
+        if ($survei->mitraSurvei->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada mitra untuk survei ini');
         }
-
-        // Fetch the MitraSurvei data based on the relationship between survei and mitra
-        $mitraSurvei = MitraSurvei::where('id_survei', $id_survei)
-            ->where('id_mitra', $id_mitra)
-            ->first();
-
-        // Ensure the MitraSurvei data is found, otherwise return an error
-        if (!$mitraSurvei) {
-            return redirect()->route('someErrorRoute'); // Redirect to an error page if not found
-        }
-
-        // Extract posisi_mitra, vol, and honor from MitraSurvei
-        $vol = $mitraSurvei->vol;
-        $honor = $mitraSurvei->honor;
-        
-        $posisi_mitra = $mitraSurvei->posisi_mitra;
-        $total_honor = $vol * $honor;
-        // Pass the mitra, survei, and MitraSurvei data to the view
-        return view('mitrabps.editSk', compact('mitra', 'survei', 'posisi_mitra', 'total_honor'));
+    
+        return view('mitrabps.editSk', compact('survei'));
     }
     
-
     public function handleUpload(Request $request)
     {
         // Validasi file yang diunggah
@@ -55,83 +37,107 @@ class SKMitraController extends Controller
             'denda' => 'required|numeric',
         ]);
     
-        // Ambil id_mitra dan id_survei dari URL
+        // Ambil id_survei dari URL
         $surveyId = $request->id_survei;
-        $mitraId = $request->id_mitra;
     
-        // Ambil data survei, mitra, dan mitra_survei dari database
-        $survey = Survei::findOrFail($surveyId);
-        $mitra = Mitra::findOrFail($mitraId);
-        $mitraSurvei = MitraSurvei::where('id_survei', $surveyId)->where('id_mitra', $mitraId)->firstOrFail();
-    
+        // Ambil data survei dan semua mitra terkait
+        $survey = Survei::with(['mitraSurvei.mitra.kecamatan'])->findOrFail($surveyId);
+        
         // Ambil data input dari form
         $nomorSk = $request->input('nomor_sk');
         $nama = $request->input('nama');
         $denda = $request->input('denda');
-    
-        // Ambil data lainnya dari database
-        $namaLengkapMitra = $mitra->nama_lengkap;
-        $namaKecamatan = $mitra->kecamatan->nama_kecamatan;
-        $namaSurvei = $survey->nama_survei;
-        $jadwalKegiatan = \Carbon\Carbon::parse($survey->jadwal_kegiatan)->locale('id')->translatedFormat('d-F-Y');
-        $jadwalBerakhirKegiatan = \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan)->locale('id')->translatedFormat('d-F-Y');
-        $vol = $mitraSurvei->vol;
-        $honor = $mitraSurvei->honor;
-        $totalHonor = $vol * $honor;
-        
-        // Konversi total honor dan denda ke teks
-        $denda_teks = $this->angkaToTeks($denda);
-        $total_honor_teks = $this->angkaToTeks($totalHonor);
     
         // Tanggal hari ini
         $hariIni = now()->locale('id')->translatedFormat('l');
         $tanggalHariIni = now()->locale('id')->translatedFormat('d');
         $bulanHariIni = now()->locale('id')->translatedFormat('F');
         $tahunHariIni = now()->locale('id')->translatedFormat('Y');
+        
+        // Jadwal kegiatan
+        $jadwalKegiatan = \Carbon\Carbon::parse($survey->jadwal_kegiatan)->locale('id')->translatedFormat('d-F-Y');
+        $jadwalBerakhirKegiatan = \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan)->locale('id')->translatedFormat('d-F-Y');
     
         // Simpan file yang diunggah ke direktori sementara
         $filePath = $request->file('file')->storeAs('temp', 'uploaded_template.docx');
         $filePath = storage_path('app/' . $filePath);
-    
-        // Load template menggunakan PHPWord
-        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($filePath);
-    
-        // Ganti placeholder dalam template dengan data yang diambil
-        $templateProcessor->setValue('{{nomor_sk}}', $nomorSk);
-        $templateProcessor->setValue('{{nama}}', $nama);
-        $templateProcessor->setValue('{{denda}}', $denda);
-        $templateProcessor->setValue('{{denda_teks}}', $denda_teks);
-        $templateProcessor->setValue('{{nama_lengkap}}', $namaLengkapMitra);
-        $templateProcessor->setValue('{{nama_kecamatan}}', $namaKecamatan);
-        $templateProcessor->setValue('{{jadwal_kegiatan}}', $jadwalKegiatan);
-        $templateProcessor->setValue('{{jadwal_berakhir_kegiatan}}', $jadwalBerakhirKegiatan);
-        $templateProcessor->setValue('{{vol}}', $vol);
-        $templateProcessor->setValue('{{honor}}', $honor);
-        $templateProcessor->setValue('{{total_honor}}', $totalHonor);
-        $templateProcessor->setValue('{{total_honor_teks}}', $total_honor_teks);
-        $templateProcessor->setValue('{{hari}}', $hariIni);
-        $templateProcessor->setValue('{{tanggal}}', $tanggalHariIni);
-        $templateProcessor->setValue('{{bulan}}', $bulanHariIni);
-        $templateProcessor->setValue('{{tahun}}', $tahunHariIni);
-    
-        // Simpan file yang sudah diubah
-        $outputFile = storage_path('app/temp/SK_' . $namaLengkapMitra . '_' . $namaSurvei . '.pdf');
-        $templateProcessor->saveAs($outputFile);
-    
-        // Kembalikan file yang sudah diubah untuk diunduh
-        return response()->download($outputFile);
+        
+        // Buat direktori untuk output
+        $outputDir = storage_path('app/temp/sk_output');
+        if (!File::exists($outputDir)) {
+            File::makeDirectory($outputDir, 0755, true);
+        }
+        
+        // Buat ZIP archive
+        $zip = new ZipArchive();
+        $zipFileName = 'SK_Mitra_' . $survey->nama_survei . '.zip';
+        $zipFilePath = storage_path('app/temp/' . $zipFileName);
+        
+        if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
+            foreach ($survey->mitraSurvei as $mitraSurvei) {
+                $mitra = $mitraSurvei->mitra;
+                
+                // Hitung total honor
+                $vol = $mitraSurvei->vol;
+                $honor = $mitraSurvei->honor;
+                $totalHonor = $vol * $honor;
+                
+                // Konversi total honor dan denda ke teks
+                $denda_teks = $this->angkaToTeks($denda);
+                $total_honor_teks = $this->angkaToTeks($totalHonor);
+                
+                // Load template untuk setiap mitra
+                $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($filePath);
+                
+                // Ganti placeholder dalam template dengan data yang diambil
+                $templateProcessor->setValue('{{nomor_sk}}', $nomorSk);
+                $templateProcessor->setValue('{{nama}}', $nama);
+                $templateProcessor->setValue('{{denda}}', $denda);
+                $templateProcessor->setValue('{{denda_teks}}', $denda_teks);
+                $templateProcessor->setValue('{{nama_lengkap}}', $mitra->nama_lengkap);
+                $templateProcessor->setValue('{{nama_kecamatan}}', $mitra->kecamatan->nama_kecamatan);
+                $templateProcessor->setValue('{{jadwal_kegiatan}}', $jadwalKegiatan);
+                $templateProcessor->setValue('{{jadwal_berakhir_kegiatan}}', $jadwalBerakhirKegiatan);
+                $templateProcessor->setValue('{{vol}}', $vol);
+                $templateProcessor->setValue('{{honor}}', $honor);
+                $templateProcessor->setValue('{{total_honor}}', $totalHonor);
+                $templateProcessor->setValue('{{total_honor_teks}}', $total_honor_teks);
+                $templateProcessor->setValue('{{hari}}', $hariIni);
+                $templateProcessor->setValue('{{tanggal}}', $tanggalHariIni);
+                $templateProcessor->setValue('{{bulan}}', $bulanHariIni);
+                $templateProcessor->setValue('{{tahun}}', $tahunHariIni);
+                $templateProcessor->setValue('{{posisi_mitra}}', $mitraSurvei->posisi_mitra);
+                
+                // Simpan file untuk mitra ini
+                $outputFile = $outputDir . '/SK_' . $mitra->nama_lengkap . '_' . $survey->nama_survei . '.docx';
+                $templateProcessor->saveAs($outputFile);
+                
+                // Tambahkan ke ZIP
+                $zip->addFile($outputFile, 'SK_' . $survei->nama_survei . '.docx');
+            }
+            
+            $zip->close();
+            
+            // Hapus file individual
+            File::deleteDirectory($outputDir);
+            
+            // Kembalikan file ZIP untuk diunduh
+            return response()->download($zipFilePath)->deleteFileAfterSend(true);
+        }
+        
+        return back()->with('error', 'Gagal membuat file ZIP');
     }
     
-    /**
+        /**
      * Fungsi untuk mengkonversi angka ke teks dalam bahasa Indonesia
      */
     private function angkaToTeks($angka) {
         $angka = (float)$angka;
         if ($angka < 0) return "minus " . $this->angkaToTeks(abs($angka));
         
-        $satuan = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan'];
-        $belasan = ['sepuluh', 'sebelas', 'dua belas', 'tiga belas', 'empat belas', 'lima belas', 'enam belas', 'tujuh belas', 'delapan belas', 'sembilan belas'];
-        $puluhan = ['', 'sepuluh', 'dua puluh', 'tiga puluh', 'empat puluh', 'lima puluh', 'enam puluh', 'tujuh puluh', 'delapan puluh', 'sembilan puluh'];
+        $satuan = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan'];
+        $belasan = ['Sepuluh', 'Sebelas', 'Dua Belas', 'Tiga Belas', 'Empat Belas', 'Lima Belas', 'Enam Belas', 'Tujuh Belas', 'Delapan Belas', 'Sembilan Belas'];
+        $puluhan = ['', 'Sepuluh', 'Dua Puluh', 'Tiga Puluh', 'Empat Puluh', 'Lima Puluh', 'Enam Puluh', 'Tujuh Puluh', 'Delapan Puluh', 'Sembilan Puluh'];
         
         if ($angka < 10) {
             return $satuan[$angka];
@@ -145,9 +151,9 @@ class SKMitraController extends Controller
             return $hasil;
         } elseif ($angka < 1000) {
             if (floor($angka / 100) == 1) {
-                $hasil = 'seratus';
+                $hasil = 'Seratus';
             } else {
-                $hasil = $satuan[floor($angka / 100)] . ' ratus';
+                $hasil = $satuan[floor($angka / 100)] . ' Ratus';
             }
             if ($angka % 100 > 0) {
                 $hasil .= ' ' . $this->angkaToTeks($angka % 100);
@@ -155,16 +161,16 @@ class SKMitraController extends Controller
             return $hasil;
         } elseif ($angka < 1000000) {
             if (floor($angka / 1000) == 1) {
-                $hasil = 'seribu';
+                $hasil = 'Seribu';
             } else {
-                $hasil = $this->angkaToTeks(floor($angka / 1000)) . ' ribu';
+                $hasil = $this->angkaToTeks(floor($angka / 1000)) . ' Ribu';
             }
             if ($angka % 1000 > 0) {
                 $hasil .= ' ' . $this->angkaToTeks($angka % 1000);
             }
             return $hasil;
         } elseif ($angka < 1000000000) {
-            $hasil = $this->angkaToTeks(floor($angka / 1000000)) . ' juta';
+            $hasil = $this->angkaToTeks(floor($angka / 1000000)) . ' Juta';
             if ($angka % 1000000 > 0) {
                 $hasil .= ' ' . $this->angkaToTeks($angka % 1000000);
             }
@@ -173,18 +179,5 @@ class SKMitraController extends Controller
             return 'angka terlalu besar';
         }
     }
-    
-    
-    
-    
-
-    public function downloadFile($filename)
-    {
-        $file = storage_path("app/temp/$filename");
-        if (File::exists($file)) {
-            return response()->download($file);
-        }
-
-        return redirect()->back()->with('error', 'File not found!');
-    }
+    // ... (keep the existing angkaToTeks and downloadFile methods)
 }
