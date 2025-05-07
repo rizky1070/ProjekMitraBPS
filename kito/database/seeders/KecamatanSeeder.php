@@ -8,28 +8,36 @@ use Illuminate\Support\Facades\DB;
 class KecamatanSeeder extends Seeder
 {
     public function run()
-    {
-        DB::table('kecamatan')->insert([
-            [
-                'kode_kecamatan' => 'KC1', 
-                'nama_kecamatan' => 'Kecamatan A',
-                'id_kabupaten' => 16 // Sesuaikan dengan ID kabupaten yang ada
-            ],
-            [
-                'kode_kecamatan' => 'KC2', 
-                'nama_kecamatan' => 'Kecamatan B',
-                'id_kabupaten' => 16
-            ],
-            [
-                'kode_kecamatan' => 'KC3', 
-                'nama_kecamatan' => 'Kecamatan C',
-                'id_kabupaten' => 16
-            ],
-            [
-                'kode_kecamatan' => 'KC4', 
-                'nama_kecamatan' => 'Kecamatan D',
-                'id_kabupaten' => 16
-            ],
-        ]);
-    }
+{
+    $kecamatanData = [
+        ['010', 'JATIREJO'],
+        ['020', 'GONDANG'],
+        ['030', 'PACET'],
+        ['040', 'TRAWAS'],
+        ['050', 'NGORO'],
+        ['060', 'PUNGGING'],
+        ['070', 'KUTOREJO'],
+        ['080', 'MOJOSARI'],
+        ['090', 'BANGSAL'],
+        ['091', 'MOJOANYAR'],
+        ['100', 'DLANGGU'],
+        ['110', 'PURI'],
+        ['120', 'TROWULAN'],
+        ['130', 'SOOKO'],
+        ['140', 'GEDEK'],
+        ['150', 'KEMLAGI'],
+        ['160', 'JETIS'],
+        ['170', 'DAWAR BLANDONG'],
+        
+    ];
+
+    DB::table('kecamatan')->insert(
+        array_map(fn($item) => [
+            'id_kecamatan' => str_pad($item[0], 3, '0', STR_PAD_LEFT),
+            'kode_kecamatan' => $item[0],
+            'nama_kecamatan' => $item[1],
+            'id_kabupaten' => 16
+        ], $kecamatanData)
+    );
+}
 }

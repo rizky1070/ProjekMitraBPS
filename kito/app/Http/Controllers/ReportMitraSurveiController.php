@@ -166,12 +166,10 @@ class ReportMitraSurveiController extends Controller
     if ($request->filled('tahun')) {
         $bulanAwal = Mitra::query()
             ->selectRaw('MONTH(tahun) as bulan')
-            ->whereYear('tahun', '<=', $request->tahun)
-            ->whereYear('tahun_selesai', '>=', $request->tahun);
+            ->whereYear('tahun', '<=', $request->tahun);
 
         $bulanAkhir = Mitra::query()
             ->selectRaw('MONTH(tahun_selesai) as bulan')
-            ->whereYear('tahun', '<=', $request->tahun)
             ->whereYear('tahun_selesai', '>=', $request->tahun);
 
         $bulanOptions = $bulanAwal->union($bulanAkhir->toBase())
