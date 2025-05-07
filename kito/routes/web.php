@@ -369,8 +369,8 @@ Route::middleware('auth')->group(function () {
     
     
     // Halaman Edit SK
-    Route::get('/editSk/{id_survei}/{id_mitra}', [SKMitraController::class, 'showUploadForm'])->name('editSk');
-    Route::post('/editSk/{id_survei}/{id_mitra}', [SKMitraController::class, 'handleUpload'])->name('editSk');
+    Route::get('/editSk/{id_survei}', [SKMitraController::class, 'showUploadForm'])->name('editSk');
+    Route::post('/editSk/{id_survei}', [SKMitraController::class, 'handleUpload'])->name('editSk');
     Route::get('/download/{filename}', [SKMitraController::class, 'downloadFile'])->name('downloadFile');
 });
 

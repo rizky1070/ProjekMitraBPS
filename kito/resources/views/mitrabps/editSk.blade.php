@@ -1,24 +1,10 @@
-<!-- resources/views/upload.blade.php -->
+<!-- resources/views/mitrabps/editSk.blade.php -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="icon" href="/Logo BPS.png" type="image/png">
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
-    <!-- Add jsPDF library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <title>Generate SK</title>
+    <!-- Keep the existing head section -->
+    <title>Generate SK untuk Semua Mitra</title>
 </head>
 <body class="h-full bg-gray-200">
     <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200"> 
@@ -29,33 +15,24 @@
             </svg>
         </a>
         <div class="px-4 pt-4">
-            <h1 class="text-2xl font-bold mb-4">Surat Kerja</h1>
+            <h1 class="text-2xl font-bold mb-4">Surat Kerja untuk Semua Mitra</h1>
         </div>
     
         <!-- Form untuk upload file dan mengedit template -->
         <div class="items-center justify-between m-4 bg-white p-4 rounded-lg shadow-md">
             <h1 class="text-gray-900 text-xl font-bold mb-1">
-                Detail Mitra pada Survei {{$survei->nama_survei}}
+                Detail Survei {{$survei->nama_survei}}
             </h1>
             <div class="flex gap-4 border-gray-400 border-b-2 px-1">
-                <h2 class="text-lg font-semibold text-gray-800 my-1">Mitra (Pihak Kedua) : </h2>
-                <h2 class="text-lg font-semibold text-gray-800 my-1 ml-auto"> {{$mitra->nama_lengkap}}</h2>  
+                <h2 class="text-lg font-semibold text-gray-800 my-1">Jumlah Mitra : </h2>
+                <h2 class="text-lg text-gray-800 my-1 ml-auto"> {{$survei->mitraSurvei->count()}} mitra</h2>  
             </div>
-            <div class="flex flex-col md:flex-row gap-4 mt-2 justify-between">
-                <div class="flex border-gray-400 w-full border-b-2 px-1">
-                    <h2 class="text-lg font-semibold text-gray-800 my-1">Posisi : </h2>
-                    <h2 class="text-lg font-semibold text-gray-800 my-1 ml-auto"> {{$posisi_mitra}}</h2>  
-                </div>
-                <div class="flex border-gray-400 w-full border-b-2 px-1">
-                    <h2 class="text-lg font-semibold text-gray-800 my-1">Total Honor : </h2>
-                    <h2 class="text-lg font-semibold text-gray-800 my-1 ml-auto"> {{$total_honor}}</h2>  
-                </div>
-            </div>
+            
             <h1 class="text-gray-900 text-xl font-bold mt-4">
-                Form SK {{$mitra->nama_lengkap}} pada Survei {{$survei->nama_survei}}
+                Form SK untuk Semua Mitra pada Survei {{$survei->nama_survei}}
             </h1>
             <div class="flex flex-col md:flex-row w-full gap-4">
-                <form action="{{ route('editSk', ['id_survei' => $survei->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST" enctype="multipart/form-data" class="w-full">
+                <form action="{{ route('editSk', ['id_survei' => $survei->id_survei]) }}" method="POST" enctype="multipart/form-data" class="w-full">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Kolom Kiri -->
@@ -70,7 +47,7 @@
                                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                 >
                                 <div class="flex justify-between items-center w-full pointer-events-none">
-                                    <span id="file-label" class="font-semibold text-gray-800 pr-8">Pilih File :</span>
+                                    <span id="file-label" class="font-semibold text-gray-800 pr-8">Pilih File Template :</span>
                                     <span id="file-name" class="text-gray-500 pr-3 truncate max-w-xs">Belum ada file dipilih</span>
                                 </div>
                             </div>
@@ -100,11 +77,10 @@
 
                     <!-- Input tersembunyi -->
                     <input type="hidden" name="id_survei" value="{{ $survei->id_survei }}">
-                    <input type="hidden" name="id_mitra" value="{{ $mitra->id_mitra }}">
 
                     <!-- Tombol Submit -->
                     <div class="mt-4">
-                        <button type="submit" class="px-4 py-1 bg-orange text-black rounded-md">Upload and Edit</button>
+                        <button type="submit" class="px-4 py-1 bg-orange text-black rounded-md">Generate SK untuk Semua Mitra</button>
                     </div>
 
                     <script>
@@ -117,7 +93,5 @@
             </div>
         </div>
     </main>
-
-
 </body>
 </html>
