@@ -68,6 +68,6 @@ class Mitra extends Model
 
     public function survei()
     {
-        return $this->belongsToMany(Survei::class, 'mitra_survei', 'id_mitra', 'id_survei');
+        return $this->belongsToMany(Survei::class, 'mitra_survei', 'id_mitra', 'id_survei')->withPivot('honor', 'vol');
     }
 }

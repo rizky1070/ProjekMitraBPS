@@ -161,28 +161,60 @@ class ReportMitraSurveiController extends Controller
         ->orderByDesc('tahun')
         ->pluck('tahun', 'tahun');
 
-    // OPTION FILTER BULAN (hanya muncul jika tahun dipilih)
-    $bulanOptions = [];
-    if ($request->filled('tahun')) {
-        $bulanAwal = Mitra::query()
-            ->selectRaw('MONTH(tahun) as bulan')
-            ->whereYear('tahun', '<=', $request->tahun);
-
-        $bulanAkhir = Mitra::query()
-            ->selectRaw('MONTH(tahun_selesai) as bulan')
-            ->whereYear('tahun_selesai', '>=', $request->tahun);
-
-        $bulanOptions = $bulanAwal->union($bulanAkhir->toBase())
-            ->orderBy('bulan')
-            ->distinct()
-            ->pluck('bulan')
-            ->mapWithKeys(function ($month) {
-                return [
-                    str_pad($month, 2, '0', STR_PAD_LEFT) => 
-                    \Carbon\Carbon::create()->month($month)->translatedFormat('F')
-                ];
-            });
+    // OPTION FILTER BULAN (hanya bulan yang valid dalam rentang kontrak mitra di tahun yang dipilih)
+$bulanOptions = [];
+if ($request->filled('tahun')) {
+    // Ambil semua mitra yang aktif di tahun tersebut
+    $mitrasAktif = Mitra::whereYear('tahun', '<=', $request->tahun)
+                        ->whereYear('tahun_selesai', '>=', $request->tahun)
+                        ->get();
+    
+    $bulanValid = collect();
+    
+    foreach ($mitrasAktif as $mitra) {
+        $tahunMulai = \Carbon\Carbon::parse($mitra->tahun);
+        $tahunSelesai = \Carbon\Carbon::parse($mitra->tahun_selesai);
+        
+        // Jika tahun mulai dan selesai sama dengan tahun filter
+        if ($tahunMulai->year == $request->tahun && $tahunSelesai->year == $request->tahun) {
+            // Tambahkan semua bulan dari bulan mulai sampai bulan selesai
+            for ($month = $tahunMulai->month; $month <= $tahunSelesai->month; $month++) {
+                $bulanValid->push($month);
+            }
+        }
+        // Jika tahun mulai < tahun filter dan tahun selesai = tahun filter
+        elseif ($tahunMulai->year < $request->tahun && $tahunSelesai->year == $request->tahun) {
+            // Tambahkan semua bulan dari Januari sampai bulan selesai
+            for ($month = 1; $month <= $tahunSelesai->month; $month++) {
+                $bulanValid->push($month);
+            }
+        }
+        // Jika tahun mulai = tahun filter dan tahun selesai > tahun filter
+        elseif ($tahunMulai->year == $request->tahun && $tahunSelesai->year > $request->tahun) {
+            // Tambahkan semua bulan dari bulan mulai sampai Desember
+            for ($month = $tahunMulai->month; $month <= 12; $month++) {
+                $bulanValid->push($month);
+            }
+        }
+        // Jika tahun mulai < tahun filter dan tahun selesai > tahun filter
+        else {
+            // Tambahkan semua bulan (Jan-Des)
+            for ($month = 1; $month <= 12; $month++) {
+                $bulanValid->push($month);
+            }
+        }
     }
+    
+    // Buat opsi bulan unik dan terurut
+    $bulanOptions = $bulanValid->unique()
+                              ->sort()
+                              ->mapWithKeys(function ($month) {
+                                  return [
+                                      str_pad($month, 2, '0', STR_PAD_LEFT) => 
+                                      \Carbon\Carbon::create()->month($month)->translatedFormat('F')
+                                  ];
+                              });
+}
 
     // FILTER KECAMATAN
     $kecamatanOptions = Kecamatan::query()

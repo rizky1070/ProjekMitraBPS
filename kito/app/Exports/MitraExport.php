@@ -47,70 +47,60 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
     }
 
     public function query()
-    {
-        return $this->query->with(['provinsi', 'kabupaten', 'kecamatan', 'desa', 
-            'survei' => function($query) {
-                $query->withPivot('honor', 'vol')
-                    ->when(isset($this->filters['tahun']), function($q) {
-                        $q->whereYear('bulan_dominan', $this->filters['tahun']);
-                    })
-                    ->when(isset($this->filters['bulan']), function($q) {
-                        $q->whereMonth('bulan_dominan', $this->filters['bulan']);
-                    });
-            }]);
+{
+    return $this->query->with(['provinsi', 'kabupaten', 'kecamatan', 'desa', 
+        'survei' => function($query) {
+            $query->withPivot('honor', 'vol')
+                ->when(isset($this->filters['tahun']), function($q) {
+                    $q->whereYear('bulan_dominan', $this->filters['tahun']);
+                })
+                ->when(isset($this->filters['bulan']), function($q) {
+                    $monthNumber = Carbon::parse($this->filters['bulan'])->month;
+                    $q->whereMonth('bulan_dominan', $monthNumber);
+                });
+        }]);
+}
+
+public function map($mitra): array
+{
+    static $count = 0;
+    $count++;
+
+    // Langsung gunakan survei yang sudah difilter dari query
+    $jumlahSurvei = $mitra->survei->count();
+    
+    $namaSurvei = $mitra->survei->isNotEmpty() 
+        ? $mitra->survei->pluck('nama_survei')->filter()->implode(', ') 
+        : '-';
+    
+    $namaSurvei = empty(trim($namaSurvei)) ? '-' : $namaSurvei;
+
+    $totalHonor = 0;
+    foreach ($mitra->survei as $survei) {
+        $honor = $survei->pivot->honor ?? 0;
+        $vol = $survei->pivot->vol ?? 0;
+        $totalHonor += $honor * $vol;
     }
 
-    public function map($mitra): array
-    {
-        static $count = 0;
-        $count++;
-
-        // Filter survei berdasarkan tahun/bulan jika ada
-        $filteredSurvei = $mitra->survei->filter(function($survei) {
-            $match = true;
-            if (isset($this->filters['tahun'])) {
-                $match = $match && (Carbon::parse($survei->bulan_dominan)->year == $this->filters['tahun']);
-            }
-            if (isset($this->filters['bulan'])) {
-                $match = $match && (Carbon::parse($survei->bulan_dominan)->month == $this->filters['bulan']);
-            }
-            return $match;
-        });
-
-        $jumlahSurvei = $filteredSurvei->count();
-        
-        $namaSurvei = $filteredSurvei->isNotEmpty() 
-            ? $filteredSurvei->pluck('nama_survei')->filter()->implode(', ') 
-            : '-';
-        
-        $namaSurvei = empty(trim($namaSurvei)) ? '-' : $namaSurvei;
-
-        $totalHonor = 0;
-        foreach ($filteredSurvei as $survei) {
-            $honor = $survei->pivot->honor ?? 0;
-            $vol = $survei->pivot->vol ?? 0;
-            $totalHonor += $honor * $vol;
-        }
-
-        return [
-            $count,
-            $mitra->sobat_id,
-            $mitra->nama_lengkap,
-            $mitra->email_mitra ?? '-',
-            $mitra->no_hp_mitra ?? '-',
-            $mitra->provinsi->nama_provinsi ?? ($mitra->provinsi->kode_provinsi ?? '-'),
-            $mitra->kabupaten->nama_kabupaten ?? ($mitra->kabupaten->kode_kabupaten ?? '-'),
-            $mitra->kecamatan->nama_kecamatan ?? ($mitra->kecamatan->kode_kecamatan ?? '-'),
-            $mitra->desa->nama_desa ?? ($mitra->desa->kode_desa ?? '-'),
-            $mitra->alamat_mitra ?? '-',
-            $mitra->tahun ? Carbon::parse($mitra->tahun)->format('d/m/Y') : '-',
-            $mitra->tahun_selesai ? Carbon::parse($mitra->tahun_selesai)->format('d/m/Y') : '-',
-            $jumlahSurvei,
-            $namaSurvei,
-            $totalHonor,
-            $jumlahSurvei > 0 ? 'Aktif' : 'Tidak Aktif'
-        ];
-    }
+    return [
+        $count,
+        $mitra->sobat_id,
+        $mitra->nama_lengkap,
+        $mitra->email_mitra ?? '-',
+        $mitra->no_hp_mitra ?? '-',
+        $mitra->provinsi->nama_provinsi ?? '-',
+        $mitra->kabupaten->nama_kabupaten ?? '-',
+        $mitra->kecamatan->nama_kecamatan ?? '-',
+        $mitra->desa->nama_desa ?? '-',
+        $mitra->alamat_mitra ?? '-',
+        $mitra->tahun ? Carbon::parse($mitra->tahun)->format('d/m/Y') : '-',
+        $mitra->tahun_selesai ? Carbon::parse($mitra->tahun_selesai)->format('d/m/Y') : '-',
+        $jumlahSurvei,
+        $namaSurvei,
+        $totalHonor,
+        $jumlahSurvei > 0 ? 'Aktif' : 'Tidak Aktif'
+    ];
+}
 
     public function registerEvents(): array
     {
