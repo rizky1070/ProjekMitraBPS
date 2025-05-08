@@ -32,7 +32,7 @@
                 Form SK untuk Semua Mitra pada Survei {{$survei->nama_survei}}
             </h1>
             <div class="flex flex-col md:flex-row w-full gap-4">
-                <form action="{{ route('editSk', ['id_survei' => $survei->id_survei]) }}" method="POST" enctype="multipart/form-data" class="w-full">
+                <form action="{{ route('generateSk', ['id_survei' => $survei->id_survei]) }}" method="POST" enctype="multipart/form-data" class="w-full">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Kolom Kiri -->
@@ -93,5 +93,52 @@
             </div>
         </div>
     </main>
+    <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const button = form.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            
+            // Tampilkan loading
+            button.innerHTML = 'Memproses...';
+            button.disabled = true;
+            
+            // Kirim form via AJAX
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                }
+                throw new Error('Network response was not ok');
+            })
+            .then(blob => {
+                // Buat link download
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'SK_Mitra.zip';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan: ' + error.message);
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        });
+        </script>
 </body>
 </html>
