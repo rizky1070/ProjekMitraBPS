@@ -288,29 +288,21 @@ if ($request->filled('tahun')) {
     // FILTER STATUS PARTISIPASI
     if ($request->filled('status_mitra')) {
         if ($request->status_mitra == 'ikut') {
-            $mitrasQuery->whereHas('mitraSurvei', function ($query) use ($request) {
-                if ($request->filled('bulan')) {
-                    $query->whereHas('survei', function ($q) use ($request) {
-                        $q->where('bulan_dominan', $request->bulan);
-                    });
-                }
+            $mitrasQuery->whereHas('mitraSurvei.survei', function ($q) use ($request) {
                 if ($request->filled('tahun')) {
-                    $query->whereHas('survei', function ($q) use ($request) {
-                        $q->whereYear('jadwal_kegiatan', $request->tahun);
-                    });
+                    $q->whereYear('bulan_dominan', $request->tahun);
+                }
+                if ($request->filled('bulan')) {
+                    $q->whereMonth('bulan_dominan', $request->bulan);
                 }
             });
         } elseif ($request->status_mitra == 'tidak_ikut') {
-            $mitrasQuery->whereDoesntHave('mitraSurvei', function ($query) use ($request) {
-                if ($request->filled('bulan')) {
-                    $query->whereHas('survei', function ($q) use ($request) {
-                        $q->where('bulan_dominan', $request->bulan);
-                    });
-                }
+            $mitrasQuery->whereDoesntHave('mitraSurvei.survei', function ($q) use ($request) {
                 if ($request->filled('tahun')) {
-                    $query->whereHas('survei', function ($q) use ($request) {
-                        $q->whereYear('jadwal_kegiatan', $request->tahun);
-                    });
+                    $q->whereYear('bulan_dominan', $request->tahun);
+                }
+                if ($request->filled('bulan')) {
+                    $q->whereMonth('bulan_dominan', $request->bulan);
                 }
             });
         }
