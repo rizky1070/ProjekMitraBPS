@@ -45,7 +45,7 @@
             <h1 class="text-2xl font-bold">Profil Mitra</h1>
             <div class="flex flex-col md:flex-row items-center bg-white my-4 px-6 py-5 rounded-lg shadow">
                 <div class="flex flex-col justify-center items-center text-center mb-4 md:mb-0">
-                    <img alt="Profile picture" class="w-32 rounded-full border-2 border-gray-500 object-cover"
+                    <img alt="Profile picture" class="w-32 rounded-full border-4 object-cover {{ $mits->jenis_kelamin == 2 ? 'border-pink-500' : 'border-blue-500' }}"
                         src="{{ $profileImage }}"
                         onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/mainchar42/assetgambar/main/myGambar/default.jpg'"
                         width="100" height="100">
