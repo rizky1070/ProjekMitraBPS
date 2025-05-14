@@ -28,6 +28,12 @@
     swal("Error!", "{{ $errors->first() }}", "error");
     </script>
     @endif
+
+    @if (session('info'))
+    <script>
+    swal("Info!", "{{ session('info') }}", "info");
+    </script>
+    @endif
     <a href="{{ url('/daftarSurvei') }}" 
     class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
