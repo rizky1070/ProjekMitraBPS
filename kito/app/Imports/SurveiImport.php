@@ -102,11 +102,11 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
     private function determineSurveyStatus(Carbon $today, Carbon $startDate, Carbon $endDate): int
     {
         if ($today->lt($startDate)) {
-            return 0; // Belum dimulai
+            return 1; // Belum dimulai
         } elseif ($today->gt($endDate)) {
-            return 2; // Sudah selesai
+            return 3; // Sudah selesai
         } else {
-            return 1; // Sedang berjalan
+            return 2; // Sedang berjalan
         }
     }
 
