@@ -143,7 +143,7 @@ class DaftarSurveiBpsController extends Controller
                 $query->withPivot('posisi_mitra');
             }
         ])
-        ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'jadwal_berakhir_kegiatan', 'kro', 'id_kecamatan', 'tim')
+        ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'jadwal_berakhir_kegiatan', 'kro', 'id_kecamatan', 'tim', 'lokasi_survei')
         ->where('id_survei', $id_survei)
         ->firstOrFail();
 
