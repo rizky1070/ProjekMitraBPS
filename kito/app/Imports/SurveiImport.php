@@ -52,6 +52,32 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             $today = now();
             $statusSurvei = $this->determineSurveyStatus($today, $jadwalMulai, $jadwalBerakhir);
 
+            // Cek duplikasi data
+            $existingSurvei = Survei::where('nama_survei', $row['nama_survei'])
+                ->where('jadwal_kegiatan', $jadwalMulai->toDateString())
+                ->where('jadwal_berakhir_kegiatan', $jadwalBerakhir->toDateString())
+                ->where('id_kecamatan', $kecamatan->id_kecamatan)
+                ->where('bulan_dominan', $bulanDominan)
+                ->first();
+
+            if ($existingSurvei) {
+                // Update data yang sudah ada
+                $existingSurvei->update([
+                    'lokasi_survei' => $row['lokasi_survei'] ?? null,
+                    'id_desa' => $desa->id_desa,
+                    'id_kabupaten' => $kabupaten->id_kabupaten,
+                    'id_provinsi' => $provinsi->id_provinsi,
+                    'kro' => $row['kro'],
+                    'status_survei' => $statusSurvei,
+                    'tim' => $row['tim'],
+                    'updated_at' => now()
+                ]);
+                
+                Log::info('Data duplikat ditemukan dan diupdate: ', $row);
+                return null;
+            }
+
+            // Buat data baru jika tidak ada duplikat
             return new Survei([
                 'nama_survei' => $row['nama_survei'],
                 'lokasi_survei' => $row['lokasi_survei'] ?? null,
@@ -63,7 +89,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
                 'jadwal_kegiatan' => $jadwalMulai,
                 'jadwal_berakhir_kegiatan' => $jadwalBerakhir,
                 'bulan_dominan' => $bulanDominan,
-                'status_survei' => $statusSurvei, // Diatur otomatis
+                'status_survei' => $statusSurvei,
                 'tim' => $row['tim']
             ]);
         } catch (\Exception $e) {
@@ -84,8 +110,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
         }
     }
 
-
-    
     private function isEmptyRow(array $row): bool
     {
         return empty($row['nama_survei']) && empty($row['kro']) && empty($row['tim']);
@@ -174,7 +198,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
         return Carbon::createFromDate($tahun, $bulan, 1)->toDateString(); // hasil akhir: "2029-04-01"
     }
 
-
     public function rules(): array
     {
         return [
@@ -221,7 +244,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             throw new \Exception("Format tanggal tidak valid: {$date}");
         }
     }
-
     
     public function onError(\Throwable $e)
     {
