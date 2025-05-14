@@ -17,7 +17,7 @@ use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 use Throwable;
 
-class mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
+class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
 {
     use SkipsErrors, SkipsFailures;
 

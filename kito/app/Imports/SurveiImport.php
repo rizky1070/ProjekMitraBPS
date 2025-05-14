@@ -186,7 +186,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             'lokasi_survei' => 'required|string|max:255',
             'jadwal' => 'required',
             'jadwal_berakhir' => 'required|after:jadwal'
-        ];
+        ];   
     }
     
     private function parseDate($date)
