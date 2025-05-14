@@ -404,7 +404,7 @@ if ($request->filled('tahun')) {
     public function upExcelMitra(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:xls,xlsx|max:2048'
+            'file' => 'required|file|mimes:xlsx,xls|max:5120' // Maksimal 5MB
         ]);
 
         $import = new MitraImport();
@@ -412,17 +412,9 @@ if ($request->filled('tahun')) {
         try {
             Excel::import($import, $request->file('file'));
             
-            // Gabungkan semua error (baik dari validasi Laravel maupun custom)
-            $allErrors = [];
-            
-            // Tangkap error dari ValidationException
-            if (!empty($import->getErrors())) {
-                $allErrors = array_merge($allErrors, $import->getErrors());
-            }
-            
-            if (!empty($allErrors)) {
+            if ($import->getErrors()) {
                 return redirect()->back()
-                    ->withErrors(['file' => $allErrors])
+                    ->with('error', $import->getErrorSummary())
                     ->withInput();
             }
 
@@ -432,17 +424,18 @@ if ($request->filled('tahun')) {
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $errorMessages = collect($e->failures())
                 ->map(function($failure) {
-                    return 'Baris ' . $failure->row() . ' : ' . implode(', ', $failure->errors());
+                    return 'Baris ' . ($failure->row())-1 . ': ' . implode(', ', $failure->errors());
                 })
-                ->toArray();
+                ->implode('<br>');
                 
             return redirect()->back()
-                ->withErrors(['file' => $errorMessages])
+                ->with('error', $errorMessages)
                 ->withInput();
                 
         } catch (\Exception $e) {
+            Log::error('Import Mitra Error: ' . $e->getMessage());
             return redirect()->back()
-                ->withErrors(['file' => ['Terjadi kesalahan sistem: ' . $e->getMessage()]])
+                ->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage())
                 ->withInput();
         }
     }

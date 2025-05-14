@@ -56,7 +56,8 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                 throw new \Exception("Baris tidak valid: sobat_id harus diisi");
             }
 
-            $this->validatePhoneNumber($row['no_hp_mitra']);
+            // Validasi dan konversi nomor HP
+            $validatedPhoneNumber = $this->validatePhoneNumber($row['no_hp_mitra']);
 
             // Dapatkan data wilayah
             $provinsi = $this->getProvinsi();
@@ -91,7 +92,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                 'jenis_kelamin' => $jenisKelamin,
                 'status_pekerjaan' => $statusPekerjaan,
                 'detail_pekerjaan' => empty($row['detail_pekerjaan']) ? '-' : $row['detail_pekerjaan'],
-                'no_hp_mitra' => $row['no_hp_mitra'],
+                'no_hp_mitra' => $validatedPhoneNumber, // Gunakan nomor HP yang sudah divalidasi dan dikonversi
                 'email_mitra' => $row['email_mitra'],
                 'tahun' => $tahunMulai,
                 'tahun_selesai' => $tahunSelesai
@@ -263,9 +264,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
         if (preg_match('/^0/', $cleanedPhone)) {
             // Pastikan setelah 0 ada digit, dan tidak hanya 0 saja
             if (strlen($cleanedPhone) > 1 && preg_match('/^0\d+$/', $cleanedPhone)) {
-            $cleanedPhone = '+62' . substr($cleanedPhone, 1);
+                $cleanedPhone = '+62' . substr($cleanedPhone, 1);
             } else {
-            throw new \Exception("Nomor HP tidak valid. Setelah 0 harus diikuti digit angka");
+                throw new \Exception("Nomor HP tidak valid. Setelah 0 harus diikuti digit angka");
             }
         } elseif (preg_match('/^\+?0+$/', $cleanedPhone)) {
             // Kasus hanya 0 atau +0
