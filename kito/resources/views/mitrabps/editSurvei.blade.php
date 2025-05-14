@@ -141,6 +141,7 @@
                     <div class="w-full md:w-1/2">
                         <p><strong>Kecamatan :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
                         <p><strong>Pelaksanaan :</strong> {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan )->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan )->translatedFormat('j F Y') }}</p>
+                        <p><strong>Lokasi Detail :</strong> {{ $survey->lokasi_survei ?? 'Lokasi tidak tersedia' }}</p>
                     </div>
                     <div class="w-full md:w-1/2">
                         <p><strong>Tim :</strong> {{ $survey->tim }}</p>

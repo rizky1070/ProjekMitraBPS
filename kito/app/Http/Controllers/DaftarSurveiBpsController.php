@@ -143,7 +143,7 @@ class DaftarSurveiBpsController extends Controller
                 $query->withPivot('posisi_mitra');
             }
         ])
-        ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'jadwal_berakhir_kegiatan', 'kro', 'id_kecamatan', 'tim')
+        ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'jadwal_berakhir_kegiatan', 'kro', 'id_kecamatan', 'tim', 'lokasi_survei')
         ->where('id_survei', $id_survei)
         ->firstOrFail();
 
@@ -507,30 +507,30 @@ class DaftarSurveiBpsController extends Controller
             'jadwal_berakhir_kegiatan' => 'required|date',
             'tim' => 'required|string|max:1024',
         ]);
-    
+
         // Fungsi cari bulan dominan
         $getDominantMonthYear = function ($startDate, $endDate) {
             $start = \Carbon\Carbon::parse($startDate);
             $end = \Carbon\Carbon::parse($endDate);
-    
+
             $months = collect();
             for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
                 $months->push($date->format('m-Y'));
             }
-    
+
             return $months->countBy()->sortDesc()->keys()->first(); // e.g. "04-2029"
         };
-    
+
         // Hitung dan set nilai bulan_dominan
         $dominantMonthYear = $getDominantMonthYear($validated['jadwal_kegiatan'], $validated['jadwal_berakhir_kegiatan']);
         [$bulan, $tahun] = explode('-', $dominantMonthYear);
         $validated['bulan_dominan'] = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->toDateString();
-    
+
         // Set status_survei berdasarkan tanggal hari ini
         $today = now();
         $startDate = \Carbon\Carbon::parse($validated['jadwal_kegiatan']);
         $endDate = \Carbon\Carbon::parse($validated['jadwal_berakhir_kegiatan']);
-    
+
         if ($today->lt($startDate)) {
             $validated['status_survei'] = 1; // Belum dimulai
         } elseif ($today->gt($endDate)) {
@@ -538,14 +538,36 @@ class DaftarSurveiBpsController extends Controller
         } else {
             $validated['status_survei'] = 2; // Sedang berjalan
         }
-    
+
         // Tambahkan nilai default
         $validated['id_provinsi'] = 35; // Jatim
         $validated['id_kabupaten'] = 16; // Mojokerto
-    
-        // Simpan data ke database
+
+        // Cek duplikasi data
+        $existingSurvei = Survei::where('nama_survei', $validated['nama_survei'])
+            ->where('jadwal_kegiatan', $startDate->toDateString())
+            ->where('jadwal_berakhir_kegiatan', $endDate->toDateString())
+            ->where('id_kecamatan', $validated['id_kecamatan'])
+            ->where('bulan_dominan', $validated['bulan_dominan'])
+            ->first();
+
+        if ($existingSurvei) {
+            // Update data yang sudah ada
+            $existingSurvei->update([
+                'lokasi_survei' => $validated['lokasi_survei'],
+                'id_desa' => $validated['id_desa'],
+                'kro' => $validated['kro'],
+                'status_survei' => $validated['status_survei'],
+                'tim' => $validated['tim'],
+                'updated_at' => now()
+            ]);
+            
+            return redirect()->back()->with('info', 'Data survei sudah ada dan telah diperbarui!');
+        }
+
+        // Simpan data ke database jika tidak ada duplikat
         Survei::create($validated);
-    
+
         return redirect()->back()->with('success', 'Survei berhasil ditambahkan!');
     }
     
