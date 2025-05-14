@@ -449,23 +449,4 @@ if ($request->filled('tahun')) {
 
 
 
-
-
-
-
-
-    //     public function index(Request $request)
-// {
-//     $query = Mitra::with('kecamatan')->withCount('survei');
-
-    //     // Filter berdasarkan kata kunci pencarian jika ada
-//     if ($request->filled('search')) {
-//         $query->where('nama_lengkap', 'like', '%' . $request->search . '%');
-//     }
-
-    //     $mitras = $query->paginate(10); // Jalankan query di sini
-
-    //     return view('mitrabps.daftarmitrabps', compact('mitras'));
-// }
-
 }

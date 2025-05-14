@@ -18,12 +18,17 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
     private $errors = [];
     private $defaultProvinsi = '35';
     private $defaultKabupaten = '16';
-      private $currentDate;
+    private $currentDate;
+    private $jenisKelaminMap = [
+        1 => 'Laki-laki',
+        2 => 'Perempuan'
+    ];
 
     public function __construct()
     {
         $this->currentDate = Carbon::now();
     }
+
     public function model(array $row)
     {
         static $rowNumber = 1;
@@ -40,8 +45,10 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             // Validasi ketat sobat_id harus angka semua
             $sobatId = $this->ensurePureNumeric($row['sobat_id'], 'sobat_id');
                     
+            // Validasi dan konversi jenis kelamin
+            $jenisKelamin = $this->validateJenisKelamin($row['jenis_kelamin']);
+            
             // Konversi nilai lainnya
-            $jenisKelamin = $this->ensurePureNumeric($row['jenis_kelamin'], 'jenis_kelamin');
             $statusPekerjaan = $this->ensurePureNumeric($row['status_pekerjaan'], 'status_pekerjaan');
 
             // Validasi minimal
@@ -93,6 +100,29 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             $this->errors[] = "Baris {$row['__row__']} : " . $e->getMessage();
             return null;
         }
+    }
+
+    /**
+     * Validasi jenis kelamin dengan input 'laki-laki' atau 'perempuan'
+     * dan konversi ke nilai numerik (1 untuk laki-laki, 2 untuk perempuan)
+     */
+    private function validateJenisKelamin($value)
+    {
+        if (empty($value)) {
+            throw new \Exception("Jenis kelamin harus diisi");
+        }
+
+        $value = strtolower(trim($value));
+        
+        if ($value === 'laki-laki' || $value === 'laki laki' || $value === 'laki') {
+            return 1;
+        } elseif ($value === 'perempuan') {
+            return 2;
+        } elseif ($value === '1' || $value === '2') {
+            return (int)$value;
+        }
+
+        throw new \Exception("Jenis kelamin harus 'laki-laki' atau 'perempuan'");
     }
     
     /**
@@ -190,29 +220,29 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
     }
     
     private function checkDuplicate($sobatId, $tahunMulai)
-{
-    // Pastikan $tahunMulai adalah objek Carbon yang valid
-    $tahunMulai = $tahunMulai ?: $this->currentDate;
-    
-    if (!($tahunMulai instanceof Carbon)) {
-        $tahunMulai = $this->parseTanggal($tahunMulai);
+    {
+        // Pastikan $tahunMulai adalah objek Carbon yang valid
+        $tahunMulai = $tahunMulai ?: $this->currentDate;
+        
+        if (!($tahunMulai instanceof Carbon)) {
+            $tahunMulai = $this->parseTanggal($tahunMulai);
+        }
+
+        Log::debug("Checking duplicate for:", [
+            'sobat_id' => $sobatId,
+            'month' => $tahunMulai->month,
+            'year' => $tahunMulai->year
+        ]);
+
+        $existing = Mitra::where('sobat_id', $sobatId)
+            ->whereMonth('tahun', $tahunMulai->month)
+            ->whereYear('tahun', $tahunMulai->year)
+            ->exists();
+
+        if ($existing) {
+            throw new \Exception("Data dengan SOBAT ID {$sobatId} sudah terdaftar untuk periode {$tahunMulai->format('m/Y')}");
+        }
     }
-
-    Log::debug("Checking duplicate for:", [
-        'sobat_id' => $sobatId,
-        'month' => $tahunMulai->month,
-        'year' => $tahunMulai->year
-    ]);
-
-    $existing = Mitra::where('sobat_id', $sobatId)
-        ->whereMonth('tahun', $tahunMulai->month)
-        ->whereYear('tahun', $tahunMulai->year)
-        ->exists();
-
-    if ($existing) {
-        throw new \Exception("Data dengan SOBAT ID {$sobatId} sudah terdaftar untuk periode {$tahunMulai->format('m/Y')}");
-    }
-}
 
     private function validatePhoneNumber($phoneNumber)
     {
@@ -223,49 +253,70 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
         // Hilangkan spasi dan karakter khusus jika ada
         $cleanedPhone = preg_replace('/[^0-9+]/', '', $phoneNumber);
 
-        // Cek apakah diawali dengan +62
-        if (!preg_match('/^\+62/', $cleanedPhone)) {
-            throw new \Exception("Nomor HP harus diawali dengan +62");
+        // Cek format nomor HP
+        // Handle jika input kosong atau bukan string/numeric
+        if (empty($cleanedPhone) || (!is_string($cleanedPhone) && !is_numeric($cleanedPhone))) {
+            throw new \Exception("Nomor HP tidak valid atau kosong");
         }
-        // Validasi panjang minimal (contoh: +628123456789 = 12 digit)
-        // if (strlen($cleanedPhone) < 12) {
-        //     throw new \Exception("Nomor HP terlalu pendek");
-        // }
+
+        // Jika diawali dengan 0, ubah menjadi +62 dan ambil digit setelah 0
+        if (preg_match('/^0/', $cleanedPhone)) {
+            // Pastikan setelah 0 ada digit, dan tidak hanya 0 saja
+            if (strlen($cleanedPhone) > 1 && preg_match('/^0\d+$/', $cleanedPhone)) {
+            $cleanedPhone = '+62' . substr($cleanedPhone, 1);
+            } else {
+            throw new \Exception("Nomor HP tidak valid. Setelah 0 harus diikuti digit angka");
+            }
+        } elseif (preg_match('/^\+?0+$/', $cleanedPhone)) {
+            // Kasus hanya 0 atau +0
+            throw new \Exception("Nomor HP tidak valid. Tidak boleh hanya 0");
+        } elseif (!preg_match('/^\+62/', $cleanedPhone)) {
+            // Jika tidak diawali dengan 0 atau +62, tolak
+            throw new \Exception("Nomor HP tidak valid. Harus diawali dengan 0 atau +62");
+        }
+
+        // Validasi panjang (minimal 11 digit setelah +62, maksimal 15 digit)
+        $digits = substr($cleanedPhone, 3); // Hapus +62
+        if (strlen($digits) < 9 || strlen($digits) > 13) {
+            throw new \Exception("Nomor HP harus 11-15 digit (contoh: +628123456789)");
+        }
+
+        return $cleanedPhone;
     }
     
     public function rules(): array
     {
         return [
             'sobat_id' => [
-            'required',
-            function ($attribute, $value, $fail) {
-                if (!$this->isPureNumeric($value)) {
-                    $fail("SOBAT ID harus berupa angka semua");
-                }
-            },
-            function ($attribute, $value, $fail) {
-                try {
-                    $tahunMulai = $this->parseTanggal($this->row['tgl_mitra_diterima'] ?? null);
-                    
-                    Log::debug("Rules validation checking:", [
-                        'sobat_id' => $value,
-                        'month' => $tahunMulai->month,
-                        'year' => $tahunMulai->year
-                    ]);
-                    
-                    $exists = Mitra::where('sobat_id', $value)
-                        ->whereMonth('tahun', $tahunMulai->month)
-                        ->whereYear('tahun', $tahunMulai->year)
-                        ->exists();
-                        
-                    if ($exists) {
-                        $fail("SOBAT ID {$value} sudah terdaftar untuk periode {$tahunMulai->format('m/Y')}");
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (!$this->isPureNumeric($value)) {
+                        $fail("SOBAT ID harus berupa angka semua");
                     }
-                } catch (\Exception $e) {
-                    $fail("Gagal validasi tanggal: " . $e->getMessage());
-                }
-            },
-            'max:12'
+                },
+                function ($attribute, $value, $fail) {
+                    try {
+                        $tahunMulai = $this->parseTanggal($this->row['tgl_mitra_diterima'] ?? null);
+                        
+                        Log::debug("Rules validation checking:", [
+                            'sobat_id' => $value,
+                            'month' => $tahunMulai->month,
+                            'year' => $tahunMulai->year
+                        ]);
+                        
+                        $exists = Mitra::where('sobat_id', $value)
+                            ->whereMonth('tahun', $tahunMulai->month)
+                            ->whereYear('tahun', $tahunMulai->year)
+                            ->exists();
+                            
+                        if ($exists) {
+                            $fail("SOBAT ID {$value} sudah terdaftar untuk periode {$tahunMulai->format('m/Y')}");
+                        }
+                    } catch (\Exception $e) {
+                        $fail("Gagal validasi tanggal: " . $e->getMessage());
+                    }
+                },
+                'max:12'
             ],
             'nama_lengkap' => 'required|string|max:255',
             'alamat_mitra' => 'required|string',
@@ -274,9 +325,15 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             'jenis_kelamin' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    $jenisKelamin = $this->isPureNumeric($value);
-                    if (!in_array($jenisKelamin, [1, 2])) {
-                        $fail("Jenis kelamin harus 1 atau 2");
+                    try {
+                        $value = strtolower(trim($value));
+                        $validValues = ['laki-laki', 'laki laki', 'laki', 'perempuan', '1', '2'];
+                        
+                        if (!in_array($value, $validValues)) {
+                            $fail("Jenis kelamin harus 'laki-laki' atau 'perempuan'");
+                        }
+                    } catch (\Exception $e) {
+                        $fail($e->getMessage());
                     }
                 }
             ],
@@ -289,19 +346,29 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                     }
                 }
             ],
-            'detail_pekerjaan' => 'nullable',
             'no_hp_mitra' => [
                 'required',
                 'string',
                 'max:20',
                 function ($attribute, $value, $fail) {
-                    $cleanedPhone = preg_replace('/[^0-9+]/', '', $value);
-                    if (!preg_match('/^\+62/', $cleanedPhone)) {
-                        $fail('Nomor HP harus diawali dengan +62');
+                    try {
+                        $cleanedPhone = preg_replace('/[^0-9+]/', '', $value);
+                        
+                        if (preg_match('/^0/', $cleanedPhone)) {
+                            $cleanedPhone = '+62' . substr($cleanedPhone, 1);
+                        }
+                        
+                        if (!preg_match('/^\+62/', $cleanedPhone)) {
+                            $fail('Nomor HP harus diawali dengan 0 atau +62');
+                        }
+                        
+                        $digits = substr($cleanedPhone, 3);
+                        if (strlen($digits) < 9 || strlen($digits) > 13) {
+                            $fail('Nomor HP harus 11-15 digit (contoh: +628123456789)');
+                        }
+                    } catch (\Exception $e) {
+                        $fail('Format nomor HP tidak valid');
                     }
-                    // if (strlen($cleanedPhone) < 12) {
-                    //     $fail('Nomor HP terlalu pendek');
-                    // }
                 },
             ],
             'email_mitra' => 'required|email|max:255',
@@ -310,60 +377,60 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
     }
 
     private function parseTanggal($tanggal)
-{
-    try {
-        if (empty($tanggal)) {
-            Log::info("Tanggal kosong, menggunakan tanggal sekarang");
-            return $this->currentDate;
-        }
-
-        // Jika sudah objek Carbon/DateTime
-        if ($tanggal instanceof \DateTimeInterface) {
-            return Carbon::instance($tanggal);
-        }
-
-        // Handle jika tanggal dalam format Y-m-d (format date dari database)
-        if (is_string($tanggal) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
-            return Carbon::createFromFormat('Y-m-d', $tanggal);
-        }
-
-        // Handle Excel numeric date (angka hari sejak 1900)
-        if (is_numeric($tanggal) && $tanggal > 1000) {
-            $unixDate = ($tanggal - 25569) * 86400; // Konversi dari Excel date ke Unix timestamp
-            $parsed = Carbon::createFromTimestamp($unixDate);
-            Log::info("Parsed Excel date {$tanggal} to: " . $parsed->format('Y-m-d'));
-            return $parsed;
-        }
-
-        // Handle string date (01/01/2024)
-        if (is_string($tanggal)) {
-            // Normalisasi pemisah tanggal (ganti / atau - dengan -)
-            $normalized = str_replace(['/', '.'], '-', $tanggal);
-            
-            // Coba format yang mungkin
-            foreach (['d-m-Y', 'm-d-Y', 'Y-m-d'] as $format) {
-                try {
-                    $parsed = Carbon::createFromFormat($format, $normalized);
-                    Log::info("Parsed string date {$tanggal} as {$format} to: " . $parsed->format('Y-m-d'));
-                    return $parsed;
-                } catch (\Exception $e) {
-                    continue;
-                }
+    {
+        try {
+            if (empty($tanggal)) {
+                Log::info("Tanggal kosong, menggunakan tanggal sekarang");
+                return $this->currentDate;
             }
-            
-            // Fallback ke parsing loose
-            $parsed = Carbon::parse($normalized);
-            Log::info("Loose parsed string date {$tanggal} to: " . $parsed->format('Y-m-d'));
-            return $parsed;
-        }
 
-        throw new \Exception("Format tanggal tidak dikenali: " . print_r($tanggal, true));
-        
-    } catch (\Exception $e) {
-        Log::error("Gagal parsing tanggal: {$tanggal} - Error: " . $e->getMessage());
-        throw new \Exception("Format tanggal tidak valid: {$tanggal}");
+            // Jika sudah objek Carbon/DateTime
+            if ($tanggal instanceof \DateTimeInterface) {
+                return Carbon::instance($tanggal);
+            }
+
+            // Handle jika tanggal dalam format Y-m-d (format date dari database)
+            if (is_string($tanggal) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
+                return Carbon::createFromFormat('Y-m-d', $tanggal);
+            }
+
+            // Handle Excel numeric date (angka hari sejak 1900)
+            if (is_numeric($tanggal) && $tanggal > 1000) {
+                $unixDate = ($tanggal - 25569) * 86400; // Konversi dari Excel date ke Unix timestamp
+                $parsed = Carbon::createFromTimestamp($unixDate);
+                Log::info("Parsed Excel date {$tanggal} to: " . $parsed->format('Y-m-d'));
+                return $parsed;
+            }
+
+            // Handle string date (01/01/2024)
+            if (is_string($tanggal)) {
+                // Normalisasi pemisah tanggal (ganti / atau - dengan -)
+                $normalized = str_replace(['/', '.'], '-', $tanggal);
+                
+                // Coba format yang mungkin
+                foreach (['d-m-Y', 'm-d-Y', 'Y-m-d'] as $format) {
+                    try {
+                        $parsed = Carbon::createFromFormat($format, $normalized);
+                        Log::info("Parsed string date {$tanggal} as {$format} to: " . $parsed->format('Y-m-d'));
+                        return $parsed;
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+                }
+                
+                // Fallback ke parsing loose
+                $parsed = Carbon::parse($normalized);
+                Log::info("Loose parsed string date {$tanggal} to: " . $parsed->format('Y-m-d'));
+                return $parsed;
+            }
+
+            throw new \Exception("Format tanggal tidak dikenali: " . print_r($tanggal, true));
+            
+        } catch (\Exception $e) {
+            Log::error("Gagal parsing tanggal: {$tanggal} - Error: " . $e->getMessage());
+            throw new \Exception("Format tanggal tidak valid: {$tanggal}");
+        }
     }
-}
     
     public function onError(\Throwable $e)
     {
