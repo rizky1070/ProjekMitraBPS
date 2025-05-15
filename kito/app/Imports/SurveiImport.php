@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Survei;
 use App\Models\Provinsi;
 use App\Models\Kabupaten;
-use App\Models\Kecamatan;
-use App\Models\Desa;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -50,25 +48,29 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             $today = now();
             $statusSurvei = $this->determineSurveyStatus($today, $jadwalMulai, $jadwalBerakhir);
 
-            // Cek duplikasi data
+            // Cek duplikasi data berdasarkan nama_survei, jadwal_kegiatan, dan jadwal_berakhir_kegiatan
             $existingSurvei = Survei::where('nama_survei', $row['nama_survei'])
-                ->where('jadwal_kegiatan', $jadwalMulai->toDateString())
-                ->where('jadwal_berakhir_kegiatan', $jadwalBerakhir->toDateString())
-                ->where('bulan_dominan', $bulanDominan)
+                ->whereDate('jadwal_kegiatan', $jadwalMulai->toDateString())
+                ->whereDate('jadwal_berakhir_kegiatan', $jadwalBerakhir->toDateString())
                 ->first();
 
             if ($existingSurvei) {
-                // Update data yang sudah ada
+                // Update semua field data yang sudah ada kecuali created_at
                 $existingSurvei->update([
                     'id_kabupaten' => $kabupaten->id_kabupaten,
                     'id_provinsi' => $provinsi->id_provinsi,
                     'kro' => $row['kro'],
+                    'bulan_dominan' => $bulanDominan,
                     'status_survei' => $statusSurvei,
                     'tim' => $row['tim'],
                     'updated_at' => now()
                 ]);
                 
-                Log::info('Data duplikat ditemukan dan diupdate: ', $row);
+                Log::info('Data duplikat ditemukan dan diupdate: ', [
+                    'id' => $existingSurvei->id,
+                    'data' => $row
+                ]);
+                
                 return null;
             }
 
@@ -90,7 +92,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
         }
     }
 
-    // Fungsi baru untuk menentukan status survei
     private function determineSurveyStatus(Carbon $today, Carbon $startDate, Carbon $endDate): int
     {
         if ($today->lt($startDate)) {
@@ -141,7 +142,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             throw new \Exception("Tanggal berakhir harus setelah tanggal mulai");
         }
         
-        // Validasi tahun masuk dalam range wajar
         $currentYear = date('Y');
         if ($jadwalMulai->year < 2000 || $jadwalMulai->year > $currentYear + 5) {
             throw new \Exception("Tahun jadwal tidak valid (harus antara 2000-".($currentYear + 5).")");
@@ -155,9 +155,9 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             $months->push($date->format('m-Y'));
         }
 
-        $mostFrequentMonth = $months->countBy()->sortDesc()->keys()->first(); // contoh: "04-2029"
+        $mostFrequentMonth = $months->countBy()->sortDesc()->keys()->first();
         [$bulan, $tahun] = explode('-', $mostFrequentMonth);
-        return Carbon::createFromDate($tahun, $bulan, 1)->toDateString(); // hasil akhir: "2029-04-01"
+        return Carbon::createFromDate($tahun, $bulan, 1)->toDateString();
     }
 
     public function rules(): array
