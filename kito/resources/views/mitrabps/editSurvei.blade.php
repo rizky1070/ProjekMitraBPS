@@ -125,14 +125,12 @@ $title = 'Kelola Survei';
                 <p class="text-xl font-medium"><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
                 <div class="flex flex-col md:flex-row items-start md:items-center w-full">
                     <div class="w-full md:w-1/2">
-                        <p><strong>Kecamatan :</strong> {{ $survey->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</p>
                         <p><strong>Pelaksanaan :</strong> {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan )->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan )->translatedFormat('j F Y') }}</p>
-                        <p><strong>Lokasi Detail :</strong> {{ $survey->lokasi_survei ?? 'Lokasi tidak tersedia' }}</p>
-                    </div>
-                    <div class="w-full md:w-1/2">
                         <p><strong>Tim :</strong> {{ $survey->tim }}</p>
                         <p><strong>KRO :</strong> {{ $survey->kro }} </p><div class="flex items-center">
                     </div>
+                    <!-- <div class="w-full md:w-1/2">
+                    </div> -->
                 </div>
             </div>
             
@@ -211,18 +209,6 @@ $title = 'Kelola Survei';
                                         @endforeach
                                     </select>
                                 </div>
-                                <!-- District Row -->
-                                <div class="flex items-center">
-                                    <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
-                                    <select name="kecamatan" id="kecamatan" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
-                                        <option value="">Semua Kecamatan</option>
-                                        @foreach($kecamatanOptions as $kecam)
-                                            <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan') == $kecam->id_kecamatan) selected @endif>
-                                                [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
                             </div>
                         </div>
                     </form>
@@ -247,17 +233,10 @@ $title = 'Kelola Survei';
                         placeholder: 'Pilih Bulan',
                         searchField: 'text',
                     });
-
-                    new TomSelect('#kecamatan', {
-                        placeholder: 'Pilih Kecamatan',
-                        searchField: 'text',
-                    });
-
                         // Auto submit saat filter berubah
                     const filterForm = document.getElementById('filterForm');
                     const tahunSelect = document.getElementById('tahun');
                     const bulanSelect = document.getElementById('bulan');
-                    const kecamatanSelect = document.getElementById('kecamatan');
                     const mitraSelect = document.getElementById('nama_mitra');
 
                         // Ganti fungsi submitForm dengan ini
@@ -272,7 +251,6 @@ $title = 'Kelola Survei';
                     // Tambahkan event listener untuk setiap select
                     tahunSelect.addEventListener('change', submitForm);
                     bulanSelect.addEventListener('change', submitForm);
-                    kecamatanSelect.addEventListener('change', submitForm);
                     mitraSelect.addEventListener('change', submitForm);
                 });
 

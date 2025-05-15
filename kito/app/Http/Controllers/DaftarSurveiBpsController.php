@@ -44,21 +44,6 @@ class DaftarSurveiBpsController extends Controller
                 });
         }
 
-        // Daftar kecamatan berdasarkan tahun dan bulan yang dipilih
-        $kecamatanOptions = Kecamatan::query()
-            ->when($request->filled('tahun') || $request->filled('bulan'), function($query) use ($request) {
-                $query->whereHas('surveis', function($q) use ($request) {
-                    if ($request->filled('tahun')) {
-                        $q->whereYear('bulan_dominan', $request->tahun);
-                    }
-                    if ($request->filled('bulan')) {
-                        $q->whereMonth('bulan_dominan', $request->bulan);
-                    }
-                });
-            })
-            ->orderBy('nama_kecamatan')
-            ->get(['nama_kecamatan', 'kode_kecamatan', 'id_kecamatan']);
-
         // Daftar nama survei berdasarkan filter
         $namaSurveiOptions = Survei::select('nama_survei')
             ->distinct()
@@ -68,15 +53,11 @@ class DaftarSurveiBpsController extends Controller
             ->when($request->filled('bulan'), function($query) use ($request) {
                 $query->whereMonth('bulan_dominan', $request->bulan);
             })
-            ->when($request->filled('kecamatan'), function($query) use ($request) {
-                $query->where('id_kecamatan', $request->kecamatan);
-            })
             ->orderBy('nama_survei')
             ->pluck('nama_survei', 'nama_survei');
 
         // Query utama
         $surveys = Survei::with([
-                'kecamatan',
                 'mitraSurvei' => function ($query) {
                     $query->whereNotNull('mitra_survei.posisi_mitra') // ini penting!
                         ->withPivot('posisi_mitra');
@@ -92,9 +73,6 @@ class DaftarSurveiBpsController extends Controller
             })
             ->when($request->filled('bulan'), function ($query) use ($request) {
                 $query->whereMonth('bulan_dominan', $request->bulan);
-            })
-            ->when($request->filled('kecamatan'), function ($query) use ($request) {
-                $query->where('id_kecamatan', $request->kecamatan);
             })
             ->when($request->filled('nama_survei'), function ($query) use ($request) {
                 $query->where('nama_survei', $request->nama_survei);
@@ -125,7 +103,6 @@ class DaftarSurveiBpsController extends Controller
             'surveys',
             'tahunOptions',
             'bulanOptions',
-            'kecamatanOptions',
             'namaSurveiOptions',
             'mitraHighlight', 
             'request'
@@ -138,12 +115,11 @@ class DaftarSurveiBpsController extends Controller
     {
         // Ambil data survei beserta relasi mitra + posisi_mitra dari pivot
         $survey = Survei::with([
-            'kecamatan',
             'mitra' => function ($query) {
                 $query->withPivot('posisi_mitra');
             }
         ])
-        ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'jadwal_berakhir_kegiatan', 'kro', 'id_kecamatan', 'tim', 'lokasi_survei')
+        ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'jadwal_berakhir_kegiatan', 'kro', 'tim')
         ->where('id_survei', $id_survei)
         ->firstOrFail();
 

@@ -46,21 +46,6 @@ class ReportMitraSurveiController extends Controller
                 });
         }
 
-        // FILTER KECAMATAN
-        $kecamatanOptions = Kecamatan::query()
-            ->when($request->filled('tahun') || $request->filled('bulan'), function ($query) use ($request) {
-                $query->whereHas('surveis', function ($q) use ($request) {
-                    if ($request->filled('tahun')) {
-                        $q->whereYear('bulan_dominan', $request->tahun);
-                    }
-                    if ($request->filled('bulan')) {
-                        $q->whereMonth('bulan_dominan', $request->bulan);
-                    }
-                });
-            })
-            ->orderBy('nama_kecamatan')
-            ->get(['nama_kecamatan', 'id_kecamatan', 'kode_kecamatan']);
-
         // Filter Nama Survei (hanya yang ada di tahun & bulan yang dipilih)
         $namaSurveiOptions = Survei::select('nama_survei')
             ->distinct()
@@ -70,33 +55,27 @@ class ReportMitraSurveiController extends Controller
             ->when($request->filled('bulan'), function ($query) use ($request) {
                 $query->whereMonth('bulan_dominan', $request->bulan);
             })
-            ->when($request->filled('kecamatan'), function ($query) use ($request) {
-                $query->where('id_kecamatan', $request->kecamatan);
-            })
             ->orderBy('nama_survei')
             ->pluck('nama_survei', 'nama_survei');
 
         // QUERY UTAMA
-        $surveisQuery = Survei::with(['kecamatan'])
+        $surveisQuery = Survei::query()
             ->withCount(['mitraSurvei as total_mitra' => function ($query) use ($request) {
-                if ($request->filled('tahun')) {
-                    $query->whereYear('bulan_dominan', $request->tahun);
-                }
-                if ($request->filled('bulan')) {
-                    $query->whereMonth('bulan_dominan', $request->bulan);
-                }
+            if ($request->filled('tahun')) {
+                $query->whereYear('bulan_dominan', $request->tahun);
+            }
+            if ($request->filled('bulan')) {
+                $query->whereMonth('bulan_dominan', $request->bulan);
+            }
             }])
             ->when($request->filled('tahun'), function ($query) use ($request) {
-                $query->whereYear('bulan_dominan', $request->tahun);
+            $query->whereYear('bulan_dominan', $request->tahun);
             })
             ->when($request->filled('bulan'), function ($query) use ($request) {
-                $query->whereMonth('bulan_dominan', $request->bulan);
-            })
-            ->when($request->filled('kecamatan'), function ($query) use ($request) {
-                $query->where('id_kecamatan', $request->kecamatan);
+            $query->whereMonth('bulan_dominan', $request->bulan);
             })
             ->when($request->filled('nama_survei'), function ($query) use ($request) {
-                $query->where('nama_survei', $request->nama_survei);
+            $query->where('nama_survei', $request->nama_survei);
             });
 
         // FILTER STATUS PARTISIPASI
@@ -124,9 +103,6 @@ class ReportMitraSurveiController extends Controller
             if ($request->filled('bulan')) {
                 $q->whereMonth('bulan_dominan', $request->bulan);
             }
-            if ($request->filled('kecamatan')) {
-                $q->where('id_kecamatan', $request->kecamatan);
-            }
             if ($request->filled('nama_survei')) {
                 $q->where('nama_survei', $request->nama_survei);
             }
@@ -141,7 +117,6 @@ class ReportMitraSurveiController extends Controller
             'surveis',
             'tahunOptions',
             'bulanOptions',
-            'kecamatanOptions',
             'namaSurveiOptions',
             'totalSurvei',
             'totalSurveiAktif',

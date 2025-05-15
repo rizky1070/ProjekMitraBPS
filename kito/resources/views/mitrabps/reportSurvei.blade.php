@@ -134,7 +134,6 @@ $title = 'Report Survei';
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Survei</th>
-                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kecamatan</th>
                                     <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah Mitra</th>
                                     <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal Kegiatan</th>
                                     <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -148,9 +147,6 @@ $title = 'Report Survei';
                                             <div class="text-sm font-medium text-gray-900 whitespace-normal break-words">{{ $survei->nama_survei }}</div>
                                             <div class="text-sm text-gray-500">{{ $survei->tim }}</div>
                                         </div>
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <div class="text-sm text-gray-900">{{ $survei->kecamatan->nama_kecamatan ?? '-' }}</div>
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $survei->mitra_survei_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">

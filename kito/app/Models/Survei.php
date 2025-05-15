@@ -20,10 +20,7 @@ class Survei extends Model
     protected $fillable = [
         'id_provinsi',
         'id_kabupaten',
-        'id_kecamatan',
-        'id_desa',
         'nama_survei',
-        'lokasi_survei',
         'kro',
         'jadwal_kegiatan',
         'jadwal_berakhir_kegiatan',
@@ -44,17 +41,7 @@ class Survei extends Model
         return $this->belongsTo(Kabupaten::class, 'id_kabupaten', 'id_kabupaten');
     }
 
-    // Relasi dengan Kecamatan
-    public function kecamatan()
-    {
-        return $this->belongsTo(Kecamatan::class, 'id_kecamatan','id_kecamatan');
-    }
 
-    // Relasi dengan Desa
-    public function desa()
-    {
-        return $this->belongsTo(Desa::class, 'id_desa', 'id_desa');
-    }
 
     public function mitraSurvei()
     {

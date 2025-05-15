@@ -67,19 +67,6 @@ $title = 'Daftar Survei';
                                                     @endforeach
                                                 </select>
                                             </div>
-
-                                            <!-- District Row -->
-                                            <div class="flex items-center">
-                                                <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
-                                                <select name="kecamatan" id="kecamatan" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
-                                                    <option value="">Semua Kecamatan</option>
-                                                    @foreach($kecamatanOptions as $kecam)
-                                                        <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan') == $kecam->id_kecamatan) selected @endif>
-                                                            [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
                                         </div>
                                     </div>
                                 </form>
@@ -106,16 +93,10 @@ $title = 'Daftar Survei';
                                     searchField: 'text',
                                 });
 
-                                new TomSelect('#kecamatan', {
-                                    placeholder: 'Pilih Kecamatan',
-                                    searchField: 'text',
-                                });
-
                                 // Auto submit saat filter berubah
                                 const filterForm = document.getElementById('filterForm');
                                 const tahunSelect = document.getElementById('tahun');
                                 const bulanSelect = document.getElementById('bulan');
-                                const kecamatanSelect = document.getElementById('kecamatan');
                                 const surveiSelect = document.getElementById('nama_survei');
 
                                 // Ganti fungsi submitForm dengan ini
@@ -130,7 +111,6 @@ $title = 'Daftar Survei';
                                 // Tambahkan event listener untuk setiap select
                                 tahunSelect.addEventListener('change', submitForm);
                                 bulanSelect.addEventListener('change', submitForm);
-                                kecamatanSelect.addEventListener('change', submitForm);
                                 surveiSelect.addEventListener('change', submitForm);
                             });
                         </script>
@@ -156,11 +136,6 @@ $title = 'Daftar Survei';
                                             <span class="text-gray-500">Status Tidak Diketahui</span>
                                         @endif
                                     </div>
-
-                                    <span class="ml-2 text-gray-600 block truncate">
-                                        <strong>Kecamatan: </strong>
-                                        {{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}
-                                    </span>
                                     <span class="ml-2 text-gray-600 block">
                                         <strong>Jadwal Kegiatan: </strong></br>
                                         {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}

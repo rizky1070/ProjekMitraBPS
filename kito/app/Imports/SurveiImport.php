@@ -35,8 +35,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             // Dapatkan data wilayah
             $provinsi = $this->getProvinsi();
             $kabupaten = $this->getKabupaten($provinsi);
-            $kecamatan = $this->getKecamatan($row, $kabupaten);
-            $desa = $this->getDesa($row, $kecamatan);
 
             // Parse tanggal
             $jadwalMulai = $this->parseDate($row['jadwal'] ?? null);
@@ -56,15 +54,12 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             $existingSurvei = Survei::where('nama_survei', $row['nama_survei'])
                 ->where('jadwal_kegiatan', $jadwalMulai->toDateString())
                 ->where('jadwal_berakhir_kegiatan', $jadwalBerakhir->toDateString())
-                ->where('id_kecamatan', $kecamatan->id_kecamatan)
                 ->where('bulan_dominan', $bulanDominan)
                 ->first();
 
             if ($existingSurvei) {
                 // Update data yang sudah ada
                 $existingSurvei->update([
-                    'lokasi_survei' => $row['lokasi_survei'] ?? null,
-                    'id_desa' => $desa->id_desa,
                     'id_kabupaten' => $kabupaten->id_kabupaten,
                     'id_provinsi' => $provinsi->id_provinsi,
                     'kro' => $row['kro'],
@@ -80,9 +75,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             // Buat data baru jika tidak ada duplikat
             return new Survei([
                 'nama_survei' => $row['nama_survei'],
-                'lokasi_survei' => $row['lokasi_survei'] ?? null,
-                'id_desa' => $desa->id_desa,
-                'id_kecamatan' => $kecamatan->id_kecamatan,
                 'id_kabupaten' => $kabupaten->id_kabupaten,
                 'id_provinsi' => $provinsi->id_provinsi,
                 'kro' => $row['kro'],
@@ -135,36 +127,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
         return $kabupaten;
     }
     
-    private function getKecamatan(array $row, $kabupaten)
-    {
-        if (empty($row['kode_kecamatan'])) {
-            throw new \Exception("Kode kecamatan harus diisi");
-        }
-        
-        $kecamatan = Kecamatan::where('kode_kecamatan', $row['kode_kecamatan'])
-            ->where('id_kabupaten', $kabupaten->id_kabupaten)
-            ->first();
-        if (!$kecamatan) {
-            throw new \Exception("Kode kecamatan {$row['kode_kecamatan']} tidak ditemukan di kabupaten {$kabupaten->nama_kabupaten}.");
-        }
-        return $kecamatan;
-    }
-    
-    private function getDesa(array $row, $kecamatan)
-    {
-        if (empty($row['kode_desa'])) {
-            throw new \Exception("Kode desa harus diisi");
-        }
-        
-        $desa = Desa::where('kode_desa', $row['kode_desa'])
-            ->where('id_kecamatan', $kecamatan->id_kecamatan)
-            ->first();
-        if (!$desa) {
-            throw new \Exception("Kode desa {$row['kode_desa']} tidak ditemukan di kecamatan {$kecamatan->nama_kecamatan}.");
-        }
-        return $desa;
-    }
-    
     private function validateDates($jadwalMulai, $jadwalBerakhir)
     {
         if (!$jadwalMulai) {
@@ -202,11 +164,8 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
     {
         return [
             'nama_survei' => 'required|string|max:255',
-            'kode_desa' => 'required|string|max:3',
-            'kode_kecamatan' => 'required|string|max:3',
             'kro' => 'required|string|max:100',
             'tim' => 'required|string|max:255',
-            'lokasi_survei' => 'required|string|max:255',
             'jadwal' => 'required',
             'jadwal_berakhir' => 'required|after:jadwal'
         ];   
