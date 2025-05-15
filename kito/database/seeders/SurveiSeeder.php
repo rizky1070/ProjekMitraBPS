@@ -45,12 +45,12 @@ class SurveiSeeder extends Seeder
         $dataToInsert = array_map(function($record) use ($baseData) {
             return array_merge($baseData, [
                 'nama_survei' => $record[2],
-                'kro' => $record[4],
-                'jadwal_kegiatan' => $record[5],
-                'jadwal_berakhir_kegiatan' => $record[6],
-                'bulan_dominan' => $record[7],
+                'kro' => $record[3],
+                'jadwal_kegiatan' => $record[4],
+                'jadwal_berakhir_kegiatan' => $record[5],
+                'bulan_dominan' => $record[6],
                 'status_survei' => rand(1, 3),
-                'tim' => $record[6],
+                'tim' => $record[7],
             ]);
         }, $surveiRecords);
 
