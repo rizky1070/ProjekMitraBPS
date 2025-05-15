@@ -209,6 +209,18 @@ $title = 'Kelola Survei';
                                         @endforeach
                                     </select>
                                 </div>
+                                <!-- District Row -->
+                                <div class="flex items-center">
+                                    <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
+                                    <select name="kecamatan" id="kecamatan" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
+                                        <option value="">Semua Kecamatan</option>
+                                        @foreach($kecamatanOptions as $kecam)
+                                            <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan') == $kecam->id_kecamatan) selected @endif>
+                                                [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -233,10 +245,17 @@ $title = 'Kelola Survei';
                         placeholder: 'Pilih Bulan',
                         searchField: 'text',
                     });
+
+                    new TomSelect('#kecamatan', {
+                        placeholder: 'Pilih Kecamatan',
+                        searchField: 'text',
+                    });
+
                         // Auto submit saat filter berubah
                     const filterForm = document.getElementById('filterForm');
                     const tahunSelect = document.getElementById('tahun');
                     const bulanSelect = document.getElementById('bulan');
+                    const kecamatanSelect = document.getElementById('kecamatan');
                     const mitraSelect = document.getElementById('nama_mitra');
 
                         // Ganti fungsi submitForm dengan ini
@@ -251,6 +270,7 @@ $title = 'Kelola Survei';
                     // Tambahkan event listener untuk setiap select
                     tahunSelect.addEventListener('change', submitForm);
                     bulanSelect.addEventListener('change', submitForm);
+                    kecamatanSelect.addEventListener('change', submitForm);
                     mitraSelect.addEventListener('change', submitForm);
                 });
 
