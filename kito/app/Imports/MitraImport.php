@@ -71,12 +71,23 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             if (empty($row['tgl_mitra_diterima'])) {
                 Log::info("Data baris ke-{$row['__row__']}: Kolom tahun kosong, menggunakan tanggal sekarang");
             }
-            
-            // Set tahun selesai otomatis 1 bulan setelah tahun mulai
-            $tahunSelesai = $tahunMulai ? $tahunMulai->copy()->addMonth() : null;
 
+            // Parse tanggal berakhir (jika ada)
+            $tahunSelesai = null;
+            if (!empty($row['tgl_berakhir_mitra'])) {
+                $tahunSelesai = $this->parseTanggal($row['tgl_berakhir_mitra']);
+                // Validasi bahwa tanggal berakhir tidak sebelum tanggal mulai
+                if ($tahunSelesai->lt($tahunMulai)) {
+                    throw new \Exception("Tanggal berakhir mitra tidak boleh sebelum tanggal mulai");
+                }
+            } else {
+                // Jika tanggal berakhir kosong, set otomatis 1 bulan setelah tanggal mulai
+                $tahunSelesai = $tahunMulai->copy()->addMonth();
+                Log::info("Data baris ke-{$row['__row__']}: Kolom tgl_berakhir_mitra kosong, menggunakan 1 bulan setelah tanggal mulai");
+            }
+            
             // Validasi tanggal
-            $this->validateDates($tahunMulai);
+            $this->validateDates($tahunMulai, $tahunSelesai);
 
             // Cek duplikasi
             $this->checkDuplicate($sobatId, $tahunMulai);
@@ -207,16 +218,28 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
         return $desa;
     }
     
-    private function validateDates($tahunMulai)
+    private function validateDates($tahunMulai, $tahunSelesai)
     {
         if (!$tahunMulai) {
             throw new \Exception("tgl_mitra_diterima tidak valid");
+        }
+        
+        if (!$tahunSelesai) {
+            throw new \Exception("tgl_berakhir_mitra tidak valid");
         }
         
         // Validasi tahun masuk dalam range wajar (misal 2000-2100)
         $currentYear = date('Y');
         if ($tahunMulai->year < 2000 || $tahunMulai->year > $currentYear + 10) {
             throw new \Exception("tgl_mitra_diterima tidak valid (harus antara 2000-".($currentYear + 10).")");
+        }
+        
+        if ($tahunSelesai->year < 2000 || $tahunSelesai->year > $currentYear + 10) {
+            throw new \Exception("tgl_berakhir_mitra tidak valid (harus antara 2000-".($currentYear + 10).")");
+        }
+        
+        if ($tahunSelesai->lt($tahunMulai)) {
+            throw new \Exception("Tanggal berakhir tidak boleh sebelum tanggal mulai");
         }
     }
     
@@ -373,7 +396,8 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                 },
             ],
             'email_mitra' => 'required|email|max:255',
-            'tgl_mitra_diterima' => 'nullable','string'
+            'tgl_mitra_diterima' => 'nullable|string',
+            'tgl_berakhir_mitra' => 'nullable|string'
         ];
     }
 
