@@ -1,19 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="icon" href="/Logo BPS.png" type="image/png">
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
-    <title>Daftar Survei BPS</title>
+<?php
+$title = 'Daftar Survei';
+?>
+@include('mitrabps.headerTemp')
 </head>
 <body class="h-full">
     @if (session('success'))
@@ -79,19 +67,6 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-
-                                            <!-- District Row -->
-                                            <div class="flex items-center">
-                                                <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
-                                                <select name="kecamatan" id="kecamatan" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
-                                                    <option value="">Semua Kecamatan</option>
-                                                    @foreach($kecamatanOptions as $kecam)
-                                                        <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan') == $kecam->id_kecamatan) selected @endif>
-                                                            [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
                                         </div>
                                     </div>
                                 </form>
@@ -118,16 +93,10 @@
                                     searchField: 'text',
                                 });
 
-                                new TomSelect('#kecamatan', {
-                                    placeholder: 'Pilih Kecamatan',
-                                    searchField: 'text',
-                                });
-
                                 // Auto submit saat filter berubah
                                 const filterForm = document.getElementById('filterForm');
                                 const tahunSelect = document.getElementById('tahun');
                                 const bulanSelect = document.getElementById('bulan');
-                                const kecamatanSelect = document.getElementById('kecamatan');
                                 const surveiSelect = document.getElementById('nama_survei');
 
                                 // Ganti fungsi submitForm dengan ini
@@ -142,7 +111,6 @@
                                 // Tambahkan event listener untuk setiap select
                                 tahunSelect.addEventListener('change', submitForm);
                                 bulanSelect.addEventListener('change', submitForm);
-                                kecamatanSelect.addEventListener('change', submitForm);
                                 surveiSelect.addEventListener('change', submitForm);
                             });
                         </script>
@@ -168,11 +136,6 @@
                                             <span class="text-gray-500">Status Tidak Diketahui</span>
                                         @endif
                                     </div>
-
-                                    <span class="ml-2 text-gray-600 block truncate">
-                                        <strong>Kecamatan: </strong>
-                                        {{ $survey->kecamatan->nama_kecamatan ?? 'Tidak Tersedia' }}
-                                    </span>
                                     <span class="ml-2 text-gray-600 block">
                                         <strong>Jadwal Kegiatan: </strong></br>
                                         {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}

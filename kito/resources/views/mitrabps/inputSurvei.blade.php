@@ -1,20 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="icon" href="/Logo BPS.png" type="image/png">
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
-
-    <title>Input Survei</title>
+<?php
+$title = 'Input Survei';
+?>
+@include('mitrabps.headerTemp')
 </head>
 <body class="h-full bg-gray-200">
     @if (session('success'))
@@ -70,39 +57,6 @@
                             </div>
                             
                             <div class="mb-5">
-                                <label for="id_kecamatan" class="block text-sm font-medium text-gray-700 mb-1">Kecamatan</label>
-                                <select name="id_kecamatan" id="id_kecamatan" class="text-gray-500 w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50">
-                                    <option value="">Pilih Kecamatan</option>
-                                    @foreach($kecamatan as $kec)
-                                    <option value="{{ $kec->id_kecamatan }}" {{ old('id_kecamatan') == $kec->id_kecamatan ? 'selected' : '' }}>
-                                        [{{ $kec->kode_kecamatan }}] {{ $kec->nama_kecamatan }}
-                                    </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            
-                            <div class="mb-5">
-                                <label for="id_desa" class="block text-sm font-medium text-gray-700 mb-1">Desa</label>
-                                <select name="id_desa" id="id_desa" class="text-gray-500 w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50">
-                                    <option value="">Pilih Desa</option>
-                                    @foreach($desa as $des)
-                                    <option value="{{ $des->id_desa }}" {{ old('id_desa') == $des->id_desa ? 'selected' : '' }}>
-                                        [{{ $des->kode_desa }}] {{ $des->nama_desa }}
-                                    </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            
-                            <div class="mb-5">
-                                <label for="lokasi_survei" class="block text-sm font-medium text-gray-700 mb-1">Lokasi Survei</label>
-                                <input type="text" name="lokasi_survei" id="lokasi_survei" value="{{ old('lokasi_survei') }}" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Lokasi Survei">
-                            </div>
-                        </div>
-                        
-                        <!-- Kolom Kanan -->
-                        <div class="w-full md:w-1/2 px-3">
-                            
-                            <div class="mb-5">
                                 <label for="kro" class="block text-sm font-medium text-gray-700 mb-1">KRO</label>
                                 <input type="text" name="kro" id="kro" value="{{ old('kro') }}" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="KRO">
                             </div>
@@ -111,6 +65,10 @@
                                 <label for="tim" class="block text-sm font-medium text-gray-700 mb-1">Tim</label>
                                 <input type="text" name="tim" id="tim" value="{{ old('tim') }}" class="w-full h-10 rounded-md border-gray-300 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50 text-sm" placeholder="Tim">
                             </div>
+                        </div>
+                        
+                        <!-- Kolom Kanan -->
+                        <div class="w-full md:w-1/2 px-3">
                             
                             <div class="mb-5">
                                 <label for="jadwal_kegiatan" class="block text-sm font-medium text-gray-700 mb-1">Jadwal Kegiatan</label>
@@ -166,22 +124,6 @@
     <!-- Inisialisasi Tom Select -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const kecamatanSelect = new TomSelect('#id_kecamatan', {
-                placeholder: 'Pilih Kecamatan',
-                searchField: 'text',
-                onChange: function(value) {
-                    if (value) {
-                        fetchDesa(value);
-                    } else {
-                        resetSelect('id_desa');
-                    }
-                }
-            });
-        
-            const desaSelect = new TomSelect('#id_desa', {
-                placeholder: 'Pilih Desa',
-                searchField: 'text'
-            });
         
             function fetchKabupaten(id_provinsi) {
                 fetch(`/get-kabupaten/${id_provinsi}`)
@@ -203,61 +145,6 @@
                         kabupatenSelect.tomselect.addOptions(data.map(kab => ({
                             value: kab.id_kabupaten,
                             text: kab.nama_kabupaten
-                        })));
-                        
-                        // Reset dependent selects
-                        resetSelect('id_kecamatan');
-                        resetSelect('id_desa');
-                    });
-            }
-        
-            function fetchKecamatan(id_kabupaten) {
-                fetch(`/get-kecamatan/${id_kabupaten}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const kecamatanSelect = document.getElementById('id_kecamatan');
-                        kecamatanSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
-                        
-                        data.forEach(kecamatan => {
-                            const option = document.createElement('option');
-                            option.value = kecamatan.id_kecamatan;
-                            option.textContent = kecamatan.nama_kecamatan;
-                            kecamatanSelect.appendChild(option);
-                        });
-                        
-                        // Refresh Tom Select instance
-                        kecamatanSelect.tomselect.clear();
-                        kecamatanSelect.tomselect.clearOptions();
-                        kecamatanSelect.tomselect.addOptions(data.map(kec => ({
-                            value: kec.id_kecamatan,
-                            text: kec.nama_kecamatan
-                        })));
-                        
-                        // Reset dependent select
-                        resetSelect('id_desa');
-                    });
-            }
-        
-            function fetchDesa(id_kecamatan) {
-                fetch(`/get-desa/${id_kecamatan}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const desaSelect = document.getElementById('id_desa');
-                        desaSelect.innerHTML = '<option value="">Pilih Desa</option>';
-                        
-                        data.forEach(desa => {
-                            const option = document.createElement('option');
-                            option.value = desa.id_desa;
-                            option.textContent = desa.nama_desa;
-                            desaSelect.appendChild(option);
-                        });
-                        
-                        // Refresh Tom Select instance
-                        desaSelect.tomselect.clear();
-                        desaSelect.tomselect.clearOptions();
-                        desaSelect.tomselect.addOptions(data.map(des => ({
-                            value: des.id_desa,
-                            text: des.nama_desa
                         })));
                     });
             }

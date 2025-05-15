@@ -1,19 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="icon" href="/Logo BPS.png" type="image/png">
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
-    <title>Report Mitra BPS</title>
+<?php
+$title = 'Report Survei';
+?>
+@include('mitrabps.headerTemp')
     <style>
         .only-print {
             display: none;
@@ -29,19 +17,7 @@
     </style>
 </head>
 <body class="h-full bg-gray-50">
-    <!-- SweetAlert Logic -->
-    @if (session('success'))
-    <script>
-    swal("Success!", "{{ session('success') }}", "success");
-    </script>
-    @endif
-
-    @if ($errors->any()))
-    <script>
-    swal("Error!", "{{ $errors->first() }}", "error");
-    </script>
-    @endif
-    
+    @include('mitrabps.reportSweetAlert')
     <div x-data="{ sidebarOpen: false }" class="flex h-screen">
         <x-sidebar></x-sidebar>
         <div class="flex flex-col flex-1 overflow-hidden">
@@ -158,7 +134,6 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Survei</th>
-                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kecamatan</th>
                                     <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah Mitra</th>
                                     <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal Kegiatan</th>
                                     <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -172,9 +147,6 @@
                                             <div class="text-sm font-medium text-gray-900 whitespace-normal break-words">{{ $survei->nama_survei }}</div>
                                             <div class="text-sm text-gray-500">{{ $survei->tim }}</div>
                                         </div>
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <div class="text-sm text-gray-900">{{ $survei->kecamatan->nama_kecamatan ?? '-' }}</div>
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $survei->mitra_survei_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">

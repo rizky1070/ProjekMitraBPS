@@ -414,7 +414,7 @@ if ($request->filled('tahun')) {
             
             if ($import->getErrors()) {
                 return redirect()->back()
-                    ->with('error', $import->getErrorSummary())
+                    ->with('error', implode('<br>', $import->getErrors()))
                     ->withInput();
             }
 

@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Survei;
 use App\Models\Provinsi;
 use App\Models\Kabupaten;
-use App\Models\Kecamatan;
-use App\Models\Desa;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -35,8 +33,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             // Dapatkan data wilayah
             $provinsi = $this->getProvinsi();
             $kabupaten = $this->getKabupaten($provinsi);
-            $kecamatan = $this->getKecamatan($row, $kabupaten);
-            $desa = $this->getDesa($row, $kecamatan);
 
             // Parse tanggal
             $jadwalMulai = $this->parseDate($row['jadwal'] ?? null);
@@ -52,37 +48,35 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             $today = now();
             $statusSurvei = $this->determineSurveyStatus($today, $jadwalMulai, $jadwalBerakhir);
 
-            // Cek duplikasi data
+            // Cek duplikasi data berdasarkan nama_survei, jadwal_kegiatan, dan jadwal_berakhir_kegiatan
             $existingSurvei = Survei::where('nama_survei', $row['nama_survei'])
-                ->where('jadwal_kegiatan', $jadwalMulai->toDateString())
-                ->where('jadwal_berakhir_kegiatan', $jadwalBerakhir->toDateString())
-                ->where('id_kecamatan', $kecamatan->id_kecamatan)
-                ->where('bulan_dominan', $bulanDominan)
+                ->whereDate('jadwal_kegiatan', $jadwalMulai->toDateString())
+                ->whereDate('jadwal_berakhir_kegiatan', $jadwalBerakhir->toDateString())
                 ->first();
 
             if ($existingSurvei) {
-                // Update data yang sudah ada
+                // Update semua field data yang sudah ada kecuali created_at
                 $existingSurvei->update([
-                    'lokasi_survei' => $row['lokasi_survei'] ?? null,
-                    'id_desa' => $desa->id_desa,
                     'id_kabupaten' => $kabupaten->id_kabupaten,
                     'id_provinsi' => $provinsi->id_provinsi,
                     'kro' => $row['kro'],
+                    'bulan_dominan' => $bulanDominan,
                     'status_survei' => $statusSurvei,
                     'tim' => $row['tim'],
                     'updated_at' => now()
                 ]);
                 
-                Log::info('Data duplikat ditemukan dan diupdate: ', $row);
+                Log::info('Data duplikat ditemukan dan diupdate: ', [
+                    'id' => $existingSurvei->id,
+                    'data' => $row
+                ]);
+                
                 return null;
             }
 
             // Buat data baru jika tidak ada duplikat
             return new Survei([
                 'nama_survei' => $row['nama_survei'],
-                'lokasi_survei' => $row['lokasi_survei'] ?? null,
-                'id_desa' => $desa->id_desa,
-                'id_kecamatan' => $kecamatan->id_kecamatan,
                 'id_kabupaten' => $kabupaten->id_kabupaten,
                 'id_provinsi' => $provinsi->id_provinsi,
                 'kro' => $row['kro'],
@@ -98,7 +92,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
         }
     }
 
-    // Fungsi baru untuk menentukan status survei
     private function determineSurveyStatus(Carbon $today, Carbon $startDate, Carbon $endDate): int
     {
         if ($today->lt($startDate)) {
@@ -135,36 +128,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
         return $kabupaten;
     }
     
-    private function getKecamatan(array $row, $kabupaten)
-    {
-        if (empty($row['kode_kecamatan'])) {
-            throw new \Exception("Kode kecamatan harus diisi");
-        }
-        
-        $kecamatan = Kecamatan::where('kode_kecamatan', $row['kode_kecamatan'])
-            ->where('id_kabupaten', $kabupaten->id_kabupaten)
-            ->first();
-        if (!$kecamatan) {
-            throw new \Exception("Kode kecamatan {$row['kode_kecamatan']} tidak ditemukan di kabupaten {$kabupaten->nama_kabupaten}.");
-        }
-        return $kecamatan;
-    }
-    
-    private function getDesa(array $row, $kecamatan)
-    {
-        if (empty($row['kode_desa'])) {
-            throw new \Exception("Kode desa harus diisi");
-        }
-        
-        $desa = Desa::where('kode_desa', $row['kode_desa'])
-            ->where('id_kecamatan', $kecamatan->id_kecamatan)
-            ->first();
-        if (!$desa) {
-            throw new \Exception("Kode desa {$row['kode_desa']} tidak ditemukan di kecamatan {$kecamatan->nama_kecamatan}.");
-        }
-        return $desa;
-    }
-    
     private function validateDates($jadwalMulai, $jadwalBerakhir)
     {
         if (!$jadwalMulai) {
@@ -179,7 +142,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             throw new \Exception("Tanggal berakhir harus setelah tanggal mulai");
         }
         
-        // Validasi tahun masuk dalam range wajar
         $currentYear = date('Y');
         if ($jadwalMulai->year < 2000 || $jadwalMulai->year > $currentYear + 5) {
             throw new \Exception("Tahun jadwal tidak valid (harus antara 2000-".($currentYear + 5).")");
@@ -193,20 +155,17 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             $months->push($date->format('m-Y'));
         }
 
-        $mostFrequentMonth = $months->countBy()->sortDesc()->keys()->first(); // contoh: "04-2029"
+        $mostFrequentMonth = $months->countBy()->sortDesc()->keys()->first();
         [$bulan, $tahun] = explode('-', $mostFrequentMonth);
-        return Carbon::createFromDate($tahun, $bulan, 1)->toDateString(); // hasil akhir: "2029-04-01"
+        return Carbon::createFromDate($tahun, $bulan, 1)->toDateString();
     }
 
     public function rules(): array
     {
         return [
             'nama_survei' => 'required|string|max:255',
-            'kode_desa' => 'required|string|max:3',
-            'kode_kecamatan' => 'required|string|max:3',
             'kro' => 'required|string|max:100',
             'tim' => 'required|string|max:255',
-            'lokasi_survei' => 'required|string|max:255',
             'jadwal' => 'required',
             'jadwal_berakhir' => 'required|after:jadwal'
         ];   

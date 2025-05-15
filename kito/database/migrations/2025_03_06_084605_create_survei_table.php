@@ -12,10 +12,7 @@ class CreateSurveiTable extends Migration
             $table->id('id_survei');
             $table->unsignedBigInteger('id_provinsi');
             $table->unsignedBigInteger('id_kabupaten');
-            $table->unsignedBigInteger('id_kecamatan');
-            $table->unsignedBigInteger('id_desa');
             $table->string('nama_survei', 1024);
-            $table->string('lokasi_survei', 1024);
             $table->string('kro', 1024)->nullable();
             $table->date('jadwal_kegiatan');
             $table->date('jadwal_berakhir_kegiatan');
@@ -24,9 +21,7 @@ class CreateSurveiTable extends Migration
             $table->string('tim', 1024);
 
             $table->foreign('id_provinsi')->references('id_provinsi')->on('provinsi')->onUpdate('restrict')->onDelete('restrict');
-            $table->foreign('id_kecamatan')->references('id_kecamatan')->on('kecamatan')->onUpdate('restrict')->onDelete('restrict');
             $table->foreign('id_kabupaten')->references('id_kabupaten')->on('kabupaten')->onUpdate('restrict')->onDelete('restrict');
-            $table->foreign('id_desa')->references('id_desa')->on('desa')->onUpdate('restrict')->onDelete('restrict');
         });
     }
 
