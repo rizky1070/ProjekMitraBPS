@@ -73,27 +73,6 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
             throw new \Exception("Tanggal ikut survei {$tglIkut->format('d-m-Y')} melebihi jadwal berakhir survei : {$jadwalBerakhirSurvei->format('d-m-Y')})");
         }
 
-        // Cek apakah mitra sudah terdaftar di survei lain dengan periode yang sama
-        $existingSurvei = MitraSurvei::with('survei')
-        ->where('id_mitra', $mitra->id_mitra)
-        ->whereHas('survei', function($query) use ($jadwalMulaiSurvei, $jadwalBerakhirSurvei) {
-            $query->where(function($q) use ($jadwalMulaiSurvei, $jadwalBerakhirSurvei) {
-                $q->whereBetween('jadwal_kegiatan', [$jadwalMulaiSurvei, $jadwalBerakhirSurvei])
-                ->orWhereBetween('jadwal_berakhir_kegiatan', [$jadwalMulaiSurvei, $jadwalBerakhirSurvei])
-                ->orWhere(function($q2) use ($jadwalMulaiSurvei, $jadwalBerakhirSurvei) {
-                    $q2->where('jadwal_kegiatan', '<=', $jadwalMulaiSurvei)
-                        ->where('jadwal_berakhir_kegiatan', '>=', $jadwalBerakhirSurvei);
-                });
-            });
-        })
-        ->where('id_survei', '!=', $this->id_survei)
-        ->first();
-
-        if ($existingSurvei) {
-        $surveiName = $existingSurvei->survei->nama_survei ?? 'Survei Tanpa Nama';
-
-        throw new \Exception("Mitra dengan SOBAT ID {$sobatId} sudah terdaftar di survei berikut dengan jadwal yang tumpang tindih : {$surveiName}");
-        }
 
         // Cek apakah kombinasi id_mitra dan id_survei sudah ada
         $existingMitra = MitraSurvei::where('id_mitra', $mitra->id_mitra)
