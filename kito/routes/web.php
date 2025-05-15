@@ -366,12 +366,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra');
     Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra.filter');
     Route::get('/ReportMitra/export-mitra', [ReportMitraSurveiController::class, 'exportMitra'])->name('export.mitra');
-    
-    
-    // Halaman Edit SK
-    Route::get('/editSk/{id_survei}', [SKMitraController::class, 'showUploadForm'])->name('editSk');
-    Route::post('/generateSk/{id_survei}', [SKMitraController::class, 'handleUpload'])->name('generateSk'); // Ubah nama route
-    Route::get('/download/{filename}', [SKMitraController::class, 'downloadFile'])->name('downloadFile');
 });
 
 

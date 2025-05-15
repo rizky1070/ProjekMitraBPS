@@ -123,7 +123,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             return (int)$value;
         }
 
-        throw new \Exception("Jenis kelamin harus 'laki-laki' atau 'perempuan'");
+        throw new \Exception("Jenis kelamin harus laki-laki atau perempuan");
     }
     
     /**
@@ -331,7 +331,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                         $validValues = ['laki-laki', 'laki laki', 'laki', 'perempuan', '1', '2'];
                         
                         if (!in_array($value, $validValues)) {
-                            $fail("Jenis kelamin harus 'laki-laki' atau 'perempuan'");
+                            $fail("Jenis kelamin harus laki-laki atau perempuan");
                         }
                     } catch (\Exception $e) {
                         $fail($e->getMessage());
