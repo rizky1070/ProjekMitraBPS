@@ -311,7 +311,10 @@ $title = 'Kelola Survei';
                                         {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - 
                                         {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}
                                     </td>
-                                    @if ($mitra->vol && $mitra->honor && $mitra->posisi_mitra)
+                                    <?php
+                                    $totalHonor = $mitra->honor * $mitra->vol;
+                                    ?>
+                                    @if ($mitra->posisi_mitra)
                                     <!-- Vol -->
                                     <form action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
                                         @csrf
