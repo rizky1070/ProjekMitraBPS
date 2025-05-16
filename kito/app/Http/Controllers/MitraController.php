@@ -283,9 +283,7 @@ if ($request->filled('tahun')) {
         ->pluck('nama_survei', 'nama_survei');
     
     // Query survei mitra dengan filter
-    $query = MitraSurvei::with(['survei' => function($query) {
-        $query->with('kecamatan');
-    }])->where('id_mitra', $id_mitra);
+    $query = MitraSurvei::with(['survei'])->where('id_mitra', $id_mitra);
     
     // Filter nama survei
     if ($request->filled('nama_survei')) {

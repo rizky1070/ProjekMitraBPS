@@ -36,7 +36,18 @@ $title = 'Profil Mitra';
                         width="100" height="100">
 
                     <h2 class="text-xl font-bold mt-2">{{ $mits->nama_lengkap }}</h2>
-                    <h5 class=" mt-2">{{ $mits->sobat_id }}</h5>
+                    <h5 class=" my-2">{{ $mits->sobat_id }}</h5>
+                    <!-- Delete Button -->
+                    <form action="{{ route('mitra.destroy', $mits->id_mitra) }}" method="POST"
+                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus mitra {{ $mits->nama_lengkap }}? SEMUA DATA YANG TERKAIT AKAN DIHAPUS PERMANEN.')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                            class="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-all duration-200"
+                            aria-label="Hapus mitra" title="Hapus permanen mitra ini">
+                            Hapus
+                        </button>
+                    </form>
                 </div>
                 <div class="md:pl-6 w-full">
                     <div class="flex justify-between w-full border-b py-1">
@@ -107,17 +118,6 @@ $title = 'Profil Mitra';
                             </button>
                         </form>
                     </div>
-                    <!-- Delete Button -->
-                    <form action="{{ route('mitra.destroy', $mits->id_mitra) }}" method="POST"
-                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus mitra {{ $mits->nama_lengkap }}? SEMUA DATA YANG TERKAIT AKAN DIHAPUS PERMANEN.')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                            class="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-all duration-200"
-                            aria-label="Hapus mitra" title="Hapus permanen mitra ini">
-                            Hapus
-                        </button>
-                    </form>
                 </div>
             </div>
         </div>
