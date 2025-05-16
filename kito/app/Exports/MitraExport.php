@@ -47,60 +47,73 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
     }
 
     public function query()
-{
-    return $this->query->with(['provinsi', 'kabupaten', 'kecamatan', 'desa', 
-        'survei' => function($query) {
-            $query->withPivot('honor', 'vol')
-                ->when(isset($this->filters['tahun']), function($q) {
-                    $q->whereYear('bulan_dominan', $this->filters['tahun']);
-                })
-                ->when(isset($this->filters['bulan']), function($q) {
-                    $monthNumber = Carbon::parse($this->filters['bulan'])->month;
-                    $q->whereMonth('bulan_dominan', $monthNumber);
-                });
-        }]);
-}
-
-public function map($mitra): array
-{
-    static $count = 0;
-    $count++;
-
-    // Langsung gunakan survei yang sudah difilter dari query
-    $jumlahSurvei = $mitra->survei->count();
-    
-    $namaSurvei = $mitra->survei->isNotEmpty() 
-        ? $mitra->survei->pluck('nama_survei')->filter()->implode(', ') 
-        : '-';
-    
-    $namaSurvei = empty(trim($namaSurvei)) ? '-' : $namaSurvei;
-
-    $totalHonor = 0;
-    foreach ($mitra->survei as $survei) {
-        $honor = $survei->pivot->honor ?? 0;
-        $vol = $survei->pivot->vol ?? 0;
-        $totalHonor += $honor * $vol;
+    {
+        return $this->query->with(['provinsi', 'kabupaten', 'kecamatan', 'desa', 
+            'survei' => function($query) {
+                $query->withPivot('honor', 'vol')
+                    ->when(isset($this->filters['tahun']), function($q) {
+                        $q->whereYear('bulan_dominan', $this->filters['tahun']);
+                    })
+                    ->when(isset($this->filters['bulan']), function($q) {
+                        $monthNumber = Carbon::parse($this->filters['bulan'])->month;
+                        $q->whereMonth('bulan_dominan', $monthNumber);
+                    });
+            }]);
     }
 
-    return [
-        $count,
-        $mitra->sobat_id,
-        $mitra->nama_lengkap,
-        $mitra->email_mitra ?? '-',
-        $mitra->no_hp_mitra ?? '-',
-        $mitra->provinsi->nama_provinsi ?? '-',
-        $mitra->kabupaten->nama_kabupaten ?? '-',
-        $mitra->kecamatan->nama_kecamatan ?? '-',
-        $mitra->desa->nama_desa ?? '-',
-        $mitra->alamat_mitra ?? '-',
-        $mitra->tahun ? Carbon::parse($mitra->tahun)->format('d/m/Y') : '-',
-        $mitra->tahun_selesai ? Carbon::parse($mitra->tahun_selesai)->format('d/m/Y') : '-',
-        $jumlahSurvei,
-        $namaSurvei,
-        $totalHonor,
-        $jumlahSurvei > 0 ? 'Aktif' : 'Tidak Aktif'
-    ];
-}
+    public function map($mitra): array
+    {
+        static $count = 0;
+        $count++;
+
+        $jumlahSurvei = $mitra->survei->count();
+        
+        $namaSurvei = $mitra->survei->isNotEmpty() 
+            ? $mitra->survei->pluck('nama_survei')->filter()->implode(', ') 
+            : '-';
+        
+        $namaSurvei = empty(trim($namaSurvei)) ? '-' : $namaSurvei;
+
+        $totalHonor = 0;
+        foreach ($mitra->survei as $survei) {
+            $honor = $survei->pivot->honor ?? 0;
+            $vol = $survei->pivot->vol ?? 0;
+            $totalHonor += $honor * $vol;
+        }
+
+        return [
+            $count,
+            $mitra->sobat_id,
+            $mitra->nama_lengkap,
+            $mitra->email_mitra ?? '-',
+            $this->formatPhoneNumber($mitra->no_hp_mitra ?? null),
+            $mitra->provinsi->nama_provinsi ?? '-',
+            $mitra->kabupaten->nama_kabupaten ?? '-',
+            $mitra->kecamatan->nama_kecamatan ?? '-',
+            $mitra->desa->nama_desa ?? '-',
+            $mitra->alamat_mitra ?? '-',
+            $mitra->tahun ? Carbon::parse($mitra->tahun)->format('d/m/Y') : '-',
+            $mitra->tahun_selesai ? Carbon::parse($mitra->tahun_selesai)->format('d/m/Y') : '-',
+            $jumlahSurvei,
+            $namaSurvei,
+            $totalHonor,
+            $jumlahSurvei > 0 ? 'Aktif' : 'Tidak Aktif'
+        ];
+    }
+
+    private function formatPhoneNumber(?string $number): string
+    {
+        if (empty($number)) {
+            return '-';
+        }
+
+        // Jika nomor mengandung karakter non-digit (misal +, spasi, dll)
+        if (!ctype_digit($number)) {
+            return '="' . str_replace('"', '""', $number) . '"';
+        }
+
+        return $number;
+    }
 
     public function registerEvents(): array
     {
@@ -116,7 +129,7 @@ public function map($mitra): array
                     ->setBold(true)
                     ->setSize(14);
                 $sheet->getStyle('A'.$row)->getAlignment()
-                    ->setHorizontal('center');
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 $row++;
 
                 // Spasi kosong setelah judul
@@ -176,7 +189,7 @@ public function map($mitra): array
                 $headerStyle = [
                     'font' => ['bold' => true],
                     'fill' => [
-                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'fillType' => Fill::FILL_SOLID,
                         'startColor' => ['argb' => 'FFD3D3D3']
                     ],
                     'borders' => [
@@ -187,12 +200,28 @@ public function map($mitra): array
                 ];
                 $sheet->getStyle('A'.$row.':P'.$row)->applyFromArray($headerStyle);
 
-                // Format kolom Total Honor
-                $sheet->getStyle('O')->getNumberFormat()->setFormatCode('#,##0');
+                // Format kolom
+                $sheet->getStyle('O')
+                    ->getNumberFormat()
+                    ->setFormatCode('#,##0');
+
+                // Format kolom Nomor HP sebagai Text
+                $sheet->getStyle('E')
+                    ->getNumberFormat()
+                    ->setFormatCode(NumberFormat::FORMAT_TEXT);
 
                 // Set kolom auto-size
                 foreach (range('A', 'P') as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
+                }
+
+                // Backup: Force text format for phone numbers
+                $highestRow = $sheet->getHighestRow();
+                for ($rowNum = 2; $rowNum <= $highestRow; $rowNum++) {
+                    $cellValue = $sheet->getCell('E' . $rowNum)->getValue();
+                    if ($cellValue !== '-' && $cellValue !== null) {
+                        $sheet->setCellValue('E' . $rowNum, "'" . $cellValue);
+                    }
                 }
             },
         ];

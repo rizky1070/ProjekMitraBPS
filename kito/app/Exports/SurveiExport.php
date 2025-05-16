@@ -22,9 +22,6 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
         'Nama Survei',
         'Provinsi',
         'Kabupaten',
-        'Kecamatan',
-        'Desa',
-        'Lokasi Survei',
         'KRO',
         'Tim',
         'Tanggal Mulai Survei',
@@ -64,9 +61,6 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
             $survei->nama_survei,
             $survei->provinsi->kode_provinsi ?? '-',
             $survei->kabupaten->kode_kabupaten ?? '-',
-            $survei->kecamatan->kode_kecamatan ?? '-',
-            $survei->desa->kode_desa ?? '-',
-            $survei->lokasi_survei,
             $survei->kro,
             $survei->tim,
             Carbon::parse($survei->jadwal_kegiatan)->format('d/m/Y'),
@@ -176,7 +170,6 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
         $labels = [
             'tahun' => 'Tahun',
             'bulan' => 'Bulan',
-            'kecamatan' => 'Kecamatan',
             'nama_survei' => 'Nama Survei',
             'status_survei' => 'Status Survei'
         ];

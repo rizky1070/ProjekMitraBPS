@@ -219,7 +219,6 @@ class DaftarSurveiBpsController extends Controller
             $query->where('mitra.nama_lengkap', $request->nama_lengkap);
         })
         ->orderByDesc('posisi_mitra')
-        ->orderByRaw('mitra.id_kecamatan = ? DESC', [$survey->id_kecamatan])
         ->paginate(10);
 
         return view('mitrabps.editSurvei', compact(

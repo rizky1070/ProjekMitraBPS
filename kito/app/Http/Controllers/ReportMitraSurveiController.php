@@ -469,7 +469,7 @@ class ReportMitraSurveiController extends Controller
     public function exportSurvei(Request $request)
     {
         // Gunakan query yang sama dengan report
-        $surveisQuery = Survei::with(['kecamatan', 'provinsi', 'kabupaten', 'desa', 'mitraSurvei'])
+        $surveisQuery = Survei::with(['provinsi', 'kabupaten', 'mitraSurvei'])
             ->withCount(['mitraSurvei as total_mitra' => function ($query) use ($request) {
                 if ($request->filled('tahun')) {
                     $query->whereYear('bulan_dominan', $request->tahun);
@@ -483,9 +483,6 @@ class ReportMitraSurveiController extends Controller
             })
             ->when($request->filled('bulan'), function ($query) use ($request) {
                 $query->whereMonth('bulan_dominan', $request->bulan);
-            })
-            ->when($request->filled('kecamatan'), function ($query) use ($request) {
-                $query->where('id_kecamatan', $request->kecamatan);
             })
             ->when($request->filled('nama_survei'), function ($query) use ($request) {
                 $query->where('nama_survei', $request->nama_survei);
@@ -507,10 +504,6 @@ class ReportMitraSurveiController extends Controller
             $monthName = \Carbon\Carbon::create()->month($request->bulan)->translatedFormat('F');
             $filters['bulan'] = $monthName;
         }
-        if ($request->filled('kecamatan')) {
-            $kecamatan = Kecamatan::find($request->kecamatan);
-            $filters['kecamatan'] = $kecamatan ? $kecamatan->nama_kecamatan : $request->kecamatan;
-        }
         if ($request->filled('nama_survei')) $filters['nama_survei'] = $request->nama_survei;
         if ($request->filled('status_survei')) {
             $filters['status_survei'] = $request->status_survei == 'aktif' ? 'Aktif' : 'Tidak Aktif';
@@ -528,9 +521,6 @@ class ReportMitraSurveiController extends Controller
             }
             if ($request->filled('bulan')) {
                 $q->whereMonth('bulan_dominan', $request->bulan);
-            }
-            if ($request->filled('kecamatan')) {
-                $q->where('id_kecamatan', $request->kecamatan);
             }
             if ($request->filled('nama_survei')) {
                 $q->where('nama_survei', $request->nama_survei);
