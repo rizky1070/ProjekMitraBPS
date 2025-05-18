@@ -83,10 +83,10 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
 
         return [
             $count,
-            $mitra->sobat_id,
+            ' ' . $mitra->sobat_id,
             $mitra->nama_lengkap,
             $mitra->email_mitra ?? '-',
-            $this->formatPhoneNumber($mitra->no_hp_mitra ?? null),
+            ' ' . $mitra->no_hp_mitra ?? null,
             $mitra->provinsi->nama_provinsi ?? '-',
             $mitra->kabupaten->nama_kabupaten ?? '-',
             $mitra->kecamatan->nama_kecamatan ?? '-',
@@ -94,9 +94,9 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
             $mitra->alamat_mitra ?? '-',
             $mitra->tahun ? Carbon::parse($mitra->tahun)->format('d/m/Y') : '-',
             $mitra->tahun_selesai ? Carbon::parse($mitra->tahun_selesai)->format('d/m/Y') : '-',
-            $jumlahSurvei,
-            $namaSurvei,
-            $totalHonor,
+            $jumlahSurvei ?? '-',
+            $namaSurvei ?? '-',
+            $totalHonor ?? '-',
             $jumlahSurvei > 0 ? 'Aktif' : 'Tidak Aktif'
         ];
     }
@@ -205,24 +205,11 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
                     ->getNumberFormat()
                     ->setFormatCode('#,##0');
 
-                // Format kolom Nomor HP sebagai Text
-                $sheet->getStyle('E')
-                    ->getNumberFormat()
-                    ->setFormatCode(NumberFormat::FORMAT_TEXT);
-
                 // Set kolom auto-size
                 foreach (range('A', 'P') as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
 
-                // Backup: Force text format for phone numbers
-                $highestRow = $sheet->getHighestRow();
-                for ($rowNum = 2; $rowNum <= $highestRow; $rowNum++) {
-                    $cellValue = $sheet->getCell('E' . $rowNum)->getValue();
-                    if ($cellValue !== '-' && $cellValue !== null) {
-                        $sheet->setCellValue('E' . $rowNum, "'" . $cellValue);
-                    }
-                }
             },
         ];
     }
