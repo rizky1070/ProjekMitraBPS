@@ -26,8 +26,8 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
         'Tim',
         'Tanggal Mulai Survei',
         'Tanggal Selesai Survei',
-        'Jumlah Responden',
-        'Sobat ID Responden',
+        'Jumlah Mitra',
+        'Sobat ID Mitra',
         'Status'
     ];
 
@@ -93,7 +93,7 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
 
                 // Tanggal Export
                 $sheet->setCellValue('A'.$row, 'Tanggal Export: ' . Carbon::now()->format('d/m/Y H:i'));
-                $sheet->mergeCells('A'.$row.':N'.$row);
+                $sheet->mergeCells('A'.$row.':K'.$row);
                 $sheet->getStyle('A'.$row)->getFont()->setItalic(true);
                 $row++;
 
@@ -103,14 +103,14 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                 // Informasi Filter
                 if (!empty($this->filters)) {
                     $sheet->setCellValue('A'.$row, 'Filter yang digunakan:');
-                    $sheet->mergeCells('A'.$row.':N'.$row);
+                    $sheet->mergeCells('A'.$row.':K'.$row);
                     $sheet->getStyle('A'.$row)->getFont()->setBold(true);
                     $row++;
 
                     foreach ($this->filters as $key => $value) {
                         $label = $this->getFilterLabel($key);
                         $sheet->setCellValue('A'.$row, $label.': '.$value);
-                        $sheet->mergeCells('A'.$row.':N'.$row);
+                        $sheet->mergeCells('A'.$row.':K'.$row);
                         $row++;
                     }
 
@@ -131,9 +131,6 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                 $sheet->mergeCells('I'.$row.':L'.$row);
                 $sheet->getStyle('I'.$row)->getFont()->setBold(true);
 
-                $sheet->setCellValue('M'.$row, 'Total Responden: '.$this->totals['totalMitraIkut']);
-                $sheet->mergeCells('M'.$row.':N'.$row);
-                $sheet->getStyle('M'.$row)->getFont()->setBold(true);
 
                 // Spasi kosong sebelum header
                 $row += 2;
@@ -155,10 +152,10 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                         ],
                     ],
                 ];
-                $sheet->getStyle('A'.$row.':N'.$row)->applyFromArray($headerStyle);
+                $sheet->getStyle('A'.$row.':K'.$row)->applyFromArray($headerStyle);
 
                 // Set kolom auto-size
-                foreach (range('A', 'N') as $column) {
+                foreach (range('A', 'K') as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
             },
