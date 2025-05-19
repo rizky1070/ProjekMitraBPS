@@ -489,7 +489,7 @@ $mitras = $mitrasQuery->orderByDesc('posisi_mitra')->paginate(10);
                 
                 $formattedErrors = [];
                 foreach ($rowErrors as $row => $error) {
-                    $formattedErrors[] = "Baris {$row} - {$error}";
+                    $formattedErrors[] = "Baris " . ($row - 1) . " - {$error}";
                 }
                 
                 return redirect()->back()

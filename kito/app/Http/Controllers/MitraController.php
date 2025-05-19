@@ -354,7 +354,7 @@ if ($request->filled('tahun')) {
     
     public function penilaianMitra($id_survei)
     {
-        $surMit = MitraSurvei::with(['survei.kecamatan','mitra']) // Menarik data survei dan kecamatan
+        $surMit = MitraSurvei::with(['survei','mitra']) // Menarik data survei dan mitra
             ->where('id_survei', $id_survei)
             ->first();
 
