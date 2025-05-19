@@ -16,13 +16,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
     private $errors = [];
     private $defaultProvinsi = '35';
     private $defaultKabupaten = '16';
-    private $currentDate;
     
-    public function __construct()
-    {
-        $this->currentDate = Carbon::now();
-    }
-
     public function model(array $row)
     {
         static $rowNumber = 1;
@@ -40,19 +34,9 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             $provinsi = $this->getProvinsi();
             $kabupaten = $this->getKabupaten($provinsi);
 
-            // Parse tanggal mulai
-            $jadwalMulai = $this->parseTanggal($row['jadwal'] ?? null);
-            if (empty($row['jadwal'])) {
-                throw new \Exception("Jadwal mulai harus diisi");
-            }
-
-            // Parse tanggal berakhir
-            $jadwalBerakhir = $this->parseTanggal($row['jadwal_berakhir'] ?? null);
-            if (empty($row['jadwal_berakhir'])) {
-                // Jika tanggal berakhir kosong, gunakan 1 hari setelah tanggal mulai
-                $jadwalBerakhir = $jadwalMulai->copy()->addDay();
-                Log::info("Data baris ke-{$row['__row__']}: Kolom jadwal_berakhir kosong, menggunakan 1 hari setelah tanggal mulai");
-            }
+            // Parse tanggal
+            $jadwalMulai = $this->parseDate($row['jadwal'] ?? null);
+            $jadwalBerakhir = $this->parseDate($row['jadwal_berakhir'] ?? null);
 
             // Validasi tanggal
             $this->validateDates($jadwalMulai, $jadwalBerakhir);
@@ -61,16 +45,17 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             $bulanDominan = $this->calculateDominantMonth($jadwalMulai, $jadwalBerakhir);
 
             // Set status_survei berdasarkan tanggal hari ini
-            $statusSurvei = $this->determineSurveyStatus($this->currentDate, $jadwalMulai, $jadwalBerakhir);
+            $today = now();
+            $statusSurvei = $this->determineSurveyStatus($today, $jadwalMulai, $jadwalBerakhir);
 
-            // Cek duplikasi data
+            // Cek duplikasi data berdasarkan nama_survei, jadwal_kegiatan, dan jadwal_berakhir_kegiatan
             $existingSurvei = Survei::where('nama_survei', $row['nama_survei'])
                 ->whereDate('jadwal_kegiatan', $jadwalMulai->toDateString())
                 ->whereDate('jadwal_berakhir_kegiatan', $jadwalBerakhir->toDateString())
                 ->first();
 
             if ($existingSurvei) {
-                // Update data yang sudah ada
+                // Update semua field data yang sudah ada kecuali created_at
                 $existingSurvei->update([
                     'id_kabupaten' => $kabupaten->id_kabupaten,
                     'id_provinsi' => $provinsi->id_provinsi,
@@ -181,104 +166,41 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             'nama_survei' => 'required|string|max:255',
             'kro' => 'required|string|max:100',
             'tim' => 'required|string|max:255',
-            'jadwal' => [
-                'required',
-                function ($attribute, $value, $fail) {
-                    try {
-                        $this->parseTanggal($value);
-                    } catch (\Exception $e) {
-                        $fail("Format tanggal tidak valid. Gunakan format: YYYY-MM-DD, DD-MM-YYYY, MM-DD-YYYY, atau angka serial Excel");
-                    }
-                }
-            ],
-            'jadwal_berakhir' => [
-                'required',
-                function ($attribute, $value, $fail) {
-                    try {
-                        $this->parseTanggal($value);
-                    } catch (\Exception $e) {
-                        $fail("Format tanggal tidak valid. Gunakan format: YYYY-MM-DD, DD-MM-YYYY, MM-DD-YYYY, atau angka serial Excel");
-                    }
-                },
-                function ($attribute, $value, $fail) {
-                    try {
-                        $jadwal = $this->parseTanggal(request()->input('jadwal'));
-                        $jadwalBerakhir = $this->parseTanggal($value);
-                        
-                        if ($jadwalBerakhir->lt($jadwal)) {
-                            $fail("Tanggal berakhir harus setelah tanggal mulai");
-                        }
-                    } catch (\Exception $e) {
-                        // Skip jika parsing gagal, sudah dihandle oleh validator sebelumnya
-                    }
-                }
-            ]
+            'jadwal' => 'required',
+            'jadwal_berakhir' => 'required|after:jadwal'
         ];   
     }
     
-    private function parseTanggal($tanggal)
+    private function parseDate($date)
     {
         try {
-            if (empty($tanggal)) {
+            if (empty($date)) {
                 return null;
             }
 
-            // Jika sudah dalam format Carbon atau DateTime, langsung return
-            if ($tanggal instanceof \DateTimeInterface) {
-                return Carbon::instance($tanggal);
+            if ($date instanceof \DateTimeInterface) {
+                return Carbon::instance($date);
             }
 
-            // Handle Excel date serial number (angka)
-            if (is_numeric($tanggal)) {
-                // Excel date serial number (1 = 1 Jan 1900)
-                if ($tanggal > 60) {
-                    $tanggal -= 1; // Koreksi bug Excel 1900
-                }
-                $unixDate = ($tanggal - 25569) * 86400; // 25569 = days between 1970 and 1900
+            if (is_numeric($date)) {
+                $unixDate = ($date - 25569) * 86400;
                 return Carbon::createFromTimestamp($unixDate);
             }
 
-            // Handle string dates
-            if (is_string($tanggal)) {
-                // Coba parse dari format Excel string (misal "3/14/2023")
-                $normalized = str_replace(['/', '.'], '-', $tanggal);
-                
-                // Coba berbagai format umum
-                $formatsToTry = [
-                    'Y-m-d',    // 2023-03-14
-                    'm-d-Y',     // 03-14-2023
-                    'd-m-Y',      // 14-03-2023
-                    'Y/m/d',     // 2023/03/14 (sudah dinormalisasi ke -)
-                    'm/d/Y',     // 03/14/2023 (sudah dinormalisasi ke -)
-                    'd/m/Y',     // 14/03/2023 (sudah dinormalisasi ke -)
-                    'Ymd',        // 20230314
-                    'm-d-y',      // 03-14-23
-                    'd-m-y',      // 14-03-23
-                    'M j, Y',     // Mar 14, 2023
-                    'j M Y',      // 14 Mar 2023
-                ];
-                
-                foreach ($formatsToTry as $format) {
-                    try {
-                        return Carbon::createFromFormat($format, $normalized);
-                    } catch (\Exception $e) {
-                        continue;
-                    }
+            if (is_string($date)) {
+                if (preg_match('/^\d+$/', $date)) {
+                    $unixDate = ($date - 25569) * 86400;
+                    return Carbon::createFromTimestamp($unixDate);
                 }
                 
-                // Coba parse dengan Carbon secara otomatis
-                try {
-                    return Carbon::parse($normalized);
-                } catch (\Exception $e) {
-                    throw new \Exception("Format tanggal tidak dikenali");
-                }
+                return Carbon::parse($date);
             }
 
             throw new \Exception("Format tanggal tidak dikenali");
             
         } catch (\Exception $e) {
-            Log::error("Gagal parsing tanggal: {$tanggal} - Error: " . $e->getMessage());
-            throw new \Exception("Format tanggal tidak valid: {$tanggal}. Format yang diterima: YYYY-MM-DD, DD-MM-YYYY, MM-DD-YYYY, atau angka serial Excel");
+            Log::error("Gagal parsing tanggal: {$date} - Error: " . $e->getMessage());
+            throw new \Exception("Format tanggal tidak valid: {$date}");
         }
     }
     
