@@ -1,176 +1,216 @@
 <?php
 
-namespace App\Exports;
+namespace App\Imports;
 
-use Maatwebsite\Excel\Concerns\FromQuery;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\BeforeSheet;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
+use Illuminate\Support\Facades\Log;
 use App\Models\Survei;
+use App\Models\Provinsi;
+use App\Models\Kabupaten;
+use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
 use Carbon\Carbon;
 
-class SurveiExport implements FromQuery, WithMapping, WithEvents
+class SurveiImport implements ToModel, WithHeadingRow, WithValidation
 {
-    protected $query;
-    protected $filters;
-    protected $totals;
-
-    protected $headings = [
-        'No',
-        'Nama Survei',
-        'Provinsi',
-        'Kabupaten',
-        'KRO',
-        'Tim',
-        'Tanggal Mulai Survei',
-        'Tanggal Selesai Survei',
-        'Jumlah Mitra',
-        'Sobat ID Mitra',
-        'Status'
-    ];
-
-    public function __construct($query, $filters = [], $totals = [])
+    private $errors = [];
+    private $defaultProvinsi = '35';
+    private $defaultKabupaten = '16';
+    
+    public function model(array $row)
     {
-        $this->query = $query;
-        $this->filters = $filters;
-        $this->totals = $totals;
+        static $rowNumber = 1;
+        $row['__row__'] = $rowNumber++;
+
+        try {
+            // Skip baris kosong
+            if ($this->isEmptyRow($row)) {
+                return null;
+            }
+
+            Log::info('Importing row: ', $row);
+
+            // Dapatkan data wilayah
+            $provinsi = $this->getProvinsi();
+            $kabupaten = $this->getKabupaten($provinsi);
+
+            // Parse tanggal
+            $jadwalMulai = $this->parseDate($row['jadwal'] ?? null);
+            $jadwalBerakhir = $this->parseDate($row['jadwal_berakhir'] ?? null);
+
+            // Validasi tanggal
+            $this->validateDates($jadwalMulai, $jadwalBerakhir);
+
+            // Hitung bulan dominan
+            $bulanDominan = $this->calculateDominantMonth($jadwalMulai, $jadwalBerakhir);
+
+            // Set status_survei berdasarkan tanggal hari ini
+            $today = now();
+            $statusSurvei = $this->determineSurveyStatus($today, $jadwalMulai, $jadwalBerakhir);
+
+            // Cek duplikasi data berdasarkan nama_survei, jadwal_kegiatan, dan jadwal_berakhir_kegiatan
+            $existingSurvei = Survei::where('nama_survei', $row['nama_survei'])
+                ->whereDate('jadwal_kegiatan', $jadwalMulai->toDateString())
+                ->whereDate('jadwal_berakhir_kegiatan', $jadwalBerakhir->toDateString())
+                ->first();
+
+            if ($existingSurvei) {
+                // Update semua field data yang sudah ada kecuali created_at
+                $existingSurvei->update([
+                    'id_kabupaten' => $kabupaten->id_kabupaten,
+                    'id_provinsi' => $provinsi->id_provinsi,
+                    'kro' => $row['kro'],
+                    'bulan_dominan' => $bulanDominan,
+                    'status_survei' => $statusSurvei,
+                    'tim' => $row['tim'],
+                    'updated_at' => now()
+                ]);
+                
+                Log::info('Data duplikat ditemukan dan diupdate: ', [
+                    'id' => $existingSurvei->id,
+                    'data' => $row
+                ]);
+                
+                return null;
+            }
+
+            // Buat data baru jika tidak ada duplikat
+            return new Survei([
+                'nama_survei' => $row['nama_survei'],
+                'id_kabupaten' => $kabupaten->id_kabupaten,
+                'id_provinsi' => $provinsi->id_provinsi,
+                'kro' => $row['kro'],
+                'jadwal_kegiatan' => $jadwalMulai,
+                'jadwal_berakhir_kegiatan' => $jadwalBerakhir,
+                'bulan_dominan' => $bulanDominan,
+                'status_survei' => $statusSurvei,
+                'tim' => $row['tim']
+            ]);
+        } catch (\Exception $e) {
+            $this->errors[] = "Baris {$row['__row__']} : " . $e->getMessage();
+            return null;
+        }
     }
 
-    public function query()
+    private function determineSurveyStatus(Carbon $today, Carbon $startDate, Carbon $endDate): int
     {
-        return $this->query;
+        if ($today->lt($startDate)) {
+            return 1; // Belum dimulai
+        } elseif ($today->gt($endDate)) {
+            return 3; // Sudah selesai
+        } else {
+            return 2; // Sedang berjalan
+        }
     }
 
-    public function map($survei): array
+    private function isEmptyRow(array $row): bool
     {
-        static $count = 0;
-        $count++;
+        return empty($row['nama_survei']) && empty($row['kro']) && empty($row['tim']);
+    }
+    
+    private function getProvinsi()
+    {
+        $provinsi = Provinsi::where('id_provinsi', $this->defaultProvinsi)->first();
+        if (!$provinsi) {
+            throw new \Exception("Provinsi default (kode: {$this->defaultProvinsi}) tidak ditemukan di database.");
+        }
+        return $provinsi;
+    }
+    
+    private function getKabupaten($provinsi)
+    {
+        $kabupaten = Kabupaten::where('id_kabupaten', $this->defaultKabupaten)
+            ->where('id_provinsi', $provinsi->id_provinsi)
+            ->first();
+        if (!$kabupaten) {
+            throw new \Exception("Kabupaten default (kode: {$this->defaultKabupaten}) tidak ditemukan di provinsi {$provinsi->nama}.");
+        }
+        return $kabupaten;
+    }
+    
+    private function validateDates($jadwalMulai, $jadwalBerakhir)
+    {
+        if (!$jadwalMulai) {
+            throw new \Exception("Tanggal jadwal mulai tidak valid");
+        }
+        
+        if (!$jadwalBerakhir) {
+            throw new \Exception("Tanggal jadwal berakhir tidak valid");
+        }
+        
+        if ($jadwalBerakhir->lt($jadwalMulai)) {
+            throw new \Exception("Tanggal berakhir harus setelah tanggal mulai");
+        }
+        
+        $currentYear = date('Y');
+        if ($jadwalMulai->year < 2000 || $jadwalMulai->year > $currentYear + 5) {
+            throw new \Exception("Tahun jadwal tidak valid (harus antara 2000-".($currentYear + 5).")");
+        }
+    }
 
-        $jumlahResponden = $survei->total_mitra ?? 0;
+    private function calculateDominantMonth(Carbon $start, Carbon $end): string
+    {
+        $months = collect();
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            $months->push($date->format('m-Y'));
+        }
 
-        $namaResponden = $survei->mitraSurvei->isNotEmpty()
-            ? $survei->mitraSurvei->pluck('sobat_id')->filter()->implode(', ')
-            : '-';
+        $mostFrequentMonth = $months->countBy()->sortDesc()->keys()->first();
+        [$bulan, $tahun] = explode('-', $mostFrequentMonth);
+        return Carbon::createFromDate($tahun, $bulan, 1)->toDateString();
+    }
 
-        $namaResponden = empty(trim($namaResponden)) ? '-' : $namaResponden;
-
+    public function rules(): array
+    {
         return [
-            $count,
-            $survei->nama_survei,
-            $survei->provinsi->kode_provinsi ?? '-',
-            $survei->kabupaten->kode_kabupaten ?? '-',
-            $survei->kro,
-            $survei->tim,
-            Carbon::parse($survei->jadwal_kegiatan)->format('d/m/Y'),
-            Carbon::parse($survei->jadwal_berakhir_kegiatan)->format('d/m/Y'),
-            $jumlahResponden,
-            $namaResponden,
-            $jumlahResponden > 0 ? 'Aktif' : 'Tidak Aktif'
-        ];
+            'nama_survei' => 'required|string|max:255',
+            'kro' => 'required|string|max:100',
+            'tim' => 'required|string|max:255',
+            'jadwal' => 'required',
+            'jadwal_berakhir' => 'required|after:jadwal'
+        ];   
     }
-
-    public function registerEvents(): array
+    
+    private function parseDate($date)
     {
-        return [
-            BeforeSheet::class => function(BeforeSheet $event) {
-                $sheet = $event->sheet->getDelegate();
-                $row = 1;
+        try {
+            if (empty($date)) {
+                return null;
+            }
 
-                // Judul Laporan
-                $sheet->setCellValue('A'.$row, 'LAPORAN DATA SURVEI');
-                $sheet->mergeCells('A'.$row.':N'.$row);
-                $sheet->getStyle('A'.$row)->getFont()
-                    ->setBold(true)
-                    ->setSize(14);
-                $sheet->getStyle('A'.$row)->getAlignment()
-                    ->setHorizontal('center');
-                $row++;
+            if ($date instanceof \DateTimeInterface) {
+                return Carbon::instance($date);
+            }
 
-                // Spasi kosong setelah judul
-                $row++;
+            if (is_numeric($date)) {
+                $unixDate = ($date - 25569) * 86400;
+                return Carbon::createFromTimestamp($unixDate);
+            }
 
-                // Tanggal Export
-                $sheet->setCellValue('A'.$row, 'Tanggal Export: ' . Carbon::now()->format('d/m/Y H:i'));
-                $sheet->mergeCells('A'.$row.':K'.$row);
-                $sheet->getStyle('A'.$row)->getFont()->setItalic(true);
-                $row++;
-
-                // Spasi kosong setelah tanggal export
-                $row++;
-
-                // Informasi Filter
-                if (!empty($this->filters)) {
-                    $sheet->setCellValue('A'.$row, 'Filter yang digunakan:');
-                    $sheet->mergeCells('A'.$row.':K'.$row);
-                    $sheet->getStyle('A'.$row)->getFont()->setBold(true);
-                    $row++;
-
-                    foreach ($this->filters as $key => $value) {
-                        $label = $this->getFilterLabel($key);
-                        $sheet->setCellValue('A'.$row, $label.': '.$value);
-                        $sheet->mergeCells('A'.$row.':K'.$row);
-                        $row++;
-                    }
-
-                    // Spasi kosong setelah filter
-                    $row++;
+            if (is_string($date)) {
+                if (preg_match('/^\d+$/', $date)) {
+                    $unixDate = ($date - 25569) * 86400;
+                    return Carbon::createFromTimestamp($unixDate);
                 }
+                
+                return Carbon::parse($date);
+            }
 
-                // Informasi Total
-                $sheet->setCellValue('A'.$row, 'Total Survei: '.$this->totals['totalSurvei']);
-                $sheet->mergeCells('A'.$row.':D'.$row);
-                $sheet->getStyle('A'.$row)->getFont()->setBold(true);
-
-                $sheet->setCellValue('E'.$row, 'Aktif: '.$this->totals['totalSurveiAktif']);
-                $sheet->mergeCells('E'.$row.':H'.$row);
-                $sheet->getStyle('E'.$row)->getFont()->setBold(true);
-
-                $sheet->setCellValue('I'.$row, 'Tidak Aktif: '.$this->totals['totalSurveiTidakAktif']);
-                $sheet->mergeCells('I'.$row.':L'.$row);
-                $sheet->getStyle('I'.$row)->getFont()->setBold(true);
-
-
-                // Spasi kosong sebelum header
-                $row += 2;
-
-
-                // Header
-                $sheet->fromArray($this->headings, null, 'A'.$row);
-
-                // Style Header
-                $headerStyle = [
-                    'font' => ['bold' => true],
-                    'fill' => [
-                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'startColor' => ['argb' => 'FFD3D3D3']
-                    ],
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => Border::BORDER_THIN,
-                        ],
-                    ],
-                ];
-                $sheet->getStyle('A'.$row.':K'.$row)->applyFromArray($headerStyle);
-
-                // Set kolom auto-size
-                foreach (range('A', 'K') as $column) {
-                    $sheet->getColumnDimension($column)->setAutoSize(true);
-                }
-            },
-        ];
+            throw new \Exception("Format tanggal tidak dikenali");
+            
+        } catch (\Exception $e) {
+            Log::error("Gagal parsing tanggal: {$date} - Error: " . $e->getMessage());
+            throw new \Exception("Format tanggal tidak valid: {$date}");
+        }
     }
-
-    protected function getFilterLabel($key)
+    
+    public function onError(\Throwable $e)
     {
-        $labels = [
-            'tahun' => 'Tahun',
-            'bulan' => 'Bulan',
-            'nama_survei' => 'Nama Survei',
-            'status_survei' => 'Status Survei'
-        ];
-
-        return $labels[$key] ?? ucfirst(str_replace('_', ' ', $key));
+        $this->errors[] = $e->getMessage();
+    }
+    
+    public function getErrors()
+    {
+        return $this->errors;
     }
 }
