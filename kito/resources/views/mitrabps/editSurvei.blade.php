@@ -45,7 +45,7 @@ $title = 'Kelola Survei';
     swal("Error!", "{!! implode(', ', $errors->all()) !!}", "error");
     </script>
     @endif
-    
+
     <!-- Add this section for honor limit confirmation -->
     @if (session('confirm'))
     <div class="honor-modal" id="honorConfirmModal">
@@ -129,8 +129,6 @@ $title = 'Kelola Survei';
                         <p><strong>Tim :</strong> {{ $survey->tim }}</p>
                         <p><strong>KRO :</strong> {{ $survey->kro }} </p><div class="flex items-center">
                     </div>
-                    <!-- <div class="w-full md:w-1/2">
-                    </div> -->
                 </div>
             </div>
             
@@ -172,6 +170,7 @@ $title = 'Kelola Survei';
                     <button type="button" class="mt-4 px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
                 </div>
             </div>
+            
                 <div class="bg-white rounded-lg shadow-sm p-6">
                     <!-- Year Row -->
                     <form id="filterForm" action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="space-y-4">
@@ -224,6 +223,16 @@ $title = 'Kelola Survei';
                             </div>
                         </div>
                     </form>
+                    @if(session('import_errors'))
+                    <div class="mt-2 mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700">
+                        <h4 class="font-bold">Mitra yang gagal diimport ke survei:</h4>
+                        <ul class="list-disc pl-5">
+                            @foreach(session('import_errors') as $error)
+                                <li class="text-sm">{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
                 </div>
             </div>
                 <!-- JavaScript Tom Select -->

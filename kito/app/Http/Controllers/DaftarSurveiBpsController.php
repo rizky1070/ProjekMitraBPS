@@ -472,38 +472,38 @@ $mitras = $mitrasQuery->orderByDesc('posisi_mitra')->paginate(10);
         $request->validate([
             'file' => 'required|mimes:xlsx,xls'
         ]);
-    
-        $import = new mitra2SurveyImport($id_survei);
-    
+
+        $import = new Mitra2SurveyImport($id_survei);
+
         try {
             Excel::import($import, $request->file('file'));
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-            $failures = $e->failures();
-            $errorMessages = [];
             
-            foreach ($failures as $failure) {
-                $errorMessages[] = "Baris {$failure->row()}: {$failure->errors()[0]}";
+            $successCount = $import->getSuccessCount();
+            $failedCount = $import->getFailedCount();
+            $rowErrors = $import->getRowErrors();
+
+            $message = "Import berhasil! {$successCount} data mitra berhasil diproses.";
+            
+            if ($failedCount > 0) {
+                $message .= " {$failedCount} data mitra gagal diproses.";
+                
+                $formattedErrors = [];
+                foreach ($rowErrors as $row => $error) {
+                    $formattedErrors[] = "Baris {$row} - {$error}";
+                }
+                
+                return redirect()->back()
+                    ->with('success', $message)
+                    ->with('import_errors', $formattedErrors)
+                    ->with('error_details', $rowErrors);
             }
-            
-            return redirect()->back()
-                ->withErrors(['file' => $errorMessages]);
+
+            return redirect()->back()->with('success', $message);
+
         } catch (\Exception $e) {
             return redirect()->back()
-                ->withErrors(['file' => $e->getMessage()]);
+                ->withErrors(['file' => "Error import data mitra: " . $e->getMessage()]);
         }
-    
-        // Tampilkan pesan sukses dengan info baris yang di-skip
-        $message = 'Mitra berhasil diimport ke survei';
-        
-        if (count($import->failures()) > 0) {
-            $message .= '. Beberapa data gagal: ' . count($import->failures()) . ' baris';
-        }
-        
-        if (count($import->errors()) > 0) {
-            $message .= '. Terdapat ' . count($import->errors()) . ' error';
-        }
-    
-        return redirect()->back()->with('success', $message);
     }
 
     public function updateStatus(Request $request, $id_survei)

@@ -17,12 +17,17 @@ use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 use Throwable;
 
-class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
+class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError, SkipsOnFailure
 {
-    use SkipsErrors, SkipsFailures;
+    use SkipsErrors, SkipsFailures {
+        SkipsFailures::onFailure insteadof SkipsErrors;
+    }
 
     protected $id_survei;
     protected $survei;
+    protected $rowErrors = [];
+    protected $successCount = 0;
+    protected $errors = [];
 
     public function __construct($id_survei)
     {
@@ -32,56 +37,76 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
 
     public function model(array $row)
     {
-        $tahunMasuk = $this->parseDate($row['tgl_mitra_diterima']);
-        $tglIkutSurvei = $this->parseDate($row['tgl_ikut_survei']);
+        try {
+            $tahunMasuk = $this->parseDate($row['tgl_mitra_diterima']);
+            $tglIkutSurvei = $this->parseDate($row['tgl_ikut_survei']);
 
-        // Konversi nilai numerik dari berbagai format
-        $sobatId = $this->convertToNumeric($row['sobat_id']);
-        $vol = $this->convertToNumeric($row['vol']);
-        $honor = $this->convertToNumeric($row['rate_honor']);
-        $nilai = isset($row['nilai']) ? $this->convertToNumeric($row['nilai']) : null;
+            // Konversi nilai numerik
+            $sobatId = $this->convertToNumeric($row['sobat_id']);
+            $vol = $this->convertToNumeric($row['vol']);
+            $honor = $this->convertToNumeric($row['rate_honor']);
+            $nilai = isset($row['nilai']) ? $this->convertToNumeric($row['nilai']) : null;
 
-        // Cari mitra berdasarkan sobat_id bulan dan tahun
-        $mitra = Mitra::where('sobat_id', $sobatId)
-                    ->whereMonth('tahun', Carbon::parse($tahunMasuk)->month)
-                    ->whereYear('tahun', Carbon::parse($tahunMasuk)->year)
-                    ->first();
+            // Cari mitra
+            $mitra = Mitra::where('sobat_id', $sobatId)
+                ->whereMonth('tahun', Carbon::parse($tahunMasuk)->month)
+                ->whereYear('tahun', Carbon::parse($tahunMasuk)->year)
+                ->first();
 
-        if (!$mitra) {
-            throw new \Exception("Mitra dengan SOBAT ID {$sobatId} pada bulan " . Carbon::parse($tahunMasuk)->month . " dan tahun masuk " . Carbon::parse($tahunMasuk)->year . " tidak ditemukan");
-        }
+            if (!$mitra) {
+                throw new \Exception("Mitra dengan SOBAT ID {$sobatId} (Nama: {$row['nama_lengkap']}) pada bulan " . 
+                    Carbon::parse($tahunMasuk)->month . " dan tahun masuk " . 
+                    Carbon::parse($tahunMasuk)->year . " tidak ditemukan");
+            }
 
-        // Cek status pekerjaan mitra
-        if ($mitra->status_pekerjaan == 1) {
-            throw new \Exception("Mitra dengan SOBAT ID {$sobatId} tidak dapat ditambahkan karena status pekerjaan bernilai 1");
-        }
+            if (!$mitra) {
+                throw new \Exception("Mitra dengan SOBAT ID {$sobatId} pada bulan " . Carbon::parse($tahunMasuk)->month . " dan tahun masuk " . Carbon::parse($tahunMasuk)->year . " tidak ditemukan");
+            }
 
-        // Pengecekan periode aktif mitra dengan periode survei
-        $jadwalMulaiSurvei = Carbon::parse($this->survei->jadwal_kegiatan);
-        $jadwalBerakhirSurvei = Carbon::parse($this->survei->jadwal_berakhir_kegiatan);
-        $tahunMasukMitra = Carbon::parse($tahunMasuk);
-        $tahunBerakhirMitra = Carbon::parse($mitra->tahun_selesai);
+            // Cek status pekerjaan mitra
+            if ($mitra->status_pekerjaan == 1) {
+                throw new \Exception("Mitra dengan SOBAT ID {$sobatId} tidak dapat ditambahkan karena status pekerjaan bernilai 1");
+            }
 
-        // Cek apakah periode aktif mitra overlap dengan periode survei
-        if ($tahunBerakhirMitra < $jadwalMulaiSurvei || $tahunMasukMitra > $jadwalBerakhirSurvei) {
-            throw new \Exception("Mitra dengan SOBAT ID {$sobatId} tidak aktif pada periode survei ({$jadwalMulaiSurvei->format('d-m-Y')} sampai {$jadwalBerakhirSurvei->format('d-m-Y')})");
-        }
+            // Pengecekan periode aktif mitra dengan periode survei
+            $jadwalMulaiSurvei = Carbon::parse($this->survei->jadwal_kegiatan);
+            $jadwalBerakhirSurvei = Carbon::parse($this->survei->jadwal_berakhir_kegiatan);
+            $tahunMasukMitra = Carbon::parse($tahunMasuk);
+            $tahunBerakhirMitra = Carbon::parse($mitra->tahun_selesai);
 
-        // Cek apakah tgl ikut survei berada dalam periode survei
-        $tglIkut = Carbon::parse($tglIkutSurvei);
-        if ($tglIkut > $jadwalBerakhirSurvei) {
-            throw new \Exception("Tanggal ikut survei {$tglIkut->format('d-m-Y')} melebihi jadwal berakhir survei : {$jadwalBerakhirSurvei->format('d-m-Y')})");
-        }
+            // Cek apakah periode aktif mitra overlap dengan periode survei
+            if ($tahunBerakhirMitra < $jadwalMulaiSurvei || $tahunMasukMitra > $jadwalBerakhirSurvei) {
+                throw new \Exception("Mitra dengan SOBAT ID {$sobatId} tidak aktif pada periode survei ({$jadwalMulaiSurvei->format('d-m-Y')} sampai {$jadwalBerakhirSurvei->format('d-m-Y')})");
+            }
 
+            // Cek apakah tgl ikut survei berada dalam periode survei
+            $tglIkut = Carbon::parse($tglIkutSurvei);
+            if ($tglIkut > $jadwalBerakhirSurvei) {
+                throw new \Exception("Tanggal ikut survei {$tglIkut->format('d-m-Y')} melebihi jadwal berakhir survei : {$jadwalBerakhirSurvei->format('d-m-Y')})");
+            }
 
-        // Cek apakah kombinasi id_mitra dan id_survei sudah ada
-        $existingMitra = MitraSurvei::where('id_mitra', $mitra->id_mitra)
-                                ->where('id_survei', $this->id_survei)
-                                ->first();
+            // Cek apakah kombinasi id_mitra dan id_survei sudah ada
+            $existingMitra = MitraSurvei::where('id_mitra', $mitra->id_mitra)
+                                    ->where('id_survei', $this->id_survei)
+                                    ->first();
+            if ($existingMitra) {
+                // Jika sudah ada, lakukan update
+                $existingMitra->update([
+                    'posisi_mitra' => $row['posisi'],
+                    'vol' => $vol,
+                    'honor' => $honor,
+                    'catatan' => $row['catatan'],
+                    'nilai' => $nilai,
+                    'tgl_ikut_survei' => $tglIkutSurvei,
+                ]);
+                $this->successCount++;
+                return null;
+            }
 
-        if ($existingMitra) {
-            // Jika sudah ada, lakukan update
-            $existingMitra->update([
+            $this->successCount++;
+            return new MitraSurvei([
+                'id_mitra' => $mitra->id_mitra,
+                'id_survei' => $this->id_survei,
                 'posisi_mitra' => $row['posisi'],
                 'vol' => $vol,
                 'honor' => $honor,
@@ -89,19 +114,13 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
                 'nilai' => $nilai,
                 'tgl_ikut_survei' => $tglIkutSurvei,
             ]);
+            
+        }  catch (\Exception $e) {
+            $rowNumber = $this->getRowNumber();
+            $mitraName = $row['nama_lengkap'] ?? 'Tidak diketahui';
+            $this->rowErrors[$rowNumber] = "Mitra {$mitraName}: " . $e->getMessage();
             return null;
         }
-
-        return new MitraSurvei([
-            'id_mitra' => $mitra->id_mitra,
-            'id_survei' => $this->id_survei,
-            'posisi_mitra' => $row['posisi'],
-            'vol' => $vol,
-            'honor' => $honor,
-            'catatan' => $row['catatan'],
-            'nilai' => $nilai,
-            'tgl_ikut_survei' => $tglIkutSurvei,
-        ]);
     }
 
     public function rules(): array
@@ -113,12 +132,6 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
                     // Cek apakah nilai bisa dikonversi ke numerik
                     if (!is_numeric($this->convertToNumeric($value))) {
                         $fail("SOBAT ID harus berupa angka");
-                    }
-                    
-                    // Cek apakah mitra ada di database
-                    $sobatId = $this->convertToNumeric($value);
-                    if (!Mitra::where('sobat_id', $sobatId)->exists()) {
-                        $fail("Mitra dengan SOBAT ID {$sobatId} tidak ditemukan");
                     }
                 }
             ],
@@ -155,27 +168,7 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
                 }
             ],
             'tgl_mitra_diterima' => 'required',
-            'tgl_ikut_survei' => [
-                'required',
-                function ($attribute, $value, $fail) {
-                    if (!$this->survei) {
-                        $fail("Data survei tidak ditemukan");
-                        return;
-                    }
-                    
-                    try {
-                        $tglIkut = Carbon::parse($this->parseDate($value));
-                        $jadwalMulai = Carbon::parse($this->survei->jadwal_kegiatan);
-                        $jadwalBerakhir = Carbon::parse($this->survei->jadwal_berakhir_kegiatan);
-                        
-                        if ($tglIkut > $jadwalBerakhir) {
-                            $fail("Tanggal ikut survei tidak boleh melebihi {$jadwalBerakhir->format('d-m-Y')}");
-                        }
-                    } catch (\Exception $e) {
-                        $fail("Format tanggal tidak valid: {$value}");
-                    }
-                }
-            ],
+            'tgl_ikut_survei' => 'required',
         ];
     }
 
@@ -241,9 +234,39 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
     {
         $this->errors[] = $e->getMessage();
     }
+
+    public function onFailure(...$failures)
+    {
+        foreach ($failures as $failure) {
+            // $failure is an instance of Maatwebsite\Excel\Validators\Failure
+            $rowNumber = $failure->row();
+            $errors = implode(', ', $failure->errors());
+            $this->rowErrors[$rowNumber] = $errors;
+        }
+    }
     
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    public function getRowErrors()
+    {
+        return $this->rowErrors;
+    }
+
+    public function getTotalProcessed()
+    {
+        return count($this->rowErrors) + $this->successCount;
+    }
+
+    public function getSuccessCount()
+    {
+        return $this->successCount;
+    }
+
+    public function getFailedCount()
+    {
+        return count($this->rowErrors);
     }
 }

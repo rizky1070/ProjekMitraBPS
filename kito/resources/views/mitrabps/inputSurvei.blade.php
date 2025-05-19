@@ -46,6 +46,16 @@ $title = 'Input Survei';
                     @endif
                     <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Import Survei</button>
                 </div>
+                @if(session('import_errors'))
+                <div class="mt-2 mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700">
+                    <h4 class="font-bold">Survei yang gagal diimport:</h4>
+                    <ul class="list-disc pl-5">
+                        @foreach(session('import_errors') as $error)
+                            <li class="text-sm">{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
                 <form action="{{ route('simpanSurvei') }}" method="POST">
                     @csrf
                     <div class="flex flex-wrap -mx-3">
@@ -98,16 +108,6 @@ $title = 'Input Survei';
             <p class="mb-2 text-red-700 text-m font-bold">Pastikan format file excel yang diimport sesuai!</p>
             
             <!-- Tambahkan bagian ini untuk menampilkan error import -->
-            @if(session('import_errors'))
-            <div class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700">
-                <h4 class="font-bold">Error Import:</h4>
-                <ul class="list-disc pl-5">
-                    @foreach(session('import_errors') as $error)
-                        <li class="text-sm">{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
             
             <form action="{{ route('upload.excelSurvei') }}" method="POST" enctype="multipart/form-data">
                 @csrf
