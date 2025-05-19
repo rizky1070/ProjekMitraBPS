@@ -184,8 +184,8 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
             'nama_survei' => 'required|string|max:255',
             'kro' => 'required|string|max:100',
             'tim' => 'required|string|max:255',
-            'jadwal' => 'required',
-            'jadwal_berakhir' => 'required'
+            'jadwal' => 'required|string',
+            'jadwal_berakhir' => 'required|after:jadwal|string'
         ];   
     }
     
