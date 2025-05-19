@@ -306,7 +306,7 @@ $title = 'Kelola Survei';
                                         </div>
                                     </td>
                                     <td class="whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
-                                    <td class="whitespace-nowrap text-center" style="max-width: 100px;">{{ $mitra->mitra_survei_count }}</td>
+                                    <td class="whitespace-nowrap text-center" style="max-width: 100px;">{{ $mitra->total_survei }}</td>
                                     <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
                                         {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - 
                                         {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}

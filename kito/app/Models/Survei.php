@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Survei extends Model
 {
@@ -57,6 +58,17 @@ class Survei extends Model
     public function mitra()
     {
         return $this->belongsToMany(Mitra::class, 'mitra_survei', 'id_survei', 'id_mitra');
+    }
+
+    public function getStatusAttribute()
+    {
+        $today = now();
+        $start = Carbon::parse($this->jadwal_kegiatan);
+        $end = Carbon::parse($this->jadwal_berakhir_kegiatan);
+
+        if ($today->lt($start)) return 1;
+        if ($today->gt($end)) return 3;
+        return 2;
     }
 
 }
