@@ -9,11 +9,19 @@ use App\Models\Kabupaten;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Carbon\Carbon;
+use Throwable;
 
-class SurveiImport implements ToModel, WithHeadingRow, WithValidation
+class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError, SkipsOnFailure
 {
-    private $errors = [];
+    use SkipsErrors, SkipsFailures;
+
+    private $rowErrors = [];
+    private $successCount = 0;
     private $defaultProvinsi = '35';
     private $defaultKabupaten = '16';
     
@@ -23,10 +31,15 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
         $row['__row__'] = $rowNumber++;
 
         try {
-            // Skip baris kosong
+            // Skip empty rows
             if ($this->isEmptyRow($row)) {
                 return null;
             }
+
+        // Validate survey name first
+        if (empty($row['nama_survei']) || !is_string($row['nama_survei'])) {
+            throw new \Exception("Nama Survei: Format tidak valid");
+        }
 
             Log::info('Importing row: ', $row);
 
@@ -71,10 +84,12 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
                     'data' => $row
                 ]);
                 
+                $this->successCount++;
                 return null;
             }
 
             // Buat data baru jika tidak ada duplikat
+            $this->successCount++;
             return new Survei([
                 'nama_survei' => $row['nama_survei'],
                 'id_kabupaten' => $kabupaten->id_kabupaten,
@@ -86,9 +101,12 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
                 'status_survei' => $statusSurvei,
                 'tim' => $row['tim']
             ]);
-        } catch (\Exception $e) {
-            $this->errors[] = "Baris {$row['__row__']} : " . $e->getMessage();
-            return null;
+        } 
+        
+        catch (\Exception $e) {
+        $surveyName = $row['nama_survei'] ?? 'Tidak diketahui';
+        $this->rowErrors[$row['__row__']] = "Survei {$surveyName}: " . $e->getMessage();
+        return null;
         }
     }
 
@@ -167,7 +185,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
             'kro' => 'required|string|max:100',
             'tim' => 'required|string|max:255',
             'jadwal' => 'required',
-            'jadwal_berakhir' => 'required|after:jadwal'
+            'jadwal_berakhir' => 'required'
         ];   
     }
     
@@ -204,13 +222,23 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation
         }
     }
     
-    public function onError(\Throwable $e)
+    public function getRowErrors()
     {
-        $this->errors[] = $e->getMessage();
+        return $this->rowErrors;
     }
-    
-    public function getErrors()
+
+    public function getTotalProcessed()
     {
-        return $this->errors;
+        return count($this->rowErrors) + $this->successCount;
+    }
+
+    public function getSuccessCount()
+    {
+        return $this->successCount;
+    }
+
+    public function getFailedCount()
+    {
+        return count($this->rowErrors);
     }
 }

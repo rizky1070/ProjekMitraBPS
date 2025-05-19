@@ -20,6 +20,7 @@ $title = 'Input Survei';
     <script>
     swal("Info!", "{{ session('info') }}", "info");
     </script>
+    
     @endif
     <a href="{{ url('/daftarSurvei') }}" 
     class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
@@ -95,14 +96,27 @@ $title = 'Input Survei';
         <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <h2 class="text-xl font-bold mb-2">Import Survei</h2>
             <p class="mb-2 text-red-700 text-m font-bold">Pastikan format file excel yang diimport sesuai!</p>
+            
+            <!-- Tambahkan bagian ini untuk menampilkan error import -->
+            @if(session('import_errors'))
+            <div class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700">
+                <h4 class="font-bold">Error Import:</h4>
+                <ul class="list-disc pl-5">
+                    @foreach(session('import_errors') as $error)
+                        <li class="text-sm">{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+            
             <form action="{{ route('upload.excelSurvei') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="file" name="file" accept=".xlsx, .xls" class="border p-2 w-full">
-                    <p class="py-2 text-s">Belum punya file excel?  
-                        <a href="{{ asset('addSurvey.xlsx') }} " class=" text-blue-500 hover:text-blue-600 font-bold">
-                            Download template disini.
-                        </a>
-                    </p>
+                <p class="py-2 text-s">Belum punya file excel?  
+                    <a href="{{ asset('addSurvey.xlsx') }}" class="text-blue-500 hover:text-blue-600 font-bold">
+                        Download template disini.
+                    </a>
+                </p>
                 <div class="flex justify-end mt-4">
                     <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md mr-2" onclick="closeModal()">Batal</button>
                     <button type="submit" class="px-4 py-2 bg-orange text-black rounded-md">Unggah</button>

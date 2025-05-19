@@ -641,37 +641,31 @@ $mitras = $mitrasQuery->orderByDesc('posisi_mitra')->paginate(10);
         try {
             Excel::import($import, $request->file('file'));
             
-            // Gabungkan semua error (baik dari validasi Laravel maupun custom)
-            $allErrors = [];
+            $successCount = $import->getSuccessCount();
+            $failedCount = $import->getFailedCount();
+            $rowErrors = $import->getRowErrors();
+
+            $message = "Import berhasil! {$successCount} data survei berhasil diproses.";
             
-            // Tangkap error dari ValidationException
-            if (!empty($import->getErrors())) {
-                $allErrors = array_merge($allErrors, $import->getErrors());
-            }
-            
-            if (!empty($allErrors)) {
+            if ($failedCount > 0) {
+                $message .= " {$failedCount} data survei gagal diproses.";
+                
+                $formattedErrors = [];
+                foreach ($rowErrors as $row => $error) {
+                    $formattedErrors[] = "Baris {$row} - {$error}";
+                }
+                
                 return redirect()->back()
-                    ->withErrors(['file' => $allErrors])
-                    ->withInput();
+                    ->with('success', $message)
+                    ->with('import_errors', $formattedErrors)
+                    ->with('error_details', $rowErrors);
             }
 
-            return redirect()->back()
-                ->with('success', 'Data survei berhasil diimport!');
-                
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-            $errorMessages = collect($e->failures())
-                ->map(function($failure) {
-                    return 'Baris ' . $failure->row() . ' : ' . implode(', ', $failure->errors());
-                })
-                ->toArray();
-                
-            return redirect()->back()
-                ->withErrors(['file' => $errorMessages])
-                ->withInput();
-                
+            return redirect()->back()->with('success', $message);
+
         } catch (\Exception $e) {
             return redirect()->back()
-                ->withErrors(['file' => ['Terjadi kesalahan sistem: ' . $e->getMessage()]])
+                ->withErrors(['file' => "Error import data survei: " . $e->getMessage()])
                 ->withInput();
         }
     }
