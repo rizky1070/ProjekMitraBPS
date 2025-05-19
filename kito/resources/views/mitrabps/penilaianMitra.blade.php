@@ -38,11 +38,10 @@ $title = 'Penilaian Mitra';
                 <div class="flex flex-col justify-center items-center text-center">
                     <img alt="Profile picture" class="w-24 h-24 rounded-full border-2 border-gray-500 mr-4" src="{{ asset('person.png') }}" width="100" height="100">
                     <h2 class="text-xl">{{ $surMit->mitra->nama_lengkap }}</h2>
+                    <h2 class="text-l">{{ $surMit->mitra->sobat_id }}</h2>
                 </div>
                 <div class="pl-5 w-full"> 
                     <p><strong>Survei / Sensus : </strong>{{ $surMit->survei->nama_survei ?? '-' }}</p>
-                    <p><strong>Kecamatan : </strong>{{ $surMit->survei->kecamatan->nama_kecamatan ?? '-' }}</p>
-                    <p><strong>Lokasi : </strong>{{ $surMit->survei->lokasi_survei ?? '-' }}</p>
                     <p><strong>Posisi : </strong>{{ $surMit->posisi_mitra ?? '-' }}</p>
                     <p><strong>Jadwal : </strong>{{ $surMit->survei->jadwal_kegiatan ?? '-' }}</p>       
                 </div>
