@@ -65,21 +65,19 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             $kecamatan = $this->getKecamatan($row, $kabupaten);
             $desa = $this->getDesa($row, $kecamatan);
 
-            // Parse tanggal
+            // Parse tanggal mulai
             $tahunMulai = $this->parseTanggal($row['tgl_mitra_diterima'] ?? null);
-            // Jika tahun kosong, log informasi
+            
+            // Jika tanggal mulai kosong, gunakan tanggal sekarang
             if (empty($row['tgl_mitra_diterima'])) {
-                Log::info("Data baris ke-{$row['__row__']}: Kolom tahun kosong, menggunakan tanggal sekarang");
+                Log::info("Data baris ke-{$row['__row__']}: Kolom tgl_mitra_diterima kosong, menggunakan tanggal sekarang");
+                $tahunMulai = $this->currentDate;
             }
 
-            // Parse tanggal berakhir (jika ada)
+            // Parse tanggal berakhir
             $tahunSelesai = null;
             if (!empty($row['tgl_berakhir_mitra'])) {
                 $tahunSelesai = $this->parseTanggal($row['tgl_berakhir_mitra']);
-                // Validasi bahwa tanggal berakhir tidak sebelum tanggal mulai
-                if ($tahunSelesai->lt($tahunMulai)) {
-                    throw new \Exception("Tanggal berakhir mitra tidak boleh sebelum tanggal mulai");
-                }
             } else {
                 // Jika tanggal berakhir kosong, set otomatis 1 bulan setelah tanggal mulai
                 $tahunSelesai = $tahunMulai->copy()->addMonth();
@@ -360,8 +358,26 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                 },
             ],
             'email_mitra' => 'required|email|max:255',
-            'tgl_mitra_diterima' => 'nullable|string',
-            'tgl_berakhir_mitra' => 'nullable|string'
+            'tgl_mitra_diterima' => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    try {
+                        $this->parseTanggal($value);
+                    } catch (\Exception $e) {
+                        $fail("Format tanggal tidak valid. Gunakan format: YYYY-MM-DD, DD-MM-YYYY, MM-DD-YYYY, atau angka serial Excel");
+                    }
+                }
+            ],
+            'tgl_berakhir_mitra' => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    try {
+                        $this->parseTanggal($value);
+                    } catch (\Exception $e) {
+                        $fail("Format tanggal tidak valid. Gunakan format: YYYY-MM-DD, DD-MM-YYYY, MM-DD-YYYY, atau angka serial Excel");
+                    }
+                }
+            ]
         ];
     }
 
@@ -373,23 +389,42 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                 return $this->currentDate;
             }
 
+            // Jika sudah dalam format Carbon atau DateTime, langsung return
             if ($tanggal instanceof \DateTimeInterface) {
                 return Carbon::instance($tanggal);
             }
 
-            if (is_string($tanggal) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
-                return Carbon::createFromFormat('Y-m-d', $tanggal);
-            }
-
-            if (is_numeric($tanggal) && $tanggal > 1000) {
-                $unixDate = ($tanggal - 25569) * 86400;
+            // Handle Excel date serial number (angka)
+            if (is_numeric($tanggal)) {
+                // Excel date serial number (1 = 1 Jan 1900)
+                if ($tanggal > 60) {
+                    $tanggal -= 1; // Koreksi bug Excel 1900 (menganggap 1900 sebagai tahun kabisat)
+                }
+                $unixDate = ($tanggal - 25569) * 86400; // 25569 = days between 1970 and 1900
                 return Carbon::createFromTimestamp($unixDate);
             }
 
+            // Handle string dates
             if (is_string($tanggal)) {
+                // Coba parse dari format Excel string (misal "3/14/2023")
                 $normalized = str_replace(['/', '.'], '-', $tanggal);
                 
-                foreach (['d-m-Y', 'm-d-Y', 'Y-m-d'] as $format) {
+                // Coba berbagai format umum
+                $formatsToTry = [
+                    'Y-m-d',    // 2023-03-14
+                    'm-d-Y',     // 03-14-2023
+                    'd-m-Y',      // 14-03-2023
+                    'Y/m/d',     // 2023/03/14 (sudah dinormalisasi ke -)
+                    'm/d/Y',     // 03/14/2023 (sudah dinormalisasi ke -)
+                    'd/m/Y',     // 14/03/2023 (sudah dinormalisasi ke -)
+                    'Ymd',        // 20230314
+                    'm-d-y',      // 03-14-23
+                    'd-m-y',      // 14-03-23
+                    'M j, Y',     // Mar 14, 2023
+                    'j M Y',      // 14 Mar 2023
+                ];
+                
+                foreach ($formatsToTry as $format) {
                     try {
                         return Carbon::createFromFormat($format, $normalized);
                     } catch (\Exception $e) {
@@ -397,14 +432,19 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                     }
                 }
                 
-                return Carbon::parse($normalized);
+                // Coba parse dengan Carbon secara otomatis
+                try {
+                    return Carbon::parse($normalized);
+                } catch (\Exception $e) {
+                    throw new \Exception("Format tanggal tidak dikenali");
+                }
             }
 
             throw new \Exception("Format tanggal tidak dikenali");
             
         } catch (\Exception $e) {
             Log::error("Gagal parsing tanggal: {$tanggal} - Error: " . $e->getMessage());
-            throw new \Exception("Format tanggal tidak valid: {$tanggal}");
+            throw new \Exception("Format tanggal tidak valid: {$tanggal}. Format yang diterima: YYYY-MM-DD, DD-MM-YYYY, MM-DD-YYYY, atau angka serial Excel");
         }
     }
     

@@ -33,7 +33,11 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
     public function model(array $row)
     {
         $tahunMasuk = $this->parseDate($row['tgl_mitra_diterima']);
-        $tglIkutSurvei = $this->parseDate($row['tgl_ikut_survei']);
+        
+        // Set tgl_ikut_survei to today if empty
+        $tglIkutSurvei = empty($row['tgl_ikut_survei']) 
+            ? Carbon::parse($this->survei->jadwal_kegiatan) 
+            : $this->parseDate($row['tgl_ikut_survei']);
 
         // Konversi nilai numerik dari berbagai format
         $sobatId = $this->convertToNumeric($row['sobat_id']);
@@ -156,7 +160,7 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
             ],
             'tgl_mitra_diterima' => 'required',
             'tgl_ikut_survei' => [
-                'required',
+                'nullable', // Changed from 'required' to 'nullable' since we'll handle empty values
                 function ($attribute, $value, $fail) {
                     if (!$this->survei) {
                         $fail("Data survei tidak ditemukan");
@@ -164,6 +168,11 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation
                     }
                     
                     try {
+                        // Skip validation if value is empty (we'll use today's date)
+                        if (empty($value)) {
+                            return;
+                        }
+                        
                         $tglIkut = Carbon::parse($this->parseDate($value));
                         $jadwalMulai = Carbon::parse($this->survei->jadwal_kegiatan);
                         $jadwalBerakhir = Carbon::parse($this->survei->jadwal_berakhir_kegiatan);
