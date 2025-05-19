@@ -101,12 +101,9 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
                 'status_survei' => $statusSurvei,
                 'tim' => $row['tim']
             ]);
-        } 
-        
-        catch (\Exception $e) {
-        $surveyName = $row['nama_survei'] ?? 'Tidak diketahui';
-        $this->rowErrors[$row['__row__']] = "Survei {$surveyName}: " . $e->getMessage();
-        return null;
+        } catch (\Exception $e) {
+            $this->rowErrors[$row['__row__']] = $e->getMessage();
+            return null;
         }
     }
 
@@ -184,8 +181,8 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
             'nama_survei' => 'required|string|max:255',
             'kro' => 'required|string|max:100',
             'tim' => 'required|string|max:255',
-            'jadwal' => 'required|string',
-            'jadwal_berakhir' => 'required|after:jadwal|string'
+            'jadwal' => 'required',
+            'jadwal_berakhir' => 'required'
         ];   
     }
     
