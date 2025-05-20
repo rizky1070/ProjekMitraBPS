@@ -102,7 +102,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
                 'tim' => $row['tim']
             ]);
         } catch (\Exception $e) {
-            $this->rowErrors[$row['__row__']] = $e->getMessage();
+            $this->rowErrors[$row['__row__']] = "{$row['nama_survei']} : " . $e->getMessage();
             return null;
         }
     }

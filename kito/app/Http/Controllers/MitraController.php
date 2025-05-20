@@ -421,7 +421,7 @@ if ($request->filled('tahun')) {
                 
                 $formattedErrors = [];
                 foreach ($rowErrors as $row => $error) {
-                    $formattedErrors[] = "Baris {$row} - {$error}";
+                    $formattedErrors[] = "{$error}";
                 }
                 
                 return redirect()->back()
