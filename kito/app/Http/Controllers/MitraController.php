@@ -402,7 +402,7 @@ if ($request->filled('tahun')) {
     public function upExcelMitra(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls|max:5120' // Maksimal 5MB
+            'file' => 'required|file|mimes:xls,xlsx|max:2048'
         ]);
 
         $import = new MitraImport();
@@ -410,34 +410,32 @@ if ($request->filled('tahun')) {
         try {
             Excel::import($import, $request->file('file'));
             
-            if ($import->getErrors()) {
+            $successCount = $import->getSuccessCount();
+            $failedCount = $import->getFailedCount();
+            $rowErrors = $import->getRowErrors();
+
+            $message = "Import berhasil! {$successCount} data survei berhasil diproses.";
+            
+            if ($failedCount > 0) {
+                $message .= " {$failedCount} data survei gagal diproses.";
+                
+                $formattedErrors = [];
+                foreach ($rowErrors as $row => $error) {
+                    $formattedErrors[] = "Baris {$row} - {$error}";
+                }
+                
                 return redirect()->back()
-                    ->with('error', implode('<br>', $import->getErrors()))
-                    ->withInput();
+                    ->with('success', $message)
+                    ->with('import_errors', $formattedErrors)
+                    ->with('error_details', $rowErrors);
             }
 
-            return redirect()->back()
-                ->with('success', 'Data Mitra berhasil diimport!');
-                
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-            $errorMessages = collect($e->failures())
-                ->map(function($failure) {
-                    return 'Baris ' . ($failure->row())-1 . ': ' . implode(', ', $failure->errors());
-                })
-                ->implode('<br>');
-                
-            return redirect()->back()
-                ->with('error', $errorMessages)
-                ->withInput();
-                
+            return redirect()->back()->with('success', $message);
+
         } catch (\Exception $e) {
-            Log::error('Import Mitra Error: ' . $e->getMessage());
             return redirect()->back()
-                ->      with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage())
+                ->withErrors(['file' => "Error import data survei: " . $e->getMessage()])
                 ->withInput();
         }
     }
-
-
-
 }

@@ -94,6 +94,16 @@ $title = 'Daftar Mitra';
                                     </div>
                                 </div>                                
                             </form>
+                            @if(session('import_errors'))
+                            <div class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700">
+                                <h4 class="font-bold">Error Import:</h4>
+                                <ul class="list-disc pl-5">
+                                    @foreach(session('import_errors') as $error)
+                                        <li class="text-sm">{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                            @endif
                         </div>
                 </div>
                 <!-- JavaScript Tom Select -->

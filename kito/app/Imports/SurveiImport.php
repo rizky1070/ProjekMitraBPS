@@ -36,10 +36,10 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
                 return null;
             }
 
-        // Validate survey name first
-        if (empty($row['nama_survei']) || !is_string($row['nama_survei'])) {
-            throw new \Exception("Nama Survei: Format tidak valid");
-        }
+            // Validate survey name first
+            if (empty($row['nama_survei']) || !is_string($row['nama_survei'])) {
+                throw new \Exception("Nama Survei: Format tidak valid");
+            }
 
             Log::info('Importing row: ', $row);
 

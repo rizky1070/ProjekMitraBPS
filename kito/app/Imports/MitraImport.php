@@ -11,11 +11,19 @@ use App\Models\Desa;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
 use Carbon\Carbon;
+use Throwable;
 
-class MitraImport implements ToModel, WithHeadingRow, WithValidation
+class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError, SkipsOnFailure
 {
-    private $errors = [];
+    use SkipsErrors, SkipsFailures;
+
+    private $rowErrors = [];
+    private $successCount = 0;
     private $defaultProvinsi = '35';
     private $defaultKabupaten = '16';
     private $currentDate;
@@ -38,6 +46,10 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
             // Skip baris yang benar-benar kosong
             if ($this->isEmptyRow($row)) {
                 return null;
+            } 
+
+            if (empty($row['nama_lengkap']) || !is_string($row['nama_lengkap'])) {
+                throw new \Exception("Nama Survei: Format tidak valid");
             }
             
             Log::info('Importing row: ', $row);
@@ -117,10 +129,12 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                     'data' => $row
                 ]);
                 
+                $this->successCount++;
                 return null;
             }
 
             // Buat data baru jika tidak ada duplikat
+            $this->successCount++;
             return new Mitra([
                 'nama_lengkap' => $row['nama_lengkap'],
                 'sobat_id' => $sobatId,
@@ -138,7 +152,8 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
                 'tahun_selesai' => $tahunSelesai
             ]);
         } catch (\Exception $e) {
-            $this->errors[] = "Baris {$row['__row__']} : " . $e->getMessage();
+            $mitraName = $row['nama_lengkap'] ?? 'Tidak diketahui';
+            $this->rowErrors[$row['__row__']] = "Mitra {$mitraName}: " . $e->getMessage();
             return null;
         }
     }
@@ -408,13 +423,33 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation
         }
     }
     
-    public function onError(\Throwable $e)
-    {
-        $this->errors[] = $e->getMessage();
-    }
+    // public function onError(\Throwable $e)
+    // {
+    //     $this->errors[] = $e->getMessage();
+    // }
     
-    public function getErrors()
+    // public function getErrors()
+    // {
+    //     return $this->errors;
+    // }
+
+    public function getRowErrors()
     {
-        return $this->errors;
+        return $this->rowErrors;
+    }
+
+    public function getTotalProcessed()
+    {
+        return count($this->rowErrors) + $this->successCount;
+    }
+
+    public function getSuccessCount()
+    {
+        return $this->successCount;
+    }
+
+    public function getFailedCount()
+    {
+        return count($this->rowErrors);
     }
 }
