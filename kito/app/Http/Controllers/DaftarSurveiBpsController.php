@@ -314,25 +314,57 @@ $mitras = $mitrasQuery->orderByDesc('posisi_mitra')->paginate(10);
 
 
     public function updateMitraOnSurvei(Request $request, $id_survei, $id_mitra)
-    {
-        $request->validate([
-            'vol' => 'required|string|max:255',
-            'honor' => 'required|integer',
-            'posisi_mitra' => 'required|string|max:255'
-        ]);
+{
+    $request->validate([
+        'vol' => 'required|string|max:255',
+        'honor' => 'required|integer',
+        'posisi_mitra' => 'required|string|max:255'
+    ]);
 
-        $mitraSurvei = MitraSurvei::where('id_survei', $id_survei)
-            ->where('id_mitra', $id_mitra)
-            ->firstOrFail();
+    $survey = Survei::findOrFail($id_survei);
+    $mitraSurvei = MitraSurvei::where('id_survei', $id_survei)
+        ->where('id_mitra', $id_mitra)
+        ->firstOrFail();
 
-        $mitraSurvei->vol = $request->input('vol');
-        $mitraSurvei->honor = $request->input('honor');
-        $mitraSurvei->posisi_mitra = $request->input('posisi_mitra');
-        $mitraSurvei->tgl_ikut_survei = now();
-        $mitraSurvei->save();
+    // Hitung total honor mitra pada bulan survei (selain data yang sedang diedit)
+    $totalHonorBulanIni = MitraSurvei::join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
+        ->where('mitra_survei.id_mitra', $id_mitra)
+        ->where('survei.bulan_dominan', $survey->bulan_dominan)
+        ->where(function($query) use ($id_survei) {
+            $query->where('mitra_survei.id_survei', '!=', $id_survei);
+        })
+        ->sum(DB::raw('mitra_survei.honor * mitra_survei.vol'));
 
-        return redirect()->back()->with('success', 'Mitra berhasil diperbarui!');
+    $honorYangAkanDitambahkan = $request->honor * $request->vol;
+    $totalHonorSetelahUpdate = $totalHonorBulanIni + $honorYangAkanDitambahkan;
+
+    if ($totalHonorSetelahUpdate > 4000000 && !$request->has('force_add')) {
+        return redirect()->back()
+            ->with('confirm', [
+                'message' => "Mitra tidak bisa diperbarui karena total honor di bulan " .
+                \Carbon\Carbon::parse($survey->bulan_dominan)->locale('id')->translatedFormat('F Y') .
+                " akan melebihi Rp 4.000.000 (Total saat ini: Rp " . number_format($totalHonorBulanIni, 0, ',', '.') .
+                "). Tetap ingin menyimpan perubahan mitra ini?",
+                'data' => $request->all()
+            ])
+            ->with('id_mitra', $id_mitra);
     }
+
+    // Update data mitra survei
+    $mitraSurvei->vol = $request->input('vol');
+    $mitraSurvei->honor = $request->input('honor');
+    $mitraSurvei->posisi_mitra = $request->input('posisi_mitra');
+    $mitraSurvei->tgl_ikut_survei = now();
+    $mitraSurvei->save();
+
+    $message = 'Mitra berhasil diperbarui!';
+    if ($totalHonorSetelahUpdate > 4000000) {
+        $message .= ' Perhatian: Total honor mitra melebihi batas Rp 4.000.000';
+    }
+
+    return redirect()->back()->with('success', $message);
+}
+
 
     public function deleteMitraFromSurvei($id_survei, $id_mitra)
     {
