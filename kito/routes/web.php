@@ -380,6 +380,7 @@ Route::get('/sekretariat', [SekretariatController::class, 'index']);
 Route::get('/kategoriumum', [KategoriUmumController::class, 'index']);
 Route::get('/daftarsupertim', [SuperTimController::class, 'daftarLink']);
 Route::get('/daftarsekretariat', [SekretariatController::class, 'daftarLink']);
-
+Route::get('/kategoripribadi', [KategoriPribadiController::class, 'index']);
+Route::get('/daftarlinkpribadi', [PribadiController::class, 'daftarLink']);
 
 require __DIR__ . '/auth.php';
