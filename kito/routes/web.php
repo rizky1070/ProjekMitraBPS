@@ -377,6 +377,7 @@ Route::middleware('auth')->group(function () {
 // SETAPE
 Route::get('/supertim', [SuperTimController::class, 'index']);
 Route::get('/sekretariat', [SekretariatController::class, 'index']);
+Route::get('/kategoriumum', [KategoriUmumController::class, 'index']);
 
 
 require __DIR__ . '/auth.php';

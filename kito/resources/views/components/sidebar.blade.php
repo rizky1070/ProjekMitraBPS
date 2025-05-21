@@ -292,7 +292,7 @@
             $isDropdownMitraActive =
                 request()->is('supertim') ||
                 request()->is('sekretariat') ||
-                request()->is('daftarMitra') ||
+                request()->is('kategoriumum') ||
                 request()->is('ReportSurvei') ||
                 request()->is('ReportMitra');
         @endphp
@@ -317,8 +317,8 @@
                         href="/daftarMitra">
                         <span class="mx-3">Dashboard</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportSurvei') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/ReportSurvei">
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('kategoriumum') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/kategoriumum">
                         <span class="mx-3">Kategori Umum</span>
                     </a>
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportSurvei') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
