@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('offices', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kategoriumum_id')->constrained()->onDelete('cascade');
+            $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->string('name')->nullable();
             $table->string('link');
             $table->boolean('status')->default(true);

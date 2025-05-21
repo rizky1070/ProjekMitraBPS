@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('links', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('kategoripribadi_id')->nullable()->constrained('category_users')->onDelete('cascade');
+            $table->foreignId('category_user_id')->nullable()->constrained('category_users')->onDelete('cascade');
             $table->string('link');
             $table->string('name')->nullable();
             $table->boolean('status')->default(true);
