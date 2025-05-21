@@ -2,6 +2,7 @@
 $title = 'Profil Mitra';
 ?>
 @include('mitrabps.headerTemp')
+    @include('mitrabps.cuScroll')
 </head>
 
 <body class="h-full bg-gray-200">
@@ -18,7 +19,7 @@ $title = 'Profil Mitra';
         </script>
     @endif
     <!-- component -->
-    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
+    <main class="cuScrollGlobalY flex-1 overflow-x-hidden bg-gray-200">
         <a href="{{ url('/daftarMitra') }}"
             class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -125,7 +126,7 @@ $title = 'Profil Mitra';
         <!-- Tabel Survei -->
         <div class="max-w-4xl mx-auto">
             <h2 class="text-xl font-bold mb-4">Survei yang diikuti mitra</h2>
-            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="cuScrollFilter bg-white rounded-lg shadow-sm p-6 mb-6">
                 <!-- Form Filter -->
                 <form method="GET" action="{{ route('profilMitra.filter', ['id_mitra' => $mits->id_mitra]) }}"
                     class="flex flex-wrap gap-4 items-center mb-2" id="filterForm">
@@ -188,7 +189,7 @@ $title = 'Profil Mitra';
                     @endif
                 </div>
                 <div class="bg-white p-4 border border-gray-300 rounded-lg shadow-l">
-                    <div class="overflow-x-auto mb-2 pb-2">
+                    <div class="cuScrollTableX mb-2 pb-2">
 
                         <h2 class="text-lg font-semibold text-gray-800">Survei yang sudah dikerjakan:</h2>
 
@@ -256,7 +257,7 @@ $title = 'Profil Mitra';
                             </table>
                         @endif
                     </div>
-                    <div class="overflow-x-auto mb-4 pt-2" style=" border-top-width: 2px; border-color: #9CA3AF;">
+                    <div class="cuScrollTableX mb-4 pt-2" style=" border-top-width: 2px; border-color: #9CA3AF;">
 
                         <h2 class="text-lg font-semibold text-gray-800">Survei yang belum/sedang dikerjakan:</h2>
 

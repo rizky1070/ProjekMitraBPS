@@ -421,13 +421,16 @@ if ($request->filled('tahun')) {
                 
                 $formattedErrors = [];
                 foreach ($rowErrors as $row => $error) {
-                    $formattedErrors[] = "{$error}";
+                    // Jika error mengandung koma, berarti multiple errors
+                    $errorMessages = explode(', ', $error);
+                    foreach ($errorMessages as $err) {
+                        $formattedErrors[] = "{$err}";
+                    }
                 }
                 
                 return redirect()->back()
                     ->with('success', $message)
-                    ->with('import_errors', $formattedErrors)
-                    ->with('error_details', $rowErrors);
+                    ->with('import_errors', $formattedErrors);
             }
 
             return redirect()->back()->with('success', $message);
