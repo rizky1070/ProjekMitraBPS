@@ -5,6 +5,7 @@ $title = 'Daftar Mitra';
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="/Logo BPS.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    @include('mitrabps.cuScroll')
 </head>
 <body class="h-full">
     <!-- SweetAlert Logic -->
@@ -30,14 +31,14 @@ $title = 'Daftar Mitra';
         <x-sidebar></x-sidebar>
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
+            <main class="cuScrollGlobalY flex-1 overflow-x-hidden bg-gray-200">
                 <div class="container px-4 py-4 mx-auto">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-3xl font-medium text-black">Daftar Mitra</h3>
                         <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
                     </div>
                     <div>
-                        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                        <div class="cuScrollFilter bg-white rounded-lg shadow-sm p-6 mb-6">
                             <!-- Form Filter -->
                             <form action="{{ route('mitras.filter') }}" method="GET" class="space-y-4" id="filterForm">
                                 <div class="flex items-center relative">
@@ -96,8 +97,8 @@ $title = 'Daftar Mitra';
                             </form>
                             @if(session('import_errors'))
                             <div class="mb-4 mt-2 p-3 bg-red-100 border-l-4 border-red-500 text-red-700">
-                                <h4 class="font-bold">Error Import:</h4>
-                                <ul class="list-disc pl-5">
+                                <h4 class="font-bold">Mitra yang gagal diimport:</h4>
+                                <ul class="cuScrollError list-disc pl-5">
                                     @foreach(session('import_errors') as $error)
                                         <li class="text-sm">{{ $error }}</li>
                                     @endforeach

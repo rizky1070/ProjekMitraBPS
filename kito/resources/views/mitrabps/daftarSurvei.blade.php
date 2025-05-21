@@ -2,6 +2,7 @@
 $title = 'Daftar Survei';
 ?>
 @include('mitrabps.headerTemp')
+    @include('mitrabps.cuScroll')
 </head>
 <body class="h-full">
     @if (session('success'))
@@ -21,14 +22,14 @@ $title = 'Daftar Survei';
             <x-sidebar></x-sidebar>
             <div class="flex flex-col flex-1 overflow-hidden">
                 <x-navbar></x-navbar>
-                <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
+                <main class="cuScrollGlobalY flex-1 overflow-x-hidden bg-gray-200">
                     <div class="container px-4 py-4 mx-auto">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-3xl font-medium text-black">Daftar Survei</h3>
                             <button type="button" class="px-4 py-2 bg-orange rounded-md"><a href="/inputSurvei"> + Tambah</a></button>
                         </div>
                         <div>
-                            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                            <div class="cuScrollFilter bg-white rounded-lg shadow-sm p-6 mb-6">
                                 <!-- Form Filter -->
                                 <form action="{{ route('surveys.filter') }}" method="GET" class="space-y-4" id="filterForm">
                                     <!-- Survey Name Row -->
@@ -115,7 +116,7 @@ $title = 'Daftar Survei';
                             });
                         </script>
                         <!-- List of Survei -->
-                        <div class="flex overflow-x-auto space-x-6 pb-4">
+                        <div class="cuScrollGlobalX flex space-x-6 pb-4">
                         @foreach($surveys as $survey)
                             <div class="bg-white h-[450px] min-w-[350px] max-w-[350px] p-4 border border-gray-300 rounded-lg shadow-md flex-shrink-0 space-y-4 flex flex-col overflow-hidden">
                                 <!-- Informasi Survei -->

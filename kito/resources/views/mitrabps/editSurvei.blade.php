@@ -3,31 +3,32 @@ $title = 'Kelola Survei';
 ?>
 @include('mitrabps.headerTemp')
 <!-- Add jsPDF library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-<style>
-    .honor-modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        z-index: 1000;
-        align-items: center;
-        justify-content: center;
-    }
-    .honor-modal-content {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        width: 90%;
-        max-width: 500px;
-    }
-</style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .honor-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .honor-modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+    </style>
+    @include('mitrabps.cuScroll')
 </head>
-<body class="h-full bg-gray-200 mb-4">
+<body class="cuScrollGlobalY h-full bg-gray-200 mb-4">
     @if (session('success'))
     <script>
     swal("Success!", "{{ session('success') }}", "success");
@@ -111,7 +112,7 @@ $title = 'Kelola Survei';
         @endif
     @endforeach
 
-    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
+    <main class="flex-1 overflow-x-hidden bg-gray-200">
     <a href="{{ url('/daftarSurvei') }}" 
     class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -171,7 +172,7 @@ $title = 'Kelola Survei';
                 </div>
             </div>
             
-                <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="cuScrollFilter bg-white rounded-lg shadow-sm p-6">
                     <!-- Year Row -->
                     <form id="filterForm" action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}" method="GET" class="space-y-4">
                         <!-- Survey Name Row -->
@@ -226,7 +227,7 @@ $title = 'Kelola Survei';
                     @if(session('import_errors'))
                     <div class="mt-2 mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700">
                         <h4 class="font-bold">Mitra yang gagal diimport ke survei:</h4>
-                        <ul class="list-disc pl-5">
+                        <ul class="cuScrollError list-disc pl-5">
                             @foreach(session('import_errors') as $error)
                                 <li class="text-sm">{{ $error }}</li>
                             @endforeach
