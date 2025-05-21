@@ -259,7 +259,7 @@
                 <img src="mitrabps.png" alt="Logo mitabps" class="ml-4 w-12 h-12" />
                 <button
                     class="dropdown-btn flex items-center px-4 py-3 text-lg {{ $isDropdownMitraActive ? 'text-white' : 'text-gray-500' }} hover:bg-opacity-80 hover:text-white transition-all duration-300 rounded-md">
-                    MITRA BPS
+                    SOBAT BPS
                     <i class="fa fa-caret-down ml-2"></i>
                 </button>
             </div>
