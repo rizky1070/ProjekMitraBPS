@@ -379,6 +379,7 @@ Route::get('/supertim', [SuperTimController::class, 'index']);
 Route::get('/sekretariat', [SekretariatController::class, 'index']);
 Route::get('/kategoriumum', [KategoriUmumController::class, 'index']);
 Route::get('/daftarsupertim', [SuperTimController::class, 'daftarLink']);
+Route::get('/daftarsekretariat', [SekretariatController::class, 'daftarLink']);
 
 
 require __DIR__ . '/auth.php';
