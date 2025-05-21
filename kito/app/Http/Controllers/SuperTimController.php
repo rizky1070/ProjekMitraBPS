@@ -11,4 +11,10 @@ class SuperTimController extends Controller
         $offices = Office::with('category')->get(); // assuming you have relation with category
         return view('Setape.superTim.index', compact('offices'));
     }
+
+    public function daftarLink()
+    {
+        $offices = Office::with('category')->get(); // assuming you have relation with category
+        return view('Setape.superTim.daftarLink', compact('offices'));
+    }
 }

@@ -293,7 +293,7 @@
                 request()->is('supertim') ||
                 request()->is('sekretariat') ||
                 request()->is('kategoriumum') ||
-                request()->is('ReportSurvei') ||
+                request()->is('daftarsupertim') ||
                 request()->is('ReportMitra');
         @endphp
         <div>
@@ -321,8 +321,8 @@
                         href="/kategoriumum">
                         <span class="mx-3">Kategori Umum</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportSurvei') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/ReportSurvei">
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarsupertim') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/daftarsupertim">
                         <span class="mx-3">Super TIM</span>
                     </a>
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportSurvei') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"

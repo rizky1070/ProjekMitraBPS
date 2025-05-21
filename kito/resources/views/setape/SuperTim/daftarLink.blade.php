@@ -34,22 +34,36 @@ $title = 'Super Tim';
     <div class="bg-white p-4 rounded shadow">
         <div class="flex justify-end mb-4">
             <a href="/sekretariat" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                Tambah Kategori
+                Tambah Link
             </a>
         </div>
-        <h1 class="text-xl font-bold mb-4">Ketegori Umum</h1>
+        <h1 class="text-xl font-bold mb-4">Daftar Super TIM</h1>
         <table class="min-w-full bg-white border border-gray-300">
             <thead>
                 <tr class="bg-gray-100">
                     <th class="text-left p-2 border">Nama</th>
+                    <th class="text-left p-2 border">Kategori</th>
+                    <th class="text-left p-2 border">Link</th>
+                    <th class="text-left p-2 border">Status</th>
                     <th class="text-left p-2 border">Action</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($category as $cat)
+                @foreach ($offices as $office)
                     <tr>
-                        <td class="p-2 border">{{ $cat->name }}</td>
-                        <td class="p-2 border">button action</td>
+                        <td class="p-2 border">{{ $office->name }}</td>
+                        <td class="p-2 border">{{ $office->category->name ?? '-' }}</td>
+                        <td class="p-2 border">
+                            <a href="{{ $office->link }}" class="text-blue-500 underline" target="_blank">Lihat</a>
+                        </td>
+                        <td class="p-2 border">
+                            @if ($office->status)
+                                <span class="text-green-600 font-semibold">Aktif</span>
+                            @else
+                                <span class="text-red-600 font-semibold">Nonaktif</span>
+                            @endif
+                        </td>
+                        <td class="p-2 border">action edit dan delete</td>
                     </tr>
                 @endforeach
             </tbody>
