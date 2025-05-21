@@ -414,10 +414,10 @@ if ($request->filled('tahun')) {
             $failedCount = $import->getFailedCount();
             $rowErrors = $import->getRowErrors();
 
-            $message = "Import berhasil! {$successCount} data survei berhasil diproses.";
+            $message = "Import berhasil! {$successCount} data mitra berhasil diproses.";
             
             if ($failedCount > 0) {
-                $message .= " {$failedCount} data survei gagal diproses.";
+                $message .= " {$failedCount} data mitra gagal diproses.";
                 
                 $formattedErrors = [];
                 foreach ($rowErrors as $row => $error) {
@@ -434,7 +434,7 @@ if ($request->filled('tahun')) {
 
         } catch (\Exception $e) {
             return redirect()->back()
-                ->withErrors(['file' => "Error import data survei: " . $e->getMessage()])
+                ->withErrors(['file' => "Error import data mitra: " . $e->getMessage()])
                 ->withInput();
         }
     }
