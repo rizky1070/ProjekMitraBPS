@@ -294,7 +294,10 @@
                 request()->is('sekretariat') ||
                 request()->is('kategoriumum') ||
                 request()->is('daftarsupertim') ||
-                request()->is('daftarsekretariat');
+                request()->is('daftarsekretariat') ||
+                request()->is('kategoripribadi') ||
+                request()->is('daftarlinkpribadi');
+
         @endphp
         <div>
         <!-- Button Dropdown -->
@@ -329,12 +332,12 @@
                         href="/daftarsekretariat">
                         <span class="mx-3">Sekretariat</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportSurvei') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/ReportSurvei">
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('kategoripribadi') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/kategoripribadi">
                         <span class="mx-3">Kategori Pribadi</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportSurvei') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/ReportSurvei">
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarlinkpribadi') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/daftarlinkpribadi">
                         <span class="mx-3">Link Pribadi</span>
                     </a>
                 @else
