@@ -290,7 +290,8 @@
         @php
             // Cek apakah ada link yang aktif di dalam dropdown
             $isDropdownMitraActive =
-                request()->is('daftarSurvei') ||
+                request()->is('supertim') ||
+                request()->is('sekretariat') ||
                 request()->is('daftarMitra') ||
                 request()->is('ReportSurvei') ||
                 request()->is('ReportMitra');
@@ -298,7 +299,7 @@
         <div>
         <!-- Button Dropdown -->
             <div class="flex items-center">
-                <img src="mitrabps.png" alt="Logo mitabps" class="ml-4 w-12 h-12" />
+                <img src="supertim.png" alt="Logo mitabps" class="ml-4 w-12 h-12" />
                 <button
                     class="dropdown-btn flex items-center px-4 py-3 text-lg {{ $isDropdownMitraActive ? 'text-white' : 'text-gray-500' }} hover:bg-opacity-80 hover:text-white transition-all duration-300 rounded-md">
                     SETAPE
@@ -308,8 +309,8 @@
 
             <div class="dropdown-container {{ $isDropdownMitraActive ? 'block' : 'hidden' }}">
                 @if (auth()->user()->is_admin || auth()->user()->is_leader)
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarSurvei') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/daftarSurvei">
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('supertim') || request()->is('sekretariat') ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/supertim">
                         <span class="mx-3">Publik</span>
                     </a>
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"

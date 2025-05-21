@@ -126,6 +126,17 @@
                                             SETAPE</h2>
                                     </a>
                                 </article>
+
+                                <article
+                                    class="p-6 bg-white bg-opacity-50 rounded-lg border border-gray-200 shadow-md transition-all duration-300 flex flex-col items-center justify-center gap-3 hover:bg-opacity-90 hover:bg-gray-300">
+                                    <a href="/supertim" target="_blank">
+                                        <img src="supertim.png" height="200" width="175"
+                                            alt="Logo BPS Kabupaten Mojokerto" />
+                                        <h2
+                                            class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                            SETAPE</h2>
+                                    </a>
+                                </article>
                                 
                                 <article
                                     class="p-6 bg-white bg-opacity-50 rounded-lg border border-gray-200 shadow-md transition-all duration-300 flex flex-col items-center justify-center gap-3 hover:bg-opacity-90 hover:bg-gray-300">

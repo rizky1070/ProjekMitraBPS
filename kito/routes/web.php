@@ -27,6 +27,11 @@ use App\Http\Controllers\DaftarSurveiBpsController;
 use App\Http\Controllers\MitraController;
 use App\Http\Controllers\ReportMitraSurveiController;
 use App\Http\Controllers\SKMitraController;
+use App\Http\Controllers\KategoriUmumController;
+use App\Http\Controllers\KategoriPribadiController;
+use App\Http\Controllers\PribadiController;
+use App\Http\Controllers\SekretariatController;
+use App\Http\Controllers\SuperTimController;
 
 /*
 |--------------------------------------------------------------------------
@@ -367,6 +372,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/ReportMitra', [ReportMitraSurveiController::class, 'MitraReport'])->name('reports.Mitra.filter');
     Route::get('/ReportMitra/export-mitra', [ReportMitraSurveiController::class, 'exportMitra'])->name('export.mitra');
 });
+
+
+// SETAPE
+Route::get('/supertim', [SuperTimController::class, 'index']);
+Route::get('/sekretariat', [SekretariatController::class, 'index']);
 
 
 require __DIR__ . '/auth.php';

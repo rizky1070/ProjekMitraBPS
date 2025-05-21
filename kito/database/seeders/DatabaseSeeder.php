@@ -19,9 +19,14 @@ class DatabaseSeeder extends Seeder
             KabupatenSeeder::class,
             KecamatanSeeder::class,
             DesaSeeder::class,
-            MitraSeeder::class,
-            SurveiSeeder::class,
-            MitraSurveiSeeder::class,
+            // MitraSeeder::class,
+            // SurveiSeeder::class,
+            // MitraSurveiSeeder::class,
+            CategoriesTableSeeder::class,
+            CategoryUsersTableSeeder::class,
+            LinksTableSeeder::class,
+            OfficesTableSeeder::class,
+            KetuasTableSeeder::class,
         ]);
         
         // \App\Models\User::factory(10)->create();
