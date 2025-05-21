@@ -233,6 +233,17 @@ $title = 'Kelola Survei';
                         </ul>
                     </div>
                     @endif
+
+                    @if(session('honor_warnings'))
+                    <div class="mt-2 mb-4 p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
+                        <h4 class="font-bold">Peringatan Honor Mitra:</h4>
+                        <ul class="list-disc pl-5">
+                            @foreach(session('honor_warnings') as $warning)
+                                <li class="text-sm">{{ $warning }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
                 </div>
             </div>
                 <!-- JavaScript Tom Select -->

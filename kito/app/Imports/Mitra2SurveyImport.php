@@ -25,6 +25,7 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
     protected $survei;
     protected $rowErrors = [];
     protected $successCount = 0;
+    protected $honorWarnings = [];
 
     public function __construct($id_survei)
     {
@@ -35,6 +36,8 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
     public function model(array $row)
     {
         try {
+            $rowNumber = $row['row_number'] ?? $row['__rowNum'] ?? null;
+            
             $tahunMasuk = $this->parseDate($row['tgl_mitra_diterima']);
             $tglIkutSurvei = $this->parseDate($row['tgl_ikut_survei']);
 
@@ -104,10 +107,15 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             $this->successCount++;
 
             // Add warning if honor exceeds limit
+            // Tambahkan property baru
+            
+
+            // Di dalam method model(), ubah bagian honor warning:
             if ($totalHonorSetelahDitambah > 4000000) {
-                $rowNumber = $row['row_number'] ?? null;
-                $this->rowErrors[$rowNumber] = "Mitra {$mitra->nama_lengkap}: Total honor sudah mencapai Rp 4.000.000 (Total: Rp " . 
+                $warningMessage = "Mitra {$mitra->nama_lengkap}: Total honor sudah mencapai Rp 4.000.000 (Total: Rp " . 
                     number_format($totalHonorSetelahDitambah, 0, ',', '.') . ")";
+                $this->honorWarnings[] = $warningMessage; // Simpan di array terpisah
+                $this->rowErrors["honor_{$rowNumber}"] = $warningMessage; // Juga simpan di rowErrors dengan key unik
             }
 
             return null;
@@ -263,6 +271,18 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
         return $this->errors;
     }
 
+    public function getErrorMessages()
+    {
+        return array_filter($this->rowErrors, function($error) {
+            return strpos($error, 'Total honor sudah mencapai Rp 4.000.000') === false;
+        });
+    }
+
+    public function getHonorWarningMessages()
+    {
+        return $this->honorWarnings; // Kembalikan array khusus warning
+    }
+
     public function getRowErrors()
     {
         return $this->rowErrors;
@@ -280,6 +300,13 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
 
     public function getFailedCount()
     {
-        return count($this->rowErrors);
+        return count($this->getErrorMessages());
     }
+
+    public function getHonorWarningsCount()
+    {
+        return count($this->getHonorWarningMessages());
+    }
+
+    
 }
