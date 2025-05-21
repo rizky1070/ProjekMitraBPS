@@ -153,7 +153,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             ]);
         } catch (\Exception $e) {
             $mitraName = $row['nama_lengkap'] ?? 'Tidak diketahui';
-            $this->rowErrors[$row['__row__']] = "Mitra {$mitraName}: " . $e->getMessage();
+            $this->rowErrors[$row['__row__']] = "Mitra {$mitraName} : " . $e->getMessage();
             return null;
         }
     }

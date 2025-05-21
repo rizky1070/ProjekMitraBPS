@@ -519,11 +519,9 @@ $mitras = $mitrasQuery->orderByDesc('posisi_mitra')->paginate(10);
             if ($failedCount > 0) {
                 $message .= " {$failedCount} data mitra gagal diproses.";
                 
-                $num = 1;
                 $formattedErrors = [];
                 foreach ($rowErrors as $row => $error) {
-                    $formattedErrors[] = "Baris " . $num . " - {$error}";
-                    $num++;
+                    $formattedErrors[] = "{$error}";
                 }
                 
                 return redirect()->back()
@@ -686,7 +684,7 @@ $mitras = $mitrasQuery->orderByDesc('posisi_mitra')->paginate(10);
                 
                 $formattedErrors = [];
                 foreach ($rowErrors as $row => $error) {
-                    $formattedErrors[] = "Baris {$row} - {$error}";
+                    $formattedErrors[] = "{$error}";
                 }
                 
                 return redirect()->back()

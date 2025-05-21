@@ -115,7 +115,7 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
         } catch (\Exception $e) {
             $rowNumber = $row['row_number'] ?? null;
             $mitraName = $row['nama_lengkap'] ?? 'Tidak diketahui';
-            $this->rowErrors[$rowNumber] = "Mitra {$mitraName}: " . $e->getMessage();
+            $this->rowErrors[$rowNumber] = "Mitra {$mitraName} : " . $e->getMessage();
             return null;
         }
     }
@@ -237,8 +237,24 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
         foreach ($failures as $failure) {
             // $failure is an instance of Maatwebsite\Excel\Validators\Failure
             $rowNumber = $failure->row();
+            $rowValues = $failure->values();
+            $sobatId = $rowValues['sobat_id'] ?? null;
+            $mitraName = null;
+
+            if ($sobatId) {
+                $numericSobatId = $this->convertToNumeric($sobatId);
+                $mitra = \App\Models\Mitra::where('sobat_id', $numericSobatId)->first();
+                if ($mitra) {
+                    $mitraName = $mitra->nama_lengkap;
+                }
+            }
+
             $errors = implode(', ', $failure->errors());
-            $this->rowErrors[$rowNumber] = $errors;
+            if ($mitraName) {
+                $this->rowErrors[$rowNumber] = "Mitra {$mitraName} : {$errors}";
+            } else {
+                $this->rowErrors[$rowNumber] = $errors;
+            }
         }
     }
     
