@@ -9,8 +9,8 @@ class KategoriUmumController extends Controller
 {
     public function index()
     {
-        $category = Category::all();
-        return view('Setape.kategoriUmum.daftar', compact('category'));
+        $categories = Category::all();
+        return view('Setape.kategoriUmum.daftar', compact('categories'));
     }
 
     public function store(Request $request)
