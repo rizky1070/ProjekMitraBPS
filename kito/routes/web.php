@@ -375,13 +375,27 @@ Route::middleware('auth')->group(function () {
 
 
 // SETAPE
-Route::get('/supertim', [SuperTimController::class, 'index']);
-Route::get('/sekretariat', [SekretariatController::class, 'index']);
+
+// Kategori Umum
 Route::get('/kategoriumum', [KategoriUmumController::class, 'index']);
+Route::post('/kategoriumum', [KategoriUmumController::class, 'store']);
+Route::put('/kategoriumum/{id}', [KategoriUmumController::class, 'update']);
+Route::delete('/kategoriumum/{id}', [KategoriUmumController::class, 'destroy']);
+
+// Super TIM
+Route::get('/supertim', [SuperTimController::class, 'index']);
 Route::get('/daftarsupertim', [SuperTimController::class, 'daftarLink']);
+
+// Sekretariat
+Route::get('/sekretariat', [SekretariatController::class, 'index']);
 Route::get('/daftarsekretariat', [SekretariatController::class, 'daftarLink']);
+
+// Kategori Pribadi
 Route::get('/kategoripribadi', [KategoriPribadiController::class, 'index']);
-Route::get('/daftarlinkpribadi', [PribadiController::class, 'daftarLink']);
+
+// Pribadi
 Route::get('/pribadi', [PribadiController::class, 'index']);
+Route::get('/daftarlinkpribadi', [PribadiController::class, 'daftarLink']);
+
 
 require __DIR__ . '/auth.php';
