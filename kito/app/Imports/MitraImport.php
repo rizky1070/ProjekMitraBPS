@@ -34,6 +34,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         $this->currentDate = Carbon::now();
     }
 
+    /**
+     * Memproses setiap baris data dari file Excel
+     */
     public function model(array $row)
     {
         static $rowNumber = 1;
@@ -42,15 +45,12 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         $mitraName = $row['nama_lengkap'] ?? 'Tidak diketahui';
         
         try {
-            // Skip baris yang benar-benar kosong
+            // Lewati baris yang benar-benar kosong
             if ($this->isEmptyRow($row)) {
                 return null;
             }
 
-            // Validasi akan dilakukan di method rules()
-            // Jika sampai di sini, berarti data valid
-            
-            Log::info('Importing row: ', $row);
+            Log::info('Mengimpor baris: ', $row);
             
             $sobatId = $row['sobat_id'];
             $jenisKelamin = $this->convertJenisKelamin($row['jenis_kelamin']);
@@ -127,11 +127,18 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 'tahun_selesai' => $tahunSelesai
             ]);
         } catch (\Exception $e) {
-            $this->rowErrors[$row['__row__']] = $e->getMessage();
+            $rowNum = $row['__row__'];
+            if (!isset($this->rowErrors[$rowNum])) {
+                $this->rowErrors[$rowNum] = [];
+            }
+            $this->rowErrors[$rowNum][] = $e->getMessage();
             return null;
         }
     }
 
+    /**
+     * Aturan validasi untuk data mitra
+     */
     public function rules(): array
     {
         return [
@@ -139,16 +146,11 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 'required',
                 function ($attribute, $value, $fail) {
                     $mitraName = $this->currentRow['nama_lengkap'] ?? 'Tidak diketahui';
-                    $errors = [];
                     
                     if (empty($value)) {
-                        $errors[] = "SOBAT ID harus diisi";
+                        $fail("SOBAT ID harus diisi");
                     } elseif (!$this->isPureNumeric($value)) {
-                        $errors[] = "SOBAT ID harus berupa angka semua";
-                    }
-                    
-                    if (!empty($errors)) {
-                        $fail(implode(', ', $errors));
+                        $fail("SOBAT ID harus berupa angka semua");
                     }
                 },
                 'max:12'
@@ -161,19 +163,14 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 'required',
                 function ($attribute, $value, $fail) {
                     $mitraName = $this->currentRow['nama_lengkap'] ?? 'Tidak diketahui';
-                    $errors = [];
                     
                     if (empty($value)) {
-                        $errors[] = "Jenis kelamin harus diisi";
+                        $fail("Jenis kelamin harus diisi");
                     } else {
                         $value = strtolower(trim($value));
                         if (!in_array($value, ['laki-laki', 'laki laki', 'laki', 'perempuan', '1', '2'])) {
-                            $errors[] = "Jenis kelamin harus laki-laki atau perempuan";
+                            $fail("Jenis kelamin harus laki-laki atau perempuan");
                         }
-                    }
-                    
-                    if (!empty($errors)) {
-                        $fail(implode(', ', $errors));
                     }
                 }
             ],
@@ -181,35 +178,29 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 'required',
                 function ($attribute, $value, $fail) {
                     $mitraName = $this->currentRow['nama_lengkap'] ?? 'Tidak diketahui';
-                    $errors = [];
                     
                     if (empty($value)) {
-                        $errors[] = "Nomor HP harus diisi";
-                        $fail(implode(', ', $errors));
+                        $fail("Nomor HP harus diisi");
                         return;
                     }
 
                     $cleanedPhone = preg_replace('/[^0-9+]/', '', $value);
 
                     if (empty($cleanedPhone)) {
-                        $errors[] = "Nomor HP tidak valid";
+                        $fail("Nomor HP tidak valid");
                     }
 
                     if (preg_match('/^0/', $cleanedPhone)) {
                         if (!preg_match('/^0\d+$/', $cleanedPhone)) {
-                            $errors[] = "Setelah 0 harus diikuti digit angka";
+                            $fail("Setelah 0 harus diikuti digit angka");
                         }
                     } elseif (!preg_match('/^\+62/', $cleanedPhone)) {
-                        $errors[] = "Harus diawali dengan 0 atau +62";
+                        $fail("Harus diawali dengan 0 atau +62");
                     }
 
                     $digits = substr($cleanedPhone, 3);
                     if (strlen($digits) < 9 || strlen($digits) > 13) {
-                        $errors[] = "Harus 11-15 digit (contoh: +628123456789)";
-                    }
-                    
-                    if (!empty($errors)) {
-                        $fail(implode(', ', $errors));
+                        $fail("Harus 11-15 digit (contoh: +628123456789)");
                     }
                 },
                 'max:20'
@@ -229,6 +220,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         ];
     }
 
+    /**
+     * Konversi jenis kelamin ke nilai numerik
+     */
     private function convertJenisKelamin($value)
     {
         $value = strtolower(trim($value));
@@ -242,6 +236,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         return 1; // default jika tidak valid
     }
 
+    /**
+     * Format nomor HP ke standar internasional
+     */
     private function formatPhoneNumber($phoneNumber)
     {
         $cleanedPhone = preg_replace('/[^0-9+]/', '', $phoneNumber);
@@ -254,64 +251,14 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     }
 
     /**
-     * Validasi semua kolom yang required dan kumpulkan semua error
-     */
-    private function validateRequiredFields(array $row, $mitraName, &$errors)
-    {
-        $requiredFields = [
-            'nama_lengkap' => 'Nama Lengkap',
-            'sobat_id' => 'Sobat ID',
-            'alamat_mitra' => 'Alamat Mitra',
-            'kode_desa' => 'Kode Desa',
-            'kode_kecamatan' => 'Kode Kecamatan',
-            'jenis_kelamin' => 'Jenis Kelamin',
-            'no_hp_mitra' => 'Nomor HP',
-            'email_mitra' => 'Email'
-        ];
-
-        foreach ($requiredFields as $field => $label) {
-            if (!isset($row[$field])) {
-                $errors[] = "{$mitraName} : Kolom {$label} tidak ditemukan di file Excel";
-            } elseif (empty($row[$field])) {
-                $errors[] = "{$mitraName} : Kolom {$label} harus diisi";
-            }
-        }
-    }
-
-    /**
-     * Validasi jenis kelamin dengan input 'laki-laki' atau 'perempuan'
-     * dan konversi ke nilai numerik (1 untuk laki-laki, 2 untuk perempuan)
-     */
-    private function validateJenisKelamin($value, $mitraName)
-    {
-        if (empty($value)) {
-            throw new \Exception("{$mitraName} : Jenis kelamin harus diisi");
-        }
-
-        $value = strtolower(trim($value));
-        
-        if ($value === 'laki-laki' || $value === 'laki laki' || $value === 'laki') {
-            return 1;
-        } elseif ($value === 'perempuan') {
-            return 2;
-        } elseif ($value === '1' || $value === '2') {
-            return (int)$value;
-        }
-
-        throw new \Exception("Jenis kelamin harus laki-laki atau perempuan");
-    }
-    
-    /**
-     * Konversi berbagai format input ke numerik
+     * Cek apakah nilai murni numerik
      */
     private function isPureNumeric($value): bool
     {
-        // Cek jika nilai sudah numerik (integer/float)
         if (is_numeric($value)) {
             return true;
         }
 
-        // Cek jika string hanya berisi angka
         if (is_string($value) && preg_match('/^\d+$/', $value)) {
             return true;
         }
@@ -319,23 +266,17 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         return false;
     }
 
-    private function ensurePureNumeric($value, $fieldName, $mitraName = null)
-    {
-        if (empty($value)) {
-            throw new \Exception(($mitraName ? "{$mitraName} : " : "") . "{$fieldName} harus diisi");
-        }
-        
-        if (!$this->isPureNumeric($value)) {
-            throw new \Exception(($mitraName ? "{$mitraName} : " : "") . "{$fieldName} harus berupa angka semua (tidak boleh mengandung karakter non-numerik)");
-        }
-        return $value;
-    }
-    
+    /**
+     * Cek apakah baris kosong
+     */
     private function isEmptyRow(array $row): bool
     {
         return empty($row['sobat_id']) && empty($row['nama_lengkap']) && empty($row['alamat_mitra']);
     }
     
+    /**
+     * Dapatkan data provinsi
+     */
     private function getProvinsi($mitraName)
     {
         $provinsi = Provinsi::where('id_provinsi', $this->defaultProvinsi)->first();
@@ -345,6 +286,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         return $provinsi;
     }
     
+    /**
+     * Dapatkan data kabupaten
+     */
     private function getKabupaten($provinsi, $mitraName)
     {
         $kabupaten = Kabupaten::where('id_kabupaten', $this->defaultKabupaten)
@@ -356,6 +300,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         return $kabupaten;
     }
     
+    /**
+     * Dapatkan data kecamatan
+     */
     private function getKecamatan(array $row, $kabupaten, $mitraName)
     {
         if (empty($row['kode_kecamatan'])) {
@@ -371,6 +318,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         return $kecamatan;
     }
     
+    /**
+     * Dapatkan data desa
+     */
     private function getDesa(array $row, $kecamatan, $mitraName)
     {
         if (empty($row['kode_desa'])) {
@@ -386,6 +336,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         return $desa;
     }
     
+    /**
+     * Validasi tanggal
+     */
     private function validateDates($tahunMulai, $tahunSelesai, $mitraName)
     {
         if (!$tahunMulai) {
@@ -396,7 +349,6 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             throw new \Exception("{$mitraName} : tgl_berakhir_mitra tidak valid");
         }
         
-        // Validasi tahun masuk dalam range wajar (misal 2000-2100)
         $currentYear = date('Y');
         if ($tahunMulai->year < 2000 || $tahunMulai->year > $currentYear + 10) {
             throw new \Exception("{$mitraName} : tgl_mitra_diterima tidak valid (harus antara 2000-".($currentYear + 10).")");
@@ -410,63 +362,29 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             throw new \Exception("{$mitraName} : Tanggal berakhir tidak boleh sebelum tanggal mulai");
         }
     }
-    
-    private function validatePhoneNumber($phoneNumber, $mitraName)
+
+    /**
+     * Tangani error validasi
+     */
+    public function onFailure(\Maatwebsite\Excel\Validators\Failure ...$failures)
     {
-        if (empty($phoneNumber)) {
-            throw new \Exception("Nomor HP harus diisi");
-        }
-
-        // Hilangkan spasi dan karakter khusus jika ada
-        $cleanedPhone = preg_replace('/[^0-9+]/', '', $phoneNumber);
-
-        // Cek format nomor HP
-        if (empty($cleanedPhone) || (!is_string($cleanedPhone) && !is_numeric($cleanedPhone))) {
-            throw new \Exception("Nomor HP tidak valid atau kosong");
-        }
-
-        // Jika diawali dengan 0, ubah menjadi +62
-        if (preg_match('/^0/', $cleanedPhone)) {
-            if (strlen($cleanedPhone) > 1 && preg_match('/^0\d+$/', $cleanedPhone)) {
-                $cleanedPhone = '+62' . substr($cleanedPhone, 1);
-            } else {
-                throw new \Exception("Nomor HP tidak valid. Setelah 0 harus diikuti digit angka");
+        foreach ($failures as $failure) {
+            $row = $failure->row();
+            $mitraName = $failure->values()['nama_lengkap'] ?? 'Tidak diketahui';
+            
+            if (!isset($this->rowErrors[$row])) {
+                $this->rowErrors[$row] = [];
             }
-        } elseif (preg_match('/^\+?0+$/', $cleanedPhone)) {
-            throw new \Exception("Nomor HP tidak valid. Tidak boleh hanya 0");
-        } elseif (!preg_match('/^\+62/', $cleanedPhone)) {
-            throw new \Exception("Nomor HP tidak valid. Harus diawali dengan 0 atau +62");
+            
+            foreach ($failure->errors() as $error) {
+                $this->rowErrors[$row][] = "{$mitraName} : " . $error;
+            }
         }
-
-        // Validasi panjang
-        $digits = substr($cleanedPhone, 3);
-        if (strlen($digits) < 9 || strlen($digits) > 13) {
-            throw new \Exception("Nomor HP harus 11-15 digit (contoh: +628123456789)");
-        }
-
-        return $cleanedPhone;
     }
 
-    private function getCurrentRowName()
-    {
-        return $this->currentRow['nama_lengkap'] ?? 'Tidak diketahui';
-    }
-
-    public function customValidationMessages()
-    {
-        return [
-            'sobat_id.required' => ':attribute harus diisi',
-            'nama_lengkap.required' => ':attribute harus diisi',
-            'alamat_mitra.required' => ':attribute harus diisi',
-            'kode_desa.required' => ':attribute harus diisi',
-            'kode_kecamatan.required' => ':attribute harus diisi',
-            'jenis_kelamin.required' => ':attribute harus diisi',
-            'no_hp_mitra.required' => ':attribute harus diisi',
-            'email_mitra.required' => ':attribute harus diisi',
-            'email_mitra.email' => 'Format E-mail tidak valid',
-        ];
-    }
-
+    /**
+     * Parse tanggal dari berbagai format
+     */
     private function parseTanggal($tanggal, $mitraName)
     {
         try {
@@ -510,33 +428,61 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         }
     }
 
-    public function getRowErrors()
+    /**
+     * Dapatkan daftar error per baris
+     */
+    public function getRowErrors(): array
     {
-        return $this->rowErrors;
+        $formattedErrors = [];
+        foreach ($this->rowErrors as $row => $errors) {
+            $formattedErrors[$row] = is_array($errors) ? $errors : [$errors];
+        }
+        return $formattedErrors;
     }
 
-    public function getTotalProcessed()
+    /**
+     * Jumlah total baris yang diproses
+     */
+    public function getTotalProcessed(): int
     {
         return count($this->rowErrors) + $this->successCount;
     }
 
-    public function getSuccessCount()
+    /**
+     * Jumlah baris yang sukses diimpor
+     */
+    public function getSuccessCount(): int
     {
         return $this->successCount;
     }
 
-    public function getFailedCount()
+    /**
+     * Jumlah total error (bisa lebih dari jumlah baris)
+     */
+    public function getFailedCount(): int
     {
-        return count($this->rowErrors);
+        $count = 0;
+        foreach ($this->rowErrors as $errors) {
+            $count += is_array($errors) ? count($errors) : 1;
+        }
+        return $count;
     }
 
-    public function onFailure(\Maatwebsite\Excel\Validators\Failure ...$failures)
+    /**
+     * Pesan validasi kustom
+     */
+    public function customValidationMessages()
     {
-        foreach ($failures as $failure) {
-            $row = $failure->row();
-            $errors = implode(', ', $failure->errors());
-            $mitraName = $failure->values()['nama_lengkap'] ?? 'Tidak diketahui';
-            $this->rowErrors[$row] = "{$mitraName} : " . $errors;
-        }
+        return [
+            'sobat_id.required' => ':attribute harus diisi',
+            'nama_lengkap.required' => ':attribute harus diisi',
+            'alamat_mitra.required' => ':attribute harus diisi',
+            'kode_desa.required' => ':attribute harus diisi',
+            'kode_kecamatan.required' => ':attribute harus diisi',
+            'jenis_kelamin.required' => ':attribute harus diisi',
+            'no_hp_mitra.required' => ':attribute harus diisi',
+            'email_mitra.required' => ':attribute harus diisi',
+            'email_mitra.email' => 'Format E-mail tidak valid',
+        ];
     }
 }

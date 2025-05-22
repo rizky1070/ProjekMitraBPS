@@ -35,9 +35,10 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
 
     public function model(array $row)
     {
+        $rowNumber = $row['row_number'] ?? $row['__rowNum'] ?? null;
+        $mitraName = $row['nama_lengkap'] ?? 'Tidak diketahui';
+        
         try {
-            $rowNumber = $row['row_number'] ?? $row['__rowNum'] ?? null;
-            
             $tahunMasuk = $this->parseDate($row['tgl_mitra_diterima']);
             $tglIkutSurvei = $this->parseDate($row['tgl_ikut_survei']);
 
@@ -107,23 +108,19 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             $this->successCount++;
 
             // Add warning if honor exceeds limit
-            // Tambahkan property baru
-            
-
-            // Di dalam method model(), ubah bagian honor warning:
             if ($totalHonorSetelahDitambah > 4000000) {
-                $warningMessage = "Mitra {$mitra->nama_lengkap}: Total honor sudah mencapai Rp 4.000.000 (Total: Rp " . 
+                $warningMessage = "Mitra {$mitra->nama_lengkap} - Total honor sudah mencapai Rp 4.000.000 (Total: Rp " . 
                     number_format($totalHonorSetelahDitambah, 0, ',', '.') . ")";
-                $this->honorWarnings[] = $warningMessage; // Simpan di array terpisah
-                $this->rowErrors["honor_{$rowNumber}"] = $warningMessage; // Juga simpan di rowErrors dengan key unik
+                $this->honorWarnings[] = $warningMessage;
             }
 
             return null;
 
         } catch (\Exception $e) {
-            $rowNumber = $row['row_number'] ?? null;
-            $mitraName = $row['nama_lengkap'] ?? 'Tidak diketahui';
-            $this->rowErrors[$rowNumber] = "Mitra {$mitraName} : " . $e->getMessage();
+            if (!isset($this->rowErrors[$rowNumber])) {
+                $this->rowErrors[$rowNumber] = [];
+            }
+            $this->rowErrors[$rowNumber][] = "Baris " . ($rowNumber - 1) . ": Mitra {$mitraName} - " . $e->getMessage();
             return null;
         }
     }
@@ -134,7 +131,6 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             'sobat_id' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    // Cek apakah nilai bisa dikonversi ke numerik
                     if (!is_numeric($this->convertToNumeric($value))) {
                         $fail("SOBAT ID harus berupa angka");
                     }
@@ -177,9 +173,6 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
         ];
     }
 
-    /**
-     * Konversi berbagai format input ke numerik
-     */
     private function convertToNumeric($value)
     {
         if (is_null($value)) {
@@ -190,16 +183,10 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             return $value;
         }
 
-        // Handle string dengan karakter non-numerik (seperti koma, titik, dll)
         $cleaned = preg_replace('/[^0-9,.-]/', '', $value);
-        $cleaned = str_replace(',', '.', $cleaned); // Ganti koma dengan titik untuk format desimal
+        $cleaned = str_replace(',', '.', $cleaned);
 
-        // Jika setelah pembersihan masih berupa angka
-        if (is_numeric($cleaned)) {
-            return $cleaned;
-        }
-
-        return $value; // Kembalikan aslinya jika tidak bisa dikonversi
+        return is_numeric($cleaned) ? $cleaned : $value;
     }
 
     private function parseDate($date)
@@ -235,52 +222,40 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
         }
     }
 
-    public function onError(Throwable $e)
-    {
-        $this->errors[] = $e->getMessage();
-    }
-
     public function onFailure(...$failures)
     {
         foreach ($failures as $failure) {
-            // $failure is an instance of Maatwebsite\Excel\Validators\Failure
             $rowNumber = $failure->row();
             $rowValues = $failure->values();
             $sobatId = $rowValues['sobat_id'] ?? null;
-            $mitraName = null;
+            $mitraName = $rowValues['nama_lengkap'] ?? 'Tidak diketahui';
 
-            if ($sobatId) {
-                $numericSobatId = $this->convertToNumeric($sobatId);
-                $mitra = \App\Models\Mitra::where('sobat_id', $numericSobatId)->first();
-                if ($mitra) {
-                    $mitraName = $mitra->nama_lengkap;
-                }
+            if (!isset($this->rowErrors[$rowNumber])) {
+                $this->rowErrors[$rowNumber] = [];
             }
 
-            $errors = implode(', ', $failure->errors());
-            if ($mitraName) {
-                $this->rowErrors[$rowNumber] = "Mitra {$mitraName} : {$errors}";
-            } else {
-                $this->rowErrors[$rowNumber] = $errors;
+            foreach ($failure->errors() as $error) {
+                $this->rowErrors[$rowNumber][] = "Baris " . ($rowNumber - 1) . ": Mitra {$mitraName} - {$error}";
             }
         }
-    }
-    
-    public function getErrors()
-    {
-        return $this->errors;
     }
 
     public function getErrorMessages()
     {
-        return array_filter($this->rowErrors, function($error) {
-            return strpos($error, 'Total honor sudah mencapai Rp 4.000.000') === false;
-        });
+        $errors = [];
+        foreach ($this->rowErrors as $rowErrors) {
+            foreach ($rowErrors as $error) {
+                if (strpos($error, 'Total honor sudah mencapai Rp 4.000.000') === false) {
+                    $errors[] = $error;
+                }
+            }
+        }
+        return $errors;
     }
 
     public function getHonorWarningMessages()
     {
-        return $this->honorWarnings; // Kembalikan array khusus warning
+        return $this->honorWarnings;
     }
 
     public function getRowErrors()
@@ -305,8 +280,6 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
 
     public function getHonorWarningsCount()
     {
-        return count($this->getHonorWarningMessages());
+        return count($this->honorWarnings);
     }
-
-    
 }

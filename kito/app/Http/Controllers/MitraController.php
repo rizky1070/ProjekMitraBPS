@@ -414,30 +414,33 @@ if ($request->filled('tahun')) {
             $failedCount = $import->getFailedCount();
             $rowErrors = $import->getRowErrors();
 
-            $message = "Import berhasil! {$successCount} data mitra berhasil diproses.";
+            // Pesan sukses dasar
+            $successMessage = "Import berhasil! {$successCount} data mitra berhasil diproses.";
             
             if ($failedCount > 0) {
-                $message .= " {$failedCount} data mitra gagal diproses.";
-                
+                // Format error lebih terstruktur
                 $formattedErrors = [];
-                foreach ($rowErrors as $row => $error) {
-                    // Jika error mengandung koma, berarti multiple errors
-                    $errorMessages = explode(', ', $error);
-                    foreach ($errorMessages as $err) {
-                        $formattedErrors[] = "{$err}";
+                foreach ($rowErrors as $row => $errors) {
+                    // Pastikan $errors adalah array
+                    $errorList = is_array($errors) ? $errors : [$errors];
+                    
+                    foreach ($errorList as $error) {
+                        $formattedErrors[] = "Baris {$row}: {$error}";
                     }
                 }
                 
                 return redirect()->back()
-                    ->with('success', $message)
+                    ->with('success', $successMessage)
+                    ->with('warning', "{$failedCount} data mitra gagal diproses. Silakan perbaiki dan coba lagi.")
                     ->with('import_errors', $formattedErrors);
             }
 
-            return redirect()->back()->with('success', $message);
+            return redirect()->back()->with('success', $successMessage);
 
         } catch (\Exception $e) {
+            Log::error('Error importing mitra: ' . $e->getMessage());
             return redirect()->back()
-                ->withErrors(['file' => "Error import data mitra: " . $e->getMessage()])
+                ->with('error', "Terjadi kesalahan saat mengimpor data: " . $e->getMessage())
                 ->withInput();
         }
     }
