@@ -392,6 +392,9 @@ Route::get('/daftarsekretariat', [SekretariatController::class, 'daftarLink']);
 
 // Kategori Pribadi
 Route::get('/kategoripribadi', [KategoriPribadiController::class, 'index']);
+Route::post('/kategoripribadi', [kategoriPribadiController::class, 'store']);
+Route::put('/kategoripribadi/{id}', [kategoriPribadiController::class, 'update']);
+Route::delete('/kategoripribadi/{id}', [kategoriPribadiController::class, 'destroy']);
 
 // Pribadi
 Route::get('/pribadi', [PribadiController::class, 'index']);
