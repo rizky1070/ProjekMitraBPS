@@ -154,7 +154,7 @@
                                         <img src="mitrabps.png" height="300" width="175" alt="Logo siminbar" />
                                         <h2
                                             class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                            SIMIT</h2>
+                                            SOBAT</h2>
                                     </a>
                                 </article>
             

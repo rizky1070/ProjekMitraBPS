@@ -15,6 +15,7 @@ $title = 'Report Mitra';
             }
         }
     </style>
+    @include('mitrabps.cuScroll')
 </head>
 <body class="h-full bg-gray-50">
     @include('mitrabps.reportSweetAlert')
@@ -22,7 +23,7 @@ $title = 'Report Mitra';
         <x-sidebar></x-sidebar>
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+            <main class="cuScrollFilter flex-1 overflow-x-hidden bg-gray-50">
                 <div class="container px-4 py-6 mx-auto">
                     <!-- Title and Header -->
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -39,7 +40,7 @@ $title = 'Report Mitra';
                     </div>
                     <!-- Filter Section -->
                     <div class="bg-white rounded-lg shadow-sm p-6 mb-6 no-print">
-                        <form id="filterForm" action="{{ route('reports.Mitra.filter') }}" method="GET" class="space-y-4">
+                        <form id="filterForm" action="{{ route('reports.Mitra.filter') }}" method="GET" class="cuScrollFilter space-y-4">
                             <!-- Tahun Filter -->
                             <div class="flex items-center relative">
                                 <label for="nama_lengkap" class="w-32 text-lg font-semibold text-gray-800">Cari Mitra</label>

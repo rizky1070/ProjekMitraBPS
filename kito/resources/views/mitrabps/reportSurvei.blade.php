@@ -15,6 +15,7 @@ $title = 'Report Survei';
             }
         }
     </style>
+    @include('mitrabps.cuScroll')
 </head>
 <body class="h-full bg-gray-50">
     @include('mitrabps.reportSweetAlert')
@@ -22,7 +23,7 @@ $title = 'Report Survei';
         <x-sidebar></x-sidebar>
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+            <main class="cuScrollFilter flex-1 overflow-x-hidden bg-gray-50">
                 <div class="container px-4 py-6 mx-auto">
                     <!-- Title and Header -->
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
