@@ -107,6 +107,25 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
         }
     }
 
+    private function validateRequiredFields(array $row, $rowName, &$errors)
+    {
+        $requiredFields = [
+            'nama_survei' => 'Nama Survei',
+            'kro' => 'KRO',
+            'jadwal' => 'Jadwal Mulai',
+            'jadwal_berakhir' => 'Jadwal Berakhir',
+            'tim' => 'Tim'
+        ];
+
+        foreach ($requiredFields as $field => $label) {
+            if (!array_key_exists($field, $row)) {
+                $errors[] = "{$rowName} : Kolom {$label} tidak ditemukan di file Excel";
+            } elseif (empty($row[$field])) {
+                $errors[] = "{$rowName} : Kolom {$label} harus diisi";
+            }
+        }
+    }
+
     private function determineSurveyStatus(Carbon $today, Carbon $startDate, Carbon $endDate): int
     {
         if ($today->lt($startDate)) {
