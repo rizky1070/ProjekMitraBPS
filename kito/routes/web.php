@@ -382,5 +382,6 @@ Route::get('/daftarsupertim', [SuperTimController::class, 'daftarLink']);
 Route::get('/daftarsekretariat', [SekretariatController::class, 'daftarLink']);
 Route::get('/kategoripribadi', [KategoriPribadiController::class, 'index']);
 Route::get('/daftarlinkpribadi', [PribadiController::class, 'daftarLink']);
+Route::get('/pribadi', [PribadiController::class, 'index']);
 
 require __DIR__ . '/auth.php';
