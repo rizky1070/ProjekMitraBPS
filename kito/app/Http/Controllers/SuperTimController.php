@@ -1,22 +1,105 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Office;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class SuperTimController extends Controller
 {
     public function index()
 {
-    $offices = Office::with('category')
+    $offices = Office::with('category') // Pastikan selalu load relasi
                     ->where('status', 1)
-                    ->get(); // hanya ambil data dengan status = 1
-    return view('Setape.superTim.index', compact('offices'));
+                    ->get();
+                    
+    $categories = Category::all(); 
+    
+    return view('Setape.superTim.index', compact('offices', 'categories'));
 }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'link' => 'required|url|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'status' => 'required|boolean'
+        ]);
+
+        try {
+            Office::create([
+                'name' => $request->name,
+                'link' => $request->link,
+                'category_id' => $request->category_id,
+                'status' => $request->status
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Super Tim berhasil ditambahkan'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan Super Tim: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'link' => 'required|url|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'status' => 'required|boolean'
+        ]);
+
+        try {
+            $office = Office::findOrFail($id);
+            $office->update([
+                'name' => $request->name,
+                'link' => $request->link,
+                'category_id' => $request->category_id,
+                'status' => $request->status
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Super Tim berhasil diperbarui'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui Super Tim: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $office = Office::findOrFail($id);
+            $office->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Super Tim berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Super Tim: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function daftarLink()
     {
-        $offices = Office::with('category')->get(); // assuming you have relation with category
-        return view('Setape.superTim.daftarLink', compact('offices'));
+        $offices = Office::with('category')->get();
+        $categories = Category::all(); // Tambahkan ini
+        return view('Setape.superTim.daftarLink', compact('offices', 'categories')); // Tambahkan categories
     }
 }

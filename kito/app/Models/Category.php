@@ -13,6 +13,8 @@ class Category extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+
+    protected $table = 'categories'; // Pastikan sesuai dengan nama tabel
     
     public function ketuas()
     {
