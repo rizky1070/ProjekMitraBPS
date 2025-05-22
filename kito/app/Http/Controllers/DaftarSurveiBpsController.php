@@ -502,13 +502,12 @@ $mitras = $mitrasQuery->orderByDesc('posisi_mitra')->paginate(10);
     public function upExcelMitra2Survey(Request $request, $id_survei)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls'
+            'file' => 'required|mimes:xlsx,xls|max:2048'
         ]);
 
-        // Validasi apakah survei exists
         $survei = Survei::find($id_survei);
         if (!$survei) {
-            return redirect()->back()->withErrors(['file' => 'Survei tidak ditemukan']);
+            return redirect()->back()->with('error', 'Survei tidak ditemukan');
         }
 
         $import = new Mitra2SurveyImport($id_survei);
@@ -520,8 +519,7 @@ $mitras = $mitrasQuery->orderByDesc('posisi_mitra')->paginate(10);
             $failedCount = $import->getFailedCount();
             $honorWarningsCount = $import->getHonorWarningsCount();
             
-            // Dapatkan pesan error dan warning yang sudah diformat dengan nomor baris
-            $errorMessages = $import->getErrorMessages(); 
+            $errorMessages = $import->getErrorMessages();
             $honorWarningMessages = $import->getHonorWarningMessages();
 
             $message = "Import selesai! ";
@@ -535,15 +533,18 @@ $mitras = $mitrasQuery->orderByDesc('posisi_mitra')->paginate(10);
                 $message .= "{$honorWarningsCount} data memiliki peringatan honor. ";
             }
 
-            // Tidak perlu format ulang karena pesan sudah mengandung nomor baris
-            // Pesan warning honor sudah diformat di class Import
+            $response = redirect()->back()
+                ->with('success', trim($message));
 
-            return redirect()->back()
-                ->with('success', trim($message))
-                ->with('import_errors', $errorMessages) // Sudah berisi "Baris X: ..."
-                ->with('honor_warnings', $honorWarningMessages) // Sudah berisi "Baris X: ..."
-                ->with('error_details', $errorMessages) // Untuk log
-                ->with('warning_details', $honorWarningMessages); // Untuk log
+            if ($failedCount > 0) {
+                $response = $response->with('import_errors', $errorMessages);
+            }
+
+            if ($honorWarningsCount > 0) {
+                $response = $response->with('honor_warnings', $honorWarningMessages);
+            }
+
+            return $response;
 
         } catch (\Exception $e) {
             Log::error('Import Error: ' . $e->getMessage(), [
@@ -552,7 +553,7 @@ $mitras = $mitrasQuery->orderByDesc('posisi_mitra')->paginate(10);
             ]);
             
             return redirect()->back()
-                ->withErrors(['file' => "Gagal mengimpor file: " . $e->getMessage()]);
+                ->with('error', "Gagal mengimpor file: " . $e->getMessage());
         }
     }
 
