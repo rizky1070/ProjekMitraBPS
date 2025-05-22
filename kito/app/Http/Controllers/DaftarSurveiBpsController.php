@@ -700,22 +700,29 @@ $mitras = $mitrasQuery->orderByDesc('posisi_mitra')->paginate(10);
             if ($failedCount > 0) {
                 $message .= " {$failedCount} data survei gagal diproses.";
                 
-                $formattedErrors = [];
+                // Format errors untuk ditampilkan ke user
+                $displayErrors = [];
                 foreach ($rowErrors as $row => $error) {
-                    $formattedErrors[] = "{$error}";
+                    $displayErrors[] = "{$error}";
                 }
                 
+                // Batasi jumlah error yang ditampilkan (misal maks 10 error)
+                $limitedErrors = array_slice($displayErrors, 0, 10);
+                if (count($displayErrors) > 10) {
+                    $limitedErrors[] = "Dan " . (count($displayErrors) - 10) . " error lainnya...";
+                }
+
                 return redirect()->back()
                     ->with('success', $message)
-                    ->with('import_errors', $formattedErrors)
-                    ->with('error_details', $rowErrors);
+                    ->with('import_errors', $limitedErrors)
+                    ->with('total_errors', $failedCount);
             }
 
             return redirect()->back()->with('success', $message);
 
         } catch (\Exception $e) {
             return redirect()->back()
-                ->withErrors(['file' => "Error import data survei: " . $e->getMessage()])
+                ->with('error', "Error import data survei: " . $e->getMessage())
                 ->withInput();
         }
     }

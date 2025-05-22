@@ -65,7 +65,7 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             $tahunMasukMitra = Carbon::parse($tahunMasuk);
             $tahunBerakhirMitra = Carbon::parse($mitra->tahun_selesai);
 
-            if ($tahunBerakhirMitra < $jadwalMulaiSurvei || $tahunMasukMitra > $jadwalBerakhirSurvei) {
+            if ($tahunBerakhirMitra < $jadwalMulaiSurvei && $tahunMasukMitra > $jadwalBerakhirSurvei) {
                 throw new \Exception("Mitra tidak aktif pada periode survei");
             }
 
