@@ -214,7 +214,7 @@ $title = 'Super Tim';
             async submitAddForm() {
                 try {
                     this.isLoading = true;
-                    const response = await fetch('/supertim', {
+                    const response = await fetch('/daftarsupertim', {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -248,7 +248,7 @@ $title = 'Super Tim';
             async submitEditForm() {
                 try {
                     this.isLoading = true;
-                    const response = await fetch(`/supertim/${this.currentOffice}`, {
+                    const response = await fetch(`/daftarsupertim/${this.currentOffice}`, {
                         method: 'PUT',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -293,7 +293,7 @@ $title = 'Super Tim';
                     });
                     
                     if (result.isConfirmed) {
-                        const response = await fetch(`/supertim/${id}`, {
+                        const response = await fetch(`/daftarsupertim/${id}`, {
                             method: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

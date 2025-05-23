@@ -384,13 +384,16 @@ Route::delete('/kategoriumum/{id}', [KategoriUmumController::class, 'destroy']);
 
 // Super TIM
 Route::get('/supertim', [SuperTimController::class, 'index']);
-Route::post('/supertim', [superTimController::class, 'store']);
-Route::put('/supertim/{id}', [superTimController::class, 'update']);
-Route::delete('/supertim/{id}', [superTimController::class, 'destroy']);
+Route::post('/daftarsupertim', [superTimController::class, 'store']);
+Route::put('/daftarsupertim/{id}', [superTimController::class, 'update']);
+Route::delete('/daftarsupertim/{id}', [superTimController::class, 'destroy']);
 Route::get('/daftarsupertim', [SuperTimController::class, 'daftarLink']);
 
 // Sekretariat
 Route::get('/sekretariat', [SekretariatController::class, 'index']);
+Route::post('/daftarsekretariat', [SekretariatController::class, 'store']);
+Route::put('/daftarsekretariat/{id}', [SekretariatController::class, 'update']);
+Route::delete('/daftarsekretariat/{id}', [SekretariatController::class, 'destroy']);
 Route::get('/daftarsekretariat', [SekretariatController::class, 'daftarLink']);
 
 // Kategori Pribadi
