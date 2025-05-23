@@ -33,8 +33,11 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
         try {
             // Skip empty rows
             if ($this->isEmptyRow($row)) {
-                return null;
+                throw new \Exception("Baris kosong ditemukan");
             }
+
+            // Validate required fields
+            $this->validateRequiredFields($row);
 
             // Validate survey name first
             if (empty($row['nama_survei']) || !is_string($row['nama_survei'])) {
@@ -102,12 +105,12 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
                 'tim' => $row['tim']
             ]);
         } catch (\Exception $e) {
-            $this->rowErrors[$row['__row__']] = "{$row['nama_survei']} : " . $e->getMessage();
+            $this->rowErrors[$row['__row__']] = "Baris {$row['__row__']}: " . $e->getMessage();
             return null;
         }
     }
 
-    private function validateRequiredFields(array $row, $rowName, &$errors)
+    private function validateRequiredFields(array $row): void
     {
         $requiredFields = [
             'nama_survei' => 'Nama Survei',
@@ -119,11 +122,25 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
 
         foreach ($requiredFields as $field => $label) {
             if (!array_key_exists($field, $row)) {
-                $errors[] = "{$rowName} : Kolom {$label} tidak ditemukan di file Excel";
-            } elseif (empty($row[$field])) {
-                $errors[] = "{$rowName} : Kolom {$label} harus diisi";
+                throw new \Exception("Kolom {$label} tidak ditemukan");
+            }
+            
+            if (empty($row[$field])) {
+                throw new \Exception("Kolom {$label} harus diisi");
             }
         }
+    }
+
+    private function isEmptyRow(array $row): bool
+    {
+        $requiredFields = ['nama_survei', 'kro', 'tim', 'jadwal', 'jadwal_berakhir'];
+        
+        foreach ($requiredFields as $field) {
+            if (!empty($row[$field])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private function determineSurveyStatus(Carbon $today, Carbon $startDate, Carbon $endDate): int
@@ -135,11 +152,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
         } else {
             return 2; // Sedang berjalan
         }
-    }
-
-    private function isEmptyRow(array $row): bool
-    {
-        return empty($row['nama_survei']) && empty($row['kro']) && empty($row['tim']);
     }
     
     private function getProvinsi()

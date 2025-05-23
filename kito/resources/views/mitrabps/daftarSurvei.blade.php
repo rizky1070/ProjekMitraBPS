@@ -146,7 +146,7 @@ $title = 'Daftar Survei';
                                         @if($survey->mitraSurvei->isNotEmpty())
                                         <strong>Jumlah Mitra: </strong>
                                         {{ $survey->mitraSurvei->count() }}<br>
-                                        <div class="mt-2 max-h-[250px] overflow-y-auto pr-2 space-y-1">
+                                        <div class="cuScrollFilter mt-2 max-h-[250px] overflow-y-auto pr-2 space-y-1">
                                             @php
                                                 // Urutkan mitra berdasarkan total survei (descending)
                                                 $sortedMitras = $survey->mitraSurvei->sortByDesc(function($mitra) use ($mitraHighlight) {
