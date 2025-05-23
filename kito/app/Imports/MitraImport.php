@@ -77,7 +77,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             // Parse tanggal
             $tahunMulai = $this->parseTanggal($row['tgl_mitra_diterima'] ?? null, $mitraName);
             if (empty($row['tgl_mitra_diterima'])) {
-                Log::info("{$mitraName} : Kolom tahun kosong, menggunakan tanggal sekarang");
+                Log::info("Kolom tahun kosong, menggunakan tanggal sekarang");
             }
 
             // Parse tanggal berakhir
@@ -89,7 +89,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 }
             } else {
                 $tahunSelesai = $tahunMulai->copy()->addMonth();
-                Log::info("{$mitraName} : Kolom tgl_berakhir_mitra kosong, menggunakan 1 bulan setelah tanggal mulai");
+                Log::info("Kolom tgl_berakhir_mitra kosong, menggunakan 1 bulan setelah tanggal mulai");
             }
             
             // Validasi tanggal
@@ -313,7 +313,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     {
         $provinsi = Provinsi::where('id_provinsi', $this->defaultProvinsi)->first();
         if (!$provinsi) {
-            throw new \Exception("{$mitraName} : Provinsi default (kode : {$this->defaultProvinsi}) tidak ditemukan di database.");
+            throw new \Exception("Provinsi default (kode : {$this->defaultProvinsi}) tidak ditemukan di database.");
         }
         return $provinsi;
     }
@@ -327,7 +327,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             ->where('id_provinsi', $provinsi->id_provinsi)
             ->first();
         if (!$kabupaten) {
-            throw new \Exception("{$mitraName} : Kabupaten default (kode : {$this->defaultKabupaten}) tidak ditemukan di provinsi {$provinsi->nama_provinsi}.");
+            throw new \Exception("Kabupaten default (kode : {$this->defaultKabupaten}) tidak ditemukan di provinsi {$provinsi->nama_provinsi}.");
         }
         return $kabupaten;
     }
@@ -338,14 +338,14 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     private function getKecamatan(array $row, $kabupaten, $mitraName)
     {
         if (empty($row['kode_kecamatan'])) {
-            throw new \Exception("{$mitraName} : Kode kecamatan harus diisi");
+            throw new \Exception("Kode kecamatan harus diisi");
         }
         
         $kecamatan = Kecamatan::where('kode_kecamatan', $row['kode_kecamatan'])
             ->where('id_kabupaten', $kabupaten->id_kabupaten)
             ->first();
         if (!$kecamatan) {
-            throw new \Exception("{$mitraName} : Kode kecamatan {$row['kode_kecamatan']} tidak ditemukan di kabupaten {$kabupaten->nama_kabupaten}.");
+            throw new \Exception("Kode kecamatan {$row['kode_kecamatan']} tidak ditemukan di kabupaten {$kabupaten->nama_kabupaten}.");
         }
         return $kecamatan;
     }
@@ -356,14 +356,14 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     private function getDesa(array $row, $kecamatan, $mitraName)
     {
         if (empty($row['kode_desa'])) {
-            throw new \Exception("{$mitraName} : Kode desa harus diisi");
+            throw new \Exception("Kode desa harus diisi");
         }
         
         $desa = Desa::where('kode_desa', $row['kode_desa'])
             ->where('id_kecamatan', $kecamatan->id_kecamatan)
             ->first();
         if (!$desa) {
-            throw new \Exception("{$mitraName} : Kode desa {$row['kode_desa']} tidak ditemukan di kecamatan {$kecamatan->nama_kecamatan}.");
+            throw new \Exception("Kode desa {$row['kode_desa']} tidak ditemukan di kecamatan {$kecamatan->nama_kecamatan}.");
         }
         return $desa;
     }
@@ -374,24 +374,24 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     private function validateDates($tahunMulai, $tahunSelesai, $mitraName)
     {
         if (!$tahunMulai) {
-            throw new \Exception("{$mitraName} : tgl_mitra_diterima tidak valid");
+            throw new \Exception("tgl_mitra_diterima tidak valid");
         }
         
         if (!$tahunSelesai) {
-            throw new \Exception("{$mitraName} : tgl_berakhir_mitra tidak valid");
+            throw new \Exception("tgl_berakhir_mitra tidak valid");
         }
         
         $currentYear = date('Y');
         if ($tahunMulai->year < 2000 || $tahunMulai->year > $currentYear + 10) {
-            throw new \Exception("{$mitraName} : tgl_mitra_diterima tidak valid (harus antara 2000-".($currentYear + 10).")");
+            throw new \Exception("tgl_mitra_diterima tidak valid (harus antara 2000-".($currentYear + 10).")");
         }
         
         if ($tahunSelesai->year < 2000 || $tahunSelesai->year > $currentYear + 10) {
-            throw new \Exception("{$mitraName} : tgl_berakhir_mitra tidak valid (harus antara 2000-".($currentYear + 10).")");
+            throw new \Exception("tgl_berakhir_mitra tidak valid (harus antara 2000-".($currentYear + 10).")");
         }
         
         if ($tahunSelesai->lt($tahunMulai)) {
-            throw new \Exception("{$mitraName} : Tanggal berakhir tidak boleh sebelum tanggal mulai");
+            throw new \Exception("Tanggal berakhir tidak boleh sebelum tanggal mulai");
         }
     }
 
@@ -432,7 +432,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             $mitraName = $errorData['mitra'];
             $errors = $errorData['errors'];
             
-            $formattedErrors[] = "Baris {$rowNum} (Mitra '{$mitraName}'): " . implode("; ", $errors);
+            $formattedErrors[] = "Mitra {$mitraName}: " . implode("; ", $errors);
         }
         
         return $formattedErrors;
@@ -479,7 +479,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             
         } catch (\Exception $e) {
             Log::error("Gagal parsing tanggal : {$tanggal} - Error: " . $e->getMessage());
-            throw new \Exception("{$mitraName} : Format tanggal tidak valid ({$tanggal})");
+            throw new \Exception("Format tanggal tidak valid ({$tanggal})");
         }
     }
 
