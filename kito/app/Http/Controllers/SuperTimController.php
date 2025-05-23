@@ -9,15 +9,22 @@ use Illuminate\Http\Request;
 class SuperTimController extends Controller
 {
     public function index()
-{
-    $offices = Office::with('category') // Pastikan selalu load relasi
-                    ->where('status', 1)
-                    ->get();
-                    
-    $categories = Category::all(); 
+    {
+        $offices = Office::with('category') // Pastikan selalu load relasi
+            ->where('status', 1)
+            ->get();
+
+        $categories = Category::all();
+
+        return view('Setape.superTim.index', compact('offices', 'categories'));
+    }
     
-    return view('Setape.superTim.index', compact('offices', 'categories'));
-}
+    public function daftarLink()
+    {
+        $offices = Office::with('category')->get();
+        $categories = Category::all();
+        return view('Setape.superTim.daftarLink', compact('offices', 'categories'));
+    }
 
     public function store(Request $request)
     {
@@ -54,7 +61,7 @@ class SuperTimController extends Controller
             'name' => 'required|string|max:255',
             'link' => 'required|url|max:255',
             'category_id' => 'nullable|exists:categories,id',
-            'status' => 'required|boolean'
+            'status' => 'required'
         ]);
 
         try {
@@ -94,12 +101,5 @@ class SuperTimController extends Controller
                 'message' => 'Gagal menghapus Super Tim: ' . $e->getMessage()
             ], 500);
         }
-    }
-
-    public function daftarLink()
-    {
-        $offices = Office::with('category')->get();
-        $categories = Category::all(); // Tambahkan ini
-        return view('Setape.superTim.daftarLink', compact('offices', 'categories')); // Tambahkan categories
     }
 }
