@@ -67,7 +67,7 @@ $title = 'Super Tim';
                                                 editOfficeName = '{{ $office->name }}'; 
                                                 editOfficeLink = '{{ $office->link }}'; 
                                                 editOfficeCategory = {{ $office->category_id ?? 'null' }}; 
-                                                editOfficeStatus = {{ $office->status }};" 
+                                                editOfficeStatus = {{ $office->status ? 1 : 0 }};" 
                                                 class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 mr-2">
                                                 Edit
                                             </button>
