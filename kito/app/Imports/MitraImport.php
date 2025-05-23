@@ -39,6 +39,17 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
      */
     public function model(array $row)
     {
+        $errors = [];
+        
+        // Validasi 1
+        if (empty($row['nama_lengkap'])) {
+            $errors[] = "Nama lengkap harus diisi";
+        }
+        
+        // Validasi 2
+        if (empty($row['alamat_mitra'])) {
+            $errors[] = "Alamat mitra harus diisi";
+        }
         static $rowNumber = 1;
         $this->currentRow = $row;
         $row['__row__'] = $rowNumber++;
@@ -106,6 +117,10 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 
                 $this->successCount++;
                 return null;
+            }
+
+            if (!empty($errors)) {
+                throw new \Exception(implode(", ", $errors));
             }
 
             // Buat data baru
@@ -370,18 +385,15 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     {
         foreach ($failures as $failure) {
             $row = $failure->row();
-            $mitraName = $failure->values()['nama_lengkap'] ?? 'Tidak diketahui';
+            $allErrors = implode(", ", $failure->errors());
             
             if (!isset($this->rowErrors[$row])) {
                 $this->rowErrors[$row] = [];
             }
             
-            foreach ($failure->errors() as $error) {
-                $this->rowErrors[$row][] = "{$mitraName} : " . $error;
-            }
+            $this->rowErrors[$row][] = $allErrors;
         }
     }
-
     /**
      * Parse tanggal dari berbagai format
      */

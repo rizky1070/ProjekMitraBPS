@@ -22,208 +22,119 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
 
     private $rowErrors = [];
     private $successCount = 0;
+    private $failedCount = 0;
+    private $processedRows = 0;
     private $defaultProvinsi = '35';
     private $defaultKabupaten = '16';
     
+    private $requiredFields = [
+        'nama_survei' => 'Nama Survei',
+        'kro' => 'KRO',
+        'jadwal' => 'Jadwal Mulai',
+        'jadwal_berakhir' => 'Jadwal Berakhir',
+        'tim' => 'Tim'
+    ];
+
     public function model(array $row)
     {
-        static $rowNumber = 1;
-        $row['__row__'] = $rowNumber++;
+        $this->processedRows++;
+        $currentRow = $this->processedRows + 1; // +1 karena heading row
+        $errorsInRow = [];
+        $surveyName = $row['nama_survei'] ?? '(Tanpa Nama)';
 
         try {
-            // Skip empty rows
-            if ($this->isEmptyRow($row)) {
-                throw new \Exception("Baris kosong ditemukan");
+            // Cek jika baris benar-benar kosong
+            if ($this->isRowCompletelyEmpty($row)) {
+                throw new \Exception("Data survei kosong - semua kolom wajib tidak diisi");
             }
 
-            // Validate required fields
-            $this->validateRequiredFields($row);
+            // Validasi field wajib dan tipe data
+            $this->validateRow($row, $surveyName, $errorsInRow);
 
-            // Validate survey name first
-            if (empty($row['nama_survei']) || !is_string($row['nama_survei'])) {
-                throw new \Exception("Nama Survei: Format tidak valid");
+            // Jika ada error validasi, lempar exception
+            if (!empty($errorsInRow)) {
+                throw new \Exception(implode("; ", $errorsInRow));
             }
 
-            Log::info('Importing row: ', $row);
+            Log::info('Memproses import survei: ', ['nama_survei' => $surveyName, 'data' => $row]);
 
-            // Dapatkan data wilayah
+            // Proses data wilayah
             $provinsi = $this->getProvinsi();
             $kabupaten = $this->getKabupaten($provinsi);
 
-            // Parse tanggal
-            $jadwalMulai = $this->parseDate($row['jadwal'] ?? null);
-            $jadwalBerakhir = $this->parseDate($row['jadwal_berakhir'] ?? null);
+            // Proses tanggal
+            $jadwalMulai = $this->parseDate($row['jadwal'] ?? null, $surveyName, $errorsInRow);
+            $jadwalBerakhir = $this->parseDate($row['jadwal_berakhir'] ?? null, $surveyName, $errorsInRow);
 
             // Validasi tanggal
-            $this->validateDates($jadwalMulai, $jadwalBerakhir);
+            $this->validateDates($jadwalMulai, $jadwalBerakhir, $surveyName, $errorsInRow);
+
+            // Jika ada error tanggal, lempar exception
+            if (!empty($errorsInRow)) {
+                throw new \Exception(implode("; ", $errorsInRow));
+            }
 
             // Hitung bulan dominan
             $bulanDominan = $this->calculateDominantMonth($jadwalMulai, $jadwalBerakhir);
 
-            // Set status_survei berdasarkan tanggal hari ini
-            $today = now();
-            $statusSurvei = $this->determineSurveyStatus($today, $jadwalMulai, $jadwalBerakhir);
+            // Tentukan status survei
+            $statusSurvei = $this->determineSurveyStatus(now(), $jadwalMulai, $jadwalBerakhir);
 
-            // Cek duplikasi data berdasarkan nama_survei, jadwal_kegiatan, dan jadwal_berakhir_kegiatan
-            $existingSurvei = Survei::where('nama_survei', $row['nama_survei'])
-                ->whereDate('jadwal_kegiatan', $jadwalMulai->toDateString())
-                ->whereDate('jadwal_berakhir_kegiatan', $jadwalBerakhir->toDateString())
-                ->first();
+            // Cek duplikasi data
+            $existingSurvei = $this->checkForDuplicate($row, $jadwalMulai, $jadwalBerakhir);
 
             if ($existingSurvei) {
-                // Update semua field data yang sudah ada kecuali created_at
-                $existingSurvei->update([
-                    'id_kabupaten' => $kabupaten->id_kabupaten,
-                    'id_provinsi' => $provinsi->id_provinsi,
-                    'kro' => $row['kro'],
-                    'bulan_dominan' => $bulanDominan,
-                    'status_survei' => $statusSurvei,
-                    'tim' => $row['tim'],
-                    'updated_at' => now()
-                ]);
-                
-                Log::info('Data duplikat ditemukan dan diupdate: ', [
-                    'id' => $existingSurvei->id,
-                    'data' => $row
-                ]);
-                
-                $this->successCount++;
+                $this->updateExistingSurvey($existingSurvei, $row, $kabupaten, $provinsi, $bulanDominan, $statusSurvei);
                 return null;
             }
 
-            // Buat data baru jika tidak ada duplikat
+            // Buat data baru
             $this->successCount++;
-            return new Survei([
-                'nama_survei' => $row['nama_survei'],
-                'id_kabupaten' => $kabupaten->id_kabupaten,
-                'id_provinsi' => $provinsi->id_provinsi,
-                'kro' => $row['kro'],
-                'jadwal_kegiatan' => $jadwalMulai,
-                'jadwal_berakhir_kegiatan' => $jadwalBerakhir,
-                'bulan_dominan' => $bulanDominan,
-                'status_survei' => $statusSurvei,
-                'tim' => $row['tim']
-            ]);
+            return $this->createNewSurvey($row, $kabupaten, $provinsi, $jadwalMulai, $jadwalBerakhir, $bulanDominan, $statusSurvei);
+
         } catch (\Exception $e) {
-            $this->rowErrors[$row['__row__']] = "Baris {$row['__row__']}: " . $e->getMessage();
+            $this->rowErrors[$surveyName] = "Survei '{$surveyName}': " . $e->getMessage();
+            $this->failedCount++;
             return null;
         }
     }
 
-    private function validateRequiredFields(array $row): void
+    private function validateRow(array $row, string $surveyName, array &$errors): void
     {
-        $requiredFields = [
-            'nama_survei' => 'Nama Survei',
-            'kro' => 'KRO',
-            'jadwal' => 'Jadwal Mulai',
-            'jadwal_berakhir' => 'Jadwal Berakhir',
-            'tim' => 'Tim'
-        ];
-
-        foreach ($requiredFields as $field => $label) {
+        // Validasi field wajib
+        foreach ($this->requiredFields as $field => $label) {
             if (!array_key_exists($field, $row)) {
-                throw new \Exception("Kolom {$label} tidak ditemukan");
+                $errors[] = "Kolom {$label} tidak ditemukan";
+                continue;
             }
             
-            if (empty($row[$field])) {
-                throw new \Exception("Kolom {$label} harus diisi");
+            if (empty(trim($row[$field]))) {
+                $errors[] = "Kolom {$label} harus diisi";
             }
         }
-    }
 
-    private function isEmptyRow(array $row): bool
-    {
-        $requiredFields = ['nama_survei', 'kro', 'tim', 'jadwal', 'jadwal_berakhir'];
-        
-        foreach ($requiredFields as $field) {
-            if (!empty($row[$field])) {
-                return false;
-            }
+        // Validasi tipe data
+        if (isset($row['nama_survei']) && !is_string($row['nama_survei'])) {
+            $errors[] = "Nama Survei harus berupa teks";
         }
-        return true;
-    }
 
-    private function determineSurveyStatus(Carbon $today, Carbon $startDate, Carbon $endDate): int
-    {
-        if ($today->lt($startDate)) {
-            return 1; // Belum dimulai
-        } elseif ($today->gt($endDate)) {
-            return 3; // Sudah selesai
-        } else {
-            return 2; // Sedang berjalan
+        if (isset($row['kro']) && !is_string($row['kro'])) {
+            $errors[] = "KRO harus berupa teks";
         }
-    }
-    
-    private function getProvinsi()
-    {
-        $provinsi = Provinsi::where('id_provinsi', $this->defaultProvinsi)->first();
-        if (!$provinsi) {
-            throw new \Exception("Provinsi default (kode: {$this->defaultProvinsi}) tidak ditemukan di database.");
-        }
-        return $provinsi;
-    }
-    
-    private function getKabupaten($provinsi)
-    {
-        $kabupaten = Kabupaten::where('id_kabupaten', $this->defaultKabupaten)
-            ->where('id_provinsi', $provinsi->id_provinsi)
-            ->first();
-        if (!$kabupaten) {
-            throw new \Exception("Kabupaten default (kode: {$this->defaultKabupaten}) tidak ditemukan di provinsi {$provinsi->nama}.");
-        }
-        return $kabupaten;
-    }
-    
-    private function validateDates($jadwalMulai, $jadwalBerakhir)
-    {
-        if (!$jadwalMulai) {
-            throw new \Exception("Tanggal jadwal mulai tidak valid");
-        }
-        
-        if (!$jadwalBerakhir) {
-            throw new \Exception("Tanggal jadwal berakhir tidak valid");
-        }
-        
-        if ($jadwalBerakhir->lt($jadwalMulai)) {
-            throw new \Exception("Tanggal berakhir harus setelah tanggal mulai");
-        }
-        
-        $currentYear = date('Y');
-        if ($jadwalMulai->year < 2000 || $jadwalMulai->year > $currentYear + 5) {
-            throw new \Exception("Tahun jadwal tidak valid (harus antara 2000-".($currentYear + 5).")");
+
+        if (isset($row['tim']) && !is_string($row['tim'])) {
+            $errors[] = "Tim harus berupa teks";
         }
     }
 
-    private function calculateDominantMonth(Carbon $start, Carbon $end): string
+    private function parseDate($date, string $surveyName, array &$errors): ?Carbon
     {
-        $months = collect();
-        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-            $months->push($date->format('m-Y'));
+        if (empty($date)) {
+            $errors[] = "Tanggal tidak boleh kosong";
+            return null;
         }
 
-        $mostFrequentMonth = $months->countBy()->sortDesc()->keys()->first();
-        [$bulan, $tahun] = explode('-', $mostFrequentMonth);
-        return Carbon::createFromDate($tahun, $bulan, 1)->toDateString();
-    }
-
-    public function rules(): array
-    {
-        return [
-            'nama_survei' => 'required|string|max:255',
-            'kro' => 'required|string|max:100',
-            'tim' => 'required|string|max:255',
-            'jadwal' => 'required',
-            'jadwal_berakhir' => 'required'
-        ];   
-    }
-    
-    private function parseDate($date)
-    {
         try {
-            if (empty($date)) {
-                return null;
-            }
-
             if ($date instanceof \DateTimeInterface) {
                 return Carbon::instance($date);
             }
@@ -242,31 +153,163 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
                 return Carbon::parse($date);
             }
 
-            throw new \Exception("Format tanggal tidak dikenali");
+            $errors[] = "Format tanggal tidak dikenali";
+            return null;
             
         } catch (\Exception $e) {
-            Log::error("Gagal parsing tanggal: {$date} - Error: " . $e->getMessage());
-            throw new \Exception("Format tanggal tidak valid: {$date}");
+            Log::error("Gagal parsing tanggal untuk survei '{$surveyName}': {$date} - Error: " . $e->getMessage());
+            return null;
         }
     }
+
+    private function validateDates(?Carbon $start, ?Carbon $end, string $surveyName, array &$errors): void
+    {
+        if (!$start) {
+            $errors[] = "Tanggal mulai tidak valid";
+        }
+        
+        if (!$end) {
+            $errors[] = "Tanggal berakhir tidak valid";
+        }
+        
+        if ($start && $end && $end->lt($start)) {
+            $errors[] = "Tanggal berakhir harus setelah tanggal mulai";
+        }
+        
+        if ($start) {
+            $currentYear = date('Y');
+            if ($start->year < 2000 || $start->year > $currentYear + 5) {
+                $errors[] = "Tahun jadwal tidak valid (harus antara 2000-".($currentYear + 5).")";
+            }
+        }
+    }
+
+    private function isRowCompletelyEmpty(array $row): bool
+    {
+        foreach (array_keys($this->requiredFields) as $field) {
+            if (isset($row[$field]) && !empty(trim($row[$field]))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private function checkForDuplicate(array $row, Carbon $jadwalMulai, Carbon $jadwalBerakhir)
+    {
+        return Survei::where('nama_survei', $row['nama_survei'])
+            ->whereDate('jadwal_kegiatan', $jadwalMulai->toDateString())
+            ->whereDate('jadwal_berakhir_kegiatan', $jadwalBerakhir->toDateString())
+            ->first();
+    }
+
+    private function updateExistingSurvey(
+        Survei $existingSurvei,
+        array $row,
+        Kabupaten $kabupaten,
+        Provinsi $provinsi,
+        string $bulanDominan,
+        int $statusSurvei
+    ): void {
+        $existingSurvei->update([
+            'id_kabupaten' => $kabupaten->id_kabupaten,
+            'id_provinsi' => $provinsi->id_provinsi,
+            'kro' => $row['kro'],
+            'bulan_dominan' => $bulanDominan,
+            'status_survei' => $statusSurvei,
+            'tim' => $row['tim'],
+            'updated_at' => now()
+        ]);
+        
+        Log::info('Data survei diupdate: ' . $row['nama_survei'], [
+            'id' => $existingSurvei->id,
+            'data' => $row
+        ]);
+        
+        $this->successCount++;
+    }
+
+    private function createNewSurvey(
+        array $row,
+        Kabupaten $kabupaten,
+        Provinsi $provinsi,
+        Carbon $jadwalMulai,
+        Carbon $jadwalBerakhir,
+        string $bulanDominan,
+        int $statusSurvei
+    ): Survei {
+        $this->successCount++;
+        
+        return new Survei([
+            'nama_survei' => $row['nama_survei'],
+            'id_kabupaten' => $kabupaten->id_kabupaten,
+            'id_provinsi' => $provinsi->id_provinsi,
+            'kro' => $row['kro'],
+            'jadwal_kegiatan' => $jadwalMulai,
+            'jadwal_berakhir_kegiatan' => $jadwalBerakhir,
+            'bulan_dominan' => $bulanDominan,
+            'status_survei' => $statusSurvei,
+            'tim' => $row['tim']
+        ]);
+    }
+
+    private function determineSurveyStatus(Carbon $today, Carbon $startDate, Carbon $endDate): int
+    {
+        if ($today->lt($startDate)) {
+            return 1; // Belum dimulai
+        } elseif ($today->gt($endDate)) {
+            return 3; // Sudah selesai
+        }
+        return 2; // Sedang berjalan
+    }
     
-    public function getRowErrors()
+    private function getProvinsi(): Provinsi
+    {
+        $provinsi = Provinsi::where('id_provinsi', $this->defaultProvinsi)->first();
+        if (!$provinsi) {
+            throw new \Exception("Provinsi default (kode: {$this->defaultProvinsi}) tidak ditemukan");
+        }
+        return $provinsi;
+    }
+    
+    private function getKabupaten(Provinsi $provinsi): Kabupaten
+    {
+        $kabupaten = Kabupaten::where('id_kabupaten', $this->defaultKabupaten)
+            ->where('id_provinsi', $provinsi->id_provinsi)
+            ->first();
+        if (!$kabupaten) {
+            throw new \Exception("Kabupaten default (kode: {$this->defaultKabupaten}) tidak ditemukan di provinsi {$provinsi->nama}");
+        }
+        return $kabupaten;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'nama_survei' => 'required|string|max:255',
+            'kro' => 'required|string|max:100',
+            'tim' => 'required|string|max:255',
+            'jadwal' => 'required',
+            'jadwal_berakhir' => 'required'
+        ];   
+    }
+    
+    public function getRowErrors(): array
     {
         return $this->rowErrors;
     }
 
-    public function getTotalProcessed()
+    public function getTotalProcessed(): int
     {
-        return count($this->rowErrors) + $this->successCount;
+        return $this->processedRows;
     }
 
-    public function getSuccessCount()
+    public function getSuccessCount(): int
     {
         return $this->successCount;
     }
 
-    public function getFailedCount()
+    public function getFailedCount(): int
     {
-        return count($this->rowErrors);
+        return $this->failedCount;
     }
 }
