@@ -384,6 +384,9 @@ Route::delete('/kategoriumum/{id}', [KategoriUmumController::class, 'destroy']);
 
 // Super TIM
 Route::get('/supertim', [SuperTimController::class, 'index']);
+Route::post('/supertim', [superTimController::class, 'store']);
+Route::put('/supertim/{id}', [superTimController::class, 'update']);
+Route::delete('/supertim/{id}', [superTimController::class, 'destroy']);
 Route::get('/daftarsupertim', [SuperTimController::class, 'daftarLink']);
 
 // Sekretariat
