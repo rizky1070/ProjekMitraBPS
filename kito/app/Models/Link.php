@@ -15,6 +15,7 @@ class Link extends Model
     'name',
     'link',
     'category_user_id',
+    'status', // Pastikan ada
     'user_id'
     ];
 

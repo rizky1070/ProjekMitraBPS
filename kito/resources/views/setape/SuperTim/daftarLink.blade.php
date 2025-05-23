@@ -182,6 +182,7 @@ $title = 'Super Tim';
     <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('superTimData', () => ({
+            sidebarOpen: false, 
             showAddModal: false,
             showEditModal: false,
             currentOffice: null,

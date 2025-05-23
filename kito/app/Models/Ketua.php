@@ -10,6 +10,13 @@ class Ketua extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+    'name', 
+    'link', 
+    'category_id', 
+    'status' 
+    ];
+
     protected $guarded = ['id'];
 
     protected $casts = [

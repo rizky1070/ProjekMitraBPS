@@ -182,6 +182,7 @@ $title = 'Sekretariat';
     <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('sekretariatData', () => ({
+            sidebarOpen: false, 
             showAddModal: false,
             showEditModal: false,
             currentKetua: null,

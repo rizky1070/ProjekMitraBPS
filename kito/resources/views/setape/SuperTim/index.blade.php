@@ -41,8 +41,8 @@ $title = 'Super Tim';
         <table class="min-w-full bg-white border border-gray-300">
             <thead>
                 <tr class="bg-gray-100">
-                    <th class="text-left p-2 border">Kategori</th>
                     <th class="text-left p-2 border">Nama</th>
+                    <th class="text-left p-2 border">Kategori</th>
                     <th class="text-left p-2 border">Link</th>
                     <th class="text-left p-2 border">Status</th>
                 </tr>
@@ -50,8 +50,8 @@ $title = 'Super Tim';
             <tbody>
                 @foreach ($offices as $office)
                     <tr>
-                        <td class="p-2 border">{{ $office->category->name ?? '-' }}</td>
                         <td class="p-2 border">{{ $office->name }}</td>
+                        <td class="p-2 border">{{ $office->category->name ?? '-' }}</td>
                         <td class="p-2 border">
                             <a href="{{ $office->link }}" class="text-blue-500 underline" target="_blank">Lihat</a>
                         </td>
