@@ -696,18 +696,18 @@ $mitras = $mitrasQuery->orderByDesc('posisi_mitra')->paginate(10);
             $failedCount = $import->getFailedCount();
             $rowErrors = $import->getRowErrors();
 
-            $message = "Import berhasil! {$successCount} data survei berhasil diproses.";
-            
+            $message = "Import selesai diproses! ";
+            $message .= "{$successCount} data berhasil diimport. ";
+            $message .= "{$failedCount} data gagal diimport.";
+
             if ($failedCount > 0) {
-                $message .= " {$failedCount} data survei gagal diproses.";
-                
-                // Format errors untuk ditampilkan ke user
+                // Format errors untuk ditampilkan
                 $displayErrors = [];
                 foreach ($rowErrors as $row => $error) {
-                    $displayErrors[] = "{$error}";
+                    $displayErrors[] = $error;
                 }
                 
-                // Batasi jumlah error yang ditampilkan (misal maks 10 error)
+                // Batasi jumlah error yang ditampilkan
                 $limitedErrors = array_slice($displayErrors, 0, 10);
                 if (count($displayErrors) > 10) {
                     $limitedErrors[] = "Dan " . (count($displayErrors) - 10) . " error lainnya...";
@@ -723,9 +723,8 @@ $mitras = $mitrasQuery->orderByDesc('posisi_mitra')->paginate(10);
 
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', "Error import data survei: " . $e->getMessage())
+                ->with('error', "Error import data: " . $e->getMessage())
                 ->withInput();
         }
     }
-
 }
