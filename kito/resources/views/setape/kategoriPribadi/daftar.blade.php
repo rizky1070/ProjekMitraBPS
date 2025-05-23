@@ -103,6 +103,7 @@ $title = 'Kategori Pribadi';
     <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('categoryData', () => ({
+            sidebarOpen: false, 
             showAddModal: false,
             showEditModal: false,
             currentCategory: null,
