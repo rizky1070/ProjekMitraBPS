@@ -148,4 +148,30 @@ class SuperTimController extends Controller
             ], 500);
         }
     }
+
+    public function updateStatus(Request $request)
+    {
+        $request->validate([
+            'office_id' => 'required|exists:offices,id',
+            'status' => 'required|in:active,inactive'
+        ]);
+
+        try {
+            $statusValue = $request->status === 'active' ? 1 : 0;
+            
+            Office::where('id', $request->office_id)->update([
+                'status' => $statusValue
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status berhasil diperbarui'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui status: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

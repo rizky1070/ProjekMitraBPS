@@ -388,6 +388,8 @@ Route::get('/daftarsupertim', [SuperTimController::class, 'daftarLink']);
 Route::post('/daftarsupertim', [superTimController::class, 'store']);
 Route::put('/daftarsupertim/{id}', [superTimController::class, 'update']);
 Route::delete('/daftarsupertim/{id}', [superTimController::class, 'destroy']);
+Route::post('/update-status', [SuperTimController::class, 'updateStatus'])
+    ->name('super-tim.update-status');
 
 // Sekretariat
 Route::get('/sekretariat', [SekretariatController::class, 'index']);
