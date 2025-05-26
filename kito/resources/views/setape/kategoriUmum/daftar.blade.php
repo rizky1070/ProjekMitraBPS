@@ -14,7 +14,19 @@ $title = 'Kategori Umum';
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
                 <div class="bg-white p-4 rounded shadow">
-                    <div class="flex justify-end mb-4">
+                    <div class="flex justify-between mb-4">
+                        <div class="flex space-x-4 items-center">
+                            <div class="w-64">
+                                <select id="searchSelect" placeholder="Cari nama..." class="w-full">
+                                    <option value="">Semua Nama</option>
+                                    @foreach($kategoriNames as $name)
+                                    <option value="{{ $name }}" {{ request('search') == $name ? 'selected' : '' }}>
+                                        {{ $name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <button @click="showAddModal = true; newCategoryName = ''" 
                             class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
                             Tambah Kategori
@@ -212,5 +224,39 @@ $title = 'Kategori Umum';
         }));
     });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<script>
+// Di bagian JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Tom Select for search dropdown
+    const searchSelect = new TomSelect('#searchSelect', {
+        create: false,
+        sortField: {
+            field: "text",
+            direction: "asc"
+        },
+        placeholder: "Cari nama...",
+        maxOptions: null,
+    });
+    
+    
+    function applyFilters() {
+        const params = new URLSearchParams();
+        
+        // Add search parameter
+        const searchValue = searchSelect.getValue();
+        if (searchValue) {
+            params.append('search', searchValue);
+        }
+        
+        
+        // Reload page with new query parameters
+        window.location.href = window.location.pathname + '?' + params.toString();
+    }
+    
+    // Event listeners
+    searchSelect.on('change', applyFilters);
+});
+</script>
 </body>
 </html>

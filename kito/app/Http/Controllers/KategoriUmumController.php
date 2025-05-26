@@ -7,10 +7,24 @@ use Illuminate\Http\Request;
 
 class KategoriUmumController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::all();
-        return view('Setape.kategoriUmum.daftar', compact('categories'));
+        $query = Category::query();
+
+        // Filter pencarian
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        $categories = $query->get();
+
+        $kategoriNames = Category::pluck('name')
+                    ->unique()
+                    ->values()
+                    ->all();
+
+        return view('Setape.kategoriUmum.daftar', compact('categories', 'kategoriNames'));
     }
 
     public function store(Request $request)
@@ -44,7 +58,7 @@ class KategoriUmumController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,'.$id
+            'name' => 'required|string|max:255|unique:categories,name,' . $id
         ], [
             'name.required' => 'Nama kategori wajib diisi.',
             'name.string' => 'Nama kategori harus berupa teks.',
