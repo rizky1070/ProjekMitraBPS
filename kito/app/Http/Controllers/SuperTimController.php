@@ -40,11 +40,36 @@ class SuperTimController extends Controller
         return view('Setape.superTim.index', compact('offices', 'categories', 'officeNames'));
     }
 
-    public function daftarLink()
+    public function daftarLink(Request $request)
     {
-        $offices = Office::with('category')->get();
-        $categories = Category::all();
-        return view('Setape.superTim.daftarLink', compact('offices', 'categories'));
+        $query = Office::with('category');
+
+        // Filter kategori
+        if ($request->filled('category') && $request->category != 'all') {
+            $query->where('category_id', $request->category);
+        }
+
+        // Filter pencarian
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        // Filter status
+        if ($request->filled('status') && $request->status != 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $offices = $query->get();
+        
+        $categories = Category::whereHas('offices')->get();
+        
+        $officeNames = Office::pluck('name')
+                            ->unique()
+                            ->values()
+                            ->all();
+
+        return view('Setape.superTim.daftarLink', compact('offices', 'categories', 'officeNames'));
     }
 
     public function store(Request $request)
