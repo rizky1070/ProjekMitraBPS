@@ -40,11 +40,36 @@ class SekretariatController extends Controller
         return view('Setape.sekretariat.index', compact('ketuas', 'categories', 'ketuaNames'));
     }
 
-    public function daftarLink()
+    public function daftarLink(Request $request)
     {
-        $ketuas = ketua::with('category')->get(); // assuming you have relation with category
-        $categories = Category::all();
-        return view('Setape.sekretariat.daftarLink', compact('ketuas','categories'));
+        $query = Ketua::with('category');
+
+        // Filter kategori
+        if ($request->filled('category') && $request->category != 'all') {
+            $query->where('category_id', $request->category);
+        }
+
+        // Filter pencarian
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        // Filter status
+        if ($request->filled('status') && $request->status != 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $ketuas = $query->get();
+        
+        $categories = Category::whereHas('ketuas')->get();
+        
+        $ketuaNames = Ketua::pluck('name')
+                            ->unique()
+                            ->values()
+                            ->all();
+
+        return view('Setape.sekretariat.daftarLink', compact('ketuas', 'categories', 'ketuaNames'));
     }
 
     public function store(Request $request)
