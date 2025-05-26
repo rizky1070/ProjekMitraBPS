@@ -77,7 +77,12 @@ $title = 'Sekretariat';
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
-                <h1 class="text-2xl font-bold mb-4">Daftar Sekretariat</h1>
+                <div class="flex justify-between mb-4">
+                    <h1 class="text-2xl font-bold mb-4">Kelola Link Sekretariat</h1>
+                    <a href="/daftarsupertim" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                        Super Tim
+                    </a>
+                </div>
                 <div class="bg-white p-4 rounded shadow">
                     <div class="flex justify-between mb-4">
                         <div class="flex space-x-4 items-center">

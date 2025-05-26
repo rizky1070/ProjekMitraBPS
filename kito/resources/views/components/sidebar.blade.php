@@ -329,18 +329,14 @@
                         href="/kategoriumum">
                         <span class="mx-3">Kategori</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarsupertim') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ (request()->is('daftarsupertim') || request()->is('daftarsekretariat')) ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/daftarsupertim">
-                        <span class="mx-3">Super TIM</span>
+                        <span class="mx-3">Kelompok Kerja</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarsekretariat') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/daftarsekretariat">
-                        <span class="mx-3">Sekretariat</span>
-                    </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('pribadi')  ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                    <!-- <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('pribadi')  ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/pribadi">
                         <span class="mx-3">Pribadi*</span>
-                    </a>
+                    </a> -->
                     @else
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('supertim') || request()->is('sekretariat') ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/supertim">
@@ -350,14 +346,14 @@
                         href="/daftarlinkpribadi">
                         <span class="mx-3">Pribadi</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                    <!-- <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/daftarMitra">
                         <span class="mx-3">Dashboard*</span>
-                    </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('pribadi')  ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                    </a> -->
+                    <!-- <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('pribadi')  ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/pribadi">
                         <span class="mx-3">Pribadi*</span>
-                    </a>
+                    </a> -->
                     
                 
                     {{-- <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
