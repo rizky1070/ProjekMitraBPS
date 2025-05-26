@@ -55,21 +55,21 @@ $title = 'Sekretariat';
 <body class="h-full">
     <!-- SweetAlert Logic -->
     @if (session('success'))
-    <script>
-    swal("Success!", "{{ session('success') }}", "success");
-    </script>
+        <script>
+            swal("Success!", "{{ session('success') }}", "success");
+        </script>
     @endif
 
     @if ($errors->any())
-    <script>
-    swal("Error!", "{{ $errors->first() }}", "error");
-    </script>
+        <script>
+            swal("Error!", "{{ $errors->first() }}", "error");
+        </script>
     @endif
     
     @if (session('error'))
-    <script>
-    swal("Error!", "{{ session('error') }}", "error");
-    </script>
+        <script>
+            swal("Error!", "{{ session('error') }}", "error");
+        </script>
     @endif
     
     <div x-data="sekretariatData" class="flex h-screen">
@@ -85,48 +85,48 @@ $title = 'Sekretariat';
                                 <select id="searchSelect" placeholder="Cari nama..." class="w-full">
                                     <option value="">Semua Nama</option>
                                     @foreach($ketuaNames as $name)
-                                    <option value="{{ $name }}" {{ request('search') == $name ? 'selected' : '' }}>
-                                        {{ $name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                                        <option value="{{ $name }}" {{ request('search') == $name ? 'selected' : '' }}>
+                                            {{ $name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            
+                            <!-- Category Filter with Tom Select -->
+                            <div class="w-48">
+                                <select id="categoryFilter" placeholder="Pilih kategori" class="w-full">
+                                    <option value="all">Semua Kategori</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                                            {{ $category->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <!-- Di bagian filter, tambahkan ini setelah category filter -->
+                            <div class="w-48">
+                                <select id="statusFilter" placeholder="Pilih status" class="w-full">
+                                    <option value="all">Semua Status</option>
+                                    <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Aktif</option>
+                                    <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Nonaktif</option>
+                                </select>
+                            </div>
                         </div>
-                        
-                        <!-- Category Filter with Tom Select -->
-                        <div class="w-48">
-                            <select id="categoryFilter" placeholder="Pilih kategori" class="w-full">
-                                <option value="all">Semua Kategori</option>
-                                @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <!-- Di bagian filter, tambahkan ini setelah category filter -->
-                        <div class="w-48">
-                            <select id="statusFilter" placeholder="Pilih status" class="w-full">
-                                <option value="all">Semua Status</option>
-                                <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Aktif</option>
-                                <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Nonaktif</option>
-                            </select>
-                        </div>
+                        <button @click="showAddModal = true; resetForm()" 
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                            Tambah Link Sekretariat
+                        </button>
                     </div>
-                    <button @click="showAddModal = true; resetForm()" 
-                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                    Tambah Link Sekretariat
-                </button>
-            </div>
                     <div class="overflow-x-auto">
-                    @foreach ($ketuas as $ketua)
-                    <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
-                        <div>
-                            <a href="{{ $ketua->link }}" class="text-xl font-bold transition-all duration-200 hover:text-2xl">
+                        @foreach ($ketuas as $ketua)
+                            <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
+                                <div>
+                                    <a href="{{ $ketua->link }}" class="text-xl font-bold transition-all duration-200 hover:text-2xl">
                                         {{ $ketua->name ?? $ketua->link ?? 'Tidak ada link' }}
-                            </a>
-                            <p>{{ $ketua->category->name }}</p>
-                        </div>
-                        <div>
+                                    </a>
+                                    <p>{{ $ketua->category->name }}</p>
+                                </div>
+                                <div>
                                     <button @click="showEditModal = true; currentKetua = {{ $ketua->id }}; 
                                                     editKetuaName = '{{ $ketua->name }}'; 
                                                     editKetuaLink = '{{ $ketua->link }}'; 
@@ -145,16 +145,16 @@ $title = 'Sekretariat';
                                             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                                         </svg>
                                     </button>
-                            <label class="switch">
-                                <input type="checkbox" 
-                                        {{ $ketua->status ? 'checked' : '' }} 
-                                        data-ketua-id="{{ $ketua->id }}"
-                                        class="status-toggle">
-                                <span class="slider {{ $ketua->status ? 'bg-blue-600' : 'bg-gray-400' }}"></span>
-                            </label>
-                        </div>
-                    </div>
-                    @endforeach
+                                    <label class="switch">
+                                        <input type="checkbox" 
+                                                {{ $ketua->status ? 'checked' : '' }} 
+                                                data-ketua-id="{{ $ketua->id }}"
+                                                class="status-toggle">
+                                        <span class="slider {{ $ketua->status ? 'bg-blue-600' : 'bg-gray-400' }}"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </main>
@@ -309,208 +309,208 @@ $title = 'Sekretariat';
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('sekretariatData', () => ({
-            sidebarOpen: false, 
-            showAddModal: false,
-            showEditModal: false,
-            currentKetua: null,
-            newKetuaName: '',
-            newKetuaLink: '',
-            newKetuaCategory: '',
-            newKetuaStatus: 1,
-            editKetuaName: '',
-            editKetuaLink: '',
-            editKetuaCategory: null,
-            editKetuaStatus: 1,
-            
-            isLoading: false,
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('sekretariatData', () => ({
+                sidebarOpen: false, 
+                showAddModal: false,
+                showEditModal: false,
+                currentKetua: null,
+                newKetuaName: '',
+                newKetuaLink: '',
+                newKetuaCategory: '',
+                newKetuaStatus: 1,
+                editKetuaName: '',
+                editKetuaLink: '',
+                editKetuaCategory: null,
+                editKetuaStatus: 1,
+                
+                isLoading: false,
 
-            getStatusText(status) {
-                return status ? 'Aktif' : 'Nonaktif';
-            },
+                getStatusText(status) {
+                    return status ? 'Aktif' : 'Nonaktif';
+                },
 
-            getStatusClass(status) {
-                return status ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold';
-            },
+                getStatusClass(status) {
+                    return status ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold';
+                },
 
-            resetForm() {
-                this.newKetuaName = '';
-                this.newKetuaLink = '';
-                this.newKetuaCategory = '';
-                this.newKetuaStatus = 1;
-            },
+                resetForm() {
+                    this.newKetuaName = '';
+                    this.newKetuaLink = '';
+                    this.newKetuaCategory = '';
+                    this.newKetuaStatus = 1;
+                },
 
-            async submitAddForm() {
-                try {
-                    this.isLoading = true;
-                    const response = await fetch('/daftarsekretariat', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            name: this.newKetuaName,
-                            link: this.newKetuaLink,
-                            category_id: this.newKetuaCategory || null,
-                            status: this.newKetuaStatus
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (!response.ok) {
-                        throw new Error(data.message || 'Gagal menambahkan Sekretariat');
-                    }
-                    
-                    Swal.fire("Berhasil!", "Sekretariat baru telah ditambahkan", "success")
-                        .then(() => window.location.reload());
-                } catch (error) {
-                    Swal.fire("Error!", error.message, "error");
-                    console.error('Error:', error);
-                } finally {
-                    this.isLoading = false;
-                }
-            },
-            
-            async submitEditForm() {
-                try {
-                    this.isLoading = true;
-                    const response = await fetch(`/daftarsekretariat/${this.currentKetua}`, {
-                        method: 'PUT',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            name: this.editKetuaName,
-                            link: this.editKetuaLink,
-                            category_id: this.editKetuaCategory || null,
-                            status: this.editKetuaStatus
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (!response.ok) {
-                        throw new Error(data.message || 'Gagal memperbarui Sekretariat');
-                    }
-                    
-                    Swal.fire("Berhasil!", "Sekretariat telah diperbarui", "success")
-                        .then(() => window.location.reload());
-                } catch (error) {
-                    Swal.fire("Error!", error.message, "error");
-                    console.error('Error:', error);
-                } finally {
-                    this.isLoading = false;
-                }
-            },
-            
-            async deleteKetua(id, name) {
-                try {
-                    const result = await Swal.fire({
-                        title: "Apakah Anda yakin?",
-                        text: `Anda akan menghapus Sekretariat "${name}"`,
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#3085d6",
-                        cancelButtonColor: "#d33",
-                        confirmButtonText: "Ya, hapus!",
-                        cancelButtonText: "Batal"
-                    });
-                    
-                    if (result.isConfirmed) {
-                        const response = await fetch(`/daftarsekretariat/${id}`, {
-                            method: 'DELETE',
+                async submitAddForm() {
+                    try {
+                        this.isLoading = true;
+                        const response = await fetch('/daftarsekretariat', {
+                            method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                                 'Content-Type': 'application/json',
                                 'Accept': 'application/json'
-                            }
+                            },
+                            body: JSON.stringify({
+                                name: this.newKetuaName,
+                                link: this.newKetuaLink,
+                                category_id: this.newKetuaCategory || null,
+                                status: this.newKetuaStatus
+                            })
                         });
                         
                         const data = await response.json();
                         
                         if (!response.ok) {
-                            throw new Error(data.message || 'Gagal menghapus Sekretariat');
+                            throw new Error(data.message || 'Gagal menambahkan Sekretariat');
                         }
                         
-                        Swal.fire("Berhasil!", `Sekretariat "${name}" telah dihapus`, "success")
+                        Swal.fire("Berhasil!", "Sekretariat baru telah ditambahkan", "success")
                             .then(() => window.location.reload());
+                    } catch (error) {
+                        Swal.fire("Error!", error.message, "error");
+                        console.error('Error:', error);
+                    } finally {
+                        this.isLoading = false;
                     }
-                } catch (error) {
-                    Swal.fire("Error!", error.message, "error");
-                    console.error('Error:', error);
+                },
+                
+                async submitEditForm() {
+                    try {
+                        this.isLoading = true;
+                        const response = await fetch(`/daftarsekretariat/${this.currentKetua}`, {
+                            method: 'PUT',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                name: this.editKetuaName,
+                                link: this.editKetuaLink,
+                                category_id: this.editKetuaCategory || null,
+                                status: this.editKetuaStatus
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Gagal memperbarui Sekretariat');
+                        }
+                        
+                        Swal.fire("Berhasil!", "Sekretariat telah diperbarui", "success")
+                            .then(() => window.location.reload());
+                    } catch (error) {
+                        Swal.fire("Error!", error.message, "error");
+                        console.error('Error:', error);
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+                
+                async deleteKetua(id, name) {
+                    try {
+                        const result = await Swal.fire({
+                            title: "Apakah Anda yakin?",
+                            text: `Anda akan menghapus Sekretariat "${name}"`,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#3085d6",
+                            cancelButtonColor: "#d33",
+                            confirmButtonText: "Ya, hapus!",
+                            cancelButtonText: "Batal"
+                        });
+                        
+                        if (result.isConfirmed) {
+                            const response = await fetch(`/daftarsekretariat/${id}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                }
+                            });
+                            
+                            const data = await response.json();
+                            
+                            if (!response.ok) {
+                                throw new Error(data.message || 'Gagal menghapus Sekretariat');
+                            }
+                            
+                            Swal.fire("Berhasil!", `Sekretariat "${name}" telah dihapus`, "success")
+                                .then(() => window.location.reload());
+                        }
+                    } catch (error) {
+                        Swal.fire("Error!", error.message, "error");
+                        console.error('Error:', error);
+                    }
                 }
-            }
-        }));
-    });
+            }));
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-<script>
-// Di bagian JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Tom Select for search dropdown
-    const searchSelect = new TomSelect('#searchSelect', {
-        create: false,
-        sortField: {
-            field: "text",
-            direction: "asc"
-        },
-        placeholder: "Cari nama...",
-        maxOptions: null,
-    });
-    
-    // Initialize Tom Select for category dropdown
-    const categorySelect = new TomSelect('#categoryFilter', {
-        create: false,
-        sortField: {
-            field: "text",
-            direction: "asc"
-        },
-        placeholder: "Pilih kategori...",
-        maxOptions: null,
-    });
-    
-    // Initialize Tom Select for status dropdown
-    const statusSelect = new TomSelect('#statusFilter', {
-        create: false,
-        placeholder: "Pilih status...",
-    });
-    
-    function applyFilters() {
-        const params = new URLSearchParams();
-        
-        // Add search parameter
-        const searchValue = searchSelect.getValue();
-        if (searchValue) {
-            params.append('search', searchValue);
-        }
-        
-        // Add category parameter
-        const categoryValue = categorySelect.getValue();
-        if (categoryValue && categoryValue !== 'all') {
-            params.append('category', categoryValue);
-        }
-        
-        // Add status parameter
-        const statusValue = statusSelect.getValue();
-        if (statusValue && statusValue !== 'all') {
-            params.append('status', statusValue);
-        }
-        
-        // Reload page with new query parameters
-        window.location.href = window.location.pathname + '?' + params.toString();
-    }
-    
-    // Event listeners
-    searchSelect.on('change', applyFilters);
-    categorySelect.on('change', applyFilters);
-    statusSelect.on('change', applyFilters);
-});
-</script>
+    <script>
+        // Di bagian JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Tom Select for search dropdown
+            const searchSelect = new TomSelect('#searchSelect', {
+                create: false,
+                sortField: {
+                    field: "text",
+                    direction: "asc"
+                },
+                placeholder: "Cari nama...",
+                maxOptions: null,
+            });
+            
+            // Initialize Tom Select for category dropdown
+            const categorySelect = new TomSelect('#categoryFilter', {
+                create: false,
+                sortField: {
+                    field: "text",
+                    direction: "asc"
+                },
+                placeholder: "Pilih kategori...",
+                maxOptions: null,
+            });
+            
+            // Initialize Tom Select for status dropdown
+            const statusSelect = new TomSelect('#statusFilter', {
+                create: false,
+                placeholder: "Pilih status...",
+            });
+            
+            function applyFilters() {
+                const params = new URLSearchParams();
+                
+                // Add search parameter
+                const searchValue = searchSelect.getValue();
+                if (searchValue) {
+                    params.append('search', searchValue);
+                }
+                
+                // Add category parameter
+                const categoryValue = categorySelect.getValue();
+                if (categoryValue && categoryValue !== 'all') {
+                    params.append('category', categoryValue);
+                }
+                
+                // Add status parameter
+                const statusValue = statusSelect.getValue();
+                if (statusValue && statusValue !== 'all') {
+                    params.append('status', statusValue);
+                }
+                
+                // Reload page with new query parameters
+                window.location.href = window.location.pathname + '?' + params.toString();
+            }
+            
+            // Event listeners
+            searchSelect.on('change', applyFilters);
+            categorySelect.on('change', applyFilters);
+            statusSelect.on('change', applyFilters);
+        });
+    </script>
 </body>
 </html>
