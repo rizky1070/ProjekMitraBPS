@@ -79,77 +79,123 @@ $title = 'Super Tim';
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
-                <div class="bg-white p-4 rounded shadow">
-                    <div class="flex justify-end mb-4">
-                        <a href="/sekretariat" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                            Sekretariat
-                        </a>
-                    </div>
-                    <h1 class="text-xl font-bold mb-4">Super TIM</h1>
-                    @foreach ($offices as $office)
-                    <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
-                        <div>
-                            <a href="{{ $office->link }}" class="text-xl font-bold transition-all duration-200 hover:text-2xl">
-                                {{ $office->name ?? $office->link ?? 'Tidak ada link' }}
-                            </a>
-                            <p>{{ $office->category->name }}</p>
-                        </div>
-                        <div>
-                            <label class="switch">
-                                <input type="checkbox" 
-                                    {{ $office->status ? 'checked' : '' }} 
-                                    data-office-id="{{ $office->id }}"
-                                    class="status-toggle"
-                                    onchange="toggleStatus(this)">
-                                <span class="slider {{ $office->status ? 'bg-blue-600' : 'bg-gray-400' }}"></span>
-                            </label>
-                        </div>
-                    </div>
+    <div class="bg-white p-4 rounded shadow">
+    <div class="flex justify-between mb-4">
+        <div class="flex space-x-4 items-center">
+            <!-- Search Dropdown with Tom Select -->
+            <div class="w-64">
+                <select id="searchSelect" placeholder="Cari nama..." class="w-full">
+                    <option value="">Semua Nama</option>
+                    @foreach($officeNames as $name)
+                        <option value="{{ $name }}" {{ request('search') == $name ? 'selected' : '' }}>
+                            {{ $name }}
+                        </option>
                     @endforeach
-                </div>
-                <script>
-                    function toggleStatus(checkbox) {
-                        const officeId = checkbox.getAttribute('data-office-id');
-                        const isActive = checkbox.checked;
-                        const slider = checkbox.nextElementSibling;
-                        
-                        // Update UI immediately
-                        slider.classList.toggle('bg-blue-600', isActive);
-                        slider.classList.toggle('bg-gray-400', !isActive);
-                        
-                        // Kirim request AJAX
-                        fetch('{{ route("super-tim.update-status") }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                office_id: officeId,
-                                status: isActive ? 'active' : 'inactive'
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (!data.success) {
-                                // Revert changes if failed
-                                checkbox.checked = !isActive;
-                                slider.classList.toggle('bg-blue-600', !isActive);
-                                slider.classList.toggle('bg-gray-400', isActive);
-                                swal("Error!", data.message, "error");
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            checkbox.checked = !isActive;
-                            slider.classList.toggle('bg-blue-600', !isActive);
-                            slider.classList.toggle('bg-gray-400', isActive);
-                            swal("Error!", "Terjadi kesalahan jaringan", "error");
-                        });
-                    }
-                </script>
-            </main>
+                </select>
+            </div>
+            
+            <!-- Category Filter with Tom Select -->
+            <div class="w-48">
+                <select id="categoryFilter" placeholder="Pilih kategori" class="w-full">
+                    <option value="all">Semua Kategori</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        
+        <a href="/sekretariat" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+            Sekretariat
+        </a>
+    </div>
+    
+    <h1 class="text-xl font-bold mb-4">Super TIM</h1>
+    
+    <table class="min-w-full bg-white border border-gray-300">
+        <thead>
+                <tr class="bg-gray-100">
+                    <th class="text-left p-2 border">Nama</th>
+                    <th class="text-left p-2 border">Kategori</th>
+                    <th class="text-left p-2 border">Link</th>
+                    <th class="text-left p-2 border">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($offices as $office)
+                    <tr>
+                        <td class="p-2 border">{{ $office->name }}</td>
+                        <td class="p-2 border">{{ $office->category->name ?? '-' }}</td>
+                        <td class="p-2 border">
+                            <a href="{{ $office->link }}" class="text-blue-500 underline" target="_blank">Lihat</a>
+                        </td>
+                        <td class="p-2 border">
+                            @if ($office->status)
+                                <span class="text-green-600 font-semibold">Aktif</span>
+                            @else
+                                <span class="text-red-600 font-semibold">Nonaktif</span>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Tom Select for search dropdown
+    const searchSelect = new TomSelect('#searchSelect', {
+        create: false,
+        sortField: {
+            field: "text",
+            direction: "asc"
+        },
+        placeholder: "Cari nama...",
+        maxOptions: 5,
+    });
+    
+    // Initialize Tom Select for category dropdown
+    const categorySelect = new TomSelect('#categoryFilter', {
+        create: false,
+        sortField: {
+            field: "text",
+            direction: "asc"
+        },
+        placeholder: "Pilih kategori...",
+        maxOptions: 5,
+    });
+    
+    function applyFilters() {
+        const params = new URLSearchParams();
+        
+        // Add search parameter if exists and not empty
+        const searchValue = searchSelect.getValue();
+        if (searchValue) {
+            params.append('search', searchValue);
+        }
+        
+        // Add category parameter only if has value and not 'all'
+        const categoryValue = categorySelect.getValue();
+        if (categoryValue && categoryValue !== 'all') {
+            params.append('category', categoryValue);
+        }
+        
+        // Reload page with new query parameters
+        window.location.href = window.location.pathname + '?' + params.toString();
+    }
+    
+    // Event listeners
+    searchSelect.on('change', applyFilters);
+    categorySelect.on('change', applyFilters);
+});
+</script>
+</main>
+
         </div>
     </div>
 </body>

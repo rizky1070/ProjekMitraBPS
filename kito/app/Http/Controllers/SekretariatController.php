@@ -7,12 +7,37 @@ use App\Models\Category;
 
 class SekretariatController extends Controller
 {
-    public function index()
+
+    public function index(Request $request)
     {
-        $ketuas = ketua::with('category')
-                    ->where('status', 1)
-                    ->get(); // assuming you have relation with category
-        return view('Setape.sekretariat.index', compact('ketuas'));
+        $query = Ketua::with('category')->where('status', 1); // Hanya ambil yang aktif
+
+        // Filter kategori - hanya jika ada dan tidak kosong dan bukan 'all'
+        if ($request->filled('category') && $request->category != 'all') {
+            $query->where('category_id', $request->category);
+        }
+
+        // Filter pencarian - hanya jika ada dan tidak kosong
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        $ketuas = $query->get();
+        
+        // Hanya ambil kategori yang memiliki relasi dengan ketua yang aktif
+        $categories = Category::whereHas('ketuas', function($q) {
+            $q->where('status', 1); // Hanya kategori dengan ketua aktif
+        })->get();
+        
+        // Hanya ambil nama ketua yang aktif
+        $ketuaNames = Ketua::where('status', 1)
+                            ->pluck('name')
+                            ->unique()
+                            ->values()
+                            ->all();
+
+        return view('Setape.sekretariat.index', compact('ketuas', 'categories', 'ketuaNames'));
     }
 
     public function daftarLink()

@@ -8,17 +8,38 @@ use Illuminate\Http\Request;
 
 class SuperTimController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $offices = Office::with('category') // Pastikan selalu load relasi
-            ->where('status', 1)
-            ->get();
+        $query = Office::with('category')->where('status', 1); // Hanya ambil yang aktif
 
-        $categories = Category::all();
+        // Filter kategori - hanya jika ada dan tidak kosong dan bukan 'all'
+        if ($request->filled('category') && $request->category != 'all') {
+            $query->where('category_id', $request->category);
+        }
 
-        return view('Setape.superTim.index', compact('offices', 'categories'));
+        // Filter pencarian - hanya jika ada dan tidak kosong
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        $offices = $query->get();
+        
+        // Hanya ambil kategori yang memiliki relasi dengan office yang aktif
+        $categories = Category::whereHas('offices', function($q) {
+            $q->where('status', 1); // Hanya kategori dengan office aktif
+        })->get();
+        
+        // Hanya ambil nama office yang aktif
+        $officeNames = Office::where('status', 1)
+                            ->pluck('name')
+                            ->unique()
+                            ->values()
+                            ->all();
+
+        return view('Setape.superTim.index', compact('offices', 'categories', 'officeNames'));
     }
-    
+
     public function daftarLink()
     {
         $offices = Office::with('category')->get();
