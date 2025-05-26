@@ -123,4 +123,27 @@ class SekretariatController extends Controller
             ], 500);
         }
     }
+
+        public function updateStatus(Request $request)
+    {
+        $request->validate([
+            'ketua_id' => 'required|exists:ketuas,id',
+            'status' => 'required|boolean'
+        ]);
+
+        try {
+            $ketua = Ketua::findOrFail($request->ketua_id);
+            $ketua->update(['status' => $request->status]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status berhasil diperbarui'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui status: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
