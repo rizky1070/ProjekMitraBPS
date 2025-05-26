@@ -1,5 +1,5 @@
 <?php
-$title = 'Kategori Umum';
+$title = 'Kelola Kategori Umum';
 ?>
 @include('mitrabps.headerTemp')
 @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -13,7 +13,12 @@ $title = 'Kategori Umum';
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
-                <h1 class="text-2xl font-bold mb-4">Kategori Umum</h1>
+                <div class="flex justify-between mb-4">
+                    <h1 class="text-2xl font-bold mb-4">Kelola Kategori Umum</h1>
+                    <a href="/kategoripribadi" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                        Kategori Pribadi
+                    </a>
+                </div>
                 <div class="bg-white p-4 rounded shadow">
                     <div class="flex justify-between mb-4">
                         <div class="flex space-x-4 items-center">
