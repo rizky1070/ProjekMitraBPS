@@ -16,14 +16,14 @@ $title = 'Daftar Link Pribadi';
 
     @if ($errors->any())
     <script>
-    swal("Error!", "{{ $errors->first() }}", "error");
-    </script>
+        swal("Error!", "{{ $errors->first() }}", "error");
+        </script>
     @endif
     
     @if (session('error'))
     <script>
-    swal("Error!", "{{ session('error') }}", "error");
-    </script>
+        swal("Error!", "{{ session('error') }}", "error");
+        </script>
     @endif
     
     <div x-data="linkData" class="flex h-screen">
@@ -31,12 +31,13 @@ $title = 'Daftar Link Pribadi';
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
+                <h1 class="text-xl font-bold mb-4">Daftar Link Pribadi</h1>
                 <div class="bg-white p-4 rounded shadow">
                     <div class="flex justify-between mb-4">
                         <div class="flex space-x-4 items-center">
                             <!-- Search Dropdown with Tom Select -->
                             <div class="w-64">
-                                <select id="searchSelect" placeholder="Cari nama..." class="w-full">
+                                <select id="searchSelect" placeholder="Cari link..." class="w-full">
                                     <option value="">Semua Nama</option>
                                     @foreach($linkNames as $name)
                                     <option value="{{ $name }}" {{ request('search') == $name ? 'selected' : '' }}>
@@ -62,48 +63,37 @@ $title = 'Daftar Link Pribadi';
                             Tambah Link
                         </button>
                     </div>
-                    <h1 class="text-xl font-bold mb-4">Daftar Link Pribadi</h1>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white border border-gray-300">
-                            <thead>
-                                <tr class="bg-gray-100">
-                                    <th class="text-left p-2 border">Nama</th>
-                                    <th class="text-left p-2 border">Kategori</th>
-                                    <th class="text-left p-2 border">Link</th>
-                                    <th class="text-left p-2 border">Status</th>
-                                    <th class="text-left p-2 border">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($links as $link)
-                                    <tr>
-                                        <td class="p-2 border">{{ $link->name }}</td>
-                                        <td class="p-2 border">{{ $link->categoryUser->name ?? '-' }}</td>
-                                        <td class="p-2 border">
-                                            <a href="{{ $link->link }}" class="text-blue-500 underline" target="_blank">Lihat</a>
-                                        </td>
-                                        <td class="p-2 border">
-                                            <span x-text="getStatusText({{ $link->status }})" 
-                                                  :class="getStatusClass({{ $link->status }})"></span>
-                                        </td>
-                                        <td class="p-2 border">
-                                            <button @click="showEditModal = true; currentLink = {{ $link->id }}; 
-                                                editLinkName = '{{ $link->name }}'; 
-                                                editLinkLink = '{{ $link->link }}'; 
-                                                editLinkCategory = {{ $link->category_user_id ?? 'null' }}; 
-                                                editLinkStatus = {{ $link->status ? 1 : 0 }};" 
-                                                class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 mr-2">
-                                                Edit
-                                            </button>
-                                            <button @click="deleteLink({{ $link->id }}, '{{ $link->name }}')" 
-                                                class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
-                                                Hapus
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        @foreach ($links as $link)
+                            <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
+                                <div>
+                                    <a href="{{ $link->link }}" class="text-xl font-bold transition-all duration-200 hover:text-2xl">
+                                        {{ $link->name ?? $link->link ?? 'Tidak ada link' }}
+                                    </a>
+                                    <p>{{ $link->categoryUser->name }}</p>
+                                </div>
+                                <div class="mr-4">
+                                    <button @click="showEditModal = true; currentLink = {{ $link->id }}; 
+                                                    editLinkName = '{{ $link->name }}'; 
+                                                    editLinkLink = '{{ $link->link }}'; 
+                                                    editLinkCategory = {{ $link->category_id ?? 'null' }}; 
+                                                    editLinkStatus = {{ $link->status ? 1 : 0 }};" 
+                                            class="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600 mr-2"
+                                            title="Edit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                        </svg>
+                                    </button>
+                                    <button @click="deleteLink({{ $link->id }}, '{{ $link->name }}')" 
+                                            class="bg-red-500 text-white p-2 rounded hover:bg-red-600"
+                                            title="Hapus">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </main>
@@ -354,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
             field: "text",
             direction: "asc"
         },
-        placeholder: "Cari nama...",
+        placeholder: "Cari link...",
         maxOptions: null,
     });
 

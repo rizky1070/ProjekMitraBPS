@@ -313,6 +313,10 @@
                 
                 <div class="dropdown-container {{ $isDropdownMitraActive ? 'block' : 'hidden' }}">
                     @if (auth()->user()->is_admin || auth()->user()->is_leader)
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/daftarMitra">
+                        <span class="mx-3">Dashboard</span>
+                    </a>
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('supertim') || request()->is('sekretariat') ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/supertim">
                         <span class="mx-3">Publik</span>
@@ -321,17 +325,13 @@
                         href="/daftarlinkpribadi">
                         <span class="mx-3">Pribadi</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('pribadi')  ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/pribadi">
-                        <span class="mx-3">Pribadi*</span>
-                    </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/daftarMitra">
-                        <span class="mx-3">Dashboard</span>
-                    </a>
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('kategoriumum') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/kategoriumum">
                         <span class="mx-3">Kategori Umum</span>
+                    </a>
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('kategoripribadi') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/kategoripribadi">
+                        <span class="mx-3">Kategori Pribadi</span>
                     </a>
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarsupertim') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/daftarsupertim">
@@ -341,30 +341,30 @@
                         href="/daftarsekretariat">
                         <span class="mx-3">Sekretariat</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('kategoripribadi') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/kategoripribadi">
-                        <span class="mx-3">Kategori Pribadi</span>
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('pribadi')  ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/pribadi">
+                        <span class="mx-3">Pribadi*</span>
                     </a>
                     @else
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('supertim') || request()->is('sekretariat') ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/supertim">
                         <span class="mx-3">Publik</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('pribadi')  ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/pribadi">
-                        <span class="mx-3">Pribadi*</span>
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarlinkpribadi') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/daftarlinkpribadi">
+                        <span class="mx-3">Pribadi</span>
                     </a>
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/daftarMitra">
-                        <span class="mx-3">Dashboard</span>
+                        <span class="mx-3">Dashboard*</span>
                     </a>
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('kategoripribadi') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/kategoripribadi">
                         <span class="mx-3">Kategori Pribadi</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarlinkpribadi') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/daftarlinkpribadi">
-                        <span class="mx-3">Pribadi</span>
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('pribadi')  ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/pribadi">
+                        <span class="mx-3">Pribadi*</span>
                     </a>
                     
                 

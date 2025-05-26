@@ -82,7 +82,7 @@ $title = 'Sekretariat';
                     <div class="flex justify-between mb-4">
                         <div class="flex space-x-4 items-center">
                             <div class="w-64">
-                                <select id="searchSelect" placeholder="Cari nama..." class="w-full">
+                                <select id="searchSelect" placeholder="Cari link..." class="w-full">
                                     <option value="">Semua Nama</option>
                                     @foreach($ketuaNames as $name)
                                         <option value="{{ $name }}" {{ request('search') == $name ? 'selected' : '' }}>
@@ -460,7 +460,7 @@ $title = 'Sekretariat';
                     field: "text",
                     direction: "asc"
                 },
-                placeholder: "Cari nama...",
+                placeholder: "Cari link...",
                 maxOptions: null,
             });
             
