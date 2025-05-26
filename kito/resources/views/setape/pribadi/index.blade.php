@@ -22,8 +22,8 @@ $title = 'Super Tim';
     
     @if (session('error'))
     <script>
-    swal("Error!", "{{ session('error') }}", "error");
-    </script>
+        swal("Error!", "{{ session('error') }}", "error");
+        </script>
     @endif
     <!-- component -->
     <div x-data="{ sidebarOpen: false }" class="flex h-screen">
@@ -31,10 +31,10 @@ $title = 'Super Tim';
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
+                <h1 class="text-xl font-bold mb-4">Super TIM</h1>
     <div class="bg-white p-4 rounded shadow">
         <div class="flex justify-end mb-4">
         </div>
-        <h1 class="text-xl font-bold mb-4">Super TIM</h1>
         <table class="min-w-full bg-white border border-gray-300">
             <thead>
                 <tr class="bg-gray-100">

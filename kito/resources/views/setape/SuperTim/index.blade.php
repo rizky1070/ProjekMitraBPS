@@ -70,8 +70,8 @@ $title = 'Super Tim';
     
     @if (session('error'))
     <script>
-    swal("Error!", "{{ session('error') }}", "error");
-    </script>
+        swal("Error!", "{{ session('error') }}", "error");
+        </script>
     @endif
     <!-- component -->
     <div x-data="{ sidebarOpen: false }" class="flex h-screen">
@@ -79,6 +79,12 @@ $title = 'Super Tim';
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
+                <div class="flex justify-between mb-4">
+                    <h1 class="text-2xl font-bold mb-4">Super TIM</h1>
+                    <a href="/sekretariat" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                        Sekretariat
+                    </a>
+                </div>
                 <div class="bg-white p-4 rounded shadow">
                 <div class="flex justify-between mb-4">
                     <div class="flex space-x-4 items-center">
@@ -106,12 +112,7 @@ $title = 'Super Tim';
                             </select>
                         </div>
                     </div>
-                    
-                    <a href="/sekretariat" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                        Sekretariat
-                    </a>
                 </div>
-                <h1 class="text-xl font-bold mb-4">Super TIM</h1>
                 @foreach ($offices as $office)
                     <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
                         <div>

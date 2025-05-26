@@ -76,6 +76,12 @@ $title = 'Sekretariat';
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
+                <div class="flex justify-between mb-4">
+                    <h1 class="text-2xl font-bold mb-4">Sekretariat</h1>
+                    <a href="/supertim" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                        Super Tim
+                    </a>
+                </div>
                 <div class="bg-white p-4 rounded shadow">
                     <div class="flex justify-between mb-4">
                         <div class="flex space-x-4 items-center">
@@ -101,11 +107,7 @@ $title = 'Sekretariat';
                                 </select>
                             </div>
                         </div>
-                        <a href="/supertim" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                            Super Tim
-                        </a>
                     </div>
-                    <h1 class="text-xl font-bold mb-4">Sekretariat</h1>
                     @foreach ($ketuas as $ketua)
                     <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
                         <div>
