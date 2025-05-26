@@ -6,6 +6,7 @@ use App\Models\Link;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\categoryUser;
+use App\Models\CategoryUser as ModelsCategoryUser;
 
 class PribadiController extends Controller
 {
@@ -18,15 +19,37 @@ class PribadiController extends Controller
             ->get(); // hanya ambil data dengan status = 1
         return view('Setape.pribadi.index', compact('links'));
     }
-    public function daftarLink()
+
+    public function daftarLink(Request $request)
     {
-        // Ambil link yang hanya dimiliki oleh user yang sedang login
-        $links = Link::with('categoryUser')
-            ->where('user_id', Auth::id())
-            ->get();
-        $categories = CategoryUser::where('user_id', Auth::id())
-            ->get(); // Pastikan menggunakan model yang benar
-        return view('Setape.pribadi.daftarLink', compact('links', 'categories'));
+        $query = Link::with('categoryUser')
+            ->where('user_id', Auth::id()); // Hanya data milik user yang login
+
+        // Filter kategori
+        if ($request->filled('category') && $request->category != 'all') {
+            $query->where('category_id', $request->category);
+        }
+
+        // Filter pencarian
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        $links = $query->get();
+
+        // Hanya ambil kategori yang dimiliki oleh user yang login
+        $categories = CategoryUser::whereHas('links', function ($q) {
+            $q->where('user_id', Auth::id());
+        })->get();
+
+        $linkNames = Link::where('user_id', Auth::id())
+            ->pluck('name')
+            ->unique()
+            ->values()
+            ->all();
+
+        return view('Setape.pribadi.daftarLink', compact('links', 'categories', 'linkNames'));
     }
 
     public function store(Request $request)

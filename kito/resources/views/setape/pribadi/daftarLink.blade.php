@@ -32,7 +32,31 @@ $title = 'Daftar Link Pribadi';
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
                 <div class="bg-white p-4 rounded shadow">
-                    <div class="flex justify-end mb-4">
+                    <div class="flex justify-between mb-4">
+                        <div class="flex space-x-4 items-center">
+                            <!-- Search Dropdown with Tom Select -->
+                            <div class="w-64">
+                                <select id="searchSelect" placeholder="Cari nama..." class="w-full">
+                                    <option value="">Semua Nama</option>
+                                    @foreach($linkNames as $name)
+                                    <option value="{{ $name }}" {{ request('search') == $name ? 'selected' : '' }}>
+                                        {{ $name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                             <!-- Category Filter with Tom Select -->
+                            <div class="w-48">
+                                <select id="categoryFilter" placeholder="Pilih kategori" class="w-full">
+                                    <option value="all">Semua Kategori</option>
+                                    @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <button @click="showAddModal = true; resetForm()" 
                             class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
                             Tambah Link
@@ -320,5 +344,54 @@ $title = 'Daftar Link Pribadi';
         }));
     });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Tom Select for search dropdown
+    const searchSelect = new TomSelect('#searchSelect', {
+        create: false,
+        sortField: {
+            field: "text",
+            direction: "asc"
+        },
+        placeholder: "Cari nama...",
+        maxOptions: null,
+    });
+
+    // Initialize Tom Select for category dropdown
+    const categorySelect = new TomSelect('#categoryFilter', {
+        create: false,
+        sortField: {
+            field: "text",
+            direction: "asc"
+        },
+        placeholder: "Pilih kategori...",
+        maxOptions: null,
+    });
+    
+    function applyFilters() {
+        const params = new URLSearchParams();
+        
+        // Add search parameter if exists and not empty
+        const searchValue = searchSelect.getValue();
+        if (searchValue) {
+            params.append('search', searchValue);
+        }
+
+        // Add category parameter
+        const categoryValue = categorySelect.getValue();
+        if (categoryValue && categoryValue !== 'all') {
+            params.append('category', categoryValue);
+        }
+
+        // Reload page with new query parameters
+        window.location.href = window.location.pathname + '?' + params.toString();
+    }
+    
+    // Event listeners
+    searchSelect.on('change', applyFilters);
+    categorySelect.on('change', applyFilters);
+});
+</script>
 </body>
 </html>
