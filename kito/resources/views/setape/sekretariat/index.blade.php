@@ -106,29 +106,17 @@ $title = 'Sekretariat';
                         </a>
                     </div>
                     <h1 class="text-xl font-bold mb-4">Sekretariat</h1>
-                            @foreach ($ketuas as $ketua)
-                            <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
-                                <div>
-                                    <a href="{{ $ketua->link }}" class="text-xl font-bold transition-all duration-200 hover:text-2xl">
-                                        {{ $ketua->name ?? $ketua->link ?? 'Tidak ada link' }}
-                                    </a>
-                                    <p>{{ $ketua->category->name }}</p>
-                                </div>
-                                <div>
-                                    <label class="switch">
-                                        <input type="checkbox" 
-                                            {{ $ketua->status ? 'checked' : '' }} 
-                                            data-ketua-id="{{ $ketua->id }}"
-                                            class="status-toggle">
-                                        <span class="slider {{ $ketua->status ? 'bg-blue-600' : 'bg-gray-400' }}"></span>
-                                    </label>
-                                </div>
-                            </div>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    @foreach ($ketuas as $ketua)
+                    <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
+                        <div>
+                            <a href="{{ $ketua->link }}" class="text-xl font-bold transition-all duration-200 hover:text-2xl">
+                                {{ $ketua->name ?? $ketua->link ?? 'Tidak ada link' }}
+                            </a>
+                            <p>{{ $ketua->category->name }}</p>
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
-
                 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
                 <script>
                 document.addEventListener('DOMContentLoaded', function() {
