@@ -79,6 +79,7 @@ $title = 'Super Tim';
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
+                <h1 class="text-2xl font-bold mb-4">Daftar Super TIM</h1>
                 <div class="bg-white p-4 rounded shadow">
                     <div class="flex justify-between mb-4">
                     <div class="flex space-x-4 items-center">
@@ -118,9 +119,7 @@ $title = 'Super Tim';
                             Tambah Link
                         </button>
                     </div>
-                    <h1 class="text-xl font-bold mb-4">Daftar Super TIM</h1>
                     <div class="overflow-x-auto">
-                        <h1 class="text-xl font-bold mb-4">Super TIM</h1>
                         @foreach ($offices as $office)
                         <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
                             <div>
