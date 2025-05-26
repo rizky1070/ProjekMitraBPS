@@ -111,7 +111,6 @@ $title = 'Super Tim';
                         Sekretariat
                     </a>
                 </div>
-                
                 <h1 class="text-xl font-bold mb-4">Super TIM</h1>
                 @foreach ($offices as $office)
                     <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
@@ -120,16 +119,6 @@ $title = 'Super Tim';
                                 {{ $office->name ?? $office->link ?? 'Tidak ada link' }}
                             </a>
                             <p>{{ $office->category->name }}</p>
-                        </div>
-                        <div>
-                            <label class="switch">
-                                <input type="checkbox" 
-                                    {{ $office->status ? 'checked' : '' }} 
-                                    data-office-id="{{ $office->id }}"
-                                    class="status-toggle"
-                                    onchange="toggleStatus(this)">
-                                <span class="slider {{ $office->status ? 'bg-blue-600' : 'bg-gray-400' }}"></span>
-                            </label>
                         </div>
                     </div>
                 @endforeach

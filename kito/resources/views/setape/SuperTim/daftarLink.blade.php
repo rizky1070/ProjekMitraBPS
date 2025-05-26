@@ -5,6 +5,54 @@ $title = 'Super Tim';
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="/Logo BPS.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <style>
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc; /* default gray */
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        /* ON */
+        input:checked + .slider {
+            background-color: #007BFF; /* Bootstrap Blue */
+        }
+
+        /* ON handle position */
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+    </style>
 </head>
 <body class="h-full">
     <!-- SweetAlert Logic -->
@@ -72,46 +120,47 @@ $title = 'Super Tim';
                     </div>
                     <h1 class="text-xl font-bold mb-4">Daftar Super TIM</h1>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white border border-gray-300">
-                            <thead>
-                                <tr class="bg-gray-100">
-                                    <th class="text-left p-2 border">Nama</th>
-                                    <th class="text-left p-2 border">Kategori</th>
-                                    <th class="text-left p-2 border">Link</th>
-                                    <th class="text-left p-2 border">Status</th>
-                                    <th class="text-left p-2 border">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($offices as $office)
-                                    <tr>
-                                        <td class="p-2 border">{{ $office->name }}</td>
-                                        <td class="p-2 border">{{ $office->category->name ?? '-' }}</td>
-                                        <td class="p-2 border">
-                                            <a href="{{ $office->link }}" class="text-blue-500 underline" target="_blank">Lihat</a>
-                                        </td>
-                                        <td class="p-2 border">
-                                            <span x-text="getStatusText({{ $office->status }})" 
-                                                  :class="getStatusClass({{ $office->status }})"></span>
-                                        </td>
-                                        <td class="p-2 border">
-                                            <button @click="showEditModal = true; currentOffice = {{ $office->id }}; 
-                                                editOfficeName = '{{ $office->name }}'; 
-                                                editOfficeLink = '{{ $office->link }}'; 
-                                                editOfficeCategory = {{ $office->category_id ?? 'null' }}; 
-                                                editOfficeStatus = {{ $office->status ? 1 : 0 }};" 
-                                                class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 mr-2">
-                                                Edit
-                                            </button>
-                                            <button @click="deleteOffice({{ $office->id }}, '{{ $office->name }}')" 
-                                                class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
-                                                Hapus
-                                            </button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        <h1 class="text-xl font-bold mb-4">Super TIM</h1>
+                        @foreach ($offices as $office)
+                        <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
+                            <div>
+                                <a href="{{ $office->link }}" class="text-xl font-bold transition-all duration-200 hover:text-2xl">
+                                    {{ $office->name ?? $office->link ?? 'Tidak ada link' }}
+                                </a>
+                                <p>{{ $office->category->name }}</p>
+                            </div>
+                            <div>
+                                <div>
+                                    <button @click="showEditModal = true; currentOffice = {{ $office->id }}; 
+                                                    editOfficeName = '{{ $office->name }}'; 
+                                                    editOfficeLink = '{{ $office->link }}'; 
+                                                    editOfficeCategory = {{ $office->category_id ?? 'null' }}; 
+                                                    editOfficeStatus = {{ $office->status ? 1 : 0 }};" 
+                                            class="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600 mr-2"
+                                            title="Edit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                        </svg>
+                                    </button>
+                                    <button @click="deleteOffice({{ $office->id }}, '{{ $office->name }}')" 
+                                            class="bg-red-500 text-white p-2 rounded hover:bg-red-600"
+                                            title="Hapus">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                    <label class="switch ml-4">
+                                        <input type="checkbox" 
+                                            {{ $office->status ? 'checked' : '' }} 
+                                            data-office-id="{{ $office->id }}"
+                                            class="status-toggle"
+                                            onchange="toggleStatus(this)">
+                                        <span class="slider {{ $office->status ? 'bg-blue-600' : 'bg-gray-400' }}"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                     </div>
                 </div>
             </main>
@@ -209,7 +258,48 @@ $title = 'Super Tim';
             </div>
         </div>
     </div>
-
+                <script>
+                    function toggleStatus(checkbox) {
+                        const officeId = checkbox.getAttribute('data-office-id');
+                        const isActive = checkbox.checked;
+                        const slider = checkbox.nextElementSibling;
+                                    
+                                    // Update UI immediately
+                        slider.classList.toggle('bg-blue-600', isActive);
+                        slider.classList.toggle('bg-gray-400', !isActive);
+                                    
+                                    // Kirim request AJAX
+                        fetch('{{ route("super-tim.update-status") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                office_id: officeId,
+                                status: isActive ? 'active' : 'inactive'
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.success) {
+                                            // Revert changes if failed
+                                checkbox.checked = !isActive;
+                                slider.classList.toggle('bg-blue-600', !isActive);
+                                slider.classList.toggle('bg-gray-400', isActive);
+                                swal("Error!", data.message, "error");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            checkbox.checked = !isActive;
+                            slider.classList.toggle('bg-blue-600', !isActive);
+                            slider.classList.toggle('bg-gray-400', isActive);
+                            swal("Error!", "Terjadi kesalahan jaringan", "error");
+                        });
+                    }
+                </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     document.addEventListener('alpine:init', () => {
