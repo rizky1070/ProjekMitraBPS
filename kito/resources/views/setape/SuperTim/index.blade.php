@@ -132,7 +132,7 @@ $title = 'Super Tim';
                             </label>
                         </div>
                     </div>
-                    @endforeach
+                @endforeach
                 </div>
                 <script>
                     function toggleStatus(checkbox) {

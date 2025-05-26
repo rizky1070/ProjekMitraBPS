@@ -397,6 +397,7 @@ Route::get('/daftarsekretariat', [SekretariatController::class, 'daftarLink']);
 Route::post('/daftarsekretariat', [SekretariatController::class, 'store']);
 Route::put('/daftarsekretariat/{id}', [SekretariatController::class, 'update']);
 Route::delete('/daftarsekretariat/{id}', [SekretariatController::class, 'destroy']);
+Route::post('/sekretariat/update-status', [SekretariatController::class, 'updateStatus'])->name('sekretariat.update-status');
 
 // Kategori Pribadi
 Route::get('/kategoripribadi', [KategoriPribadiController::class, 'index']);
