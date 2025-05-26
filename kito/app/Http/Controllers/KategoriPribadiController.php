@@ -8,18 +8,33 @@ use Illuminate\Support\Facades\Auth;
 
 class KategoriPribadiController extends Controller
 {
-    public function index()
+
+    public function index(Request $request)
     {
-        // Ambil data CategoryUser berdasarkan user yang sedang login
-        $categoryuser = CategoryUser::where('user_id', Auth::id())->get();
-        
-        return view('Setape.kategoriPribadi.daftar', compact('categoryuser'));
+        $query = CategoryUser::where('user_id', Auth::id());
+
+        // Filter pencarian
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        $categoryuser = $query->get();
+
+        $kategoriNames = CategoryUser::where('user_id', Auth::id())
+            ->pluck('name')
+            ->unique()
+            ->values()
+            ->all();
+
+        return view('Setape.kategoriPribadi.daftar', compact('categoryuser', 'kategoriNames'));
     }
+
 
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:category_users,name,NULL,id,user_id,'.Auth::id()
+            'name' => 'required|string|max:255|unique:category_users,name,NULL,id,user_id,' . Auth::id()
         ], [
             'name.required' => 'Nama kategori wajib diisi.',
             'name.string' => 'Nama kategori harus berupa teks.',
@@ -48,7 +63,7 @@ class KategoriPribadiController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:category_users,name,'.$id.',id,user_id,'.Auth::id()
+            'name' => 'required|string|max:255|unique:category_users,name,' . $id . ',id,user_id,' . Auth::id()
         ], [
             'name.required' => 'Nama kategori wajib diisi.',
             'name.string' => 'Nama kategori harus berupa teks.',
