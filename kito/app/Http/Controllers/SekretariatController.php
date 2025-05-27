@@ -77,7 +77,7 @@ class SekretariatController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'link' => 'required|url|max:255',
-            'category_id' => 'nullable|exists:categories,id',
+            'category_id' => 'required|exists:categories,id',
             'status' => 'required|boolean'
         ]);
 
@@ -86,7 +86,8 @@ class SekretariatController extends Controller
                 'name' => $request->name,
                 'link' => $request->link,
                 'category_id' => $request->category_id,
-                'status' => $request->status
+                'status' => $request->status,
+                'user_id' => Auth::id()
             ]);
 
             return response()->json([

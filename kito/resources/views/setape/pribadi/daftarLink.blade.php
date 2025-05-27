@@ -19,7 +19,7 @@ $title = 'Daftar Link Pribadi';
         swal("Error!", "{{ $errors->first() }}", "error");
         </script>
     @endif
-    
+
     @if (session('error'))
     <script>
         swal("Error!", "{{ session('error') }}", "error");
@@ -122,14 +122,6 @@ $title = 'Daftar Link Pribadi';
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                             @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2" for="linkStatus">Status</label>
-                        <select x-model="newLinkStatus" id="linkStatus" 
-                            class="w-full px-3 py-2 border rounded" required>
-                            <option value="1">Aktif</option>
-                            <option value="0">Nonaktif</option>
                         </select>
                     </div>
                     <div class="flex justify-end space-x-3">

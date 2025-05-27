@@ -57,7 +57,7 @@ class PribadiController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'link' => 'required|url|max:255',
-            'category_user_id' => 'nullable|exists:category_users,id', // Sesuaikan dengan nama tabel
+            'category_user_id' => 'required|exists:category_users,id', // Diubah dari nullable ke required
             'status' => 'required'
         ]);
 
@@ -67,7 +67,7 @@ class PribadiController extends Controller
                 'link' => $request->link,
                 'category_user_id' => $request->category_user_id,
                 'status' => $request->status,
-                'user_id' => Auth::id() // Tambahkan user_id
+                'user_id' => Auth::id()
             ]);
 
             return response()->json([

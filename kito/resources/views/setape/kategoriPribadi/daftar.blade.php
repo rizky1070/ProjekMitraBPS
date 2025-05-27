@@ -15,9 +15,11 @@ $title = 'Kelola Kategori Pribadi';
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
                 <div class="flex justify-between mb-4">
                     <h1 class="text-2xl font-bold mb-4">Kelola Kategori Pribadi</h1>
+                    @if (auth()->user()->is_admin || auth()->user()->is_leader)
                     <a href="/kategoriumum" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
                         Kategori Umum
                     </a>
+                    @endif
                 </div>
                 <div class="bg-white p-4 rounded shadow">
                     <div class="flex justify-between mb-4">
