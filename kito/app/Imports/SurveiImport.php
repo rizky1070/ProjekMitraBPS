@@ -26,7 +26,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
     private $processedRows = 0;
     private $defaultProvinsi = '35';
     private $defaultKabupaten = '16';
-    
+
     private $requiredFields = [
         'nama_survei' => 'Nama Survei',
         'kro' => 'KRO',
@@ -91,7 +91,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
             // Buat data baru
             $this->successCount++;
             return $this->createNewSurvey($row, $kabupaten, $provinsi, $jadwalMulai, $jadwalBerakhir, $bulanDominan, $statusSurvei);
-
         } catch (\Exception $e) {
             $this->rowErrors[$surveyName] = "Survei '{$surveyName}': " . $e->getMessage();
             $this->failedCount++;
@@ -107,7 +106,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
                 $errors[] = "Kolom {$label} tidak ditemukan";
                 continue;
             }
-            
+
             if (empty(trim($row[$field]))) {
                 $errors[] = "Kolom {$label} harus diisi";
             }
@@ -149,13 +148,12 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
                     $unixDate = ($date - 25569) * 86400;
                     return Carbon::createFromTimestamp($unixDate);
                 }
-                
+
                 return Carbon::parse($date);
             }
 
             $errors[] = "Format tanggal tidak dikenali";
             return null;
-            
         } catch (\Exception $e) {
             Log::error("Gagal parsing tanggal untuk survei '{$surveyName}': {$date} - Error: " . $e->getMessage());
             return null;
@@ -167,21 +165,33 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
         if (!$start) {
             $errors[] = "Tanggal mulai tidak valid";
         }
-        
+
         if (!$end) {
             $errors[] = "Tanggal berakhir tidak valid";
         }
-        
+
         if ($start && $end && $end->lt($start)) {
             $errors[] = "Tanggal berakhir harus setelah tanggal mulai";
         }
-        
+
         if ($start) {
             $currentYear = date('Y');
             if ($start->year < 2000 || $start->year > $currentYear + 5) {
-                $errors[] = "Tahun jadwal tidak valid (harus antara 2000-".($currentYear + 5).")";
+                $errors[] = "Tahun jadwal tidak valid (harus antara 2000-" . ($currentYear + 5) . ")";
             }
         }
+    }
+
+    private function calculateDominantMonth(Carbon $start, Carbon $end): string
+    {
+        $months = collect();
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            $months->push($date->format('m-Y'));
+        }
+
+        $mostFrequentMonth = $months->countBy()->sortDesc()->keys()->first();
+        [$bulan, $tahun] = explode('-', $mostFrequentMonth);
+        return Carbon::createFromDate($tahun, $bulan, 1)->toDateString();
     }
 
     private function isRowCompletelyEmpty(array $row): bool
@@ -219,12 +229,12 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
             'tim' => $row['tim'],
             'updated_at' => now()
         ]);
-        
+
         Log::info('Data survei diupdate: ' . $row['nama_survei'], [
             'id' => $existingSurvei->id,
             'data' => $row
         ]);
-        
+
         $this->successCount++;
     }
 
@@ -238,7 +248,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
         int $statusSurvei
     ): Survei {
         $this->successCount++;
-        
+
         return new Survei([
             'nama_survei' => $row['nama_survei'],
             'id_kabupaten' => $kabupaten->id_kabupaten,
@@ -261,7 +271,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
         }
         return 2; // Sedang berjalan
     }
-    
+
     private function getProvinsi(): Provinsi
     {
         $provinsi = Provinsi::where('id_provinsi', $this->defaultProvinsi)->first();
@@ -270,7 +280,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
         }
         return $provinsi;
     }
-    
+
     private function getKabupaten(Provinsi $provinsi): Kabupaten
     {
         $kabupaten = Kabupaten::where('id_kabupaten', $this->defaultKabupaten)
@@ -290,9 +300,9 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
             'tim' => 'required|string|max:255',
             'jadwal' => 'required',
             'jadwal_berakhir' => 'required'
-        ];   
+        ];
     }
-    
+
     public function getRowErrors(): array
     {
         return $this->rowErrors;
