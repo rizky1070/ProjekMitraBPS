@@ -327,53 +327,52 @@ $title = 'Daftar Link Pribadi';
     });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Tom Select for search dropdown
-    const searchSelect = new TomSelect('#searchSelect', {
-        create: false,
-        sortField: {
-            field: "text",
-            direction: "asc"
-        },
-        placeholder: "Cari link...",
-        maxOptions: null,
-    });
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Tom Select for search dropdown
+        const searchSelect = new TomSelect('#searchSelect', {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            placeholder: "Cari link...",
+            maxOptions: null,
+        });
 
-    // Initialize Tom Select for category dropdown
-    const categorySelect = new TomSelect('#categoryFilter', {
-        create: false,
-        sortField: {
-            field: "text",
-            direction: "asc"
-        },
-        placeholder: "Pilih kategori...",
-        maxOptions: null,
-    });
-    
-    function applyFilters() {
-        const params = new URLSearchParams();
+        // Initialize Tom Select for category dropdown
+        const categorySelect = new TomSelect('#categoryFilter', {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            placeholder: "Pilih kategori...",
+            maxOptions: null,
+        });
         
-        // Add search parameter if exists and not empty
-        const searchValue = searchSelect.getValue();
-        if (searchValue) {
-            params.append('search', searchValue);
-        }
+        function applyFilters() {
+            const params = new URLSearchParams();
+            
+            // Add search parameter
+            const searchValue = searchSelect.getValue();
+            if (searchValue) {
+                params.append('search', searchValue);
+            }
 
-        // Add category parameter
-        const categoryValue = categorySelect.getValue();
-        if (categoryValue && categoryValue !== 'all') {
-            params.append('category', categoryValue);
-        }
+            // Add category parameter
+            const categoryValue = categorySelect.getValue();
+            if (categoryValue && categoryValue !== 'all') {
+                params.append('category', categoryValue);
+            }
 
-        // Reload page with new query parameters
-        window.location.href = window.location.pathname + '?' + params.toString();
-    }
-    
-    // Event listeners
-    searchSelect.on('change', applyFilters);
-    categorySelect.on('change', applyFilters);
-});
-</script>
+            window.location.href = window.location.pathname + '?' + params.toString();
+        }
+        
+        // Event listeners
+        searchSelect.on('change', applyFilters);
+        categorySelect.on('change', applyFilters);
+    });
+    </script>
 </body>
 </html>

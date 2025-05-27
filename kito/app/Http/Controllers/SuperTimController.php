@@ -62,12 +62,15 @@ class SuperTimController extends Controller
 
         $offices = $query->get();
         
-        $categories = Category::whereHas('offices')->get();
+        // Ambil SEMUA kategori tanpa filter apapun
+        $categories = Category::all();
         
-        $officeNames = Office::pluck('name')
-                            ->unique()
-                            ->values()
-                            ->all();
+        // Ambil nama ketua hanya dari hasil yang difilter
+        $officeNames = $query->clone()
+                        ->pluck('name')
+                        ->unique()
+                        ->values()
+                        ->all();
 
         return view('Setape.superTim.daftarLink', compact('offices', 'categories', 'officeNames'));
     }

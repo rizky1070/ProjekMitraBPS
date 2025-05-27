@@ -62,12 +62,15 @@ class SekretariatController extends Controller
 
         $ketuas = $query->get();
         
-        $categories = Category::whereHas('ketuas')->get();
+        // Ambil SEMUA kategori tanpa filter apapun
+        $categories = Category::all();
         
-        $ketuaNames = Ketua::pluck('name')
-                            ->unique()
-                            ->values()
-                            ->all();
+        // Ambil nama ketua hanya dari hasil yang difilter
+        $ketuaNames = $query->clone()
+                        ->pluck('name')
+                        ->unique()
+                        ->values()
+                        ->all();
 
         return view('Setape.sekretariat.daftarLink', compact('ketuas', 'categories', 'ketuaNames'));
     }

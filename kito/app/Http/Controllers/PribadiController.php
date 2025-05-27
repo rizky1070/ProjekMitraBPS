@@ -23,11 +23,11 @@ class PribadiController extends Controller
     public function daftarLink(Request $request)
     {
         $query = Link::with('categoryUser')
-            ->where('user_id', Auth::id()); // Hanya data milik user yang login
+            ->where('user_id', Auth::id());
 
         // Filter kategori
         if ($request->filled('category') && $request->category != 'all') {
-            $query->where('category_id', $request->category);
+            $query->where('category_user_id', $request->category);
         }
 
         // Filter pencarian
@@ -38,12 +38,11 @@ class PribadiController extends Controller
 
         $links = $query->get();
 
-        // Hanya ambil kategori yang dimiliki oleh user yang login
-        $categories = CategoryUser::whereHas('links', function ($q) {
-            $q->where('user_id', Auth::id());
-        })->get();
+        // Ambil SEMUA kategori milik user (tidak peduli apakah punya link atau tidak)
+        $categories = CategoryUser::where('user_id', Auth::id())->get();
 
-        $linkNames = Link::where('user_id', Auth::id())
+        // Ambil nama link hanya dari hasil yang difilter
+        $linkNames = $query->clone()
             ->pluck('name')
             ->unique()
             ->values()
