@@ -113,16 +113,28 @@ $title = 'Super Tim';
                         </div>
                     </div>
                 </div>
-                @foreach ($offices as $office)
-                    <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
-                        <div>
-                            <a href="{{ $office->link }}" class="text-xl font-bold transition-all duration-200 hover:text-2xl">
-                                {{ $office->name ?? $office->link ?? 'Tidak ada link' }}
-                            </a>
-                            <p>{{ $office->category->name }}</p>
-                        </div>
+                @if ($offices->isEmpty())
+                    <div class="text-center text-gray-500 py-8 text-2xl font-bold flex flex-col items-center">
+                        Tidak ada link
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mt-2" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" fill="#F3F4F6"/>
+                            <circle cx="9" cy="10" r="1.5" fill="#6B7280"/>
+                            <circle cx="15" cy="10" r="1.5" fill="#6B7280"/>
+                            <path d="M9 16c.5-1 1.5-1.5 3-1.5s2.5.5 3 1.5" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
                     </div>
-                @endforeach
+                @else
+                    @foreach ($offices as $office)
+                        <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
+                            <div>
+                                <a href="{{ $office->link }}" class="text-xl font-bold">
+                                    {{ $office->name ?? $office->link ?? 'Tidak ada link' }}
+                                </a>
+                                <p>{{ $office->category->name }}</p>
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
                 </div>
                 <script>
                     function toggleStatus(checkbox) {

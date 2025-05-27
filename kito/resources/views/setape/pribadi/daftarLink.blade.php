@@ -64,36 +64,51 @@ $title = 'Daftar Link Pribadi';
                         </button>
                     </div>
                     <div class="overflow-x-auto">
-                        @foreach ($links as $link)
-                            <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
-                                <div>
-                                    <a href="{{ $link->link }}" class="text-xl font-bold transition-all duration-200 hover:text-2xl">
-                                        {{ $link->name ?? $link->link ?? 'Tidak ada link' }}
-                                    </a>
-                                    <p>{{ $link->categoryUser->name }}</p>
-                                </div>
-                                <div class="mr-4">
-                                    <button @click="showEditModal = true; currentLink = {{ $link->id }}; 
-                                                    editLinkName = '{{ $link->name }}'; 
-                                                    editLinkLink = '{{ $link->link }}'; 
-                                                    editLinkCategory = {{ $link->category_id ?? 'null' }}; 
-                                                    editLinkStatus = {{ $link->status ? 1 : 0 }};" 
-                                            class="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600 mr-2"
-                                            title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                        </svg>
-                                    </button>
-                                    <button @click="deleteLink({{ $link->id }}, '{{ $link->name }}')" 
-                                            class="bg-red-500 text-white p-2 rounded hover:bg-red-600"
-                                            title="Hapus">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
-                                </div>
+                        @if ($links->isEmpty())
+                            <div class="text-center text-gray-500 py-8 text-2xl font-bold flex flex-col items-center">
+                                Tidak ada link
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mt-2" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="10" fill="#F3F4F6"/>
+                                    <circle cx="9" cy="10" r="1.5" fill="#6B7280"/>
+                                    <circle cx="15" cy="10" r="1.5" fill="#6B7280"/>
+                                    <path d="M9 16c.5-1 1.5-1.5 3-1.5s2.5.5 3 1.5" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
                             </div>
-                        @endforeach
+                        @else
+                            @foreach ($links as $link)
+                                <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-3 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
+                                    <div class="flex items-center">
+                                        <div class="pr-2">PIN</div>
+                                        <div>
+                                            <a href="{{ $link->link }}" class="text-xl font-bold">
+                                                {{ $link->name ?? $link->link ?? 'Tidak ada link' }}
+                                            </a>
+                                            <p>{{ $link->categoryUser->name }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="mr-4">
+                                        <button @click="showEditModal = true; currentLink = {{ $link->id }}; 
+                                                        editLinkName = '{{ $link->name }}'; 
+                                                        editLinkLink = '{{ $link->link }}'; 
+                                                        editLinkCategory = {{ $link->category_id ?? 'null' }}; 
+                                                        editLinkStatus = {{ $link->status ? 1 : 0 }};" 
+                                                class="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600 mr-2"
+                                                title="Edit">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="deleteLink({{ $link->id }}, '{{ $link->name }}')" 
+                                                class="bg-red-500 text-white p-2 rounded hover:bg-red-600"
+                                                title="Hapus">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
                     </div>
                 </div>
             </main>

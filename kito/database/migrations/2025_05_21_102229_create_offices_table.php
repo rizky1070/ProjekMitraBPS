@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('link');
             $table->boolean('status')->default(true);
+            $table->boolean('priority')->default(false);
             $table->timestamps();
         });
     }

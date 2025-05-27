@@ -18,7 +18,8 @@ class LinksTableSeeder extends Seeder
                 'name' => 'Update SLS/ RT',
                 'created_at' => '2022-09-10 22:35:17',
                 'updated_at' => '2022-09-10 22:35:17',
-                'status' => 1
+                'status' => 1,
+                'priority' => 0
             ],
             [
                 'id' => 9,
@@ -28,7 +29,8 @@ class LinksTableSeeder extends Seeder
                 'name' => 'Link Regsosek Provinsi',
                 'created_at' => '2022-11-23 02:13:18',
                 'updated_at' => '2023-12-20 05:39:58',
-                'status' => 1
+                'status' => 1,
+                'priority' => 0
             ],
             [
                 'id' => 10,
@@ -38,7 +40,8 @@ class LinksTableSeeder extends Seeder
                 'name' => 'Adobe',
                 'created_at' => '2022-12-18 20:06:00',
                 'updated_at' => '2023-12-16 05:17:03',
-                'status' => 1
+                'status' => 1,
+                'priority' => 0
             ],
             [
                 'id' => 11,
@@ -48,7 +51,8 @@ class LinksTableSeeder extends Seeder
                 'name' => 'Upload Backup Regsosek',
                 'created_at' => '2023-01-24 01:27:56',
                 'updated_at' => '2024-01-02 22:56:55',
-                'status' => 1
+                'status' => 1,
+                'priority' => 0
             ],
             [
                 'id' => 13,
@@ -58,7 +62,8 @@ class LinksTableSeeder extends Seeder
                 'name' => 'DSBS dan Prelist Survei Rutin',
                 'created_at' => '2023-08-14 04:21:47',
                 'updated_at' => '2023-08-14 04:21:47',
-                'status' => 1
+                'status' => 1,
+                'priority' => 0
             ]
         ]);
     }
