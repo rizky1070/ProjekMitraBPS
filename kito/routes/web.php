@@ -412,6 +412,7 @@ Route::post('/daftarlinkpribadi', [PribadiController::class, 'store']);
 Route::put('/daftarlinkpribadi/{id}', [PribadiController::class, 'update']);
 Route::delete('/daftarlinkpribadi/{id}', [PribadiController::class, 'destroy']);
 Route::put('/daftarlinkpribadi/${id}/toggle-pin', [PribadiController::class, 'update']);
+Route::post('/daftarlinkpribadi/{id}/toggle-pin', [PribadiController::class, 'togglePin'])->name('links.toggle-pin');
 
 
 require __DIR__ . '/auth.php';

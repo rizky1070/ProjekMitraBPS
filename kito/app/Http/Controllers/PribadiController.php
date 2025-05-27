@@ -23,7 +23,9 @@ class PribadiController extends Controller
     public function daftarLink(Request $request)
     {
         $query = Link::with('categoryUser')
-            ->where('user_id', Auth::id());
+            ->where('user_id', Auth::id())
+            ->orderBy('priority', 'desc')
+            ->orderBy('created_at', 'desc');
 
         // Filter kategori
         if ($request->filled('category') && $request->category != 'all') {
@@ -49,6 +51,30 @@ class PribadiController extends Controller
             ->all();
 
         return view('Setape.pribadi.daftarLink', compact('links', 'categories', 'linkNames'));
+    }
+
+    public function togglePin(Request $request, $id)
+    {
+        try {
+            $link = Link::where('id', $id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
+
+            $link->update([
+                'priority' => !$link->priority
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'priority' => $link->priority,
+                'message' => $link->priority ? 'Link disematkan' : 'Link tidak disematkan'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status pin: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(Request $request)

@@ -78,7 +78,19 @@ $title = 'Daftar Link Pribadi';
                             @foreach ($links as $link)
                                 <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-3 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
                                     <div class="flex items-center">
-                                        <div class="pr-2">PIN</div>
+                                        <button @click="togglePin({{ $link->id }})" 
+                                            class="flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $link->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}"
+                                            title="{{ $link->priority ? 'Lepaskan' : 'Sematkan' }}">
+                                            @if ($link->priority)
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="red">
+                                                <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
+                                            </svg>
+                                            @else
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="gray">
+                                                <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
+                                            </svg>
+                                            @endif
+                                        </button>
                                         <div>
                                             <a href="{{ $link->link }}" class="text-xl font-bold">
                                                 {{ $link->name ?? $link->link ?? 'Tidak ada link' }}
@@ -258,6 +270,35 @@ $title = 'Daftar Link Pribadi';
                     }
                     
                     Swal.fire("Berhasil!", "Link baru telah ditambahkan", "success")
+                        .then(() => window.location.reload());
+                } catch (error) {
+                    Swal.fire("Error!", error.message, "error");
+                    console.error('Error:', error);
+                } finally {
+                    this.isLoading = false;
+                }
+            },
+
+            
+            async togglePin(id) {
+                try {
+                    this.isLoading = true;
+                    const response = await fetch(`/daftarlinkpribadi/${id}/toggle-pin`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Gagal mengubah status pin');
+                    }
+                    
+                    Swal.fire("Berhasil!", data.message, "success")
                         .then(() => window.location.reload());
                 } catch (error) {
                     Swal.fire("Error!", error.message, "error");
