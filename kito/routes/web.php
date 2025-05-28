@@ -393,7 +393,8 @@ Route::middleware('auth')->group(function () {
         ->name('super-tim.update-status');
     Route::post('/daftarsupertim/{id}/toggle-pin', [SuperTimController::class, 'togglePin'])
         ->name('links.toggle-pin');
-
+    Route::post('/daftarsupertim/{id}/keep', [SuperTimController::class, 'keepLink'])
+        ->name('super-tim.keep-link');
     // Sekretariat
     Route::get('/sekretariat', [SekretariatController::class, 'index']);
     Route::get('/daftarsekretariat', [SekretariatController::class, 'daftarLink']);

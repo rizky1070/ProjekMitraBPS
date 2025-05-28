@@ -231,4 +231,56 @@ class SuperTimController extends Controller
             ]);
         }
     }
+
+    public function keepLink(Request $request, $id)
+    {
+        try {
+            // Dapatkan user yang sedang login
+            $userId = Auth::id();
+            
+            // Dapatkan data Office yang akan disalin
+            $office = Office::findOrFail($id);
+            
+            // Dapatkan atau buat CategoryUser 'Kelompok Kerja' untuk user ini
+            $categoryUser = \DB::table('category_users')
+                ->where('name', 'Kelompok Kerja')
+                ->where('user_id', $userId)
+                ->first();
+                
+            // Jika kategori tidak ada, buat baru
+            if (!$categoryUser) {
+                $categoryUserId = \DB::table('category_users')->insertGetId([
+                    'name' => 'Kelompok Kerja',
+                    'user_id' => $userId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } else {
+                $categoryUserId = $categoryUser->id;
+            }
+            
+            // Simpan data ke tabel Link
+            \DB::table('links')->insert([
+                'name' => $office->name,
+                'category_user_id' => $categoryUserId,
+                'link' => $office->link,
+                'status' => 1, // Status aktif
+                'priority' => 0, // Tidak disematkan
+                'created_at' => now(),
+                'updated_at' => now(),
+                'user_id' => $userId,
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Link berhasil disimpan ke koleksi pribadi'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyimpan link: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
