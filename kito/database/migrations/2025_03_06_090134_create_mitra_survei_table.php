@@ -12,13 +12,13 @@ class CreateMitraSurveiTable extends Migration
             $table->id('id_mitra_survei');
             $table->unsignedBigInteger('id_mitra');
             $table->unsignedBigInteger('id_survei');
-            $table->string('posisi_mitra')->nullable();
+            $table->unsignedBigInteger('id_posisi_mitra')->nullable();
             $table->string('catatan')->nullable();
             $table->string('nilai')->nullable();
             $table->string('vol')->nullable();
-            $table->integer('honor')->nullable();
             $table->date('tgl_ikut_survei')->nullable();
 
+            $table->foreign('id_posisi_mitra')->references('id_posisi_mitra')->on('posisi_mitra')->onUpdate('restrict')->onDelete('restrict');
             $table->foreign('id_mitra')->references('id_mitra')->on('mitra')->onUpdate('restrict')->onDelete('restrict');
             $table->foreign('id_survei')->references('id_survei')->on('survei')->onUpdate('restrict')->onDelete('restrict');
         });

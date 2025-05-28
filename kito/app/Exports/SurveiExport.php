@@ -16,7 +16,6 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
     protected $query;
     protected $filters;
     protected $totals;
-
     protected $headings = [
         'No',
         'Nama Survei',
@@ -40,7 +39,8 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
 
     public function query()
     {
-        return $this->query;
+        // Tambahkan eager loading untuk performa yang lebih baik
+        return $this->query->with(['mitraSurveis.mitra', 'provinsi', 'kabupaten']);
     }
 
     public function map($survei): array
@@ -50,8 +50,11 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
 
         $jumlahResponden = $survei->total_mitra ?? 0;
 
-        $namaResponden = $survei->mitraSurvei->isNotEmpty()
-            ? $survei->mitraSurvei->pluck('sobat_id')->filter()->implode(', ')
+        // Perbaikan: akses sobat_id melalui relasi mitra
+        $namaResponden = $survei->mitraSurveis->isNotEmpty()
+            ? $survei->mitraSurveis->map(function ($mitraSurvei) {
+                return $mitraSurvei->mitra->sobat_id ?? null;
+            })->filter()->implode(', ')
             : '-';
 
         $namaResponden = empty(trim($namaResponden)) ? '-' : $namaResponden;
@@ -74,17 +77,17 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
     public function registerEvents(): array
     {
         return [
-            BeforeSheet::class => function(BeforeSheet $event) {
+            BeforeSheet::class => function (BeforeSheet $event) {
                 $sheet = $event->sheet->getDelegate();
                 $row = 1;
 
                 // Judul Laporan
-                $sheet->setCellValue('A'.$row, 'LAPORAN DATA SURVEI');
-                $sheet->mergeCells('A'.$row.':N'.$row);
-                $sheet->getStyle('A'.$row)->getFont()
+                $sheet->setCellValue('A' . $row, 'LAPORAN DATA SURVEI');
+                $sheet->mergeCells('A' . $row . ':K' . $row);
+                $sheet->getStyle('A' . $row)->getFont()
                     ->setBold(true)
                     ->setSize(14);
-                $sheet->getStyle('A'.$row)->getAlignment()
+                $sheet->getStyle('A' . $row)->getAlignment()
                     ->setHorizontal('center');
                 $row++;
 
@@ -92,9 +95,9 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                 $row++;
 
                 // Tanggal Export
-                $sheet->setCellValue('A'.$row, 'Tanggal Export: ' . Carbon::now()->format('d/m/Y H:i'));
-                $sheet->mergeCells('A'.$row.':K'.$row);
-                $sheet->getStyle('A'.$row)->getFont()->setItalic(true);
+                $sheet->setCellValue('A' . $row, 'Tanggal Export: ' . Carbon::now()->format('d/m/Y H:i'));
+                $sheet->mergeCells('A' . $row . ':K' . $row);
+                $sheet->getStyle('A' . $row)->getFont()->setItalic(true);
                 $row++;
 
                 // Spasi kosong setelah tanggal export
@@ -102,15 +105,15 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
 
                 // Informasi Filter
                 if (!empty($this->filters)) {
-                    $sheet->setCellValue('A'.$row, 'Filter yang digunakan:');
-                    $sheet->mergeCells('A'.$row.':K'.$row);
-                    $sheet->getStyle('A'.$row)->getFont()->setBold(true);
+                    $sheet->setCellValue('A' . $row, 'Filter yang digunakan:');
+                    $sheet->mergeCells('A' . $row . ':K' . $row);
+                    $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                     $row++;
 
                     foreach ($this->filters as $key => $value) {
                         $label = $this->getFilterLabel($key);
-                        $sheet->setCellValue('A'.$row, $label.': '.$value);
-                        $sheet->mergeCells('A'.$row.':K'.$row);
+                        $sheet->setCellValue('A' . $row, $label . ': ' . $value);
+                        $sheet->mergeCells('A' . $row . ':K' . $row);
                         $row++;
                     }
 
@@ -119,25 +122,23 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                 }
 
                 // Informasi Total
-                $sheet->setCellValue('A'.$row, 'Total Survei: '.$this->totals['totalSurvei']);
-                $sheet->mergeCells('A'.$row.':D'.$row);
-                $sheet->getStyle('A'.$row)->getFont()->setBold(true);
+                $sheet->setCellValue('A' . $row, 'Total Survei: ' . $this->totals['totalSurvei']);
+                $sheet->mergeCells('A' . $row . ':D' . $row);
+                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
 
-                $sheet->setCellValue('E'.$row, 'Aktif: '.$this->totals['totalSurveiAktif']);
-                $sheet->mergeCells('E'.$row.':H'.$row);
-                $sheet->getStyle('E'.$row)->getFont()->setBold(true);
+                $sheet->setCellValue('E' . $row, 'Aktif: ' . $this->totals['totalSurveiAktif']);
+                $sheet->mergeCells('E' . $row . ':H' . $row);
+                $sheet->getStyle('E' . $row)->getFont()->setBold(true);
 
-                $sheet->setCellValue('I'.$row, 'Tidak Aktif: '.$this->totals['totalSurveiTidakAktif']);
-                $sheet->mergeCells('I'.$row.':L'.$row);
-                $sheet->getStyle('I'.$row)->getFont()->setBold(true);
-
+                $sheet->setCellValue('I' . $row, 'Tidak Aktif: ' . $this->totals['totalSurveiTidakAktif']);
+                $sheet->mergeCells('I' . $row . ':K' . $row);
+                $sheet->getStyle('I' . $row)->getFont()->setBold(true);
 
                 // Spasi kosong sebelum header
                 $row += 2;
 
-
                 // Header
-                $sheet->fromArray($this->headings, null, 'A'.$row);
+                $sheet->fromArray($this->headings, null, 'A' . $row);
 
                 // Style Header
                 $headerStyle = [
@@ -152,7 +153,8 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                         ],
                     ],
                 ];
-                $sheet->getStyle('A'.$row.':K'.$row)->applyFromArray($headerStyle);
+
+                $sheet->getStyle('A' . $row . ':K' . $row)->applyFromArray($headerStyle);
 
                 // Set kolom auto-size
                 foreach (range('A', 'K') as $column) {

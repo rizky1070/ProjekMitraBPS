@@ -21,7 +21,7 @@ class MitraSurvei extends Model
         'catatan',
         'nilai',
         'vol',
-        'honor',
+        'id_posisi_mitra',
         'tgl_ikut_survei'
     ];
 
@@ -37,5 +37,11 @@ class MitraSurvei extends Model
     public function survei()
     {
         return $this->belongsTo(Survei::class, 'id_survei', 'id_survei');
+    }
+
+    // Relasi ke PosisiMitra
+    public function posisiMitra()
+    {
+        return $this->belongsTo(PosisiMitra::class, 'id_posisi_mitra', 'id_posisi_mitra');
     }
 }

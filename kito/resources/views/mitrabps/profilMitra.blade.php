@@ -238,7 +238,7 @@ $title = 'Profil Mitra';
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->vol ?? '-' }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                Rp{{ number_format($sur->honor ?? 0, 0, ',', '.') }}</td>
+                                                Rp{{ number_format($sur->posisiMitra->rate_honor ?? 0, 0, ',', '.') }}</td>
                                             @if($sur->catatan == null && $sur->nilai == null)
                                                 <td class="p-2 text-center text-red-700 font-bold">Tidak ada catatan</td>
                                                 <td class="p-2 text-center text-red-700 font-bold">Belum dinilai</td>
@@ -300,7 +300,7 @@ $title = 'Profil Mitra';
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->vol ?? '-' }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                Rp{{ number_format($sur->honor ?? 0, 0, ',', '.') }}</td>
+                                                Rp{{ number_format($sur->posisiMitra->rate_honor ?? 0, 0, ',', '.') }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                                 <a href="/editSurvei/{{ $sur->survei->id_survei }}"
                                                     class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>

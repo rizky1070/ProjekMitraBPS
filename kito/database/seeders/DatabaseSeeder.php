@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             KabupatenSeeder::class,
             KecamatanSeeder::class,
             DesaSeeder::class,
+            PosisiMitraSeeder::class, // Uncomment if you have a seeder for PosisiMitra
             // MitraSeeder::class,
             // SurveiSeeder::class,
             // MitraSurveiSeeder::class,
@@ -28,7 +29,7 @@ class DatabaseSeeder extends Seeder
             OfficesTableSeeder::class,
             KetuasTableSeeder::class,
         ]);
-        
+
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([

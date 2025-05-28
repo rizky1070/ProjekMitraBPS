@@ -10,9 +10,7 @@ class Mitra extends Model
     use HasFactory;
 
     protected $table = 'mitra';
-
-    protected $primaryKey = 'id_mitra'; // Menggunakan id_survei sebagai primary key
-
+    protected $primaryKey = 'id_mitra';
     public $timestamps = false;
 
     protected $fillable = [
@@ -47,7 +45,7 @@ class Mitra extends Model
     // Relasi dengan Kecamatan
     public function kecamatan()
     {
-        return $this->belongsTo(Kecamatan::class, 'id_kecamatan','id_kecamatan');
+        return $this->belongsTo(Kecamatan::class, 'id_kecamatan', 'id_kecamatan');
     }
 
     // Relasi dengan Desa
@@ -56,18 +54,24 @@ class Mitra extends Model
         return $this->belongsTo(Desa::class, 'id_desa', 'id_desa');
     }
 
-    public function mitraSurvei()
+    // Relasi ke MitraSurvei (one-to-many)
+    public function mitraSurveis()
     {
-        return $this->belongsToMany(Survei::class, 'mitra_survei', 'id_mitra', 'id_survei');
+        return $this->hasMany(MitraSurvei::class, 'id_mitra', 'id_mitra');
     }
 
-    public function mitra()
+    // Relasi many-to-many dengan Survei melalui pivot table mitra_survei
+    public function surveis()
     {
-        return $this->belongsToMany(Mitra::class, 'mitra_survei', 'id_mitra', 'id_survei');
-    }
-
-    public function survei()
-    {
-        return $this->belongsToMany(Survei::class, 'mitra_survei', 'id_mitra', 'id_survei')->withPivot('honor', 'vol');
+        return $this->belongsToMany(Survei::class, 'mitra_survei', 'id_mitra', 'id_survei')
+            ->using(MitraSurvei::class)
+            ->withPivot([
+                'vol',
+                'nilai',
+                'catatan',
+                'id_posisi_mitra',
+                'tgl_ikut_survei'
+            ])
+            ->withTimestamps();
     }
 }

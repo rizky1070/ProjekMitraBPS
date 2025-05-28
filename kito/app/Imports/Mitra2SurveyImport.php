@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Mitra;
 use App\Models\MitraSurvei;
 use App\Models\Survei;
+use App\Models\PosisiMitra; // Import model PosisiMitra
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -37,14 +38,12 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
     {
         $rowNumber = $row['row_number'] ?? $row['__rowNum'] ?? null;
         $mitraName = $row['nama_lengkap'] ?? 'Tidak diketahui';
-        
+
         try {
             $tahunMasuk = $this->parseDate($row['tgl_mitra_diterima']);
             $tglIkutSurvei = $this->parseDate($row['tgl_ikut_survei']);
-
             $sobatId = $this->convertToNumeric($row['sobat_id']);
             $vol = $this->convertToNumeric($row['vol']);
-            $honor = $this->convertToNumeric($row['rate_honor']);
             $nilai = isset($row['nilai']) ? $this->convertToNumeric($row['nilai']) : null;
 
             $mitra = Mitra::where('sobat_id', $sobatId)
@@ -75,13 +74,24 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
                 throw new \Exception("Tanggal ikut survei melebihi jadwal berakhir survei");
             }
 
+            // Ambil ID Posisi Mitra dari database berdasarkan nama posisi
+            $posisiMitra = PosisiMitra::where('nama_posisi', $row['posisi'])->first();
+
+            if (!$posisiMitra) {
+                throw new \Exception("Posisi '{$row['posisi']}' tidak ditemukan dalam database Posisi Mitra.");
+            }
+
             // Check honor limit
             $totalHonorBulanIni = MitraSurvei::join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
+                ->join('posisi_mitra', 'mitra_survei.id_posisi_mitra', '=', 'posisi_mitra.id_posisi_mitra')
                 ->where('mitra_survei.id_mitra', $mitra->id_mitra)
                 ->where('survei.bulan_dominan', $this->survei->bulan_dominan)
-                ->sum(DB::raw('mitra_survei.honor * mitra_survei.vol'));
+                ->sum(DB::raw('mitra_survei.vol * posisi_mitra.rate_honor'));
 
-            $honorYangAkanDitambahkan = $honor * $vol;
+            // Dapatkan rate honor dari posisi mitra
+            $rateHonor = $posisiMitra->rate_honor;
+            $honorYangAkanDitambahkan = $rateHonor * $vol;
+
             $totalHonorSetelahDitambah = $totalHonorBulanIni + $honorYangAkanDitambahkan;
 
             $existingMitra = MitraSurvei::where('id_mitra', $mitra->id_mitra)
@@ -91,9 +101,8 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             $data = [
                 'id_mitra' => $mitra->id_mitra,
                 'id_survei' => $this->id_survei,
-                'posisi_mitra' => $row['posisi'],
+                'id_posisi_mitra' => $posisiMitra->id_posisi_mitra, // Simpan ID Posisi Mitra
                 'vol' => $vol,
-                'honor' => $honor,
                 'catatan' => $row['catatan'],
                 'nilai' => $nilai,
                 'tgl_ikut_survei' => $tglIkutSurvei,
@@ -109,13 +118,12 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
 
             // Add warning if honor exceeds limit
             if ($totalHonorSetelahDitambah > 4000000) {
-                $warningMessage = "Mitra {$mitra->nama_lengkap} - Total honor sudah mencapai Rp 4.000.000 (Total: Rp " . 
+                $warningMessage = "Mitra {$mitra->nama_lengkap} - Total honor sudah mencapai Rp 4.000.000 (Total: Rp " .
                     number_format($totalHonorSetelahDitambah, 0, ',', '.') . ")";
                 $this->honorWarnings[] = $warningMessage;
             }
 
             return null;
-
         } catch (\Exception $e) {
             if (!isset($this->rowErrors[$rowNumber])) {
                 $this->rowErrors[$rowNumber] = [];
@@ -136,20 +144,22 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
                     }
                 }
             ],
-            'posisi' => 'required|string',
+            'posisi' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    // Validasi: Pastikan posisi ada di tabel posisi_mitra
+                    $posisiMitra = PosisiMitra::where('nama_posisi', $value)->first();
+                    if (!$posisiMitra) {
+                        $fail("Posisi '{$value}' tidak terdaftar di opsi Posisi Mitra.");
+                    }
+                },
+            ],
             'vol' => [
                 'required',
                 function ($attribute, $value, $fail) {
                     if (!is_numeric($this->convertToNumeric($value))) {
                         $fail("Volume harus berupa angka");
-                    }
-                }
-            ],
-            'rate_honor' => [
-                'required',
-                function ($attribute, $value, $fail) {
-                    if (!is_numeric($this->convertToNumeric($value))) {
-                        $fail("Honor harus berupa angka");
                     }
                 }
             ],
@@ -178,14 +188,11 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
         if (is_null($value)) {
             return null;
         }
-
         if (is_numeric($value)) {
             return $value;
         }
-
         $cleaned = preg_replace('/[^0-9,.-]/', '', $value);
         $cleaned = str_replace(',', '.', $cleaned);
-
         return is_numeric($cleaned) ? $cleaned : $value;
     }
 
@@ -195,27 +202,21 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             if (empty($date)) {
                 return null;
             }
-
             if ($date instanceof \DateTimeInterface) {
                 return Carbon::instance($date);
             }
-
             if (is_numeric($date)) {
                 $unixDate = ($date - 25569) * 86400;
                 return Carbon::createFromTimestamp($unixDate);
             }
-
             if (is_string($date)) {
                 if (preg_match('/^\d+$/', $date)) {
                     $unixDate = ($date - 25569) * 86400;
                     return Carbon::createFromTimestamp($unixDate);
                 }
-                
                 return Carbon::parse($date);
             }
-
             throw new \Exception("Format tanggal tidak dikenali");
-            
         } catch (\Exception $e) {
             Log::error("Gagal parsing tanggal: {$date} - Error: " . $e->getMessage());
             throw new \Exception("Format tanggal tidak valid: {$date}");
@@ -235,7 +236,7 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             }
 
             foreach ($failure->errors() as $error) {
-                $this->rowErrors[$rowNumber][] = "Baris " . ($rowNumber - 1) . ": Mitra {$mitraName} - {$error}";
+                $this->rowErrors[$rowNumber][] = "Baris " . ($rowNumber - 0) . ": Mitra {$mitraName} - {$error}";
             }
         }
     }

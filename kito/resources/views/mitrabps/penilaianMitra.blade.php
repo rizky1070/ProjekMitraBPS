@@ -42,7 +42,7 @@ $title = 'Penilaian Mitra';
                 </div>
                 <div class="pl-5 w-full"> 
                     <p><strong>Survei / Sensus : </strong>{{ $surMit->survei->nama_survei ?? '-' }}</p>
-                    <p><strong>Posisi : </strong>{{ $surMit->posisi_mitra ?? '-' }}</p>
+                    <p><strong>Posisi : </strong>{{ $surMit->posisiMitra->nama_posisi ?? '-' }}</p>
                     <p><strong>Jadwal : </strong>{{ $surMit->survei->jadwal_kegiatan ?? '-' }}</p>       
                 </div>
             </div>

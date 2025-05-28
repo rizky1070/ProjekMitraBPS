@@ -137,51 +137,52 @@ $title = 'Daftar Survei';
                                             <span class="text-gray-500">Status Tidak Diketahui</span>
                                         @endif
                                     </div>
+
                                     <span class="ml-2 text-gray-600 block">
                                         <strong>Jadwal Kegiatan: </strong></br>
                                         {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }} - {{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
                                     </span>
 
+                                    <!-- Jumlah Mitra -->
                                     <span class="ml-2 text-gray-600 block">
-                                        @if($survey->mitraSurvei->isNotEmpty())
-                                        <strong>Jumlah Mitra: </strong>
-                                        {{ $survey->mitraSurvei->count() }}<br>
+                                        @if($survey->mitraSurveis->isNotEmpty())
+                                        <strong>Jumlah Mitra: </strong> {{ $survey->mitraSurveis->count() }}<br>
                                         <div class="cuScrollFilter mt-2 max-h-[250px] overflow-y-auto pr-2 space-y-1">
                                             @php
-                                                // Urutkan mitra berdasarkan total survei (descending)
-                                                $sortedMitras = $survey->mitraSurvei->sortByDesc(function($mitra) use ($mitraHighlight) {
-                                                    return $mitraHighlight[$mitra->id_mitra] ?? 0;
+                                                // Urutkan mitra berdasarkan total survei (desc)
+                                                $sortedMitras = $survey->mitraSurveis->sortByDesc(function($mitraSurvei) use ($mitraHighlight) {
+                                                    return $mitraHighlight[$mitraSurvei->id_mitra] ?? 0;
                                                 });
                                             @endphp
-                                    
-                                            @foreach($sortedMitras as $mitraName)
+
+                                            @foreach($sortedMitras as $mitraSurvei)
                                                 @php
-                                                    $totalSurvei = $mitraHighlight[$mitraName->id_mitra] ?? 0;
+                                                    $totalSurvei = $mitraHighlight[$mitraSurvei->id_mitra] ?? 0;
                                                     $textColor = match(true) {
                                                         $totalSurvei > 3 => 'text-red-600',
                                                         $totalSurvei > 1 => 'text-yellow-600',
                                                         default => 'text-gray-500'
                                                     };
                                                 @endphp
-                                    
+
                                                 <div class="{{ $textColor }} ml-2 pl-1 rounded-md transition-all duration-300 ease-in-out transform hover:bg-orange hover:text-white hover:scale-105 line-clamp-2">
-                                                    <a href="/profilMitra/{{ $mitraName->id_mitra }}" class="truncate inline-block max-w-full align-top">
-                                                        - {{ $mitraName->nama_lengkap }}
-                                                    @if(request()->filled('tahun') || request()->filled('bulan'))
-                                                        ({{ $totalSurvei }} survei)
-                                                    @endif
+                                                    <a href="/profilMitra/{{ $mitraSurvei->mitra->id_mitra ?? '#' }}" class="truncate inline-block max-w-full align-top">
+                                                        - {{ $mitraSurvei->mitra->nama_lengkap ?? 'Nama Tidak Ditemukan' }}
+                                                        @if(request()->filled('tahun') || request()->filled('bulan'))
+                                                            ({{ $totalSurvei }} survei)
+                                                        @endif
                                                     </a>
                                                 </div>
                                             @endforeach
                                         </div>
-                                    @else
-                                        <span class="text-red-500 font-semibold">Tidak ada mitra</span>
-                                    @endif
+                                        @else
+                                            <span class="text-red-500 font-semibold">Tidak ada mitra</span>
+                                        @endif
                                     </span>
                                 </div>
                             </div>
                         @endforeach
-                        </div>
+                    </div>
                     @include('components.pagination', ['paginator' => $surveys])
                     </div>
                 </main>

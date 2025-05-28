@@ -89,29 +89,6 @@ $title = 'Kelola Survei';
     </script>
     @endif
 
-    <!-- Form Tambah/Edit Mitra -->
-    @foreach($mitras as $mitra)
-        @if ($mitra->vol && $mitra->honor && $mitra->posisi_mitra)
-            <!-- Form Edit -->
-            <form action="{{ route('mitra.update', [
-                'id_survei' => $survey->id_survei,
-                'id_mitra' => $mitra->id_mitra
-            ]) }}" method="POST">
-                @csrf
-                <!-- Input fields -->
-            </form>
-        @else
-            <!-- Form Tambah -->
-            <form action="{{ route('mitra.toggle', [
-                'id_survei' => $survey->id_survei,
-                'id_mitra' => $mitra->id_mitra
-            ]) }}" method="POST">
-                @csrf
-                <!-- Input fields -->
-            </form>
-        @endif
-    @endforeach
-
     <main class="flex-1 overflow-x-hidden bg-gray-200">
     <a href="{{ url('/daftarSurvei') }}" 
     class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
@@ -272,14 +249,26 @@ $title = 'Kelola Survei';
                         searchField: 'text',
                     });
 
-                        // Auto submit saat filter berubah
+                    // Initialize Tom Select for position dropdowns
+                    document.querySelectorAll('select[name="id_posisi_mitra"]').forEach(select => {
+                        new TomSelect(select, {
+                            placeholder: 'Pilih Posisi',
+                            searchField: 'text',
+                            onChange: function(value) {
+                                const mitraId = select.getAttribute('onchange').match(/\d+/)[0];
+                                updateRateHonor(select, mitraId);
+                            }
+                        });
+                    });
+
+                    // Auto submit saat filter berubah
                     const filterForm = document.getElementById('filterForm');
                     const tahunSelect = document.getElementById('tahun');
                     const bulanSelect = document.getElementById('bulan');
                     const kecamatanSelect = document.getElementById('kecamatan');
                     const mitraSelect = document.getElementById('nama_mitra');
 
-                        // Ganti fungsi submitForm dengan ini
+                    // Ganti fungsi submitForm dengan ini
                     let timeout;
                     function submitForm() {
                         clearTimeout(timeout);
@@ -332,49 +321,62 @@ $title = 'Kelola Survei';
                                         {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - 
                                         {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}
                                     </td>
-                                    <?php
-                                    $totalHonor = $mitra->honor * $mitra->vol;
-                                    ?>
-                                    @if ($mitra->posisi_mitra)
-                                    <!-- Vol -->
+                                    @if ($mitra->isFollowingSurvey)
+                                    <!-- Form Edit -->
                                     <form action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
                                         @csrf
-                                        <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="{{ $mitra->vol }}" style="width: 100%;">
+                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                            <input type="number" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="{{ $mitra->vol }}" style="width: 100%;">
                                         </td>
-                                        <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none" placeholder="Rp{{ number_format($mitra->honor, 0, ',', '.') }}" style="width: 100%;">
+                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                            <input type="text" name="rate_honor" value="Rp {{ number_format($mitra->rate_honor, 0, ',', '.') }}" class="w-full focus:outline-none text-center border-none" placeholder="Rp{{ number_format($mitra->rate_honor, 0, ',', '.') }}" style="width: 100%;" readonly>
                                         </td>
-                                        <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none" placeholder="{{ $mitra->posisi_mitra }}" style="width: 100%;">
+                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                            <select name="id_posisi_mitra" id="posisi_{{ $mitra->id_mitra }}" class="w-full focus:outline-none text-center" style="width: 100%;">
+                                                <option value="">Pilih Posisi</option>
+                                                @foreach($posisiMitraOptions as $posisi)
+                                                    <option value="{{ $posisi->id_posisi_mitra }}" 
+                                                        data-rate="{{ $posisi->rate_honor }}"
+                                                        @if($mitra->id_posisi_mitra == $posisi->id_posisi_mitra) selected @endif>
+                                                        {{ $posisi->nama_posisi }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                         </td>
                                         <td>
                                             <div class="flex justify-center items-center py-2 text-center">
                                                 <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Ubah</button>
-                                        </form>
-                                        <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                                @csrf
-                                                <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Hapus</button>
-                                            </div>
+                                    </form>
+                                    <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Hapus</button>
+                                        </div>
+                                    </td>
+                                    </form>
+                                    @else
+                                    <!-- Form Tambah -->
+                                    <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                        @csrf
+                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                            <input type="number" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Vol" style="width: 100%;">
+                                        </td>
+                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                            <input type="text" name="rate_honor" id="rate_honor_{{ $mitra->id_mitra }}" value="" class="w-full focus:outline-none text-center border-none" placeholder="Rate Honor" style="width: 100%;" readonly>
+                                        </td>
+                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                            <select name="id_posisi_mitra" id="posisi_{{ $mitra->id_mitra }}" class="w-full focus:outline-none text-center" style="width: 100%;">
+                                                <option value="">Pilih Posisi</option>
+                                                @foreach($posisiMitraOptions as $posisi)
+                                                    <option value="{{ $posisi->id_posisi_mitra }}" data-rate="{{ $posisi->rate_honor }}">
+                                                        {{ $posisi->nama_posisi }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td class="whitespace-nowrap p-2 text-center" style="max-width: 120px;">
+                                            <button type="submit" class="bg-orange text-black px-3 rounded">Tambah</button>
                                         </td>
                                     </form>
-
-                                    @else
-                                    <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                        <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                            <input type="text" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Vol" style="width: 100%;">
-                                    </td>
-                                    <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <input type="text" name="honor" value="{{ $mitra->honor }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Honor" style="width: 100%;">
-                                    </td>
-                                    <td class=" whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <input type="text" name="posisi_mitra" value="{{ $mitra->posisi_mitra }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Posisi Mitra" style="width: 100%;">
-                                    </td>
-                                    <td class=" whitespace-nowrap p-2 text-center" style="max-width: 120px;">
-                                            @csrf
-                                            <button type="submit" class="bg-orange text-black px-3 rounded">Tambah</button>
-                                        </form>
-                                    </td>
                                     @endif
                                 </tr>
                                 @endforeach
@@ -414,6 +416,27 @@ $title = 'Kelola Survei';
         function closeModal() {
             document.getElementById('uploadModal').classList.add('hidden');
         }
+
+        // Function to update rate honor based on selected position
+        function updateRateHonor(selectElement, mitraId) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const rateHonor = selectedOption.getAttribute('data-rate');
+            
+            // Format the rate honor with currency
+            const formattedRate = rateHonor ? 'Rp' + Number(rateHonor).toLocaleString('id-ID') : '';
+            
+            // Update the rate honor field
+            document.getElementById('rate_honor_' + mitraId).value = formattedRate;
+        }
+
+        // Initialize rate honor for existing entries
+        document.addEventListener('DOMContentLoaded', function() {
+            @foreach($mitras as $mitra)
+                @if($mitra->isFollowingSurvey && $mitra->rate_honor)
+                    document.getElementById('rate_honor_{{ $mitra->id_mitra }}').value = 'Rp{{ number_format($mitra->rate_honor, 0, ',', '.') }}';
+                @endif
+            @endforeach
+        });
     </script>
 </body>
 </html>
