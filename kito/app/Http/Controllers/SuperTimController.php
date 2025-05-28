@@ -11,6 +11,11 @@ class SuperTimController extends Controller
 {
     public function index(Request $request)
     {
+        // Jalankan addKelompokKerjaCategory untuk user yang sedang login
+        if (Auth::check()) {
+            $this->addKelompokKerjaCategory(Auth::id());
+        }
+
         $query = Office::with('category')
             ->where('status', 1) // Hanya ambil yang aktif
             ->orderBy('priority', 'desc')
@@ -205,6 +210,25 @@ class SuperTimController extends Controller
                 'success' => false,
                 'message' => 'Gagal memperbarui status: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function addKelompokKerjaCategory($id)
+    {
+        // Check if the record already exists
+        $exists = \DB::table('category_users')
+            ->where('name', 'Kelompok Kerja')
+            ->where('user_id', $id)
+            ->exists();
+
+        if (!$exists) {
+            \DB::table('category_users')->insert([
+                'id' => 0,
+                'name' => 'Kelompok Kerja',
+                'user_id' => $id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
     }
 }
