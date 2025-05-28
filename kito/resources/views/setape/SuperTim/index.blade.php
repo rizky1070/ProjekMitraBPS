@@ -113,16 +113,41 @@ $title = 'Super Tim';
                         </div>
                     </div>
                 </div>
-                @foreach ($offices as $office)
-                    <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
-                        <div>
-                            <a href="{{ $office->link }}" class="text-xl font-bold transition-all duration-200 hover:text-2xl">
-                                {{ $office->name ?? $office->link ?? 'Tidak ada link' }}
-                            </a>
-                            <p>{{ $office->category->name }}</p>
+                @if ($offices->isEmpty())
+                    <div class="text-center text-gray-500 py-8 text-2xl font-bold flex flex-col items-center">
+                        Tidak ada link
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mt-2" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" fill="#F3F4F6"/>
+                            <circle cx="9" cy="10" r="1.5" fill="#6B7280"/>
+                            <circle cx="15" cy="10" r="1.5" fill="#6B7280"/>
+                            <path d="M9 16c.5-1 1.5-1.5 3-1.5s2.5.5 3 1.5" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                @else
+                    @foreach ($offices as $office)
+                    <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
+                        <div class="flex items-center">
+                            <div class="flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $office->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}">
+                                @if ($office->priority)
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="red">
+                                    <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
+                                </svg>
+                                @else
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="gray">
+                                    <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
+                                </svg>
+                                @endif
+                            </div>
+                            <div>
+                                <a href="{{ $office->link }}" class="text-xl font-bold">
+                                    {{ $office->name ?? $office->link ?? 'Tidak ada link' }}
+                                </a>
+                                <p>{{ $office->category->name }}</p>
+                            </div>
                         </div>
                     </div>
-                @endforeach
+                    @endforeach
+                @endif
                 </div>
                 <script>
                     function toggleStatus(checkbox) {

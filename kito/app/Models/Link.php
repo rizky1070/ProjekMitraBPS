@@ -16,6 +16,7 @@ class Link extends Model
     'link',
     'category_user_id',
     'status', // Pastikan ada
+    'priority', // Pastikan ada
     'user_id'
     ];
 
@@ -23,6 +24,7 @@ class Link extends Model
 
     protected $casts = [
         'status' => 'boolean',
+        'priority' => 'boolean',
     ];
 
     public function user()

@@ -13,13 +13,15 @@ class Office extends Model
     'name', 
     'link', 
     'category_id', 
-    'status' 
+    'status',
+    'priority' 
     ];
 
     protected $guarded = ['id'];
     
     protected $casts = [
         'status' => 'boolean',
+        'priority' => 'boolean',
     ];
 
     public function category()

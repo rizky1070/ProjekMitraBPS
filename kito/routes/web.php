@@ -376,41 +376,50 @@ Route::middleware('auth')->group(function () {
 
 // SETAPE
 
-// Kategori Umum
-Route::get('/kategoriumum', [KategoriUmumController::class, 'index']);
-Route::post('/kategoriumum', [KategoriUmumController::class, 'store']);
-Route::put('/kategoriumum/{id}', [KategoriUmumController::class, 'update']);
-Route::delete('/kategoriumum/{id}', [KategoriUmumController::class, 'destroy']);
+Route::middleware('auth')->group(function () {  
+    // Kategori Umum
+    Route::get('/kategoriumum', [KategoriUmumController::class, 'index']);
+    Route::post('/kategoriumum', [KategoriUmumController::class, 'store']);
+    Route::put('/kategoriumum/{id}', [KategoriUmumController::class, 'update']);
+    Route::delete('/kategoriumum/{id}', [KategoriUmumController::class, 'destroy']);
 
-// Super TIM
-Route::get('/supertim', [SuperTimController::class, 'index']);
-Route::get('/daftarsupertim', [SuperTimController::class, 'daftarLink']);
-Route::post('/daftarsupertim', [superTimController::class, 'store']);
-Route::put('/daftarsupertim/{id}', [superTimController::class, 'update']);
-Route::delete('/daftarsupertim/{id}', [superTimController::class, 'destroy']);
-Route::post('/update-status', [SuperTimController::class, 'updateStatus'])
-    ->name('super-tim.update-status');
+    // Super TIM
+    Route::get('/supertim', [SuperTimController::class, 'index']);
+    Route::get('/daftarsupertim', [SuperTimController::class, 'daftarLink']);
+    Route::post('/daftarsupertim', [superTimController::class, 'store']);
+    Route::put('/daftarsupertim/{id}', [superTimController::class, 'update']);
+    Route::delete('/daftarsupertim/{id}', [superTimController::class, 'destroy']);
+    Route::post('/update-status', [SuperTimController::class, 'updateStatus'])
+        ->name('super-tim.update-status');
+    Route::post('/daftarsupertim/{id}/toggle-pin', [SuperTimController::class, 'togglePin'])
+        ->name('links.toggle-pin');
 
-// Sekretariat
-Route::get('/sekretariat', [SekretariatController::class, 'index']);
-Route::get('/daftarsekretariat', [SekretariatController::class, 'daftarLink']);
-Route::post('/daftarsekretariat', [SekretariatController::class, 'store']);
-Route::put('/daftarsekretariat/{id}', [SekretariatController::class, 'update']);
-Route::delete('/daftarsekretariat/{id}', [SekretariatController::class, 'destroy']);
-Route::post('/sekretariat/update-status', [SekretariatController::class, 'updateStatus'])->name('sekretariat.update-status');
+    // Sekretariat
+    Route::get('/sekretariat', [SekretariatController::class, 'index']);
+    Route::get('/daftarsekretariat', [SekretariatController::class, 'daftarLink']);
+    Route::post('/daftarsekretariat', [SekretariatController::class, 'store']);
+    Route::put('/daftarsekretariat/{id}', [SekretariatController::class, 'update']);
+    Route::delete('/daftarsekretariat/{id}', [SekretariatController::class, 'destroy']);
+    Route::post('/sekretariat/update-status', [SekretariatController::class, 'updateStatus'])
+        ->name('sekretariat.update-status');
+    Route::post('/daftarsekretariat/{id}/toggle-pin', [SekretariatController::class, 'togglePin'])
+        ->name('links.toggle-pin');
 
-// Kategori Pribadi
-Route::get('/kategoripribadi', [KategoriPribadiController::class, 'index']);
-Route::post('/kategoripribadi', [kategoriPribadiController::class, 'store']);
-Route::put('/kategoripribadi/{id}', [kategoriPribadiController::class, 'update']);
-Route::delete('/kategoripribadi/{id}', [kategoriPribadiController::class, 'destroy']);
+    // Kategori Pribadi
+    Route::get('/kategoripribadi', [KategoriPribadiController::class, 'index']);
+    Route::post('/kategoripribadi', [kategoriPribadiController::class, 'store']);
+    Route::put('/kategoripribadi/{id}', [kategoriPribadiController::class, 'update']);
+    Route::delete('/kategoripribadi/{id}', [kategoriPribadiController::class, 'destroy']);
 
-// Pribadi
-Route::get('/pribadi', [PribadiController::class, 'index']);
-Route::get('/daftarlinkpribadi', [PribadiController::class, 'daftarLink']);
-Route::post('/daftarlinkpribadi', [PribadiController::class, 'store']);
-Route::put('/daftarlinkpribadi/{id}', [PribadiController::class, 'update']);
-Route::delete('/daftarlinkpribadi/{id}', [PribadiController::class, 'destroy']);
-
+    // Pribadi
+    Route::get('/pribadi', [PribadiController::class, 'index']);
+    Route::get('/daftarlinkpribadi', [PribadiController::class, 'daftarLink']);
+    Route::post('/daftarlinkpribadi', [PribadiController::class, 'store']);
+    Route::put('/daftarlinkpribadi/{id}', [PribadiController::class, 'update']);
+    Route::delete('/daftarlinkpribadi/{id}', [PribadiController::class, 'destroy']);
+    Route::put('/daftarlinkpribadi/${id}/toggle-pin', [PribadiController::class, 'update']);
+    Route::post('/daftarlinkpribadi/{id}/toggle-pin', [PribadiController::class, 'togglePin'])
+        ->name('links.toggle-pin');
+});
 
 require __DIR__ . '/auth.php';

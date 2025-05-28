@@ -17,7 +17,8 @@ class KetuasTableSeeder extends Seeder
                 'name' => 'Capaian Output dan LDS',
                 'created_at' => '2022-09-15 23:54:00',
                 'updated_at' => '2024-01-03 12:22:46',
-                'status' => 0
+                'status' => 0,
+                'priority' => 0
             ],
             [
                 'id' => 4,
@@ -26,7 +27,8 @@ class KetuasTableSeeder extends Seeder
                 'name' => 'FRA 2022',
                 'created_at' => '2022-09-15 23:54:42',
                 'updated_at' => '2023-12-16 05:22:05',
-                'status' => 0
+                'status' => 0,
+                'priority' => 0
             ],
             [
                 'id' => 5,
@@ -35,7 +37,8 @@ class KetuasTableSeeder extends Seeder
                 'name' => 'Apel',
                 'created_at' => '2022-09-15 23:55:42',
                 'updated_at' => '2023-12-15 22:44:59',
-                'status' => 1
+                'status' => 1,
+                'priority' => 0
             ],
             [
                 'id' => 7,
@@ -44,7 +47,8 @@ class KetuasTableSeeder extends Seeder
                 'name' => 'MPH 2022',
                 'created_at' => '2022-09-15 23:57:01',
                 'updated_at' => '2023-12-15 08:49:08',
-                'status' => 0
+                'status' => 0,
+                'priority' => 0
             ],
             [
                 'id' => 8,
@@ -53,7 +57,8 @@ class KetuasTableSeeder extends Seeder
                 'name' => 'SKP 2022',
                 'created_at' => '2022-09-15 23:57:48',
                 'updated_at' => '2024-01-02 20:54:23',
-                'status' => 0
+                'status' => 0,
+                'priority' => 0
             ]
         ]);
     }

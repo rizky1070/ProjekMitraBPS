@@ -19,7 +19,7 @@ $title = 'Daftar Link Pribadi';
         swal("Error!", "{{ $errors->first() }}", "error");
         </script>
     @endif
-    
+
     @if (session('error'))
     <script>
         swal("Error!", "{{ session('error') }}", "error");
@@ -64,36 +64,63 @@ $title = 'Daftar Link Pribadi';
                         </button>
                     </div>
                     <div class="overflow-x-auto">
-                        @foreach ($links as $link)
-                            <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2">
-                                <div>
-                                    <a href="{{ $link->link }}" class="text-xl font-bold transition-all duration-200 hover:text-2xl">
-                                        {{ $link->name ?? $link->link ?? 'Tidak ada link' }}
-                                    </a>
-                                    <p>{{ $link->categoryUser->name }}</p>
-                                </div>
-                                <div class="mr-4">
-                                    <button @click="showEditModal = true; currentLink = {{ $link->id }}; 
-                                                    editLinkName = '{{ $link->name }}'; 
-                                                    editLinkLink = '{{ $link->link }}'; 
-                                                    editLinkCategory = {{ $link->category_id ?? 'null' }}; 
-                                                    editLinkStatus = {{ $link->status ? 1 : 0 }};" 
-                                            class="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600 mr-2"
-                                            title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                        </svg>
-                                    </button>
-                                    <button @click="deleteLink({{ $link->id }}, '{{ $link->name }}')" 
-                                            class="bg-red-500 text-white p-2 rounded hover:bg-red-600"
-                                            title="Hapus">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
-                                </div>
+                        @if ($links->isEmpty())
+                            <div class="text-center text-gray-500 py-8 text-2xl font-bold flex flex-col items-center">
+                                Tidak ada link
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mt-2" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="10" fill="#F3F4F6"/>
+                                    <circle cx="9" cy="10" r="1.5" fill="#6B7280"/>
+                                    <circle cx="15" cy="10" r="1.5" fill="#6B7280"/>
+                                    <path d="M9 16c.5-1 1.5-1.5 3-1.5s2.5.5 3 1.5" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
                             </div>
-                        @endforeach
+                        @else
+                            @foreach ($links as $link)
+                                <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-3 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
+                                    <div class="flex items-center">
+                                        <button @click="togglePin({{ $link->id }})" 
+                                            class="flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $link->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}"
+                                            title="{{ $link->priority ? 'Lepaskan' : 'Sematkan' }}">
+                                            @if ($link->priority)
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="red">
+                                                <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
+                                            </svg>
+                                            @else
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="gray">
+                                                <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
+                                            </svg>
+                                            @endif
+                                        </button>
+                                        <div>
+                                            <a href="{{ $link->link }}" class="text-xl font-bold">
+                                                {{ $link->name ?? $link->link ?? 'Tidak ada link' }}
+                                            </a>
+                                            <p>{{ $link->categoryUser->name }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="mr-4">
+                                        <button @click="showEditModal = true; currentLink = {{ $link->id }}; 
+                                                        editLinkName = '{{ $link->name }}'; 
+                                                        editLinkLink = '{{ $link->link }}'; 
+                                                        editLinkCategory = {{ $link->category_id ?? 'null' }}; 
+                                                        editLinkStatus = {{ $link->status ? 1 : 0 }};" 
+                                                class="bg-yellow-500 text-white p-2 rounded hover:bg-yellow-600 mr-2"
+                                                title="Edit">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="deleteLink({{ $link->id }}, '{{ $link->name }}')" 
+                                                class="bg-red-500 text-white p-2 rounded hover:bg-red-600"
+                                                title="Hapus">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
                     </div>
                 </div>
             </main>
@@ -122,14 +149,6 @@ $title = 'Daftar Link Pribadi';
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                             @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2" for="linkStatus">Status</label>
-                        <select x-model="newLinkStatus" id="linkStatus" 
-                            class="w-full px-3 py-2 border rounded" required>
-                            <option value="1">Aktif</option>
-                            <option value="0">Nonaktif</option>
                         </select>
                     </div>
                     <div class="flex justify-end space-x-3">
@@ -259,6 +278,35 @@ $title = 'Daftar Link Pribadi';
                     this.isLoading = false;
                 }
             },
+
+            
+            async togglePin(id) {
+                try {
+                    this.isLoading = true;
+                    const response = await fetch(`/daftarlinkpribadi/${id}/toggle-pin`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Gagal mengubah status pin');
+                    }
+                    
+                    Swal.fire("Berhasil!", data.message, "success")
+                        .then(() => window.location.reload());
+                } catch (error) {
+                    Swal.fire("Error!", error.message, "error");
+                    console.error('Error:', error);
+                } finally {
+                    this.isLoading = false;
+                }
+            },
             
             async submitEditForm() {
                 try {
@@ -335,53 +383,52 @@ $title = 'Daftar Link Pribadi';
     });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Tom Select for search dropdown
-    const searchSelect = new TomSelect('#searchSelect', {
-        create: false,
-        sortField: {
-            field: "text",
-            direction: "asc"
-        },
-        placeholder: "Cari link...",
-        maxOptions: null,
-    });
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Tom Select for search dropdown
+        const searchSelect = new TomSelect('#searchSelect', {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            placeholder: "Cari link...",
+            maxOptions: null,
+        });
 
-    // Initialize Tom Select for category dropdown
-    const categorySelect = new TomSelect('#categoryFilter', {
-        create: false,
-        sortField: {
-            field: "text",
-            direction: "asc"
-        },
-        placeholder: "Pilih kategori...",
-        maxOptions: null,
-    });
-    
-    function applyFilters() {
-        const params = new URLSearchParams();
+        // Initialize Tom Select for category dropdown
+        const categorySelect = new TomSelect('#categoryFilter', {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            placeholder: "Pilih kategori...",
+            maxOptions: null,
+        });
         
-        // Add search parameter if exists and not empty
-        const searchValue = searchSelect.getValue();
-        if (searchValue) {
-            params.append('search', searchValue);
-        }
+        function applyFilters() {
+            const params = new URLSearchParams();
+            
+            // Add search parameter
+            const searchValue = searchSelect.getValue();
+            if (searchValue) {
+                params.append('search', searchValue);
+            }
 
-        // Add category parameter
-        const categoryValue = categorySelect.getValue();
-        if (categoryValue && categoryValue !== 'all') {
-            params.append('category', categoryValue);
-        }
+            // Add category parameter
+            const categoryValue = categorySelect.getValue();
+            if (categoryValue && categoryValue !== 'all') {
+                params.append('category', categoryValue);
+            }
 
-        // Reload page with new query parameters
-        window.location.href = window.location.pathname + '?' + params.toString();
-    }
-    
-    // Event listeners
-    searchSelect.on('change', applyFilters);
-    categorySelect.on('change', applyFilters);
-});
-</script>
+            window.location.href = window.location.pathname + '?' + params.toString();
+        }
+        
+        // Event listeners
+        searchSelect.on('change', applyFilters);
+        categorySelect.on('change', applyFilters);
+    });
+    </script>
 </body>
 </html>

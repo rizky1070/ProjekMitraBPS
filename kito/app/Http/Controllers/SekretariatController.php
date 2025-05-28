@@ -4,13 +4,17 @@ namespace App\Http\Controllers;
 use App\Models\Ketua;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use Illuminate\Support\Facades\Auth;
 
 class SekretariatController extends Controller
 {
 
     public function index(Request $request)
     {
-        $query = Ketua::with('category')->where('status', 1); // Hanya ambil yang aktif
+        $query = Ketua::with('category')
+            ->where('status', 1) // Hanya ambil yang aktif
+            ->orderBy('priority', 'desc')
+            ->orderBy('created_at', 'desc');
 
         // Filter kategori - hanya jika ada dan tidak kosong dan bukan 'all'
         if ($request->filled('category') && $request->category != 'all') {
@@ -42,7 +46,10 @@ class SekretariatController extends Controller
 
     public function daftarLink(Request $request)
     {
-        $query = Ketua::with('category');
+        $query = Ketua::with('category')
+            ->orderBy('priority', 'desc')
+            ->orderBy('status', 'desc') // Urutkan berdasarkan status (aktif di atas)
+            ->orderBy('created_at', 'desc');
 
         // Filter kategori
         if ($request->filled('category') && $request->category != 'all') {
@@ -62,14 +69,40 @@ class SekretariatController extends Controller
 
         $ketuas = $query->get();
         
-        $categories = Category::whereHas('ketuas')->get();
+        // Ambil SEMUA kategori tanpa filter apapun
+        $categories = Category::all();
         
-        $ketuaNames = Ketua::pluck('name')
-                            ->unique()
-                            ->values()
-                            ->all();
+        // Ambil nama ketua hanya dari hasil yang difilter
+        $ketuaNames = $query->clone()
+                        ->pluck('name')
+                        ->unique()
+                        ->values()
+                        ->all();
 
         return view('Setape.sekretariat.daftarLink', compact('ketuas', 'categories', 'ketuaNames'));
+    }
+
+    public function togglePin(Request $request, $id)
+    {
+        try {
+            $link = Ketua::where('id', $id)
+                ->firstOrFail();
+
+            $link->update([
+                'priority' => !$link->priority
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'priority' => $link->priority,
+                'message' => $link->priority ? 'Link disematkan' : 'Link tidak disematkan'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status pin: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(Request $request)
@@ -77,7 +110,7 @@ class SekretariatController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'link' => 'required|url|max:255',
-            'category_id' => 'nullable|exists:categories,id',
+            'category_id' => 'required|exists:categories,id',
             'status' => 'required|boolean'
         ]);
 
@@ -86,7 +119,8 @@ class SekretariatController extends Controller
                 'name' => $request->name,
                 'link' => $request->link,
                 'category_id' => $request->category_id,
-                'status' => $request->status
+                'status' => $request->status,
+                'user_id' => Auth::id()
             ]);
 
             return response()->json([
