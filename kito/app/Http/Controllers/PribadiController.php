@@ -110,23 +110,31 @@ class PribadiController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'link' => 'required|url|max:255',
-            'category_user_id' => 'nullable|exists:category_users,id', // Sesuaikan dengan nama tabel
-            'status' => 'required' // Tambahkan validasi boolean
+            'name' => 'sometimes|string|max:255',
+            'link' => 'sometimes|url|max:255',
+            'category_user_id' => 'sometimes|nullable|exists:category_users,id',
+            'status' => 'sometimes|boolean'
         ]);
 
         try {
             $link = Link::where('id', $id)
-                ->where('user_id', Auth::id()) // Pastikan hanya pemilik yang bisa update
+                ->where('user_id', Auth::id())
                 ->firstOrFail();
 
-            $link->update([
-                'name' => $request->name,
-                'link' => $request->link,
-                'category_user_id' => $request->category_user_id,
-                'status' => (bool)$request->status // Pastikan status sebagai boolean
-            ]);
+            // Ambil hanya data yang ada di request
+            $updateData = $request->only(['name', 'link', 'category_user_id', 'status']);
+
+            // Jika 'status' ada di request, pastikan boolean
+            if ($request->has('status')) {
+                $updateData['status'] = (bool)$request->status;
+            }
+
+            // Hapus key yang bernilai null (jika tidak ingin mengubah field tertentu)
+            $updateData = array_filter($updateData, function ($value) {
+                return $value !== null; // Hanya update jika bukan null
+            });
+
+            $link->update($updateData);
 
             return response()->json([
                 'success' => true,
