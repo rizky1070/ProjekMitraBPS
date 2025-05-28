@@ -4,13 +4,17 @@ namespace App\Http\Controllers;
 use App\Models\Ketua;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use Illuminate\Support\Facades\Auth;
 
 class SekretariatController extends Controller
 {
 
     public function index(Request $request)
     {
-        $query = Ketua::with('category')->where('status', 1); // Hanya ambil yang aktif
+        $query = Ketua::with('category')
+            ->where('status', 1) // Hanya ambil yang aktif
+            ->orderBy('priority', 'desc')
+            ->orderBy('created_at', 'desc');
 
         // Filter kategori - hanya jika ada dan tidak kosong dan bukan 'all'
         if ($request->filled('category') && $request->category != 'all') {
@@ -42,7 +46,9 @@ class SekretariatController extends Controller
 
     public function daftarLink(Request $request)
     {
-        $query = Ketua::with('category');
+        $query = Ketua::with('category')
+            ->orderBy('priority', 'desc')
+            ->orderBy('created_at', 'desc');
 
         // Filter kategori
         if ($request->filled('category') && $request->category != 'all') {
@@ -73,6 +79,29 @@ class SekretariatController extends Controller
                         ->all();
 
         return view('Setape.sekretariat.daftarLink', compact('ketuas', 'categories', 'ketuaNames'));
+    }
+
+    public function togglePin(Request $request, $id)
+    {
+        try {
+            $link = Ketua::where('id', $id)
+                ->firstOrFail();
+
+            $link->update([
+                'priority' => !$link->priority
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'priority' => $link->priority,
+                'message' => $link->priority ? 'Link disematkan' : 'Link tidak disematkan'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status pin: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(Request $request)

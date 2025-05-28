@@ -90,12 +90,27 @@ $title = 'Sekretariat';
                             </div>
                         @else
                             @foreach ($ketuas as $ketua)
-                                <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
-                                    <div>
-                                        <a href="{{ $ketua->link }}" class="text-xl font-bold">
-                                            {{ $ketua->name ?? $ketua->link ?? 'Tidak ada link' }}
-                                        </a>
-                                        <p>{{ $ketua->category->name }}</p>
+                                <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-3 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
+                                    <div class="flex items-center">
+                                        <button @click="togglePin({{ $ketua->id }})" 
+                                            class="flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $ketua->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}"
+                                            title="{{ $ketua->priority ? 'Lepaskan' : 'Sematkan' }}">
+                                            @if ($ketua->priority)
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="red">
+                                                <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
+                                            </svg>
+                                            @else
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="gray">
+                                                <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
+                                            </svg>
+                                            @endif
+                                        </button>
+                                        <div>
+                                            <a href="{{ $ketua->link }}" class="text-xl font-bold">
+                                                {{ $ketua->name ?? $ketua->link ?? 'Tidak ada link' }}
+                                            </a>
+                                            <p>{{ $ketua->category->name }}</p>
+                                        </div>
                                     </div>
                                     <div>
                                         <button @click="showEditModal = true; currentKetua = {{ $ketua->id }}; 
@@ -338,6 +353,34 @@ $title = 'Sekretariat';
                         }
                         
                         Swal.fire("Berhasil!", "Sekretariat baru telah ditambahkan", "success")
+                            .then(() => window.location.reload());
+                    } catch (error) {
+                        Swal.fire("Error!", error.message, "error");
+                        console.error('Error:', error);
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                async togglePin(id) {
+                    try {
+                        this.isLoading = true;
+                        const response = await fetch(`/daftarsekretariat/${id}/toggle-pin`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            }
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Gagal mengubah status pin');
+                        }
+                        
+                        Swal.fire("Berhasil!", data.message, "success")
                             .then(() => window.location.reload());
                     } catch (error) {
                         Swal.fire("Error!", error.message, "error");
