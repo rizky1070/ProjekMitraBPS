@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Office;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SuperTimController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Office::with('category')->where('status', 1); // Hanya ambil yang aktif
+        $query = Office::with('category')
+            ->where('status', 1) // Hanya ambil yang aktif
+            ->orderBy('priority', 'desc')
+            ->orderBy('created_at', 'desc');
 
         // Filter kategori - hanya jika ada dan tidak kosong dan bukan 'all'
         if ($request->filled('category') && $request->category != 'all') {
@@ -42,8 +46,10 @@ class SuperTimController extends Controller
 
     public function daftarLink(Request $request)
     {
-        $query = Office::with('category');
-
+        $query = Office::with('category')
+            ->orderBy('priority', 'desc')
+            ->orderBy('status', 'desc') // Urutkan berdasarkan status (aktif di atas)
+            ->orderBy('created_at', 'desc');
         // Filter kategori
         if ($request->filled('category') && $request->category != 'all') {
             $query->where('category_id', $request->category);
@@ -65,7 +71,7 @@ class SuperTimController extends Controller
         // Ambil SEMUA kategori tanpa filter apapun
         $categories = Category::all();
         
-        // Ambil nama ketua hanya dari hasil yang difilter
+        // Ambil nama hanya dari hasil yang difilter
         $officeNames = $query->clone()
                         ->pluck('name')
                         ->unique()
@@ -73,6 +79,29 @@ class SuperTimController extends Controller
                         ->all();
 
         return view('Setape.superTim.daftarLink', compact('offices', 'categories', 'officeNames'));
+    }
+    
+    public function togglePin(Request $request, $id)
+    {
+        try {
+            $link = Office::where('id', $id)
+                ->firstOrFail();
+
+            $link->update([
+                'priority' => !$link->priority
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'priority' => $link->priority,
+                'message' => $link->priority ? 'Link disematkan' : 'Link tidak disematkan'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status pin: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(Request $request)

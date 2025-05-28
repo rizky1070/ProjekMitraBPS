@@ -48,6 +48,7 @@ class SekretariatController extends Controller
     {
         $query = Ketua::with('category')
             ->orderBy('priority', 'desc')
+            ->orderBy('status', 'desc') // Urutkan berdasarkan status (aktif di atas)
             ->orderBy('created_at', 'desc');
 
         // Filter kategori

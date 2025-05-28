@@ -391,6 +391,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/daftarsupertim/{id}', [superTimController::class, 'destroy']);
     Route::post('/update-status', [SuperTimController::class, 'updateStatus'])
         ->name('super-tim.update-status');
+    Route::post('/daftarsupertim/{id}/toggle-pin', [SuperTimController::class, 'togglePin'])
+        ->name('links.toggle-pin');
 
     // Sekretariat
     Route::get('/sekretariat', [SekretariatController::class, 'index']);

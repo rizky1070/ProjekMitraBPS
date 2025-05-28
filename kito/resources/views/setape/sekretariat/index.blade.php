@@ -135,7 +135,7 @@ $title = 'Sekretariat';
                                 </div>
                                 <div>
                                     <a href="{{ $ketua->link }}" class="text-xl font-bold">
-                                                {{ $ketua->name ?? $ketua->link ?? 'Tidak ada link' }}
+                                        {{ $ketua->name ?? $ketua->link ?? 'Tidak ada link' }}
                                     </a>
                                     <p>{{ $ketua->category->name }}</p>
                                 </div>
