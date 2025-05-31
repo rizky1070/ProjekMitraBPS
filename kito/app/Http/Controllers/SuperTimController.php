@@ -11,6 +11,11 @@ class SuperTimController extends Controller
 {
     public function index(Request $request)
     {
+        // Jalankan addKelompokKerjaCategory untuk user yang sedang login
+        if (Auth::check()) {
+            $this->addKelompokKerjaCategory(Auth::id());
+        }
+
         $query = Office::with('category')
             ->where('status', 1) // Hanya ambil yang aktif
             ->orderBy('priority', 'desc')
@@ -204,6 +209,77 @@ class SuperTimController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memperbarui status: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function addKelompokKerjaCategory($id)
+    {
+        // Check if the record already exists
+        $exists = \DB::table('category_users')
+            ->where('name', 'Kelompok Kerja')
+            ->where('user_id', $id)
+            ->exists();
+
+        if (!$exists) {
+            \DB::table('category_users')->insert([
+                'id' => 0,
+                'name' => 'Kelompok Kerja',
+                'user_id' => $id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
+    public function keepLink(Request $request, $id)
+    {
+        try {
+            // Dapatkan user yang sedang login
+            $userId = Auth::id();
+            
+            // Dapatkan data Office yang akan disalin
+            $office = Office::findOrFail($id);
+            
+            // Dapatkan atau buat CategoryUser 'Kelompok Kerja' untuk user ini
+            $categoryUser = \DB::table('category_users')
+                ->where('name', 'Kelompok Kerja')
+                ->where('user_id', $userId)
+                ->first();
+                
+            // Jika kategori tidak ada, buat baru
+            if (!$categoryUser) {
+                $categoryUserId = \DB::table('category_users')->insertGetId([
+                    'name' => 'Kelompok Kerja',
+                    'user_id' => $userId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } else {
+                $categoryUserId = $categoryUser->id;
+            }
+            
+            // Simpan data ke tabel Link
+            \DB::table('links')->insert([
+                'name' => $office->name,
+                'category_user_id' => $categoryUserId,
+                'link' => $office->link,
+                'status' => 1, // Status aktif
+                'priority' => 0, // Tidak disematkan
+                'created_at' => now(),
+                'updated_at' => now(),
+                'user_id' => $userId,
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Link berhasil disimpan ke koleksi pribadi'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyimpan link: ' . $e->getMessage()
             ], 500);
         }
     }
