@@ -251,7 +251,8 @@
                 request()->is('daftarSurvei') ||
                 request()->is('daftarMitra') ||
                 request()->is('ReportSurvei') ||
-                request()->is('ReportMitra');
+                request()->is('ReportMitra') ||
+                request()->is('posisimitra');
         @endphp
         <div>
         <!-- Button Dropdown -->
@@ -278,8 +279,8 @@
                         href="/ReportSurvei">
                         <span class="mx-3">Report</span>
                     </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportSurvei') || request()->is('ReportMitra') ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/ReportSurvei">
+                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('posisimitra') ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                        href="/posisimitra">
                         <span class="mx-3">Posisi</span>
                     </a>
                     {{-- <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
