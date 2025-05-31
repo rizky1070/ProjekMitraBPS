@@ -120,7 +120,7 @@ $title = 'Sekretariat';
                         </div>
                     @else
                         @foreach ($ketuas as $ketua)
-                        <div class="flex items-center justify-between border-2 border-gray-400 rounded-3xl pl-5 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
+                        <div class="flex items-center justify-between border-2 border-gray-400 rounded-full pl-4 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
                             <div class="flex items-center">
                                 <div class="flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $ketua->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}">
                                     @if ($ketua->priority)
@@ -140,6 +140,76 @@ $title = 'Sekretariat';
                                     <p>{{ $ketua->category->name }}</p>
                                 </div>
                             </div>
+                            <button 
+                                class="bg-blue-600 text-white mr-1 px-2 py-2 rounded-full hover:bg-blue-700 transition flex items-center gap-2"
+                                title="simpan ke pribadi"
+                                x-data="{
+                                    loading: false,
+                                    success: false,
+                                    error: false
+                                }"
+                                @click="
+                                    loading = true;
+                                    success = false;
+                                    error = false;
+                                    fetch('{{ route('sekretariat.keep-link', $ketua->id) }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                        }
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        loading = false;
+                                        if (data.success) {
+                                            success = true;
+                                            setTimeout(() => success = false, 3000);
+                                        } else {
+                                            error = true;
+                                            setTimeout(() => error = false, 3000);
+                                        }
+                                    })
+                                    .catch(() => {
+                                        loading = false;
+                                        error = true;
+                                        setTimeout(() => error = false, 3000);
+                                    });
+                                "
+                            >
+                                <template x-if="loading">
+                                    <span class="flex items-center gap-2">
+                                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </span>
+                                </template>
+                                
+                                <template x-if="!loading && !success && !error">
+                                    <span class="flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                    </span>
+                                </template>
+
+                                <template x-if="success">
+                                    <span class="flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </span>
+                                </template>
+                                
+                                <template x-if="error">
+                                    <span class="flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </span>
+                                </template>
+                            </button>
                         </div>
                         @endforeach
                     @endif

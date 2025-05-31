@@ -403,6 +403,7 @@ Route::middleware('auth')->group(function () {
         ->name('links.toggle-pin');
     Route::post('/daftarsupertim/{id}/keep', [SuperTimController::class, 'keepLink'])
         ->name('super-tim.keep-link');
+
     // Sekretariat
     Route::get('/sekretariat', [SekretariatController::class, 'index']);
     Route::get('/daftarsekretariat', [SekretariatController::class, 'daftarLink']);
@@ -413,6 +414,8 @@ Route::middleware('auth')->group(function () {
         ->name('sekretariat.update-status');
     Route::post('/daftarsekretariat/{id}/toggle-pin', [SekretariatController::class, 'togglePin'])
         ->name('links.toggle-pin');
+    Route::post('/daftarsekretariat/{id}/keep', [SekretariatController::class, 'keepLink'])
+        ->name('sekretariat.keep-link');
 
     // Kategori Pribadi
     Route::get('/kategoripribadi', [KategoriPribadiController::class, 'index']);
