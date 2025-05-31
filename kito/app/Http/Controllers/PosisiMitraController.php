@@ -28,12 +28,17 @@ class PosisiMitraController extends Controller
             $request->validate([
                 'nama_posisi' => 'required|string|max:255|unique:posisi_mitra,nama_posisi',
                 'rate_honor' => 'required|numeric|min:0',
+            ], [
+                'nama_posisi.required' => 'Nama posisi wajib diisi',
+                'nama_posisi.string' => 'Nama posisi harus berupa teks',
+                'nama_posisi.max' => 'Nama posisi maksimal 255 karakter',
+                'nama_posisi.unique' => 'Nama posisi sudah digunakan',
+                'rate_honor.required' => 'Rate honor wajib diisi',
+                'rate_honor.numeric' => 'Rate honor harus berupa angka',
+                'rate_honor.min' => 'Rate honor minimal 0',
             ]);
 
-            $posisi = PosisiMitra::create([
-                'nama_posisi' => $request->nama_posisi,
-                'rate_honor' => $request->rate_honor
-            ]);
+            $posisi = PosisiMitra::create($request->all());
 
             return response()->json([
                 'success' => true,
@@ -41,10 +46,12 @@ class PosisiMitraController extends Controller
                 'data' => $posisi
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            // Ambil pesan error pertama dari validator
+            $errorMsg = collect($e->errors())->first()[0];
+
             return response()->json([
                 'success' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $e->errors()
+                'message' => $errorMsg // Sekarang akan menampilkan misalnya "Nama posisi sudah digunakan"
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
@@ -60,6 +67,14 @@ class PosisiMitraController extends Controller
             $request->validate([
                 'nama_posisi' => 'required|string|max:255|unique:posisi_mitra,nama_posisi,' . $id . ',id_posisi_mitra',
                 'rate_honor' => 'required|numeric|min:0',
+            ], [
+                'nama_posisi.required' => 'Nama posisi wajib diisi',
+                'nama_posisi.string' => 'Nama posisi harus berupa teks',
+                'nama_posisi.max' => 'Nama posisi maksimal 255 karakter',
+                'nama_posisi.unique' => 'Nama posisi sudah digunakan',
+                'rate_honor.required' => 'Rate honor wajib diisi',
+                'rate_honor.numeric' => 'Rate honor harus berupa angka',
+                'rate_honor.min' => 'Rate honor minimal 0',
             ]);
 
             $posisi = PosisiMitra::findOrFail($id);
@@ -74,10 +89,12 @@ class PosisiMitraController extends Controller
                 'data' => $posisi
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            // Ambil pesan error pertama dari validator
+            $errorMessage = collect($e->errors())->first()[0];
+
             return response()->json([
                 'success' => false,
-                'message' => 'Validasi gagal',
-                'errors' => $e->errors()
+                'message' => $errorMessage // Menampilkan pesan error spesifik
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
