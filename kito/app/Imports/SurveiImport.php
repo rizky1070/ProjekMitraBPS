@@ -22,57 +22,47 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
 
     private $rowErrors = [];
     private $successCount = 0;
-    private $failedCount = 0;
-    private $processedRows = 0;
     private $defaultProvinsi = '35';
     private $defaultKabupaten = '16';
-
-    private $requiredFields = [
-        'nama_survei' => 'Nama Survei',
-        'kro' => 'KRO',
-        'jadwal' => 'Jadwal Mulai',
-        'jadwal_berakhir' => 'Jadwal Berakhir',
-        'tim' => 'Tim'
-    ];
+    private $currentRow = [];
+    private $excelRowNumber = 2; // Data dimulai dari baris 2 (header di baris 1)
 
     public function model(array $row)
     {
-        $this->processedRows++;
-        $currentRow = $this->processedRows + 1; // +1 karena heading row
-        $errorsInRow = [];
+        $errors = [];
+        $this->currentRow = $row;
+        $currentRowNum = $this->excelRowNumber;
         $surveyName = $row['nama_survei'] ?? '(Tanpa Nama)';
 
         try {
-            // Cek jika baris benar-benar kosong
-            if ($this->isRowCompletelyEmpty($row)) {
-                throw new \Exception("Data survei kosong - semua kolom wajib tidak diisi");
+            // Skip empty rows
+            if ($this->isEmptyRow($row)) {
+                $this->excelRowNumber++;
+                return null;
             }
 
-            // Validasi field wajib dan tipe data
-            $this->validateRow($row, $surveyName, $errorsInRow);
+            Log::info('Processing Excel row: ' . $currentRowNum, $row);
 
-            // Jika ada error validasi, lempar exception
-            if (!empty($errorsInRow)) {
-                throw new \Exception(implode("; ", $errorsInRow));
+            // Validasi field wajib
+            foreach ($this->requiredFields() as $field => $label) {
+                if (!array_key_exists($field, $row)) {
+                    throw new \Exception("Kolom {$label} tidak ditemukan");
+                }
+                if (empty(trim($row[$field]))) {
+                    throw new \Exception("Kolom {$label} harus diisi");
+                }
             }
-
-            Log::info('Memproses import survei: ', ['nama_survei' => $surveyName, 'data' => $row]);
 
             // Proses data wilayah
-            $provinsi = $this->getProvinsi();
-            $kabupaten = $this->getKabupaten($provinsi);
+            $provinsi = $this->getProvinsi($surveyName);
+            $kabupaten = $this->getKabupaten($provinsi, $surveyName);
 
             // Proses tanggal
-            $jadwalMulai = $this->parseDate($row['jadwal'] ?? null, $surveyName, $errorsInRow);
-            $jadwalBerakhir = $this->parseDate($row['jadwal_berakhir'] ?? null, $surveyName, $errorsInRow);
-
+            $jadwalMulai = $this->parseTanggal($row['jadwal'] ?? null, $surveyName);
+            $jadwalBerakhir = $this->parseTanggal($row['jadwal_berakhir'] ?? null, $surveyName);
+            
             // Validasi tanggal
-            $this->validateDates($jadwalMulai, $jadwalBerakhir, $surveyName, $errorsInRow);
-
-            // Jika ada error tanggal, lempar exception
-            if (!empty($errorsInRow)) {
-                throw new \Exception(implode("; ", $errorsInRow));
-            }
+            $this->validateDates($jadwalMulai, $jadwalBerakhir, $surveyName);
 
             // Hitung bulan dominan
             $bulanDominan = $this->calculateDominantMonth($jadwalMulai, $jadwalBerakhir);
@@ -84,119 +74,136 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
             $existingSurvei = $this->checkForDuplicate($row, $jadwalMulai, $jadwalBerakhir);
 
             if ($existingSurvei) {
-                $this->updateExistingSurvey($existingSurvei, $row, $kabupaten, $provinsi, $bulanDominan, $statusSurvei);
+                $this->updateExistingSurvey(
+                    $existingSurvei, 
+                    $row, 
+                    $kabupaten, 
+                    $provinsi, 
+                    $bulanDominan, 
+                    $statusSurvei,
+                    $surveyName
+                );
+                $this->successCount++;
+                $this->excelRowNumber++;
                 return null;
             }
 
-            // Buat data baru
+            if (!empty($errors)) {
+                throw new \Exception(implode("; ", $errors));
+            }
+
             $this->successCount++;
-            return $this->createNewSurvey($row, $kabupaten, $provinsi, $jadwalMulai, $jadwalBerakhir, $bulanDominan, $statusSurvei);
+            $this->excelRowNumber++;
+            return new Survei([
+                'nama_survei' => $row['nama_survei'],
+                'id_kabupaten' => $kabupaten->id_kabupaten,
+                'id_provinsi' => $provinsi->id_provinsi,
+                'kro' => $row['kro'],
+                'jadwal_kegiatan' => $jadwalMulai,
+                'jadwal_berakhir_kegiatan' => $jadwalBerakhir,
+                'bulan_dominan' => $bulanDominan,
+                'status_survei' => $statusSurvei,
+                'tim' => $row['tim']
+            ]);
+
         } catch (\Exception $e) {
-            $this->rowErrors[$surveyName] = "Survei '{$surveyName}': " . $e->getMessage();
-            $this->failedCount++;
-            return null;
-        }
-    }
-
-    private function validateRow(array $row, string $surveyName, array &$errors): void
-    {
-        // Validasi field wajib
-        foreach ($this->requiredFields as $field => $label) {
-            if (!array_key_exists($field, $row)) {
-                $errors[] = "Kolom {$label} tidak ditemukan";
-                continue;
+            if (!isset($this->rowErrors[$currentRowNum])) {
+                $this->rowErrors[$currentRowNum] = [
+                    'survey' => $surveyName,
+                    'errors' => []
+                ];
             }
 
-            if (empty(trim($row[$field]))) {
-                $errors[] = "Kolom {$label} harus diisi";
-            }
-        }
-
-        // Validasi tipe data
-        if (isset($row['nama_survei']) && !is_string($row['nama_survei'])) {
-            $errors[] = "Nama Survei harus berupa teks";
-        }
-
-        if (isset($row['kro']) && !is_string($row['kro'])) {
-            $errors[] = "KRO harus berupa teks";
-        }
-
-        if (isset($row['tim']) && !is_string($row['tim'])) {
-            $errors[] = "Tim harus berupa teks";
-        }
-    }
-
-    private function parseDate($date, string $surveyName, array &$errors): ?Carbon
-    {
-        if (empty($date)) {
-            $errors[] = "Tanggal tidak boleh kosong";
-            return null;
-        }
-
-        try {
-            if ($date instanceof \DateTimeInterface) {
-                return Carbon::instance($date);
-            }
-
-            if (is_numeric($date)) {
-                $unixDate = ($date - 25569) * 86400;
-                return Carbon::createFromTimestamp($unixDate);
-            }
-
-            if (is_string($date)) {
-                if (preg_match('/^\d+$/', $date)) {
-                    $unixDate = ($date - 25569) * 86400;
-                    return Carbon::createFromTimestamp($unixDate);
+            $errorParts = explode("; ", $e->getMessage());
+            foreach ($errorParts as $part) {
+                if (!in_array($part, $this->rowErrors[$currentRowNum]['errors'])) {
+                    $this->rowErrors[$currentRowNum]['errors'][] = $part;
                 }
-
-                return Carbon::parse($date);
             }
 
-            $errors[] = "Format tanggal tidak dikenali";
-            return null;
-        } catch (\Exception $e) {
-            Log::error("Gagal parsing tanggal untuk survei '{$surveyName}': {$date} - Error: " . $e->getMessage());
+            $this->excelRowNumber++;
             return null;
         }
     }
 
-    private function validateDates(?Carbon $start, ?Carbon $end, string $surveyName, array &$errors): void
+    /**
+     * Aturan validasi untuk data survei
+     */
+    public function rules(): array
     {
-        if (!$start) {
-            $errors[] = "Tanggal mulai tidak valid";
-        }
+        $this->currentRow['nama_survei'] = $this->currentRow['nama_survei'] ?? 'Tidak diketahui';
+        $surveyName = $this->currentRow['nama_survei'];
 
-        if (!$end) {
-            $errors[] = "Tanggal berakhir tidak valid";
-        }
-
-        if ($start && $end && $end->lt($start)) {
-            $errors[] = "Tanggal berakhir harus setelah tanggal mulai";
-        }
-
-        if ($start) {
-            $currentYear = date('Y');
-            if ($start->year < 2000 || $start->year > $currentYear + 5) {
-                $errors[] = "Tahun jadwal tidak valid (harus antara 2000-" . ($currentYear + 5) . ")";
-            }
-        }
+        return [
+            'nama_survei' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) use ($surveyName) {
+                    if (empty($value)) {
+                        $fail("Nama Survei harus diisi");
+                    }
+                }
+            ],
+            'kro' => [
+                'required',
+                'string',
+                'max:100',
+                function ($attribute, $value, $fail) {
+                    if (empty($value)) {
+                        $fail("KRO harus diisi");
+                    }
+                }
+            ],
+            'tim' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    if (empty($value)) {
+                        $fail("Tim harus diisi");
+                    }
+                }
+            ],
+            'jadwal' => [
+                'required',
+                function ($attribute, $value, $fail) use ($surveyName) {
+                    if (empty($value)) {
+                        $fail("Jadwal Mulai harus diisi");
+                    }
+                }
+            ],
+            'jadwal_berakhir' => [
+                'required',
+                function ($attribute, $value, $fail) use ($surveyName) {
+                    if (empty($value)) {
+                        $fail("Jadwal Berakhir harus diisi");
+                    }
+                }
+            ]
+        ];
     }
 
-    private function calculateDominantMonth(Carbon $start, Carbon $end): string
+    /**
+     * Daftar field yang wajib diisi
+     */
+    private function requiredFields(): array
     {
-        $months = collect();
-        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-            $months->push($date->format('m-Y'));
-        }
-
-        $mostFrequentMonth = $months->countBy()->sortDesc()->keys()->first();
-        [$bulan, $tahun] = explode('-', $mostFrequentMonth);
-        return Carbon::createFromDate($tahun, $bulan, 1)->toDateString();
+        return [
+            'nama_survei' => 'Nama Survei',
+            'kro' => 'KRO',
+            'jadwal' => 'Jadwal Mulai',
+            'jadwal_berakhir' => 'Jadwal Berakhir',
+            'tim' => 'Tim'
+        ];
     }
 
-    private function isRowCompletelyEmpty(array $row): bool
+    /**
+     * Cek apakah baris kosong
+     */
+    private function isEmptyRow(array $row): bool
     {
-        foreach (array_keys($this->requiredFields) as $field) {
+        foreach (array_keys($this->requiredFields()) as $field) {
             if (isset($row[$field]) && !empty(trim($row[$field]))) {
                 return false;
             }
@@ -204,6 +211,84 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
         return true;
     }
 
+    /**
+     * Parse tanggal dari berbagai format
+     */
+    private function parseTanggal($tanggal, string $surveyName): Carbon
+    {
+        try {
+            if (empty($tanggal)) {
+                throw new \Exception("Tanggal tidak boleh kosong");
+            }
+
+            if ($tanggal instanceof \DateTimeInterface) {
+                return Carbon::instance($tanggal);
+            }
+
+            if (is_numeric($tanggal) && $tanggal > 1000) {
+                $unixDate = ($tanggal - 25569) * 86400;
+                return Carbon::createFromTimestamp($unixDate);
+            }
+
+            if (is_string($tanggal)) {
+                $normalized = str_replace(['/', '.'], '-', $tanggal);
+                foreach (['d-m-Y', 'm-d-Y', 'Y-m-d'] as $format) {
+                    try {
+                        return Carbon::createFromFormat($format, $normalized);
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+                }
+                return Carbon::parse($normalized);
+            }
+
+            throw new \Exception("Format tanggal tidak dikenali");
+        } catch (\Exception $e) {
+            Log::error("Gagal parsing tanggal untuk survei '{$surveyName}': {$tanggal}");
+            throw new \Exception("Format tanggal tidak valid ({$tanggal})");
+        }
+    }
+
+    /**
+     * Validasi tanggal
+     */
+    private function validateDates(Carbon $start, Carbon $end, string $surveyName): void
+    {
+        if (!$start) {
+            throw new \Exception("Tanggal mulai tidak valid");
+        }
+
+        if (!$end) {
+            throw new \Exception("Tanggal berakhir tidak valid");
+        }
+
+        if ($end->lt($start)) {
+            throw new \Exception("Tanggal berakhir harus setelah tanggal mulai");
+        }
+
+        $currentYear = date('Y');
+        if ($start->year < 2000 || $start->year > $currentYear + 5) {
+            throw new \Exception("Tahun jadwal tidak valid (harus antara 2000-" . ($currentYear + 5) . ")");
+        }
+    }
+
+    /**
+     * Hitung bulan dominan
+     */
+    private function calculateDominantMonth(Carbon $start, Carbon $end): string
+    {
+        $months = collect();
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            $months->push($date->format('m-Y'));
+        }
+        $mostFrequentMonth = $months->countBy()->sortDesc()->keys()->first();
+        [$bulan, $tahun] = explode('-', $mostFrequentMonth);
+        return Carbon::createFromDate($tahun, $bulan, 1)->toDateString();
+    }
+
+    /**
+     * Cek duplikasi data
+     */
     private function checkForDuplicate(array $row, Carbon $jadwalMulai, Carbon $jadwalBerakhir)
     {
         return Survei::where('nama_survei', $row['nama_survei'])
@@ -212,13 +297,17 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
             ->first();
     }
 
+    /**
+     * Update data yang sudah ada
+     */
     private function updateExistingSurvey(
         Survei $existingSurvei,
         array $row,
         Kabupaten $kabupaten,
         Provinsi $provinsi,
         string $bulanDominan,
-        int $statusSurvei
+        int $statusSurvei,
+        string $surveyName
     ): void {
         $existingSurvei->update([
             'id_kabupaten' => $kabupaten->id_kabupaten,
@@ -230,38 +319,15 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
             'updated_at' => now()
         ]);
 
-        Log::info('Data survei diupdate: ' . $row['nama_survei'], [
+        Log::info("Data survei {$surveyName} diupdate", [
             'id' => $existingSurvei->id,
             'data' => $row
         ]);
-
-        $this->successCount++;
     }
 
-    private function createNewSurvey(
-        array $row,
-        Kabupaten $kabupaten,
-        Provinsi $provinsi,
-        Carbon $jadwalMulai,
-        Carbon $jadwalBerakhir,
-        string $bulanDominan,
-        int $statusSurvei
-    ): Survei {
-        $this->successCount++;
-
-        return new Survei([
-            'nama_survei' => $row['nama_survei'],
-            'id_kabupaten' => $kabupaten->id_kabupaten,
-            'id_provinsi' => $provinsi->id_provinsi,
-            'kro' => $row['kro'],
-            'jadwal_kegiatan' => $jadwalMulai,
-            'jadwal_berakhir_kegiatan' => $jadwalBerakhir,
-            'bulan_dominan' => $bulanDominan,
-            'status_survei' => $statusSurvei,
-            'tim' => $row['tim']
-        ]);
-    }
-
+    /**
+     * Tentukan status survei
+     */
     private function determineSurveyStatus(Carbon $today, Carbon $startDate, Carbon $endDate): int
     {
         if ($today->lt($startDate)) {
@@ -272,7 +338,10 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
         return 2; // Sedang berjalan
     }
 
-    private function getProvinsi(): Provinsi
+    /**
+     * Dapatkan data provinsi
+     */
+    private function getProvinsi(string $surveyName): Provinsi
     {
         $provinsi = Provinsi::where('id_provinsi', $this->defaultProvinsi)->first();
         if (!$provinsi) {
@@ -281,45 +350,96 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
         return $provinsi;
     }
 
-    private function getKabupaten(Provinsi $provinsi): Kabupaten
+    /**
+     * Dapatkan data kabupaten
+     */
+    private function getKabupaten(Provinsi $provinsi, string $surveyName): Kabupaten
     {
         $kabupaten = Kabupaten::where('id_kabupaten', $this->defaultKabupaten)
             ->where('id_provinsi', $provinsi->id_provinsi)
             ->first();
+
         if (!$kabupaten) {
             throw new \Exception("Kabupaten default (kode: {$this->defaultKabupaten}) tidak ditemukan di provinsi {$provinsi->nama}");
         }
         return $kabupaten;
     }
 
-    public function rules(): array
+    /**
+     * Tangani error validasi
+     */
+    public function onFailure(\Maatwebsite\Excel\Validators\Failure ...$failures)
     {
-        return [
-            'nama_survei' => 'required|string|max:255',
-            'kro' => 'required|string|max:100',
-            'tim' => 'required|string|max:255',
-            'jadwal' => 'required',
-            'jadwal_berakhir' => 'required'
-        ];
+        foreach ($failures as $failure) {
+            $rowNum = $failure->row();
+            $surveyName = $failure->values()['nama_survei'] ?? '(Tanpa Nama)';
+
+            if (!isset($this->rowErrors[$rowNum])) {
+                $this->rowErrors[$rowNum] = [
+                    'survey' => $surveyName,
+                    'errors' => []
+                ];
+            }
+
+            foreach ($failure->errors() as $error) {
+                if (!in_array($error, $this->rowErrors[$rowNum]['errors'])) {
+                    $this->rowErrors[$rowNum]['errors'][] = $error;
+                }
+            }
+        }
     }
 
+    /**
+     * Dapatkan daftar error per baris
+     */
     public function getRowErrors(): array
     {
-        return $this->rowErrors;
+        $formattedErrors = [];
+        ksort($this->rowErrors);
+
+        foreach ($this->rowErrors as $rowNum => $errorData) {
+            $formattedErrors[] = "Baris {$rowNum} - {$errorData['survey']}: " .
+                implode(", ", array_unique($errorData['errors']));
+        }
+
+        return $formattedErrors;
     }
 
+    /**
+     * Jumlah total baris yang diproses
+     */
     public function getTotalProcessed(): int
     {
-        return $this->processedRows;
+        return count($this->rowErrors) + $this->successCount;
     }
 
+    /**
+     * Jumlah baris yang sukses diimpor
+     */
     public function getSuccessCount(): int
     {
         return $this->successCount;
     }
 
+    /**
+     * Jumlah baris yang gagal
+     */
     public function getFailedCount(): int
     {
-        return $this->failedCount;
+        return count($this->rowErrors);
+    }
+
+    /**
+     * Pesan validasi kustom
+     */
+    public function customValidationMessages()
+    {
+        return [
+            'nama_survei.required' => 'Nama Survei harus diisi',
+            'kro.required' => 'KRO harus diisi',
+            'tim.required' => 'Tim harus diisi',
+            'jadwal.required' => 'Jadwal Mulai harus diisi',
+            'jadwal_berakhir.required' => 'Jadwal Berakhir harus diisi'
+        ];
     }
 }

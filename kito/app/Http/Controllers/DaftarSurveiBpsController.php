@@ -701,48 +701,48 @@ class DaftarSurveiBpsController extends Controller
     }
 
     public function upExcelSurvei(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|file|mimes:xls,xlsx|max:2048'
-        ]);
+{
+    $request->validate([
+        'file' => 'required|file|mimes:xls,xlsx|max:2048'
+    ]);
 
-        $import = new SurveiImport();
+    $import = new SurveiImport();
 
-        try {
-            Excel::import($import, $request->file('file'));
+    try {
+        Excel::import($import, $request->file('file'));
 
-            $successCount = $import->getSuccessCount();
-            $failedCount = $import->getFailedCount();
-            $rowErrors = $import->getRowErrors();
+        $successCount = $import->getSuccessCount();
+        $failedCount = $import->getFailedCount();
+        $rowErrors = $import->getRowErrors();
 
-            $message = "Import selesai diproses! ";
-            $message .= "{$successCount} data berhasil diimport. ";
-            $message .= "{$failedCount} data gagal diimport.";
+        $message = "Import selesai diproses! {$successCount} data berhasil diimport.";
+        if ($failedCount > 0) {
+            $message .= " {$failedCount} data gagal diimport.";
 
-            if ($failedCount > 0) {
-                // Format errors untuk ditampilkan
-                $displayErrors = [];
-                foreach ($rowErrors as $row => $error) {
-                    $displayErrors[] = $error;
-                }
-
-                // Batasi jumlah error yang ditampilkan
-                $limitedErrors = array_slice($displayErrors, 0, 10);
-                if (count($displayErrors) > 10) {
-                    $limitedErrors[] = "Dan " . (count($displayErrors) - 10) . " error lainnya...";
-                }
-
-                return redirect()->back()
-                    ->with('success', $message)
-                    ->with('import_errors', $limitedErrors)
-                    ->with('total_errors', $failedCount);
+            // Format error lebih terstruktur
+            $formattedErrors = [];
+            foreach ($rowErrors as $error) {
+                $formattedErrors[] = $error;
             }
 
-            return redirect()->back()->with('success', $message);
-        } catch (\Exception $e) {
+            // Batasi error yang ditampilkan
+            $limitedErrors = array_slice($formattedErrors, 0, 10);
+            if (count($formattedErrors) > 10) {
+                $limitedErrors[] = "Dan " . (count($formattedErrors) - 10) . " error lainnya...";
+            }
+
             return redirect()->back()
-                ->with('error', "Error import data: " . $e->getMessage())
-                ->withInput();
+                ->with('success', $message)
+                ->with('warning', "Beberapa data gagal diimport. Silakan periksa error berikut:")
+                ->with('import_errors', $limitedErrors);
         }
+
+        return redirect()->back()->with('success', $message);
+
+    } catch (\Exception $e) {
+        return redirect()->back()
+            ->with('error', "Terjadi kesalahan saat mengimpor data: " . $e->getMessage())
+            ->withInput();
     }
+}
 }

@@ -35,15 +35,6 @@ $title = 'Input Survei';
                 <div class="flex justify-between items-center">
                     <h2 class="text-2xl font-bold mb-4">Input Survei</h2>
                     <!-- Pesan Error -->
-                    @if(isset($errors))
-                        <div class="alert alert-danger">
-                            <ul>
-                                @foreach($errors as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
                     <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Import Survei</button>
                 </div>
                 @if(session('import_errors'))
