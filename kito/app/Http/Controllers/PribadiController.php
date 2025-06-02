@@ -38,7 +38,7 @@ class PribadiController extends Controller
             $query->where('name', 'like', '%' . $search . '%');
         }
 
-        $links = $query->get();
+        $links = $query->paginate(10);
 
         // Ambil SEMUA kategori milik user (tidak peduli apakah punya link atau tidak)
         $categories = CategoryUser::where('user_id', Auth::id())->get();

@@ -68,6 +68,7 @@ $title = 'Kelola Kategori Umum';
                         @endforeach
                     </div>
                 </div>
+                @include('setape.setapePage', ['paginator' => $categories])
             </main>
         </div>
 

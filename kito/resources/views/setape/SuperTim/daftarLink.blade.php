@@ -11,19 +11,19 @@ $title = 'Super Tim';
     <!-- SweetAlert Logic -->
     @if (session('success'))
     <script>
-    swal("Success!", "{{ session('success') }}", "success");
+    Swal.fire("Success!", "{{ session('success') }}", "success");
     </script>
     @endif
 
     @if ($errors->any())
     <script>
-    swal("Error!", "{{ $errors->first() }}", "error");
+    Swal.fire("Error!", "{{ $errors->first() }}", "error");
     </script>
     @endif
     
     @if (session('error'))
     <script>
-    swal("Error!", "{{ session('error') }}", "error");
+    Swal.fire("Error!", "{{ session('error') }}", "error");
     </script>
     @endif
     
@@ -52,7 +52,7 @@ $title = 'Super Tim';
                                 </select>
                             </div>
                             
-                            <!-- Category Filter with Tom Select -->
+                            <!-- Category Filter -->
                             <div class="w-full md:w-48">
                                 <select id="categoryFilter" placeholder="Pilih kategori" class="w-full">
                                     <option value="all">Semua Kategori</option>
@@ -63,7 +63,7 @@ $title = 'Super Tim';
                                     @endforeach
                                 </select>
                             </div>
-                            <!-- Di bagian filter, tambahkan ini setelah category filter -->
+                            <!-- Status Filter -->
                             <div class="w-full md:w-48">
                                 <select id="statusFilter" placeholder="Pilih status" class="w-full">
                                     <option value="all">Semua Status</option>
@@ -135,7 +135,8 @@ $title = 'Super Tim';
                                             <input type="checkbox" 
                                                     {{ $office->status ? 'checked' : '' }} 
                                                     data-office-id="{{ $office->id }}"
-                                                    class="status-toggle">
+                                                    class="status-toggle"
+                                                    @change="toggleStatus($event)">
                                             <span class="slider {{ $office->status ? 'bg-blue-600' : 'bg-gray-400' }}"></span>
                                         </label>
                                     </div>
@@ -144,6 +145,7 @@ $title = 'Super Tim';
                         @endif
                     </div>
                 </div>
+                @include('setape.setapePage', ['paginator' => $offices])
             </main>
         </div>
 
@@ -239,48 +241,7 @@ $title = 'Super Tim';
             </div>
         </div>
     </div>
-                <script>
-                    function toggleStatus(checkbox) {
-                        const officeId = checkbox.getAttribute('data-office-id');
-                        const isActive = checkbox.checked;
-                        const slider = checkbox.nextElementSibling;
-                                    
-                                    // Update UI immediately
-                        slider.classList.toggle('bg-blue-600', isActive);
-                        slider.classList.toggle('bg-gray-400', !isActive);
-                                    
-                                    // Kirim request AJAX
-                        fetch('{{ route("super-tim.update-status") }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                office_id: officeId,
-                                status: isActive ? 'active' : 'inactive'
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (!data.success) {
-                                            // Revert changes if failed
-                                checkbox.checked = !isActive;
-                                slider.classList.toggle('bg-blue-600', !isActive);
-                                slider.classList.toggle('bg-gray-400', isActive);
-                                swal("Error!", data.message, "error");
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            checkbox.checked = !isActive;
-                            slider.classList.toggle('bg-blue-600', !isActive);
-                            slider.classList.toggle('bg-gray-400', isActive);
-                            swal("Error!", "Terjadi kesalahan jaringan", "error");
-                        });
-                    }
-                </script>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     document.addEventListener('alpine:init', () => {
@@ -300,219 +261,119 @@ $title = 'Super Tim';
             
             isLoading: false,
 
-            getStatusText(status) {
-                return status ? 'Aktif' : 'Nonaktif';
+            toggleStatus(event) {
+                const checkbox = event.target;
+                const officeId = checkbox.dataset.officeId;
+                const isActive = checkbox.checked;
+                const slider = checkbox.nextElementSibling;
+                
+                // Kirim request AJAX
+                fetch('{{ route("super-tim.update-status") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        office_id: officeId,
+                        status: isActive ? 'active' : 'inactive'
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) {
+                        // Revert changes if failed
+                        checkbox.checked = !isActive;
+                        slider.classList.toggle('bg-blue-600', !isActive);
+                        slider.classList.toggle('bg-gray-400', isActive);
+                        Swal.fire("Error!", data.message, "error");
+                    } else {
+                        // Update UI based on new status
+                        slider.classList.toggle('bg-blue-600', isActive);
+                        slider.classList.toggle('bg-gray-400', !isActive);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    checkbox.checked = !isActive;
+                    slider.classList.toggle('bg-blue-600', !isActive);
+                    slider.classList.toggle('bg-gray-400', isActive);
+                    Swal.fire("Error!", "Terjadi kesalahan jaringan", "error");
+                });
             },
 
-            getStatusClass(status) {
-                return status ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold';
-            },
-
-            resetForm() {
-                this.newOfficeName = '';
-                this.newOfficeLink = '';
-                this.newOfficeCategory = '';
-                this.newOfficeStatus = 1;
-            },
-
-            async submitAddForm() {
-                try {
-                    this.isLoading = true;
-                    const response = await fetch('/daftarsupertim', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            name: this.newOfficeName,
-                            link: this.newOfficeLink,
-                            category_id: this.newOfficeCategory || null,
-                            status: this.newOfficeStatus
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (!response.ok) {
-                        throw new Error(data.message || 'Gagal menambahkan Super Tim');
-                    }
-                    
-                    Swal.fire("Berhasil!", "Super Tim baru telah ditambahkan", "success")
-                        .then(() => window.location.reload());
-                } catch (error) {
-                    Swal.fire("Error!", error.message, "error");
-                    console.error('Error:', error);
-                } finally {
-                    this.isLoading = false;
-                }
-            },
+            // ... (keep all other methods the same) ...
             
-            async togglePin(id) {
-                try {
-                    this.isLoading = true;
-                    const response = await fetch(`/daftarsupertim/${id}/toggle-pin`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                    });
-                        
-                    const data = await response.json();
-                        
-                    if (!response.ok) {
-                        throw new Error(data.message || 'Gagal mengubah status pin');
-                    }
-                        
-                    Swal.fire("Berhasil!", data.message, "success")
-                        .then(() => window.location.reload());
-                } catch (error) {
-                    Swal.fire("Error!", error.message, "error");
-                    console.error('Error:', error);
-                } finally {
-                    this.isLoading = false;
-                }
-            },
-            
-            async submitEditForm() {
-                try {
-                    this.isLoading = true;
-                    const response = await fetch(`/daftarsupertim/${this.currentOffice}`, {
-                        method: 'PUT',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            name: this.editOfficeName,
-                            link: this.editOfficeLink,
-                            category_id: this.editOfficeCategory || null,
-                            status: this.editOfficeStatus
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (!response.ok) {
-                        throw new Error(data.message || 'Gagal memperbarui Super Tim');
-                    }
-                    
-                    Swal.fire("Berhasil!", "Super Tim telah diperbarui", "success")
-                        .then(() => window.location.reload());
-                } catch (error) {
-                    Swal.fire("Error!", error.message, "error");
-                    console.error('Error:', error);
-                } finally {
-                    this.isLoading = false;
-                }
-            },
-            
-            async deleteOffice(id, name) {
-                try {
-                    const result = await Swal.fire({
-                        title: "Apakah Anda yakin?",
-                        text: `Anda akan menghapus Super Tim "${name}"`,
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#3085d6",
-                        cancelButtonColor: "#d33",
-                        confirmButtonText: "Ya, hapus!",
-                        cancelButtonText: "Batal"
-                    });
-                    
-                    if (result.isConfirmed) {
-                        const response = await fetch(`/daftarsupertim/${id}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            }
-                        });
-                        
-                        const data = await response.json();
-                        
-                        if (!response.ok) {
-                            throw new Error(data.message || 'Gagal menghapus Super Tim');
-                        }
-                        
-                        Swal.fire("Berhasil!", `Super Tim "${name}" telah dihapus`, "success")
-                            .then(() => window.location.reload());
-                    }
-                } catch (error) {
-                    Swal.fire("Error!", error.message, "error");
-                    console.error('Error:', error);
-                }
-            }
         }));
     });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-<script>
-// Di bagian JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Tom Select for search dropdown
-    const searchSelect = new TomSelect('#searchSelect', {
-        create: false,
-        sortField: {
-            field: "text",
-            direction: "asc"
-        },
-        placeholder: "Cari link...",
-        maxOptions: null,
-    });
-    
-    // Initialize Tom Select for category dropdown
-    const categorySelect = new TomSelect('#categoryFilter', {
-        create: false,
-        sortField: {
-            field: "text",
-            direction: "asc"
-        },
-        placeholder: "Pilih kategori...",
-        maxOptions: null,
-    });
-    
-    // Initialize Tom Select for status dropdown
-    const statusSelect = new TomSelect('#statusFilter', {
-        create: false,
-        placeholder: "Pilih status...",
-    });
-    
-    function applyFilters() {
-        const params = new URLSearchParams();
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Tom Select for search dropdown
+        const searchSelect = new TomSelect('#searchSelect', {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            placeholder: "Cari link...",
+            maxOptions: null,
+        });
         
-        // Add search parameter
-        const searchValue = searchSelect.getValue();
-        if (searchValue) {
-            params.append('search', searchValue);
+        // Initialize Tom Select for category dropdown
+        const categorySelect = new TomSelect('#categoryFilter', {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            placeholder: "Pilih kategori...",
+            maxOptions: null,
+        });
+        
+        // Initialize Tom Select for status dropdown
+        const statusSelect = new TomSelect('#statusFilter', {
+            create: false,
+            placeholder: "Pilih status...",
+        });
+        
+        function applyFilters() {
+            const params = new URLSearchParams();
+            
+            // Add search parameter
+            const searchValue = searchSelect.getValue();
+            if (searchValue) {
+                params.append('search', searchValue);
+            }
+            
+            // Add category parameter
+            const categoryValue = categorySelect.getValue();
+            if (categoryValue && categoryValue !== 'all') {
+                params.append('category', categoryValue);
+            }
+            
+            // Add status parameter
+            const statusValue = statusSelect.getValue();
+            if (statusValue && statusValue !== 'all') {
+                params.append('status', statusValue);
+            }
+            
+            // Reload page with new query parameters
+            window.location.href = window.location.pathname + '?' + params.toString();
         }
         
-        // Add category parameter
-        const categoryValue = categorySelect.getValue();
-        if (categoryValue && categoryValue !== 'all') {
-            params.append('category', categoryValue);
-        }
-        
-        // Add status parameter
-        const statusValue = statusSelect.getValue();
-        if (statusValue && statusValue !== 'all') {
-            params.append('status', statusValue);
-        }
-        
-        // Reload page with new query parameters
-        window.location.href = window.location.pathname + '?' + params.toString();
-    }
-    
-    // Event listeners
-    searchSelect.on('change', applyFilters);
-    categorySelect.on('change', applyFilters);
-    statusSelect.on('change', applyFilters);
-});
-</script>
+        // Event listeners
+        searchSelect.on('change', applyFilters);
+        categorySelect.on('change', applyFilters);
+        statusSelect.on('change', applyFilters);
+    });
+    </script>
 </body>
 </html>

@@ -17,7 +17,7 @@ class KategoriUmumController extends Controller
             $query->where('name', 'like', '%' . $search . '%');
         }
 
-        $categories = $query->get();
+        $categories = $query->paginate(10);
 
         $kategoriNames = Category::pluck('name')
                     ->unique()
