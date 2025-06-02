@@ -433,7 +433,7 @@ class MitraController extends Controller
                     $errorList = is_array($errors) ? $errors : [$errors];
 
                     foreach ($errorList as $error) {
-                        $formattedErrors[] = "Baris {$row}: {$error}";
+                        $formattedErrors[] = "{$error}";
                     }
                 }
 
