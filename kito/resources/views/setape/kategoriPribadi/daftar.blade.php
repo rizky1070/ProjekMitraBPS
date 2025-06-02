@@ -22,9 +22,9 @@ $title = 'Kelola Kategori Pribadi';
                     @endif
                 </div>
                 <div class="bg-white p-4 rounded shadow">
-                    <div class="flex justify-between mb-4">
-                        <div class="flex space-x-4 items-center">
-                            <div class="w-64">
+                    <div class="flex flex-col md:flex-row md:justify-between mb-4 space-y-2 md:space-y-0 md:space-x-4">
+                        <div class="flex flex-col md:flex-row md:space-x-4 items-start md:items-center">
+                            <div class="w-full md:w-64">
                                 <select id="searchSelect" placeholder="Cari nama..." class="w-full">
                                     <option value="">Semua Nama</option>
                                     @foreach($kategoriNames as $name)
@@ -36,26 +36,30 @@ $title = 'Kelola Kategori Pribadi';
                             </div>
                         </div>
                         <button @click="showAddModal = true; newCategoryName = ''" 
-                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full md:w-auto">
                             Tambah Kategori
                         </button>
                     </div>
                     <div class="overflow-x-auto">
                         @foreach ($categoryuser as $category)
-                        <div class="flex items-center justify-between border-2 border-gray-400 rounded-full py-1 pl-5 pr-2 m-2">
-                            <div>
-                                <span class="text-lg font-semibold">{{ $category->name }}</span>
+                        <div class="flex items-center justify-between border-2 border-gray-400 rounded-full py-1 pl-5 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
+                            <div class="flex items-center flex-1 min-w-0">
+                                <div class="min-w-0">
+                                    <span class="text-lg font-semibold block truncate hover:text-clip hover:whitespace-normal">
+                                        {{ $category->name }}
+                                    </span>
+                                </div>
                             </div>
-                            <div class="my-1">
+                            <div class="flex-shrink-0 flex my-1">
                                 <button @click="showEditModal = true; currentCategory = {{ $category->id }}; editCategoryName = '{{ $category->name }}'" 
-                                    class="bg-yellow-500 text-white mr-2 px-2 py-2 rounded-full hover:bg-yellow-600" 
+                                    class="bg-yellow-500 text-white mr-2 px-2 py-2 rounded-full hover:bg-yellow-600 transition-colors duration-200" 
                                     title="Edit">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                     </svg>
                                 </button>
                                 <button @click="deleteCategory({{ $category->id }}, '{{ $category->name }}')" 
-                                    class="bg-red-500 text-white px-2 py-2 rounded-full hover:bg-red-600"
+                                    class="bg-red-500 text-white px-2 py-2 rounded-full hover:bg-red-600 transition-colors duration-200"
                                     title="Hapus">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />

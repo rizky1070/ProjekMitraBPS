@@ -39,41 +39,41 @@ $title = 'Super Tim';
                     </a>
                 </div>
                 <div class="bg-white p-4 rounded shadow">
-                    <div class="flex justify-between mb-4">
-                    <div class="flex space-x-4 items-center">
-                        <div class="w-64">
-                            <select id="searchSelect" placeholder="Cari link..." class="w-full">
-                                <option value="">Semua Nama</option>
-                                @foreach($officeNames as $name)
-                                    <option value="{{ $name }}" {{ request('search') == $name ? 'selected' : '' }}>
-                                        {{ $name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                    <div class="my-1 flex flex-col md:flex-row md:justify-between mb-4">
+                        <div class="my-1 flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0 items-stretch md:items-center">
+                            <div class="w-full md:w-64">
+                                <select id="searchSelect" placeholder="Cari link..." class="w-full">
+                                    <option value="">Semua Nama</option>
+                                    @foreach($officeNames as $name)
+                                        <option value="{{ $name }}" {{ request('search') == $name ? 'selected' : '' }}>
+                                            {{ $name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            
+                            <!-- Category Filter with Tom Select -->
+                            <div class="w-full md:w-48">
+                                <select id="categoryFilter" placeholder="Pilih kategori" class="w-full">
+                                    <option value="all">Semua Kategori</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                                            {{ $category->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <!-- Di bagian filter, tambahkan ini setelah category filter -->
+                            <div class="w-full md:w-48">
+                                <select id="statusFilter" placeholder="Pilih status" class="w-full">
+                                    <option value="all">Semua Status</option>
+                                    <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Aktif</option>
+                                    <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Nonaktif</option>
+                                </select>
+                            </div>
                         </div>
-                        
-                        <!-- Category Filter with Tom Select -->
-                        <div class="w-48">
-                            <select id="categoryFilter" placeholder="Pilih kategori" class="w-full">
-                                <option value="all">Semua Kategori</option>
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
-                                        {{ $category->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <!-- Di bagian filter, tambahkan ini setelah category filter -->
-                        <div class="w-48">
-                            <select id="statusFilter" placeholder="Pilih status" class="w-full">
-                                <option value="all">Semua Status</option>
-                                <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Aktif</option>
-                                <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Nonaktif</option>
-                            </select>
-                        </div>
-                    </div>
                         <button @click="showAddModal = true; resetForm()" 
-                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                            class="my-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
                             Tambah Link
                         </button>
                     </div>
@@ -91,9 +91,9 @@ $title = 'Super Tim';
                         @else
                             @foreach ($offices as $office)
                                 <div class="flex items-center justify-between border-2 border-gray-400 rounded-full pl-3 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
-                                    <div class="flex items-center">
+                                    <div class="flex items-center flex-1 min-w-0">
                                         <button @click="togglePin({{ $office->id }})" 
-                                            class="flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $office->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}"
+                                            class="flex-shrink-0 flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $office->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}"
                                             title="{{ $office->priority ? 'Lepaskan' : 'Sematkan' }}">
                                             @if ($office->priority)
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="red">
@@ -105,14 +105,14 @@ $title = 'Super Tim';
                                             </svg>
                                             @endif
                                         </button>
-                                        <div>
-                                            <a href="{{ $office->link }}" class="text-xl font-bold">
+                                        <div class="min-w-0 flex-1">
+                                            <a href="{{ $office->link }}" class="text-xl font-bold block truncate hover:text-clip hover:whitespace-normal">
                                                 {{ $office->name ?? $office->link ?? 'Tidak ada link' }}
                                             </a>
-                                            <p>{{ $office->category->name }}</p>
+                                            <p class="truncate">{{ $office->category->name }}</p>
                                         </div>
                                     </div>
-                                    <div class="mr-1">
+                                    <div class="flex-shrink-0 flex mr-1">
                                         <button @click="showEditModal = true; currentOffice = {{ $office->id }}; 
                                                         editOfficeName = '{{ $office->name }}'; 
                                                         editOfficeLink = '{{ $office->link }}'; 

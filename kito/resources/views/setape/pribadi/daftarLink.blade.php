@@ -33,10 +33,10 @@ $title = 'Daftar Link Pribadi';
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
                 <h1 class="text-2xl font-bold mb-4">Daftar Link Pribadi</h1>
                 <div class="bg-white p-4 rounded shadow">
-                    <div class="flex justify-between mb-4">
-                        <div class="flex space-x-4 items-center">
+                    <div class="flex flex-col md:flex-row md:justify-between mb-4 gap-4">
+                        <div class="flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 items-stretch md:items-center">
                             <!-- Search Dropdown with Tom Select -->
-                            <div class="w-64">
+                            <div class="w-full md:w-64">
                                 <select id="searchSelect" placeholder="Cari link..." class="w-full">
                                     <option value="">Semua Nama</option>
                                     @foreach($linkNames as $name)
@@ -46,8 +46,8 @@ $title = 'Daftar Link Pribadi';
                                     @endforeach
                                 </select>
                             </div>
-                             <!-- Category Filter with Tom Select -->
-                            <div class="w-48">
+                            <!-- Category Filter with Tom Select -->
+                            <div class="w-full md:w-48">
                                 <select id="categoryFilter" placeholder="Pilih kategori" class="w-full">
                                     <option value="all">Semua Kategori</option>
                                     @foreach($categories as $category)
@@ -77,28 +77,22 @@ $title = 'Daftar Link Pribadi';
                         @else
                             @foreach ($links as $link)
                                 <div class="flex items-center justify-between border-2 border-gray-400 rounded-full pl-3 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
-                                    <div class="flex items-center">
+                                    <div class="flex items-center flex-1 min-w-0"> <!-- flex-1 dan min-w-0 di sini -->
                                         <button @click="togglePin({{ $link->id }})" 
-                                            class="flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $link->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}"
+                                            class="flex-shrink-0 flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $link->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}"
                                             title="{{ $link->priority ? 'Lepaskan' : 'Sematkan' }}">
-                                            @if ($link->priority)
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="red">
                                                 <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
                                             </svg>
-                                            @else
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="gray">
-                                                <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
-                                            </svg>
-                                            @endif
                                         </button>
-                                        <div>
-                                            <a href="{{ $link->link }}" class="text-xl font-bold">
+                                        <div class="min-w-0 flex-1"> <!-- Container teks yang akan menyesuaikan -->
+                                            <a href="{{ $link->link }}" class="text-xl font-bold block truncate hover:text-clip hover:whitespace-normal">
                                                 {{ $link->name ?? $link->link ?? 'Tidak ada link' }}
                                             </a>
-                                            <p>{{ $link->categoryUser->name }}</p>
+                                            <p class="truncate">{{ $link->categoryUser->name }}</p>
                                         </div>
                                     </div>
-                                    <div class="mr-2">
+                                    <div class="flex-shrink-0 flex mr-2">
                                         <button @click="showEditModal = true; currentLink = {{ $link->id }}; 
                                                         editLinkName = '{{ $link->name }}'; 
                                                         editLinkLink = '{{ $link->link }}'; 

@@ -129,7 +129,7 @@
 
                                 <article
                                     class="p-6 bg-white bg-opacity-50 rounded-lg border border-gray-200 shadow-md transition-all duration-300 flex flex-col items-center justify-center gap-3 hover:bg-opacity-90 hover:bg-gray-300">
-                                    <a href="/supertim" target="_blank">
+                                    <a href="/supertim">
                                         <img src="supertim.png" height="200" width="175"
                                             alt="Logo BPS Kabupaten Mojokerto" />
                                         <h2
