@@ -84,8 +84,8 @@ $title = 'Sekretariat';
                 </div>
                 <div class="bg-white p-4 rounded shadow">
                     <div class="flex justify-between mb-4">
-                        <div class="flex space-x-4 items-center">
-                            <div class="w-64">
+                        <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0 items-stretch sm:items-center w-full">
+                            <div class="w-full md:w-64">
                                 <select id="searchSelect" placeholder="Cari nama..." class="w-full">
                                     <option value="">Semua Nama</option>
                                     @foreach($ketuaNames as $name)
@@ -96,7 +96,7 @@ $title = 'Sekretariat';
                                 </select>
                             </div>
                             
-                            <div class="w-48">
+                            <div class="w-full md:w-48">
                                 <select id="categoryFilter" placeholder="Pilih kategori" class="w-full">
                                     <option value="all">Semua Kategori</option>
                                     @foreach($categories as $category)
@@ -121,8 +121,8 @@ $title = 'Sekretariat';
                     @else
                         @foreach ($ketuas as $ketua)
                         <div class="flex items-center justify-between border-2 border-gray-400 rounded-full pl-4 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
-                            <div class="flex items-center">
-                                <div class="flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $ketua->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}">
+                            <div class="flex items-center flex-1 min-w-0">
+                                <div class="flex-shrink-0 flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $ketua->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}">
                                     @if ($ketua->priority)
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="red">
                                         <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
@@ -133,13 +133,13 @@ $title = 'Sekretariat';
                                     </svg>
                                     @endif
                                 </div>
-                                <div>
-                                    <a href="{{ $ketua->link }}" class="text-xl font-bold">
+                                <div class="min-w-0 flex-1">
+                                    <a href="{{ $ketua->link }}" class="text-xl font-bold block truncate hover:text-clip hover:whitespace-normal">
                                         {{ $ketua->name ?? $ketua->link ?? 'Tidak ada link' }}
                                     </a>
-                                    <p>{{ $ketua->category->name }}</p>
+                                    <p class="truncate">{{ $ketua->category->name }}</p>
                                 </div>
-                            </div>
+                            </div class="flex-shrink-0 flex mr-2">
                             <button 
                                 class="bg-blue-600 text-white mr-1 px-2 py-2 rounded-full hover:bg-blue-700 transition flex items-center gap-2"
                                 title="simpan ke pribadi"
