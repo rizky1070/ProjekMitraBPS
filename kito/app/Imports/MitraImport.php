@@ -471,11 +471,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
      */
     public function getFailedCount(): int
     {
-        $count = 0;
-        foreach ($this->rowErrors as $errors) {
-            $count += is_array($errors) ? count($errors) : 1;
-        }
-        return $count;
+        return count($this->rowErrors);
     }
 
     /**

@@ -423,7 +423,7 @@ class MitraController extends Controller
             $rowErrors = $import->getRowErrors();
 
             // Pesan sukses dasar
-            $successMessage = "Import berhasil! {$successCount} data mitra berhasil diproses.";
+            $successMessage = "Import berhasil! {$successCount} data mitra berhasil diproses dan {$failedCount} data mitra gagal diproses.";
 
             if ($failedCount > 0) {
                 // Format error lebih terstruktur
