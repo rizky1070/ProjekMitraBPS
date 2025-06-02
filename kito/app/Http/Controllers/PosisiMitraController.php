@@ -16,7 +16,8 @@ class PosisiMitraController extends Controller
             $query->where('nama_posisi', 'like', '%' . $search . '%');
         }
 
-        $posisiMitra = $query->get();
+        // Menambahkan pagination dengan 10 item per halaman
+        $posisiMitra = $query->paginate(10);
         $posisiNames = PosisiMitra::pluck('nama_posisi')->unique()->values()->all();
 
         return view('mitrabps.crudPosisiMitra', compact('posisiMitra', 'posisiNames'));

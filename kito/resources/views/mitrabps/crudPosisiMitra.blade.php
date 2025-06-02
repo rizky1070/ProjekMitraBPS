@@ -78,6 +78,7 @@ $title = 'Daftar Posisi Mitra';
                         </table>
                     </div>
                 </div>
+                @include('components.pagination', ['paginator' => $posisiMitra])
             </main>
         </div>
         
