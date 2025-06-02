@@ -385,6 +385,11 @@ Route::middleware('auth')->group(function () {
 // SETAPE
 
 Route::middleware('auth')->group(function () {
+    // Dashboard
+    Route::get('/setapedashboard', function () {
+        return view('setape.dashboard');
+    })->name('setape.dashboard');
+
     // Kategori Umum
     Route::get('/kategoriumum', [KategoriUmumController::class, 'index']);
     Route::post('/kategoriumum', [KategoriUmumController::class, 'store']);
