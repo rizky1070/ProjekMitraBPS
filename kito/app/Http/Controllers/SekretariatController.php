@@ -32,7 +32,7 @@ class SekretariatController extends Controller
             $query->where('name', 'like', '%' . $search . '%');
         }
 
-        $ketuas = $query->get();
+        $ketuas = $query->paginate(10); // Pagination dengan 10 item per halaman
         
         // Hanya ambil kategori yang memiliki relasi dengan ketua yang aktif
         $categories = Category::whereHas('ketuas', function($q) {
@@ -72,7 +72,7 @@ class SekretariatController extends Controller
             $query->where('status', $request->status);
         }
 
-        $ketuas = $query->get();
+        $ketuas = $query->paginate(10); // Pagination dengan 10 item per halaman
         
         // Ambil SEMUA kategori tanpa filter apapun
         $categories = Category::all();

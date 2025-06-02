@@ -19,7 +19,7 @@ class KategoriPribadiController extends Controller
             $query->where('name', 'like', '%' . $search . '%');
         }
 
-        $categoryuser = $query->get();
+        $categoryuser = $query->paginate(10);
 
         $kategoriNames = CategoryUser::where('user_id', Auth::id())
             ->pluck('name')

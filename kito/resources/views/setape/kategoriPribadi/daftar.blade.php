@@ -70,6 +70,7 @@ $title = 'Kelola Kategori Pribadi';
                         @endforeach
                     </div>
                 </div>
+                @include('setape.setapePage', ['paginator' => $categoryuser])
             </main>
         </div>
 

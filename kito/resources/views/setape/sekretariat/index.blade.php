@@ -214,6 +214,7 @@ $title = 'Sekretariat';
                         @endforeach
                     @endif
                 </div>
+                @include('setape.setapePage', ['paginator' => $ketuas])
                 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
                 <script>
                 document.addEventListener('DOMContentLoaded', function() {

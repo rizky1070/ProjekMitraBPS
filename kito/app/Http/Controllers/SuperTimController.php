@@ -32,7 +32,7 @@ class SuperTimController extends Controller
             $query->where('name', 'like', '%' . $search . '%');
         }
 
-        $offices = $query->get();
+        $offices = $query->paginate(10); // Pagination dengan 10 item per halaman
         
         // Hanya ambil kategori yang memiliki relasi dengan office yang aktif
         $categories = Category::whereHas('offices', function($q) {
@@ -55,6 +55,7 @@ class SuperTimController extends Controller
             ->orderBy('priority', 'desc')
             ->orderBy('status', 'desc') // Urutkan berdasarkan status (aktif di atas)
             ->orderBy('created_at', 'desc');
+
         // Filter kategori
         if ($request->filled('category') && $request->category != 'all') {
             $query->where('category_id', $request->category);
@@ -71,7 +72,7 @@ class SuperTimController extends Controller
             $query->where('status', $request->status);
         }
 
-        $offices = $query->get();
+        $offices = $query->paginate(10); // Pagination dengan 10 item per halaman
         
         // Ambil SEMUA kategori tanpa filter apapun
         $categories = Category::all();
@@ -197,13 +198,15 @@ class SuperTimController extends Controller
         try {
             $statusValue = $request->status === 'active' ? 1 : 0;
             
-            Office::where('id', $request->office_id)->update([
+            $office = Office::findOrFail($request->office_id);
+            $office->update([
                 'status' => $statusValue
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Status berhasil diperbarui'
+                'message' => 'Status berhasil diperbarui',
+                'new_status' => $statusValue
             ]);
         } catch (\Exception $e) {
             return response()->json([

@@ -144,6 +144,7 @@ $title = 'Sekretariat';
                         @endif
                     </div>
                 </div>
+                @include('setape.setapePage', ['paginator' => $ketuas])
             </main>
         </div>
 

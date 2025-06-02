@@ -219,6 +219,7 @@ $title = 'Super Tim';
                     @endforeach
                 @endif
                 </div>
+                @include('setape.setapePage', ['paginator' => $offices])
                 <script>
                     function toggleStatus(checkbox) {
                         const officeId = checkbox.getAttribute('data-office-id');

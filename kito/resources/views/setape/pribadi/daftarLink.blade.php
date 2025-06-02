@@ -117,6 +117,7 @@ $title = 'Daftar Link Pribadi';
                         @endif
                     </div>
                 </div>
+                @include('setape.setapePage', ['paginator' => $links])
             </main>
         </div>
 
