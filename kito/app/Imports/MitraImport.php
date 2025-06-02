@@ -21,67 +21,46 @@ use Throwable;
 class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError, SkipsOnFailure
 {
     use SkipsErrors, SkipsFailures;
-
     private $rowErrors = [];
     private $successCount = 0;
     private $defaultProvinsi = '35';
     private $defaultKabupaten = '16';
     private $currentDate;
     private $currentRow = [];
-    private $rowNumber = 1;
+    private $excelRowNumber = 2; // Data dimulai dari baris 2 (header di baris 1)
 
     public function __construct()
     {
         $this->currentDate = Carbon::now();
     }
-
-    /**
-     * Memproses setiap baris data dari file Excel
-     */
     public function model(array $row)
     {
         $errors = [];
-        
-        // Validasi manual
-        if (empty($row['nama_lengkap'])) {
-            $errors[] = "nama_lengkap harus diisi";
-        }
-        
-        if (empty($row['alamat_mitra'])) {
-            $errors[] = "alamat_mitra harus diisi";
-        }
-
         $this->currentRow = $row;
-        $row['__row__'] = $this->rowNumber;
-        $mitraName = $row['nama_lengkap'] ?? 'Tidak diketahui';
-        
+        $currentRowNum = $this->excelRowNumber;
         try {
-            // Lewati baris yang benar-benar kosong
+            // Skip empty rows
             if ($this->isEmptyRow($row)) {
-                $this->rowNumber++;
+                $this->excelRowNumber++;
                 return null;
             }
+            Log::info('Processing Excel row: ' . $currentRowNum, $row);
 
-            Log::info('Mengimpor baris: ', $row);
-            
+            // Get mitra name with fallback
+            $mitraName = $this->getMitraName($row);
+
             $sobatId = $row['sobat_id'];
             $jenisKelamin = $this->convertJenisKelamin($row['jenis_kelamin']);
             $validatedPhoneNumber = $this->formatPhoneNumber($row['no_hp_mitra']);
-
-            // Dapatkan data wilayah
+            // Get region data
             $provinsi = $this->getProvinsi($mitraName);
             $kabupaten = $this->getKabupaten($provinsi, $mitraName);
             $kecamatan = $this->getKecamatan($row, $kabupaten, $mitraName);
             $desa = $this->getDesa($row, $kecamatan, $mitraName);
-
-            // Parse tanggal
+            // Parse dates
             $tahunMulai = $this->parseTanggal($row['tgl_mitra_diterima'] ?? null, $mitraName);
-            if (empty($row['tgl_mitra_diterima'])) {
-                Log::info("Kolom tahun kosong, menggunakan tanggal sekarang");
-            }
-
-            // Parse tanggal berakhir
             $tahunSelesai = null;
+
             if (!empty($row['tgl_berakhir_mitra'])) {
                 $tahunSelesai = $this->parseTanggal($row['tgl_berakhir_mitra'], $mitraName);
                 if ($tahunSelesai->lt($tahunMulai)) {
@@ -91,15 +70,10 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 $tahunSelesai = $tahunMulai->copy()->addMonth();
                 Log::info("Kolom tgl_berakhir_mitra kosong, menggunakan 1 bulan setelah tanggal mulai");
             }
-            
-            // Validasi tanggal
             $this->validateDates($tahunMulai, $tahunSelesai, $mitraName);
-
-            // Cek apakah sobat_id sudah ada di database
+            // Check if sobat_id already exists
             $existingMitra = Mitra::where('sobat_id', $sobatId)->first();
-
             if ($existingMitra) {
-                // Update data yang sudah ada
                 $existingMitra->update([
                     'nama_lengkap' => $row['nama_lengkap'],
                     'alamat_mitra' => $row['alamat_mitra'],
@@ -115,19 +89,16 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                     'tahun_selesai' => $tahunSelesai,
                     'updated_at' => now()
                 ]);
-                
                 $this->successCount++;
-                $this->rowNumber++;
+                $this->excelRowNumber++;
                 return null;
             }
-
             if (!empty($errors)) {
                 throw new \Exception(implode("; ", $errors));
             }
-
-            // Buat data baru
             $this->successCount++;
-            $this->rowNumber++;
+            $this->excelRowNumber++;
+
             return new Mitra([
                 'nama_lengkap' => $row['nama_lengkap'],
                 'sobat_id' => $sobatId,
@@ -145,25 +116,21 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 'tahun_selesai' => $tahunSelesai
             ]);
         } catch (\Exception $e) {
-            $rowNum = $this->rowNumber;
-            $mitraName = $row['nama_lengkap'] ?? 'Tidak diketahui';
-            
-            if (!isset($this->rowErrors[$rowNum])) {
-                $this->rowErrors[$rowNum] = [
+            $mitraName = $this->getMitraName($row); // Get current mitra name
+
+            if (!isset($this->rowErrors[$currentRowNum])) {
+                $this->rowErrors[$currentRowNum] = [
                     'mitra' => $mitraName,
                     'errors' => []
                 ];
             }
-            
-            // Pisahkan error yang digabung dengan titik koma
             $errorParts = explode("; ", $e->getMessage());
             foreach ($errorParts as $part) {
-                if (!in_array($part, $this->rowErrors[$rowNum]['errors'])) {
-                    $this->rowErrors[$rowNum]['errors'][] = $part;
+                if (!in_array($part, $this->rowErrors[$currentRowNum]['errors'])) {
+                    $this->rowErrors[$currentRowNum]['errors'][] = $part;
                 }
             }
-            
-            $this->rowNumber++;
+            $this->excelRowNumber++;
             return null;
         }
     }
@@ -173,12 +140,13 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
      */
     public function rules(): array
     {
+        $this->currentRow['nama_lengkap'] = $this->currentRow['nama_lengkap'] ?? 'Tidak diketahui';
+        $mitraName = $this->currentRow['nama_lengkap'];
+
         return [
             'sobat_id' => [
                 'required',
-                function ($attribute, $value, $fail) {
-                    $mitraName = $this->currentRow['nama_lengkap'] ?? 'Tidak diketahui';
-                    
+                function ($attribute, $value, $fail) use ($mitraName) {
                     if (empty($value)) {
                         $fail("SOBAT ID harus diisi");
                     } elseif (!$this->isPureNumeric($value)) {
@@ -193,9 +161,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             'kode_kecamatan' => 'required|string|max:3',
             'jenis_kelamin' => [
                 'required',
-                function ($attribute, $value, $fail) {
-                    $mitraName = $this->currentRow['nama_lengkap'] ?? 'Tidak diketahui';
-                    
+                function ($attribute, $value, $fail) use ($mitraName) {
                     if (empty($value)) {
                         $fail("Jenis kelamin harus diisi");
                     } else {
@@ -210,7 +176,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 'required',
                 function ($attribute, $value, $fail) {
                     $mitraName = $this->currentRow['nama_lengkap'] ?? 'Tidak diketahui';
-                    
+
                     if (empty($value)) {
                         $fail("Nomor HP harus diisi");
                         return;
@@ -258,13 +224,13 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     private function convertJenisKelamin($value)
     {
         $value = strtolower(trim($value));
-        
+
         if ($value === 'laki-laki' || $value === 'laki laki' || $value === 'laki' || $value === '1') {
             return 1;
         } elseif ($value === 'perempuan' || $value === '2') {
             return 2;
         }
-        
+
         return 1; // default jika tidak valid
     }
 
@@ -305,7 +271,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     {
         return empty($row['sobat_id']) && empty($row['nama_lengkap']) && empty($row['alamat_mitra']);
     }
-    
+
     /**
      * Dapatkan data provinsi
      */
@@ -317,7 +283,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         }
         return $provinsi;
     }
-    
+
     /**
      * Dapatkan data kabupaten
      */
@@ -331,7 +297,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         }
         return $kabupaten;
     }
-    
+
     /**
      * Dapatkan data kecamatan
      */
@@ -340,7 +306,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         if (empty($row['kode_kecamatan'])) {
             throw new \Exception("Kode kecamatan harus diisi");
         }
-        
+
         $kecamatan = Kecamatan::where('kode_kecamatan', $row['kode_kecamatan'])
             ->where('id_kabupaten', $kabupaten->id_kabupaten)
             ->first();
@@ -349,7 +315,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         }
         return $kecamatan;
     }
-    
+
     /**
      * Dapatkan data desa
      */
@@ -358,7 +324,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         if (empty($row['kode_desa'])) {
             throw new \Exception("Kode desa harus diisi");
         }
-        
+
         $desa = Desa::where('kode_desa', $row['kode_desa'])
             ->where('id_kecamatan', $kecamatan->id_kecamatan)
             ->first();
@@ -367,7 +333,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         }
         return $desa;
     }
-    
+
     /**
      * Validasi tanggal
      */
@@ -376,20 +342,20 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         if (!$tahunMulai) {
             throw new \Exception("tgl_mitra_diterima tidak valid");
         }
-        
+
         if (!$tahunSelesai) {
             throw new \Exception("tgl_berakhir_mitra tidak valid");
         }
-        
+
         $currentYear = date('Y');
         if ($tahunMulai->year < 2000 || $tahunMulai->year > $currentYear + 10) {
-            throw new \Exception("tgl_mitra_diterima tidak valid (harus antara 2000-".($currentYear + 10).")");
+            throw new \Exception("tgl_mitra_diterima tidak valid (harus antara 2000-" . ($currentYear + 10) . ")");
         }
-        
+
         if ($tahunSelesai->year < 2000 || $tahunSelesai->year > $currentYear + 10) {
-            throw new \Exception("tgl_berakhir_mitra tidak valid (harus antara 2000-".($currentYear + 10).")");
+            throw new \Exception("tgl_berakhir_mitra tidak valid (harus antara 2000-" . ($currentYear + 10) . ")");
         }
-        
+
         if ($tahunSelesai->lt($tahunMulai)) {
             throw new \Exception("Tanggal berakhir tidak boleh sebelum tanggal mulai");
         }
@@ -402,16 +368,14 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     {
         foreach ($failures as $failure) {
             $rowNum = $failure->row();
-            $mitraName = $this->currentRow['nama_lengkap'] ?? 'Tidak diketahui';
-            
+            $mitraName = $failure->values()['nama_lengkap'] ?? 'Tidak diketahui';
+
             if (!isset($this->rowErrors[$rowNum])) {
                 $this->rowErrors[$rowNum] = [
                     'mitra' => $mitraName,
                     'errors' => []
                 ];
             }
-            
-            // Tambahkan semua error untuk baris ini
             foreach ($failure->errors() as $error) {
                 if (!in_array($error, $this->rowErrors[$rowNum]['errors'])) {
                     $this->rowErrors[$rowNum]['errors'][] = $error;
@@ -420,21 +384,25 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         }
     }
 
+    private function getMitraName(array $row): string
+    {
+        return $row['nama_lengkap'] ?? $this->currentRow['nama_lengkap'] ?? 'Tidak diketahui';
+    }
+
+
     /**
      * Dapatkan daftar error per mitra
      */
     public function getRowErrors(): array
     {
         $formattedErrors = [];
-        ksort($this->rowErrors); // Urutkan berdasarkan nomor baris
-        
+        ksort($this->rowErrors);
+
         foreach ($this->rowErrors as $rowNum => $errorData) {
-            $mitraName = $errorData['mitra'];
-            $errors = $errorData['errors'];
-            
-            $formattedErrors[] = "Mitra {$mitraName}: " . implode("; ", $errors);
+            $formattedErrors[] = "Baris {$rowNum} - {$errorData['mitra']}: " .
+                implode(", ", array_unique($errorData['errors']));
         }
-        
+
         return $formattedErrors;
     }
     /**
@@ -463,7 +431,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
 
             if (is_string($tanggal)) {
                 $normalized = str_replace(['/', '.'], '-', $tanggal);
-                
+
                 foreach (['d-m-Y', 'm-d-Y', 'Y-m-d'] as $format) {
                     try {
                         return Carbon::createFromFormat($format, $normalized);
@@ -471,12 +439,11 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                         continue;
                     }
                 }
-                
+
                 return Carbon::parse($normalized);
             }
 
             throw new \Exception("Format tanggal tidak dikenali");
-            
         } catch (\Exception $e) {
             Log::error("Gagal parsing tanggal : {$tanggal} - Error: " . $e->getMessage());
             throw new \Exception("Format tanggal tidak valid ({$tanggal})");
@@ -504,11 +471,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
      */
     public function getFailedCount(): int
     {
-        $count = 0;
-        foreach ($this->rowErrors as $errors) {
-            $count += is_array($errors) ? count($errors) : 1;
-        }
-        return $count;
+        return count($this->rowErrors);
     }
 
     /**
