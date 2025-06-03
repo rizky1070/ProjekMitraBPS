@@ -134,10 +134,10 @@ $title = 'Super Tim';
                                     </svg>
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <a href="{{ $office->link }}" class="text-sm md:text-base font-bold block truncate" title="{{ $office->name }}">
+                                    <a href="{{ $office->link }}" class="text-xl font-bold block truncate" title="{{ $office->name }}">
                                         {{ $office->name ?? $office->link ?? 'Tidak ada link' }}
                                     </a>
-                                    <p class="text-xs md:text-sm truncate">{{ $office->category->name }}</p>
+                                    <p class="truncate">{{ $office->category->name }}</p>
                                 </div>
                             </div>
                             <button 

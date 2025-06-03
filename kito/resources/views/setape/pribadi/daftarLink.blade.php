@@ -93,10 +93,10 @@ $title = 'Daftar Link Pribadi';
                                             </svg>
                                         </button>
                                         <div class="min-w-0 flex-1">
-                                            <a href="{{ $link->link }}" class="text-sm md:text-base font-bold block truncate" title="{{ $link->name }}">
+                                            <a href="{{ $link->link }}" class="text-xl font-bold block truncate" title="{{ $link->name }}">
                                                 {{ $link->name }}
                                             </a>
-                                            <p class="text-xs md:text-sm truncate">{{ $link->categoryUser->name }}</p>
+                                            <p class="truncate">{{ $link->categoryUser->name }}</p>
                                         </div>
                                     </div>
                                     <div class="flex-shrink-0 items-center justify-center flex space-x-1">
