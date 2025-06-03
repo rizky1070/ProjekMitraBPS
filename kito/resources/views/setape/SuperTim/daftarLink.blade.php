@@ -89,9 +89,10 @@ $title = 'Super Tim';
                                 </svg>
                             </div>
                         @else
+                            <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-4">
                             @foreach ($offices as $office)
-                                <div class="flex items-center justify-between border-2 border-gray-400 rounded-full pl-3 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
-                                    <div class="flex items-center flex-1 min-w-0"><!-- flex-1 dan min-w-0 di sini -->
+                                <div class="flex items-center justify-between border-2 border-gray-400 rounded-full px-3 py-1 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white"> 
+                                    <div class="flex items-center flex-1 min-w-0">
                                         <button 
                                             @click="togglePin({{ $office->id }})" 
                                             class="flex-shrink-0 flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $office->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}"
@@ -108,7 +109,7 @@ $title = 'Super Tim';
                                             <p class="truncate">{{ $office->category->name }}</p>
                                         </div>
                                     </div>
-                                    <div class="flex-shrink-0 flex mr-1">
+                                    <div class="flex-shrink-0 flex space-x-1">
                                         <button @click="showEditModal = true; currentOffice = {{ $office->id }}; 
                                                         editOfficeName = '{{ $office->name }}'; 
                                                         editOfficeLink = '{{ $office->link }}'; 
@@ -138,6 +139,7 @@ $title = 'Super Tim';
                                     </div>
                                 </div>
                             @endforeach
+                            </div>
                         @endif
                     </div>
                 </div>
