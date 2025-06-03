@@ -22,35 +22,40 @@ class PribadiController extends Controller
 
     public function daftarLink(Request $request)
     {
-        $query = Link::with('categoryUser')
+        // Query dasar
+        $baseQuery = Link::with('categoryUser')
             ->where('user_id', Auth::id())
             ->orderBy('priority', 'desc')
             ->orderBy('created_at', 'desc');
 
         // Filter kategori
         if ($request->filled('category') && $request->category != 'all') {
-            $query->where('category_user_id', $request->category);
+            $baseQuery->where('category_user_id', $request->category);
         }
 
         // Filter pencarian
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where('name', 'like', '%' . $search . '%');
+            $baseQuery->where('name', 'like', '%' . $search . '%');
         }
 
-        $links = $query->paginate(10);
+        // Hitung total link yang difilter (tanpa pagination)
+        $totalLink = $baseQuery->count();
+
+        // Ambil data dengan pagination
+        $links = $baseQuery->paginate(10);
 
         // Ambil SEMUA kategori milik user (tidak peduli apakah punya link atau tidak)
         $categories = CategoryUser::where('user_id', Auth::id())->get();
 
         // Ambil nama link hanya dari hasil yang difilter
-        $linkNames = $query->clone()
+        $linkNames = $baseQuery->clone()
             ->pluck('name')
             ->unique()
             ->values()
             ->all();
 
-        return view('Setape.pribadi.daftarLink', compact('links', 'categories', 'linkNames'));
+        return view('Setape.pribadi.daftarLink', compact('links', 'categories', 'linkNames', 'totalLink'));
     }
 
     public function togglePin(Request $request, $id)
