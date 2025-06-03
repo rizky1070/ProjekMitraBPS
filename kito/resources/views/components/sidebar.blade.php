@@ -295,8 +295,9 @@
         @php
             // Cek apakah ada link yang aktif di dalam dropdown
             $isDropdownMitraActive =
-            request()->is('supertim') ||
-            request()->is('sekretariat') ||
+                request()->is('supertim') ||
+                request()->is('sekretariat') ||
+                request()->is('setapedashboard') ||
                 request()->is('pribadi') ||
                 request()->is('kategoriumum') ||
                 request()->is('kategoripribadi') ||
