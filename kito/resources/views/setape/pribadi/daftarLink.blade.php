@@ -99,7 +99,7 @@ $title = 'Daftar Link Pribadi';
                                             <p class="text-xs md:text-sm truncate">{{ $link->categoryUser->name }}</p>
                                         </div>
                                     </div>
-                                    <div class="flex-shrink-0 flex space-x-1">
+                                    <div class="flex-shrink-0 items-center justify-center flex space-x-1">
                                         <button 
                                             @click="showEditModal = true; currentLink = {{ $link->id }}; 
                                                     editLinkName = '{{ $link->name }}'; 
