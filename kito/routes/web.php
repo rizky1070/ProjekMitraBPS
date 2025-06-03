@@ -32,6 +32,7 @@ use App\Http\Controllers\KategoriPribadiController;
 use App\Http\Controllers\PribadiController;
 use App\Http\Controllers\SekretariatController;
 use App\Http\Controllers\SuperTimController;
+use App\Http\Controllers\SetapeDashboardController;
 use App\Http\Controllers\PosisiMitraController;
 
 /*
@@ -386,9 +387,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     // Dashboard
-    Route::get('/setapedashboard', function () {
-        return view('setape.dashboard');
-    })->name('setape.dashboard');
+    Route::get('/setapedashboard', [SetapeDashboardController::class, 'index'])->name('setape.dashboard');
 
     // Kategori Umum
     Route::get('/kategoriumum', [KategoriUmumController::class, 'index']);
