@@ -13,7 +13,7 @@ $title = 'Kelola Kategori Pribadi';
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
-                <div class="flex justify-between mb-4">
+                <div class="flex items-center justify-between mb-4">
                     <h1 class="text-2xl font-bold mb-4">Kelola Kategori Pribadi</h1>
                     @if (auth()->user()->is_admin || auth()->user()->is_leader)
                     <a href="/kategoriumum" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
@@ -43,7 +43,7 @@ $title = 'Kelola Kategori Pribadi';
                     <div class="overflow-x-auto">
                         <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-4">
                         @foreach ($categoryuser as $category)
-                        <div class="flex items-center justify-between border-2 border-gray-400 rounded-full px-3 py-1 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white"> 
+                        <div class="flex items-center justify-between border-2 border-gray-400 rounded-full pl-3 pr-1 py-1 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white"> 
                             <div class="flex items-center flex-1 min-w-0">
                                 <div class="min-w-0 flex-1">
                                     <span class="text-lg font-semibold block truncate" title="{{ $category->name }}">
