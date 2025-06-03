@@ -45,7 +45,7 @@ $title = 'Dashboard Setape';
                     <!-- Card Statistik -->
                     <div class="bg-white p-4 rounded-lg shadow-md my-2">
                         <h2 class="text-2xl font-semibold mb-2">User</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <!-- Total User -->
                             <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-500">
                                 <h3 class="text-blue-700 text-sm font-semibold">JUMLAH TOTAL USER</h3>
@@ -62,7 +62,16 @@ $title = 'Dashboard Setape';
 
                     <div class="bg-white p-4 rounded-lg shadow-md my-2">
                         <h2 class="text-2xl font-semibold mb-2">Link Kelompok Kerja</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Total Link -->
+                            <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-500">
+                                <h3 class="text-blue-700 text-sm font-semibold">TOTAL LINK KELOMPOK KERJA</h3>
+                                <p class="text-xl font-bold mt-2">{{ $officeCount + $ketuaCount }}</p>
+                                <div class="flex justify-between text-sm mt-2 text-gray-500">
+                                    <span>AKTIF: <strong class="text-gray-700">{{ $officeActiveCount + $ketuaActiveCount }}</strong></span>
+                                    <span>NON AKTIF: <strong class="text-gray-700">{{ $officeNonActiveCount + $ketuaNonActiveCount }}</strong></span>
+                                </div>
+                            </div>
                             <!-- Link Super Tim -->
                             <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-500">
                                 <h3 class="text-blue-700 text-sm font-semibold">TOTAL LINK SUPER TIM</h3>
@@ -87,7 +96,7 @@ $title = 'Dashboard Setape';
                         
                     <div class="bg-white p-4 rounded-lg shadow-md my-2">
                         <h2 class="text-2xl font-semibold mb-2">Kategori</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 gap-6">
                             <!-- Kategori Kelompok Kerja -->
                             <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-500">
                                 <h3 class="text-blue-700 text-sm font-semibold">TOTAL KATEGORI KELOMPOK KERJA</h3>
