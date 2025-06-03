@@ -34,7 +34,7 @@ $title = 'Daftar Link Pribadi';
                 <div class="block md:flex md:items-center md:justify-between mb-4">
                     <h1 class="text-2xl font-bold mb-2 md:mb-0">Daftar Link Pribadi</h1>
                     <div class="link-summary">
-                        <p class="text-lg font-bold">Total Link Pribadi : {{ $links->count() }}</p>
+                        <p class="text-lg font-bold">Total Link Pribadi : {{ $totalLink }}</p>
                     </div>
                 </div>
                 <div class="bg-white p-4 rounded shadow">
