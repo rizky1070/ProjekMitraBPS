@@ -39,16 +39,17 @@ $title = 'Kelola Kategori Umum';
                         </button>
                     </div>
                     <div class="overflow-x-auto">
+                        <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-4">
                         @foreach ($categories as $category)
-                        <div class="flex items-center justify-between border-2 border-gray-400 rounded-full py-1 pl-5 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
+                        <div class="flex items-center justify-between border-2 border-gray-400 rounded-full px-3 py-1 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white"> 
                             <div class="flex items-center flex-1 min-w-0">
-                                <div class="min-w-0">
+                                <div class="min-w-0 flex-1">
                                     <span class="text-lg font-semibold block truncate" title="{{ $category->name }}">
                                         {{ $category->name }}
                                     </span>
                                 </div>
                             </div>
-                            <div class="my-1">
+                            <div class="flex-shrink-0 flex space-x-1">
                                 <button @click="showEditModal = true; currentCategory = {{ $category->id }}; editCategoryName = '{{ $category->name }}'" 
                                     class="bg-yellow-500 text-white mr-2 px-2 py-2 rounded-full hover:bg-yellow-600 transition-colors duration-200" 
                                     title="Edit">
@@ -66,6 +67,7 @@ $title = 'Kelola Kategori Umum';
                             </div>
                         </div>
                         @endforeach
+                        </div>
                     </div>
                 </div>
                 @include('setape.setapePage', ['paginator' => $categories])
