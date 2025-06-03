@@ -31,7 +31,12 @@ $title = 'Daftar Link Pribadi';
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
-                <h1 class="text-2xl font-bold mb-4">Daftar Link Pribadi</h1>
+                <div class="block md:flex md:items-center md:justify-between mb-4">
+                    <h1 class="text-2xl font-bold mb-2 md:mb-0">Daftar Link Pribadi</h1>
+                    <div class="link-summary">
+                        <p class="text-lg font-bold">Total Link Pribadi : {{ $links->count() }}</p>
+                    </div>
+                </div>
                 <div class="bg-white p-4 rounded shadow">
                     <div class="flex flex-col md:flex-row md:justify-between mb-4 gap-4">
                         <div class="flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 items-stretch md:items-center">
@@ -62,9 +67,6 @@ $title = 'Daftar Link Pribadi';
                             class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
                             Tambah Link
                         </button>
-                    </div>
-                    <div class="link-summary">
-                        <h3><strong>Total Link Pribadi : {{ $links->count() }}</strong></h3>
                     </div>
                     <div class="overflow-x-auto">
                         @if ($links->isEmpty())
