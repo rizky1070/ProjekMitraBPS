@@ -134,7 +134,7 @@ $title = 'Sekretariat';
                                     @endif
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <a href="{{ $ketua->link }}" class="text-xl font-bold block truncate hover:text-clip hover:whitespace-normal">
+                                    <a href="{{ $ketua->link }}" class="text-xl font-bold block truncate" title="{{ $ketua->name }}">
                                         {{ $ketua->name ?? $ketua->link ?? 'Tidak ada link' }}
                                     </a>
                                     <p class="truncate">{{ $ketua->category->name }}</p>

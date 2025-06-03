@@ -45,7 +45,7 @@ $title = 'Kelola Kategori Pribadi';
                         <div class="flex items-center justify-between border-2 border-gray-400 rounded-full py-1 pl-5 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
                             <div class="flex items-center flex-1 min-w-0">
                                 <div class="min-w-0">
-                                    <span class="text-lg font-semibold block truncate hover:text-clip hover:whitespace-normal">
+                                    <span class="text-lg font-semibold block truncate" title="{{ $category->name }}">
                                         {{ $category->name }}
                                     </span>
                                 </div>
