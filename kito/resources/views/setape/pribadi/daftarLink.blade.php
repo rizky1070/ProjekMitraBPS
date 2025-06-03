@@ -78,54 +78,47 @@ $title = 'Daftar Link Pribadi';
                                 </svg>
                             </div>
                         @else
-                            <div class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-4">
-                            <?php 
-                                $chunks = $links->chunk(ceil($links->count() / 2)); // Splitting links into two columns
-                            ?>
-                            @foreach ($chunks as $column)
-                                <div class="space-y-1 md:space-y-2"> <!-- Vertical spacing control -->
-                                    @foreach ($column as $link)
-                                        <div class="flex items-center justify-between border-2 border-gray-400 rounded-full px-3 py-1 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white"> <!-- Reduced padding -->
-                                            <div class="flex items-center flex-1 min-w-0">
-                                                <button @click="togglePin({{ $link->id }})" 
-                                                        class="flex-shrink-0 flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $link->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}"
-                                                        title="{{ $link->priority ? 'Lepaskan' : 'Sematkan' }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="red">
-                                                        <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
-                                                    </svg>
-                                                </button>
-                                                <div class="min-w-0 flex-1 truncate"> <!-- Added truncate for text -->
-                                                    <a href="{{ $link->link }}" class="text-sm md:text-base font-bold block truncate" title="{{ $link->name }}">
-                                                        {{ $link->name ?? $link->link ?? 'Tidak ada link' }}
-                                                    </a>
-                                                    <p class="text-xs md:text-sm truncate">{{ $link->categoryUser->name }}</p>
-                                                </div>
-                                            </div>
-                                            <div class="flex-shrink-0 flex space-x-1"> <!-- Changed to space-x-1 for button spacing -->
-                                                <button @click="showEditModal = true; currentLink = {{ $link->id }}; 
-                                                                editLinkName = '{{ $link->name }}'; 
-                                                                editLinkLink = '{{ $link->link }}'; 
-                                                                editLinkCategory = {{ $link->category_id ?? 'null' }}; 
-                                                                editLinkStatus = {{ $link->status ? 1 : 0 }};" 
-                                                        class="bg-yellow-500 text-white p-1 rounded-full hover:bg-yellow-600"
-                                                        title="Edit">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                                    </svg>
-                                                </button>
-                                                <button @click="deleteLink({{ $link->id }}, '{{ $link->name }}')" 
-                                                        class="bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
-                                                        title="Hapus">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                                    </svg>
-                                                </button>
-                                            </div>
+                            @foreach ($links as $link)
+                                <div class="flex items-center justify-between border-2 border-gray-400 rounded-full pl-3 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
+                                    <div class="flex items-center flex-1 min-w-0"><!-- flex-1 dan min-w-0 di sini -->
+                                        <button 
+                                            @click="togglePin({{ $link->id }})" 
+                                            class="flex-shrink-0 flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $link->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}"
+                                            title="{{ $link->priority ? 'Lepaskan' : 'Sematkan' }}"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 002.273 1.765 11.842 11.842 0 00.976.544l.062.029.018.008.006.003zM10 11.25a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                        <div class="min-w-0 flex-1">
+                                            <a href="{{ $link->link }}" class="text-xl font-bold block truncate" title="{{ $link->name }}">
+                                                {{ $link->name }}
+                                            </a>
+                                            <p class="truncate">{{ $link->categoryUser->name }}</p>
                                         </div>
-                                    @endforeach
+                                    </div>
+                                    <div class="flex-shrink-0 flex mr-2">
+                                        <button @click="showEditModal = true; currentLink = {{ $link->id }}; 
+                                                        editLinkName = '{{ $link->name }}'; 
+                                                        editLinkLink = '{{ $link->link }}'; 
+                                                        editLinkCategory = {{ $link->category_id ?? 'null' }}; 
+                                                        editLinkStatus = {{ $link->status ? 1 : 0 }};" 
+                                                class="bg-yellow-500 text-white p-2 rounded-full hover:bg-yellow-600 mr-2"
+                                                title="Edit">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="deleteLink({{ $link->id }}, '{{ $link->name }}')" 
+                                                class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                                                title="Hapus">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
                             @endforeach
-                            </div>
                         @endif
                     </div>
                 </div>
