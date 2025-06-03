@@ -73,7 +73,7 @@ export default {
                     300: '#D3B57D', // Coklat muda
                     400: '#BFAF6D', // Coklat yang lebih gelap untuk hover
                 },
-                'orange': '#FF9733',
+                'oren': '#FF9733',
                 'abu-abu': '#D9D9D9',
                 'kuning': '#FFFF00',
             },

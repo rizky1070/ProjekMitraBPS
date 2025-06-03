@@ -28,7 +28,7 @@ $title = 'Report Mitra';
                     <!-- Title and Header -->
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                         <div>
-                            <button class="px-2 py-1 bg-orange text-black rounded-md no-print"><a href="/ReportSurvei">Report Survei</a></button>
+                            <button class="px-2 py-1 bg-oren rounded-md no-print text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300" ><a href="/ReportSurvei">Report Survei</a></button>
                             <h1 class="text-2xl font-bold text-gray-800">Report Mitra</h1>
                             <p class="text-gray-600 no-print">Data partisipasi mitra dalam survei BPS</p>
                         </div>

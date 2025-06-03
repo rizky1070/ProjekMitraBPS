@@ -26,7 +26,7 @@ $title = 'Daftar Survei';
                     <div class="container px-4 py-4 mx-auto">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-3xl font-medium text-black">Daftar Survei</h3>
-                            <button type="button" class="px-4 py-2 bg-orange rounded-md"><a href="/inputSurvei"> + Tambah</a></button>
+                            <button type="button" class="px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300"><a href="/inputSurvei"> + Tambah</a></button>
                         </div>
                         <div>
                             <div class="cuScrollFilter bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -165,7 +165,7 @@ $title = 'Daftar Survei';
                                                     };
                                                 @endphp
 
-                                                <div class="{{ $textColor }} ml-2 pl-1 rounded-md transition-all duration-300 ease-in-out transform hover:bg-orange hover:text-white hover:scale-105 line-clamp-2">
+                                                <div class="{{ $textColor }} ml-2 pl-1 rounded-md transition-all duration-300 ease-in-out transform hover:bg-oren hover:text-white hover:scale-105 line-clamp-2">
                                                     <a href="/profilMitra/{{ $mitraSurvei->mitra->id_mitra ?? '#' }}" class="truncate inline-block max-w-full align-top">
                                                         - {{ $mitraSurvei->mitra->nama_lengkap ?? 'Nama Tidak Ditemukan' }}
                                                         @if(request()->filled('tahun') || request()->filled('bulan'))

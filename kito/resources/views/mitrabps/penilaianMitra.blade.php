@@ -20,7 +20,7 @@ $title = 'Penilaian Mitra';
 
     
     <a href="/profilMitra/{{ $surMit->Mitra->id_mitra }}" 
-    class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
+    class="inline-flex items-center gap-2 px-4 py-2 bg-oren hover:bg-orange-500 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
@@ -74,7 +74,7 @@ $title = 'Penilaian Mitra';
                     <!-- Tombol Tambah -->
                     <div class="flex justify-center">
                         <button type="submit"
-                            class="w-full max-w-[150px] bg-orange text-black font-semibold py-2 rounded-lg mt-4">
+                            class="w-full max-w-[150px] bg-oren py-2 rounded-lg mt-4 text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">
                             Tambah
                         </button>
                     </div>

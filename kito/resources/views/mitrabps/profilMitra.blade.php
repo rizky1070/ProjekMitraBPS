@@ -21,7 +21,7 @@ $title = 'Profil Mitra';
     <!-- component -->
     <main class="cuScrollGlobalY flex-1 overflow-x-hidden bg-gray-200">
         <a href="{{ url('/daftarMitra') }}"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
+            class="inline-flex items-center gap-2 px-4 py-2 bg-oren hover:bg-orange-500 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -89,7 +89,7 @@ $title = 'Profil Mitra';
 
                                 <!-- Button submit untuk detail pekerjaan -->
                                 <button type="submit"
-                                    class="bg-orange text-black px-3 py-1 rounded-md transition-all duration-200 relative group"
+                                    class="bg-oren text-white px-3 py-1 rounded-md  relative group  font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300"
                                     aria-label="Simpan detail pekerjaan" title="Klik untuk menyimpan detail pekerjaan">
                                     Simpan
                                 </button>
@@ -113,7 +113,7 @@ $title = 'Profil Mitra';
 
                             <!-- Button untuk status -->
                             <button type="submit"
-                                class="{{ $colorClasses }} text-white px-3 py-1 rounded-md transition-all duration-200 relative group"
+                                class="{{ $colorClasses }} transition-all duration-300 relative group mt-4 px-4 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-600"
                                 aria-label="Ubah status pekerjaan" title="Klik untuk mengubah status">
                                 {{ $statusText }}
                             </button>
@@ -249,7 +249,7 @@ $title = 'Profil Mitra';
                                             @endif
                                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                                 <a href="/penilaianMitra/{{ $sur->survei->id_survei }}"
-                                                    class="px-4 py-1 bg-orange text-black rounded-md">Edit</a>
+                                                    class="px-4 py-1 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Edit</a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -303,7 +303,7 @@ $title = 'Profil Mitra';
                                                 Rp{{ number_format($sur->posisiMitra->rate_honor ?? 0, 0, ',', '.') }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                                 <a href="/editSurvei/{{ $sur->survei->id_survei }}"
-                                                    class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
+                                                    class="px-4 py-1 bg-oren  rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Lihat</a>
                                             </td>
                                         </tr>
                                     @endforeach

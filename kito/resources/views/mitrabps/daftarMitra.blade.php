@@ -35,7 +35,7 @@ $title = 'Daftar Mitra';
                 <div class="container px-4 py-4 mx-auto">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-3xl font-medium text-black">Daftar Mitra</h3>
-                        <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+                        <button type="button" class="px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300" onclick="openModal()">+ Tambah</button>
                     </div>
                     <div>
                         <div class="cuScrollFilter bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -191,7 +191,7 @@ $title = 'Daftar Mitra';
                                                 -
                                             @endif                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            <a href="/profilMitra/{{ $mitra->id_mitra }}" class="px-4 py-1 bg-orange text-black rounded-md">Lihat</a>
+                                            <a href="/profilMitra/{{ $mitra->id_mitra }}" class="px-4 py-1 bg-oren  rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Lihat</a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -217,8 +217,8 @@ $title = 'Daftar Mitra';
                         </a>
                     </p>
                 <div class="flex justify-end mt-4">
-                    <button type="button" class="px-4 py-2 bg-gray-500 text-black rounded-md mr-2" onclick="closeModal()">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-orange text-black rounded-md">Unggah</button>
+                    <button type="button" class="px-4 py-2 bg-gray-500 rounded-md mr-2 text-white font-medium hover:bg-gray-600 hover:shadow-lg transition-all duration-300" onclick="closeModal()">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Unggah</button>
                 </div>
             </form>
         </div>

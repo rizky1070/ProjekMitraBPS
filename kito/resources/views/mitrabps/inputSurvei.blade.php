@@ -23,7 +23,7 @@ $title = 'Input Survei';
     
     @endif
     <a href="{{ url('/daftarSurvei') }}" 
-    class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
+    class="inline-flex items-center gap-2 px-4 py-2 bg-oren hover:bg-orange-500 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
@@ -35,7 +35,7 @@ $title = 'Input Survei';
                 <div class="flex justify-between items-center">
                     <h2 class="text-2xl font-bold mb-4">Input Survei</h2>
                     <!-- Pesan Error -->
-                    <button type="button" class="px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Import Survei</button>
+                    <button type="button" class="px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300" onclick="openModal()">+ Import Survei</button>
                 </div>
                 @if(session('import_errors'))
                 <div class="mt-2 mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700">
@@ -85,7 +85,7 @@ $title = 'Input Survei';
                     </div>
                     
                     <div class="flex justify-end mt-6">
-                        <button type="submit" class="px-6 py-2 bg-orange text-black rounded-md hover:bg-orange-600 transition duration-200">Simpan</button>
+                        <button type="submit" class="px-6 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -109,8 +109,8 @@ $title = 'Input Survei';
                     </a>
                 </p>
                 <div class="flex justify-end mt-4">
-                    <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md mr-2" onclick="closeModal()">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-orange text-black rounded-md">Unggah</button>
+                    <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md mr-2 font-medium hover:bg-gray-600 hover:shadow-lg transition-all duration-300" onclick="closeModal()">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Unggah</button>
                 </div>
             </form>
         </div>

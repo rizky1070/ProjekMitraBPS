@@ -91,7 +91,7 @@ $title = 'Kelola Survei';
 
     <main class="flex-1 overflow-x-hidden bg-gray-200">
     <a href="{{ url('/daftarSurvei') }}" 
-    class="inline-flex items-center gap-2 px-4 py-2 bg-orange hover:bg-orange-600 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
+    class="inline-flex items-center gap-2 px-4 py-2 bg-oren hover:bg-orange-500 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
@@ -141,11 +141,11 @@ $title = 'Kelola Survei';
                           onsubmit="return confirm('Apakah Anda yakin ingin menghapus survei {{ $survey->nama_survei }}? SEMUA MITRA YANG TERKAIT AKAN DIPUTUSKAN RELASINYA.')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+                        <button type="submit" class="mt-4 px-4 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-600">
                             Hapus Survei
                         </button>
                     </form>
-                    <button type="button" class="mt-4 px-4 py-2 bg-orange rounded-md" onclick="openModal()">+ Tambah</button>
+                    <button type="button" class="mt-4 px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300" onclick="openModal()">+ Tambah</button>
                 </div>
             </div>
             
@@ -345,11 +345,17 @@ $title = 'Kelola Survei';
                                         </td>
                                         <td>
                                             <div class="flex justify-center items-center py-2 text-center">
-                                                <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Ubah</button>
+                                                <button type="submit" class="bg-oren text-white px-2 py-1 rounded hover:bg-orange-500 mr-3" title="Edit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                </svg></button>
                                     </form>
                                     <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="bg-orange text-black px-3 mx-1 rounded">Hapus</button>
+                                            <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600" title="Hapus">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                            </svg></button>
                                         </div>
                                     </td>
                                     </form>
@@ -374,7 +380,7 @@ $title = 'Kelola Survei';
                                             </select>
                                         </td>
                                         <td class="whitespace-nowrap p-2 text-center" style="max-width: 120px;">
-                                            <button type="submit" class="bg-orange text-black px-3 rounded">Tambah</button>
+                                            <button type="submit" class="bg-green-500 px-3 rounded text-white font-medium hover:bg-green-600 hover:shadow-lg transition-all duration-300">Tambah</button>
                                         </td>
                                     </form>
                                     @endif
@@ -403,7 +409,7 @@ $title = 'Kelola Survei';
                     </p>
                 <div class="flex justify-end mt-4">
                     <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md mr-2" onclick="closeModal()">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-orange text-black rounded-md">Unggah</button>
+                    <button type="submit" class="px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Unggah</button>
                 </div>
             </form>
         </div>
