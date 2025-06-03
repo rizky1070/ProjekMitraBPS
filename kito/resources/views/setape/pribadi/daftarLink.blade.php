@@ -63,6 +63,9 @@ $title = 'Daftar Link Pribadi';
                             Tambah Link
                         </button>
                     </div>
+                    <div class="link-summary">
+                        <h3><strong>Total Link Pribadi : {{ $links->count() }}</strong></h3>
+                    </div>
                     <div class="overflow-x-auto">
                         @if ($links->isEmpty())
                             <div class="text-center text-gray-500 py-8 text-2xl font-bold flex flex-col items-center">
