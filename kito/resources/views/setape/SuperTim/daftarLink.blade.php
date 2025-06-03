@@ -91,23 +91,19 @@ $title = 'Super Tim';
                         @else
                             @foreach ($offices as $office)
                                 <div class="flex items-center justify-between border-2 border-gray-400 rounded-full pl-3 pr-2 m-2 transition-all duration-200 hover:shadow-lg hover:border-blue-500 bg-white">
-                                    <div class="flex items-center flex-1 min-w-0">
-                                        <button @click="togglePin({{ $office->id }})" 
+                                    <div class="flex items-center flex-1 min-w-0"><!-- flex-1 dan min-w-0 di sini -->
+                                        <button 
+                                            @click="togglePin({{ $office->id }})" 
                                             class="flex-shrink-0 flex items-center justify-center p-1 rounded-full mr-2 transition-colors duration-200 {{ $office->priority ? 'bg-red-500 text-white' : 'bg-gray-300 text-gray-600' }}"
-                                            title="{{ $office->priority ? 'Lepaskan' : 'Sematkan' }}">
-                                            @if ($office->priority)
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="red">
-                                                <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
+                                            title="{{ $office->priority ? 'Lepaskan Pin' : 'Sematkan Pin' }}"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 002.273 1.765 11.842 11.842 0 00.976.544l.062.029.018.008.006.003zM10 11.25a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z" clip-rule="evenodd" />
                                             </svg>
-                                            @else
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-auto my-auto" viewBox="0 0 20 20" fill="gray">
-                                                <path d="M15.5 7.5a4 4 0 0 0-5.66 0l-5.09 5.09a3 3 0 1 0 4.24 4.24l6.01-6.01a1.5 1.5 0 1 0-2.12-2.12l-5.3 5.3a.5.5 0 1 0 .71.71l5.3-5.3a.5.5 0 1 1 .71.71l-6.01 6.01a2 2 0 1 1-2.83-2.83l5.09-5.09a3 3 0 1 1 4.24 4.24l-6.01 6.01a.5.5 0 1 0 .71.71l6.01-6.01a4 4 0 0 0 0-5.66z"/>
-                                            </svg>
-                                            @endif
                                         </button>
                                         <div class="min-w-0 flex-1">
                                             <a href="{{ $office->link }}" class="text-xl font-bold block truncate" title="{{ $office->name }}">
-                                                {{ $office->name ?? $office->link ?? 'Tidak ada link' }}
+                                                {{ $office->name }}
                                             </a>
                                             <p class="truncate">{{ $office->category->name }}</p>
                                         </div>
@@ -308,8 +304,105 @@ $title = 'Super Tim';
                 });
             },
 
-            // ... (keep all other methods the same) ...
+            async togglePin(id) {
+                try {
+                    this.isLoading = true;
+                    const response = await fetch(`/daftarsupertim/${id}/toggle-pin`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    });
+                        
+                    const data = await response.json();
+                        
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Gagal mengubah status pin');
+                    }
+                        
+                    Swal.fire("Berhasil!", data.message, "success")
+                        .then(() => window.location.reload());
+                } catch (error) {
+                    Swal.fire("Error!", error.message, "error");
+                    console.error('Error:', error);
+                } finally {
+                    this.isLoading = false;
+                }
+            },
             
+            async submitEditForm() {
+                try {
+                    this.isLoading = true;
+                    const response = await fetch(`/daftarsupertim/${this.currentOffice}`, {
+                        method: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: this.editOfficeName,
+                            link: this.editOfficeLink,
+                            category_id: this.editOfficeCategory || null,
+                            status: this.editOfficeStatus
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Gagal memperbarui Super Tim');
+                    }
+                    
+                    Swal.fire("Berhasil!", "Super Tim telah diperbarui", "success")
+                        .then(() => window.location.reload());
+                } catch (error) {
+                    Swal.fire("Error!", error.message, "error");
+                    console.error('Error:', error);
+                } finally {
+                    this.isLoading = false;
+                }
+            },
+            
+            async deleteOffice(id, name) {
+                try {
+                    const result = await Swal.fire({
+                        title: "Apakah Anda yakin?",
+                        text: `Anda akan menghapus Super Tim "${name}"`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Ya, hapus!",
+                        cancelButtonText: "Batal"
+                    });
+                    
+                    if (result.isConfirmed) {
+                        const response = await fetch(`/daftarsupertim/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            }
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Gagal menghapus Super Tim');
+                        }
+                        
+                        Swal.fire("Berhasil!", `Super Tim "${name}" telah dihapus`, "success")
+                            .then(() => window.location.reload());
+                    }
+                } catch (error) {
+                    Swal.fire("Error!", error.message, "error");
+                    console.error('Error:', error);
+                }
+            }
         }));
     });
     </script>
