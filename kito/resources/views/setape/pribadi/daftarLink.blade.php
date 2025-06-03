@@ -86,7 +86,7 @@ $title = 'Daftar Link Pribadi';
                                             </svg>
                                         </button>
                                         <div class="min-w-0 flex-1"> <!-- Container teks yang akan menyesuaikan -->
-                                            <a href="{{ $link->link }}" class="text-xl font-bold block truncate hover:text-clip hover:whitespace-normal">
+                                            <a href="{{ $link->link }}" class="text-xl font-bold block truncate" title="{{ $link->name }}">
                                                 {{ $link->name ?? $link->link ?? 'Tidak ada link' }}
                                             </a>
                                             <p class="truncate">{{ $link->categoryUser->name }}</p>

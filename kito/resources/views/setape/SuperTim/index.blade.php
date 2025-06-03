@@ -139,7 +139,7 @@ $title = 'Super Tim';
                                 @endif
                             </div>
                             <div class="min-w-0 flex-1">
-                                <a href="{{ $office->link }}" class="text-xl font-bold block truncate hover:text-clip hover:whitespace-normal">
+                                <a href="{{ $office->link }}" class="text-xl font-bold block truncate " title="{{ $office->name }}">
                                     {{ $office->name ?? $office->link ?? 'Tidak ada link' }}
                                 </a>
                                 <p class="truncate">{{ $office->category->name }}</p>
