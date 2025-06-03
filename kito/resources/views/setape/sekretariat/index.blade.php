@@ -129,10 +129,10 @@ $title = 'Sekretariat';
                                         </svg>
                                     </div>
                                     <div class="min-w-0 flex-1">
-                                        <a href="{{ $ketua->link }}" class="text-sm md:text-base font-bold block truncate" title="{{ $ketua->name }}">
+                                        <a href="{{ $ketua->link }}" class="text-xl font-bold block truncate" title="{{ $ketua->name }}">
                                             {{ $ketua->name ?? $ketua->link ?? 'Tidak ada link' }}
                                         </a>
-                                        <p class="text-xs md:text-sm truncate">{{ $ketua->category->name }}</p>
+                                        <p class="truncate">{{ $ketua->category->name }}</p>
                                     </div>
                                 </div>
                                 <button 
