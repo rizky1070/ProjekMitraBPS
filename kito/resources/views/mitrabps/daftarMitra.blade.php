@@ -149,7 +149,7 @@ $title = 'Daftar Mitra';
                 </script>
                 <!-- Table -->
                 <div class="border rounded-lg shadow-sm bg-white bg-white p-3">
-                    <div class="overflow-x-auto">
+                    <div class="cusScrollTableX">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>

@@ -19,42 +19,40 @@ $title = 'Daftar Posisi Mitra';
                 </div>
                 
                 <div class="bg-white p-4 rounded shadow">
-                    <div class="flex justify-between mb-4">
-                        <div class="flex space-x-4 items-center">
-                            <div class="w-64">
-                                <select id="searchSelect" placeholder="Cari posisi..." class="w-full">
-                                    <option value="">Semua Nama</option>
-                                    @foreach($posisiNames as $name)
-                                        <option value="{{ $name }}" {{ request('search') == $name ? 'selected' : '' }}>
-                                            {{ $name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex justify-between w-64">
+                            <select id="searchSelect" placeholder="Cari posisi..." class="w-full">
+                                <option value="">Semua Nama</option>
+                                @foreach($posisiNames as $name)
+                                    <option value="{{ $name }}" {{ request('search') == $name ? 'selected' : '' }}>
+                                        {{ $name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                        
                         <button @click="showAddModal = true; newPosisiName = ''; newRateHonor = ''" 
-                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                            Tambah Posisi Mitra
+                            class="bg-oren text-white ml-2 px-4 py-2 rounded hover:bg-orange-500 transition"
+                            title="Tambah Posisi Mitra Baru">
+                            Tambah
                         </button>
                     </div>
                     
                     <!-- Table Structure -->
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full table-auto">
-                            <thead>
-                                <tr class="bg-gray-100 border-b">
-                                    <th class="px-4 py-2 text-left text-sm font-medium">Nama Posisi</th>
-                                    <th class="px-4 py-2 text-left text-sm font-medium">Rate Honor</th>
-                                    <th class="px-4 py-2 text-center text-sm font-medium">Aksi</th>
+                    <div class="cuScrollTableX">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="min-w-full divide-y divide-gray-200">
+                                <tr class="bg-gray-50 border-b">
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Posisi</th>
+                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rate Honor</th>
+                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($posisiMitra as $Posisi)
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="px-4 py-2 text-sm">{{ $Posisi->nama_posisi }}</td>
-                                    <td class="px-4 py-2 text-sm">Rp {{ number_format($Posisi->rate_honor, 0, ',', '.') }}</td>
-                                    <td class="px-4 py-2 text-center">
+                                <tr class="hover:bg-gray-50" style=" border-top-width: 2px; border-color: #D1D5DB;">
+                                    <td class="px-4 py-2 text-left">{{ $Posisi->nama_posisi }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-center">Rp {{ number_format($Posisi->rate_honor, 0, ',', '.') }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-center">
                                         <!-- Edit Button -->
                                         <button @click="showEditModal = true; currentPosisi = {{ $Posisi->id_posisi_mitra }}; editPosisiName = '{{ $Posisi->nama_posisi }}'; editRateHonor = '{{ $Posisi->rate_honor }}'"
                                             class="bg-oren text-white px-3 py-1 rounded-lg hover:bg-orange-500 mr-3">
