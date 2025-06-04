@@ -41,7 +41,7 @@ $title = 'Dashboard Setape';
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
                 <div class="min-h-screen">
                     <h1 class="text-3xl font-bold mb-4">Dashboard Setape</h1>
-                    
+                    @if (auth()->user()->is_admin || auth()->user()->is_leader)
                     <!-- Card Statistik -->
                     <div class="bg-white p-4 rounded-lg shadow-md my-2">
                         <h2 class="text-2xl font-semibold mb-2">User</h2>
@@ -93,9 +93,9 @@ $title = 'Dashboard Setape';
                             </div>
                         </div>
                     </div>
-                        
+
                     <div class="bg-white p-4 rounded-lg shadow-md my-2">
-                        <h2 class="text-2xl font-semibold mb-2">Kategori</h2>
+                        <h2 class="text-2xl font-semibold mb-2">Kategori Kelompok Kerja</h2>
                         <div class="grid grid-cols-1 gap-6">
                             <!-- Kategori Kelompok Kerja -->
                             <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-500">
@@ -104,6 +104,31 @@ $title = 'Dashboard Setape';
                             </div>
                         </div>
                     </div>
+                    @endif
+
+                    <div class="bg-white p-4 rounded-lg shadow-md my-2">
+                        <h2 class="text-2xl font-semibold mb-2">Link Pribadi</h2>
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Link Pribadi Tim -->
+                            <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-500">
+                                <h3 class="text-blue-700 text-sm font-semibold">TOTAL LINK PRIBADI</h3>
+                                <p class="text-xl font-bold mt-2">{{ $linkPribadiCount }}</p>
+                            </div>
+                        </div>
+                    </div>
+                        
+                    <div class="bg-white p-4 rounded-lg shadow-md my-2">
+                        <h2 class="text-2xl font-semibold mb-2">Kategori Pribadi</h2>
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Kategori Kelompok Kerja -->
+                            <div class="bg-white p-4 rounded-lg shadow-md border-l-4 border-blue-500">
+                                <h3 class="text-blue-700 text-sm font-semibold">TOTAL KATEGORI PRIBADI</h3>
+                                <p class="text-xl font-bold mt-2">{{ $categoryPribadiCount }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    
                 </div>
             </main>
         </div>

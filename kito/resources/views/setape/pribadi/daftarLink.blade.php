@@ -30,9 +30,6 @@ $title = 'Daftar Link Pribadi';
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
                 <div class="block md:flex md:items-center md:justify-between mb-4">
                     <h1 class="text-2xl font-bold mb-2 md:mb-0">Daftar Link Pribadi</h1>
-                    <div class="link-summary">
-                        <p class="text-lg font-bold">Total Link Pribadi : {{ $totalLink }}</p>
-                    </div>
                 </div>
                 <div class="bg-white p-4 rounded shadow">
                     <div class="flex flex-col md:flex-row md:justify-between mb-4 gap-4">

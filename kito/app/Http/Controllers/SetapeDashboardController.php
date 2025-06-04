@@ -6,6 +6,9 @@ use App\Models\Category;
 use App\Models\Ketua;
 use App\Models\Office;
 use App\Models\User;
+use App\Models\CategoryUser;
+use App\Models\Link;
+use Illuminate\Support\Facades\Auth;
 
 class SetapeDashboardController extends Controller
 {
@@ -22,6 +25,8 @@ class SetapeDashboardController extends Controller
             'officeCount' => Office::count(),
             'officeActiveCount' => Office::active()->count(),
             'officeNonActiveCount' => Office::inactive()->count(),
+            'linkPribadiCount' => Link::where('user_id', Auth::id())->count(),
+            'categoryPribadiCount' => CategoryUser::where('user_id', Auth::id())->count(),
         ];
 
         return view('setape.dashboard', $stats);

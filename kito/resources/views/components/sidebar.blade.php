@@ -319,12 +319,10 @@
                 </div>
                 
                 <div class="dropdown-container {{ $isDropdownMitraActive ? 'block' : 'hidden' }}">
-                    @if (auth()->user()->is_admin || auth()->user()->is_leader)
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('setapedashboard') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/setapedashboard">
                         <span class="mx-3">Dashboard</span>
                     </a>
-                    @endif
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('supertim') || request()->is('sekretariat') ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/supertim">
                         <span class="mx-3">Publik</span>
