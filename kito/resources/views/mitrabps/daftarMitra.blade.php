@@ -193,7 +193,7 @@ $title = 'Daftar Mitra';
                                                 -
                                             @endif                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            <a href="/profilMitra/{{ $mitra->id_mitra }}" class="px-4 py-1 bg-oren  rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Lihat</a>
+                                            <a href="/profilMitra/{{ $mitra->id_mitra }}" class="px-4 py-1 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Lihat</a>
                                         </td>
                                     </tr>
                                 @endforeach
