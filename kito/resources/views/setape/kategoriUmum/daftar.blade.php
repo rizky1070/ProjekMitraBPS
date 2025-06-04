@@ -2,9 +2,6 @@
 $title = 'Kelola Kategori Umum';
 ?>
 @include('mitrabps.headerTemp')
-@vite(['resources/css/app.css', 'resources/js/app.js'])
-<link rel="icon" href="/Logo BPS.png" type="image/png">
-<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
 </head>
 <body class="h-full">
     
@@ -75,7 +72,7 @@ $title = 'Kelola Kategori Umum';
         </div>
 
         <!-- Add Category Modal -->
-        <div x-show="showAddModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div x-show="showAddModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" style="display: none;">
             <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
                 <h2 class="text-xl font-bold mb-4">Tambah Kategori Baru</h2>
                 <form @submit.stop.prevent="submitAddForm">
@@ -98,7 +95,7 @@ $title = 'Kelola Kategori Umum';
         </div>
 
         <!-- Edit Category Modal -->
-        <div x-show="showEditModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div x-show="showEditModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" style="display: none;">
             <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
                 <h2 class="text-xl font-bold mb-4">Edit Kategori</h2>
                 <form @submit.stop.prevent="submitEditForm">
