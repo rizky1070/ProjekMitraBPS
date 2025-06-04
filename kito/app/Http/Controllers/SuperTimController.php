@@ -33,18 +33,18 @@ class SuperTimController extends Controller
         }
 
         $offices = $query->paginate(10); // Pagination dengan 10 item per halaman
-        
+
         // Hanya ambil kategori yang memiliki relasi dengan office yang aktif
-        $categories = Category::whereHas('offices', function($q) {
+        $categories = Category::whereHas('offices', function ($q) {
             $q->where('status', 1); // Hanya kategori dengan office aktif
         })->get();
-        
+
         // Hanya ambil nama office yang aktif
         $officeNames = Office::where('status', 1)
-                            ->pluck('name')
-                            ->unique()
-                            ->values()
-                            ->all();
+            ->pluck('name')
+            ->unique()
+            ->values()
+            ->all();
 
         return view('Setape.superTim.index', compact('offices', 'categories', 'officeNames'));
     }
@@ -73,20 +73,20 @@ class SuperTimController extends Controller
         }
 
         $offices = $query->paginate(10); // Pagination dengan 10 item per halaman
-        
+
         // Ambil SEMUA kategori tanpa filter apapun
         $categories = Category::all();
-        
+
         // Ambil nama hanya dari hasil yang difilter
         $officeNames = $query->clone()
-                        ->pluck('name')
-                        ->unique()
-                        ->values()
-                        ->all();
+            ->pluck('name')
+            ->unique()
+            ->values()
+            ->all();
 
         return view('Setape.superTim.daftarLink', compact('offices', 'categories', 'officeNames'));
     }
-    
+
     public function togglePin(Request $request, $id)
     {
         try {
@@ -113,10 +113,34 @@ class SuperTimController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                // Validasi kustom untuk memeriksa kombinasi name dan category_id
+                function ($attribute, $value, $fail) use ($request) {
+                    $exists = Office::where('name', $value)
+                        ->where('category_id', $request->category_id)
+                        ->exists();
+                    if ($exists) {
+                        $fail('Nama sudah digunakan untuk kategori ini. Silakan pilih nama lain atau kategori lain.');
+                    }
+                }
+            ],
             'link' => 'required|url|max:255',
             'category_id' => 'required|exists:categories,id',
             'status' => 'required|boolean'
+        ], [
+            'name.required' => 'Nama harus diisi.',
+            'name.string' => 'Nama harus berupa teks.',
+            'name.max' => 'Nama tidak boleh lebih dari 255 karakter.',
+            'link.required' => 'Link harus diisi.',
+            'link.url' => 'Link harus berupa URL yang valid.',
+            'link.max' => 'Link tidak boleh lebih dari 255 karakter.',
+            'category_id.required' => 'Kategori harus dipilih.',
+            'category_id.exists' => 'Kategori yang dipilih tidak valid.',
+            'status.required' => 'Status harus dipilih.',
+            'status.boolean' => 'Status harus berupa nilai benar atau salah.'
         ]);
 
         try {
@@ -143,10 +167,34 @@ class SuperTimController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                // Validasi kustom untuk memeriksa kombinasi name dan category_id
+                function ($attribute, $value, $fail) use ($request) {
+                    $exists = Office::where('name', $value)
+                        ->where('category_id', $request->category_id)
+                        ->exists();
+                    if ($exists) {
+                        $fail('Nama sudah digunakan untuk kategori ini. Silakan pilih nama lain atau kategori lain.');
+                    }
+                }
+            ],
             'link' => 'required|url|max:255',
-            'category_id' => 'nullable|exists:categories,id',
-            'status' => 'required'
+            'category_id' => 'required|exists:categories,id',
+            'status' => 'required|boolean'
+        ], [
+            'name.required' => 'Nama harus diisi.',
+            'name.string' => 'Nama harus berupa teks.',
+            'name.max' => 'Nama tidak boleh lebih dari 255 karakter.',
+            'link.required' => 'Link harus diisi.',
+            'link.url' => 'Link harus berupa URL yang valid.',
+            'link.max' => 'Link tidak boleh lebih dari 255 karakter.',
+            'category_id.required' => 'Kategori harus dipilih.',
+            'category_id.exists' => 'Kategori yang dipilih tidak valid.',
+            'status.required' => 'Status harus dipilih.',
+            'status.boolean' => 'Status harus berupa nilai benar atau salah.'
         ]);
 
         try {
@@ -197,7 +245,7 @@ class SuperTimController extends Controller
 
         try {
             $statusValue = $request->status === 'active' ? 1 : 0;
-            
+
             $office = Office::findOrFail($request->office_id);
             $office->update([
                 'status' => $statusValue
@@ -240,16 +288,16 @@ class SuperTimController extends Controller
         try {
             // Dapatkan user yang sedang login
             $userId = Auth::id();
-            
+
             // Dapatkan data Office yang akan disalin
             $office = Office::findOrFail($id);
-            
+
             // Dapatkan atau buat CategoryUser 'Kelompok Kerja' untuk user ini
             $categoryUser = \DB::table('category_users')
                 ->where('name', 'Kelompok Kerja')
                 ->where('user_id', $userId)
                 ->first();
-                
+
             // Jika kategori tidak ada, buat baru
             if (!$categoryUser) {
                 $categoryUserId = \DB::table('category_users')->insertGetId([
@@ -261,7 +309,7 @@ class SuperTimController extends Controller
             } else {
                 $categoryUserId = $categoryUser->id;
             }
-            
+
             // Simpan data ke tabel Link
             \DB::table('links')->insert([
                 'name' => $office->name,
@@ -273,12 +321,11 @@ class SuperTimController extends Controller
                 'updated_at' => now(),
                 'user_id' => $userId,
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Link berhasil disimpan ke koleksi pribadi'
             ]);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

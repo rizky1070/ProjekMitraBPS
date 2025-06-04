@@ -39,7 +39,7 @@ class KategoriPribadiController extends Controller
             'name.required' => 'Nama kategori wajib diisi.',
             'name.string' => 'Nama kategori harus berupa teks.',
             'name.max' => 'Nama kategori maksimal 255 karakter.',
-            'name.unique' => 'Nama kategori sudah digunakan untuk akun Anda.'
+            'name.unique' => 'Nama kategori sudah digunakan.'
         ]);
 
         try {
@@ -68,7 +68,7 @@ class KategoriPribadiController extends Controller
             'name.required' => 'Nama kategori wajib diisi.',
             'name.string' => 'Nama kategori harus berupa teks.',
             'name.max' => 'Nama kategori maksimal 255 karakter.',
-            'name.unique' => 'Nama kategori sudah digunakan untuk akun Anda.'
+            'name.unique' => 'Nama kategori sudah digunakan.'
         ]);
 
         try {

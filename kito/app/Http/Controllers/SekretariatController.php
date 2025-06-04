@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Ketua;
 use Illuminate\Http\Request;
 use App\Models\Category;
@@ -33,18 +34,18 @@ class SekretariatController extends Controller
         }
 
         $ketuas = $query->paginate(10); // Pagination dengan 10 item per halaman
-        
+
         // Hanya ambil kategori yang memiliki relasi dengan ketua yang aktif
-        $categories = Category::whereHas('ketuas', function($q) {
+        $categories = Category::whereHas('ketuas', function ($q) {
             $q->where('status', 1); // Hanya kategori dengan ketua aktif
         })->get();
-        
+
         // Hanya ambil nama ketua yang aktif
         $ketuaNames = Ketua::where('status', 1)
-                            ->pluck('name')
-                            ->unique()
-                            ->values()
-                            ->all();
+            ->pluck('name')
+            ->unique()
+            ->values()
+            ->all();
 
         return view('Setape.sekretariat.index', compact('ketuas', 'categories', 'ketuaNames'));
     }
@@ -73,16 +74,16 @@ class SekretariatController extends Controller
         }
 
         $ketuas = $query->paginate(10); // Pagination dengan 10 item per halaman
-        
+
         // Ambil SEMUA kategori tanpa filter apapun
         $categories = Category::all();
-        
+
         // Ambil nama ketua hanya dari hasil yang difilter
         $ketuaNames = $query->clone()
-                        ->pluck('name')
-                        ->unique()
-                        ->values()
-                        ->all();
+            ->pluck('name')
+            ->unique()
+            ->values()
+            ->all();
 
         return view('Setape.sekretariat.daftarLink', compact('ketuas', 'categories', 'ketuaNames'));
     }
@@ -113,10 +114,34 @@ class SekretariatController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                // Validasi kustom untuk memeriksa kombinasi name dan category_id
+                function ($attribute, $value, $fail) use ($request) {
+                    $exists = Ketua::where('name', $value)
+                        ->where('category_id', $request->category_id)
+                        ->exists();
+                    if ($exists) {
+                        $fail('Nama sudah digunakan untuk kategori ini. Silakan pilih nama lain atau kategori lain.');
+                    }
+                }
+            ],
             'link' => 'required|url|max:255',
             'category_id' => 'required|exists:categories,id',
             'status' => 'required|boolean'
+        ], [
+            'name.required' => 'Nama harus diisi.',
+            'name.string' => 'Nama harus berupa teks.',
+            'name.max' => 'Nama tidak boleh lebih dari 255 karakter.',
+            'link.required' => 'Link harus diisi.',
+            'link.url' => 'Link harus berupa URL yang valid.',
+            'link.max' => 'Link tidak boleh lebih dari 255 karakter.',
+            'category_id.required' => 'Kategori harus dipilih.',
+            'category_id.exists' => 'Kategori yang dipilih tidak valid.',
+            'status.required' => 'Status harus dipilih.',
+            'status.boolean' => 'Status harus berupa nilai benar atau salah.'
         ]);
 
         try {
@@ -143,10 +168,34 @@ class SekretariatController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                // Validasi kustom untuk memeriksa kombinasi name dan category_id
+                function ($attribute, $value, $fail) use ($request) {
+                    $exists = Ketua::where('name', $value)
+                        ->where('category_id', $request->category_id)
+                        ->exists();
+                    if ($exists) {
+                        $fail('Nama sudah digunakan untuk kategori ini. Silakan pilih nama lain atau kategori lain.');
+                    }
+                }
+            ],
             'link' => 'required|url|max:255',
-            'category_id' => 'nullable|exists:categories,id',
-            'status' => 'required'
+            'category_id' => 'required|exists:categories,id',
+            'status' => 'required|boolean'
+        ], [
+            'name.required' => 'Nama harus diisi.',
+            'name.string' => 'Nama harus berupa teks.',
+            'name.max' => 'Nama tidak boleh lebih dari 255 karakter.',
+            'link.required' => 'Link harus diisi.',
+            'link.url' => 'Link harus berupa URL yang valid.',
+            'link.max' => 'Link tidak boleh lebih dari 255 karakter.',
+            'category_id.required' => 'Kategori harus dipilih.',
+            'category_id.exists' => 'Kategori yang dipilih tidak valid.',
+            'status.required' => 'Status harus dipilih.',
+            'status.boolean' => 'Status harus berupa nilai benar atau salah.'
         ]);
 
         try {
@@ -188,7 +237,7 @@ class SekretariatController extends Controller
         }
     }
 
-        public function updateStatus(Request $request)
+    public function updateStatus(Request $request)
     {
         $request->validate([
             'ketua_id' => 'required|exists:ketuas,id',
@@ -230,21 +279,21 @@ class SekretariatController extends Controller
         }
     }
 
-        public function keepLink(Request $request, $id)
+    public function keepLink(Request $request, $id)
     {
         try {
             // Dapatkan user yang sedang login
             $userId = Auth::id();
-            
+
             // Dapatkan data Ketua yang akan disalin
             $ketua = Ketua::findOrFail($id);
-            
+
             // Dapatkan atau buat CategoryUser 'Kelompok Kerja' untuk user ini
             $categoryUser = \DB::table('category_users')
                 ->where('name', 'Kelompok Kerja')
                 ->where('user_id', $userId)
                 ->first();
-                
+
             // Jika kategori tidak ada, buat baru
             if (!$categoryUser) {
                 $categoryUserId = \DB::table('category_users')->insertGetId([
@@ -256,7 +305,7 @@ class SekretariatController extends Controller
             } else {
                 $categoryUserId = $categoryUser->id;
             }
-            
+
             // Simpan data ke tabel Link
             \DB::table('links')->insert([
                 'name' => $ketua->name,
@@ -268,12 +317,11 @@ class SekretariatController extends Controller
                 'updated_at' => now(),
                 'user_id' => $userId,
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Link berhasil disimpan ke koleksi pribadi'
             ]);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
