@@ -33,7 +33,7 @@
             @if ($showFirstPage && $start > 1)
                 <li>
                     <a href="{{ $paginator->appends(Arr::except(request()->query(), 'page'))->url(1) }}"
-                        class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem] mx-[0.3rem] py-2 visiblePageNum {{ $currentPage == 1 ? 'bg-orange' : '' }}">
+                        class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem] mx-[0.3rem] py-2 visiblePageNum {{ $currentPage == 1 ? 'bg-oren' : '' }}">
                         1
                     </a>
                 </li>
@@ -48,7 +48,7 @@
                 @if ($page >= 1 && $page <= $lastPage)
                     <li>
                         <a href="{{ $paginator->appends(Arr::except(request()->query(), 'page'))->url($page) }}"
-                            class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem] mx-[0.3rem] py-2 visiblePageNum {{ $currentPage == $page ? 'bg-orange' : '' }}">
+                            class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem] mx-[0.3rem] py-2 visiblePageNum {{ $currentPage == $page ? 'bg-oren' : '' }}">
                             {{ $page }}
                         </a>
                     </li>
@@ -62,7 +62,7 @@
                 @endif
                 <li>
                     <a href="{{ $paginator->appends(Arr::except(request()->query(), 'page'))->url($lastPage) }}"
-                        class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem] mx-[0.3rem] py-2 visiblePageNum {{ $currentPage == $lastPage ? 'bg-orange' : '' }}">
+                        class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem] mx-[0.3rem] py-2 visiblePageNum {{ $currentPage == $lastPage ? 'bg-oren' : '' }}">
                         {{ $lastPage }}
                     </a>
                 </li>
