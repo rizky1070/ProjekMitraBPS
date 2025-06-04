@@ -396,20 +396,38 @@ $title = 'Kelola Survei';
     </main>
     <!-- Modal Upload Excel -->
     <div id="uploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden" style="z-index: 50;">
-        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 class="text-xl font-bold mb-2">Import Mitra ke Survei</h2>
-            <p class="mb-2 text-red-700 text-m font-bold">Pastikan format file excel yang diimport sesuai!</p>
+        <div class="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-11/12 sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-1/3 mx-2 max-h-[90vh] overflow-y-auto">
+            <h2 class="text-lg sm:text-xl font-bold mb-2">Import Mitra ke Survei</h2>
+            <p class="mb-2 text-red-700 text-xs sm:text-sm font-bold">Pastikan format file excel yang diimport sesuai!</p>
+            
+            <!-- Error/Success Messages -->
+            @if($errors->any())
+                <div class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 text-xs sm:text-sm">
+                    <ul class="list-disc pl-5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            
+            @if(session('success'))
+                <div class="mb-4 p-3 bg-green-100 border-l-4 border-green-500 text-green-700 text-xs sm:text-sm">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <form action="{{ route('upload.excel', ['id_survei' => $survey->id_survei]) }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <input type="file" name="file" accept=".xlsx, .xls" class="border p-2 w-full">
-                    <p class="py-2 text-s">Belum punya file excel?  
-                        <a href="{{ asset('addMitra2Survey.xlsx') }} " class=" text-blue-500 hover:text-blue-600 font-bold">
-                            Download template disini.
-                        </a>
-                    </p>
-                <div class="flex justify-end mt-4">
-                    <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded-md mr-2" onclick="closeModal()">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Unggah</button>
+                <input type="file" name="file" accept=".xlsx, .xls" class="border p-2 w-full text-xs sm:text-sm mb-2">
+                <p class="py-2 text-xs sm:text-sm">Belum punya file excel?  
+                    <a href="{{ asset('addMitra2Survey.xlsx') }}" class="text-blue-500 hover:text-blue-600 font-bold" download>
+                        Download template disini.
+                    </a>
+                </p>
+                <div class="flex justify-end mt-4 space-x-2">
+                    <button type="button" class="px-3 py-1 sm:px-4 sm:py-2 bg-gray-500 text-white rounded-md text-xs sm:text-sm font-medium hover:bg-gray-600 transition-all duration-300" onclick="closeModal()">Batal</button>
+                    <button type="submit" class="px-3 py-1 sm:px-4 sm:py-2 bg-oren rounded-md text-white text-xs sm:text-sm font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Unggah</button>
                 </div>
             </form>
         </div>
