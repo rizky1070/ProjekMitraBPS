@@ -24,7 +24,6 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     private $rowErrors = [];
     private $successCount = 0;
     private $defaultProvinsi = '35';
-    private $defaultKabupaten = '16';
     private $currentDate;
     private $currentRow = [];
     private $excelRowNumber = 2; // Data dimulai dari baris 2 (header di baris 1)
@@ -38,25 +37,28 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         $errors = [];
         $this->currentRow = $row;
         $currentRowNum = $this->excelRowNumber;
+
         try {
             // Skip empty rows
             if ($this->isEmptyRow($row)) {
                 $this->excelRowNumber++;
                 return null;
             }
+
             Log::info('Processing Excel row: ' . $currentRowNum, $row);
 
             // Get mitra name with fallback
             $mitraName = $this->getMitraName($row);
-
             $sobatId = $row['sobat_id'];
             $jenisKelamin = $this->convertJenisKelamin($row['jenis_kelamin']);
             $validatedPhoneNumber = $this->formatPhoneNumber($row['no_hp_mitra']);
+
             // Get region data
             $provinsi = $this->getProvinsi($mitraName);
-            $kabupaten = $this->getKabupaten($provinsi, $mitraName);
+            $kabupaten = $this->getKabupaten($provinsi, $mitraName, $row['kode_kabupaten']);
             $kecamatan = $this->getKecamatan($row, $kabupaten, $mitraName);
             $desa = $this->getDesa($row, $kecamatan, $mitraName);
+
             // Parse dates
             $tahunMulai = $this->parseTanggal($row['tgl_mitra_diterima'] ?? null, $mitraName);
             $tahunSelesai = null;
@@ -70,7 +72,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 $tahunSelesai = $tahunMulai->copy()->addMonth();
                 Log::info("Kolom tgl_berakhir_mitra kosong, menggunakan 1 bulan setelah tanggal mulai");
             }
+
             $this->validateDates($tahunMulai, $tahunSelesai, $mitraName);
+
             // Check if sobat_id already exists
             $existingMitra = Mitra::where('sobat_id', $sobatId)->first();
             if ($existingMitra) {
@@ -89,16 +93,18 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                     'tahun_selesai' => $tahunSelesai,
                     'updated_at' => now()
                 ]);
+
                 $this->successCount++;
                 $this->excelRowNumber++;
                 return null;
             }
+
             if (!empty($errors)) {
                 throw new \Exception(implode("; ", $errors));
             }
+
             $this->successCount++;
             $this->excelRowNumber++;
-
             return new Mitra([
                 'nama_lengkap' => $row['nama_lengkap'],
                 'sobat_id' => $sobatId,
@@ -117,7 +123,6 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             ]);
         } catch (\Exception $e) {
             $mitraName = $this->getMitraName($row); // Get current mitra name
-
             if (!isset($this->rowErrors[$currentRowNum])) {
                 $this->rowErrors[$currentRowNum] = [
                     'mitra' => $mitraName,
@@ -159,15 +164,17 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             'alamat_mitra' => 'required|string',
             'kode_desa' => 'required|string|max:3',
             'kode_kecamatan' => 'required|string|max:3',
+            'kode_kabupaten' => 'required|string|max:3', // Add this line
             'jenis_kelamin' => [
                 'required',
                 function ($attribute, $value, $fail) use ($mitraName) {
+                    // dd($value); // Cetak nilai untuk memeriksa
                     if (empty($value)) {
                         $fail("Jenis kelamin harus diisi");
                     } else {
                         $value = strtolower(trim($value));
-                        if (!in_array($value, ['laki-laki', 'laki laki', 'laki', 'perempuan', '1', '2'])) {
-                            $fail("Jenis kelamin harus laki-laki atau perempuan");
+                        if (!in_array($value, ['Lk', 'Pr', 'lk', 'pr'])) {
+                            $fail("Jenis kelamin harus Lk atau Pr");
                         }
                     }
                 }
@@ -176,18 +183,14 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 'required',
                 function ($attribute, $value, $fail) {
                     $mitraName = $this->currentRow['nama_lengkap'] ?? 'Tidak diketahui';
-
                     if (empty($value)) {
                         $fail("Nomor HP harus diisi");
                         return;
                     }
-
                     $cleanedPhone = preg_replace('/[^0-9+]/', '', $value);
-
                     if (empty($cleanedPhone)) {
                         $fail("Nomor HP tidak valid");
                     }
-
                     if (preg_match('/^0/', $cleanedPhone)) {
                         if (!preg_match('/^0\d+$/', $cleanedPhone)) {
                             $fail("Setelah 0 harus diikuti digit angka");
@@ -195,7 +198,6 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                     } elseif (!preg_match('/^\+62/', $cleanedPhone)) {
                         $fail("Harus diawali dengan 0 atau +62");
                     }
-
                     $digits = substr($cleanedPhone, 3);
                     if (strlen($digits) < 9 || strlen($digits) > 13) {
                         $fail("Harus 11-15 digit (contoh: +628123456789)");
@@ -225,9 +227,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     {
         $value = strtolower(trim($value));
 
-        if ($value === 'laki-laki' || $value === 'laki laki' || $value === 'laki' || $value === '1') {
+        if ($value === 'Lk' || $value === '1') {
             return 1;
-        } elseif ($value === 'perempuan' || $value === '2') {
+        } elseif ($value === 'Pr' || $value === '2') {
             return 2;
         }
 
@@ -287,14 +289,20 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     /**
      * Dapatkan data kabupaten
      */
-    private function getKabupaten($provinsi, $mitraName)
+    private function getKabupaten($provinsi, $mitraName, $kodeKabupaten)
     {
-        $kabupaten = Kabupaten::where('id_kabupaten', $this->defaultKabupaten)
+        if (empty($kodeKabupaten)) {
+            throw new \Exception("Kode kabupaten harus diisi");
+        }
+
+        $kabupaten = Kabupaten::where('kode_kabupaten', $kodeKabupaten)
             ->where('id_provinsi', $provinsi->id_provinsi)
             ->first();
+
         if (!$kabupaten) {
-            throw new \Exception("Kabupaten default (kode : {$this->defaultKabupaten}) tidak ditemukan di provinsi {$provinsi->nama_provinsi}.");
+            throw new \Exception("Kode kabupaten {$kodeKabupaten} tidak ditemukan di provinsi {$provinsi->nama_provinsi}.");
         }
+
         return $kabupaten;
     }
 
