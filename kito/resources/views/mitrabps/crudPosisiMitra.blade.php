@@ -136,6 +136,7 @@ $title = 'Daftar Posisi Mitra';
     <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('PosisiData', () => ({
+            sidebarOpen: false,
             showAddModal: false,
             showEditModal: false,
             currentPosisi: null,
