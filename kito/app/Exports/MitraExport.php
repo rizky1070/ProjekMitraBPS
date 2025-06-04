@@ -115,7 +115,7 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
             $jumlahSurvei,
             $namaSurvei,
             $totalHonor,
-            $jumlahSurvei > 0 ? 'Aktif' : 'Tidak Aktif',
+            $jumlahSurvei > 0 ? 'Aktif Mengikuti Survei' : 'Tidak Aktif Mengikuti Survei',
             $statusPekerjaan
         ];
     }
@@ -186,11 +186,11 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
                 $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                 $row++;
 
-                $sheet->setCellValue('A' . $row, 'Aktif: ' . $this->totals['totalIkutSurvei']);
+                $sheet->setCellValue('A' . $row, 'Aktif Mengikuti Survei: ' . $this->totals['totalIkutSurvei']);
                 $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                 $row++;
 
-                $sheet->setCellValue('A' . $row, 'Tidak Aktif: ' . $this->totals['totalTidakIkutSurvei']);
+                $sheet->setCellValue('A' . $row, 'Tidak Aktif Mengikuti Survei: ' . $this->totals['totalTidakIkutSurvei']);
                 $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                 $row++;
 

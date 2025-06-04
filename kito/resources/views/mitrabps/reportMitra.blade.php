@@ -139,7 +139,7 @@ $title = 'Report Mitra';
                                     <i class="fas fa-check-circle text-lg"></i>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-500">Mengikuti Survei</p>
+                                    <p class="text-sm font-medium text-gray-500">Aktif Mengikuti Survei</p>
                                     <p class="text-2xl font-bold text-gray-800">{{ $totalIkutSurvei }}</p>
                                     <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
                                 </div>
@@ -152,7 +152,7 @@ $title = 'Report Mitra';
                                     <i class="fas fa-times-circle text-lg"></i>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-500">Tidak Mengikuti</p>
+                                    <p class="text-sm font-medium text-gray-500">Tidak Aktif Mengikuti</p>
                                     <p class="text-2xl font-bold text-gray-800">{{ $totalTidakIkutSurvei }}</p>
                                     <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalTidakIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
                                 </div>
@@ -226,11 +226,11 @@ $title = 'Report Mitra';
                                         <td class="px-6 py-4 text-center">
                                             @if($mitra->total_survei > 0)
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    Aktif
+                                                    Aktif Mengikuti Survei
                                                 </span>
                                             @else
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                    Tidak Aktif
+                                                    Tidak Aktif Mengikuti Survei
                                                 </span>
                                             @endif
                                         </td>

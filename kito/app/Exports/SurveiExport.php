@@ -70,7 +70,7 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
             Carbon::parse($survei->jadwal_berakhir_kegiatan)->format('d/m/Y'),
             $jumlahResponden,
             $namaResponden,
-            $jumlahResponden > 0 ? 'Aktif' : 'Tidak Aktif'
+            $jumlahResponden > 0 ? 'Aktif Di Ikuti Mitra' : 'Tidak Aktif Di Ikuti Mitra'
         ];
     }
 
@@ -126,11 +126,11 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                 $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                 $row++;
 
-                $sheet->setCellValue('A' . $row, 'Aktif: ' . $this->totals['totalSurveiAktif']);
+                $sheet->setCellValue('A' . $row, 'Aktif Di Ikuti Mitra: ' . $this->totals['totalSurveiAktif']);
                 $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                 $row++;
 
-                $sheet->setCellValue('A' . $row, 'Tidak Aktif: ' . $this->totals['totalSurveiTidakAktif']);
+                $sheet->setCellValue('A' . $row, 'Tidak Aktif Di Ikuti Mitra: ' . $this->totals['totalSurveiTidakAktif']);
                 $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                 $row++;
 
