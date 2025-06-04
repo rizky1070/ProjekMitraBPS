@@ -7,7 +7,7 @@ $title = 'Daftar Posisi Mitra';
 @include('mitrabps.cuScroll')
 </head>
 <body class="h-full">
-    <div x-data="PosisiData" class="flex h-screen">
+    <div x-data="PosisiData()" x-init="sidebarOpen = false" x-bind="sidebarOpen" class="flex h-screen">
         <x-sidebar></x-sidebar>
         
         <div class="flex flex-col flex-1 overflow-hidden">
