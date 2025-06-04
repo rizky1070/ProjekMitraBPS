@@ -55,40 +55,62 @@ $title = 'Report Mitra';
                             <div>
                                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Filter Data</h2>
                             </div>
-                            <div class="flex">
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 w-full">
-                                    <div class="flex items-center">
+                            <div class="flex flex-col space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+                                    <!-- Tahun Filter -->
+                                    <div class="flex flex-col">
                                         <label for="tahun" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
-                                        <select id="tahun" name="tahun" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                        <select id="tahun" name="tahun" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                             <option value="">Semua Tahun</option>
                                             @foreach($tahunOptions as $tahun)
-                                                <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>
-                                                    {{ $tahun }}
-                                                </option>
+                                                <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>{{ $tahun }}</option>
                                             @endforeach
                                         </select>
                                     </div>
 
                                     <!-- Bulan Filter -->
-                                    <div class="flex items-center">
+                                    <div class="flex flex-col">
                                         <label for="bulan" class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
-                                        <select id="bulan" name="bulan" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                        <select id="bulan" name="bulan" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" {{ empty($bulanOptions) ? 'disabled' : '' }}>
                                             <option value="">Semua Bulan</option>
                                             @foreach($bulanOptions as $key => $value)
-                                                <option value="{{ $key }}" {{ request('bulan') == $key ? 'selected' : '' }}>
-                                                    {{ $value }}
+                                                <option value="{{ $key }}" {{ request('bulan') == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Kecamatan Filter -->
+                                    <div class="flex flex-col">
+                                        <label for="kecamatan" class="block text-sm font-medium text-gray-700 mb-1">Kecamatan</label>
+                                        <select id="kecamatan" name="kecamatan" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
+                                            <option value="">Semua Kecamatan</option>
+                                            @foreach($kecamatanOptions as $kecam)
+                                                <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan') == $kecam->id_kecamatan) selected @endif>
+                                                    [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
-        
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
                                     <!-- Partisipasi Filter -->
-                                    <div class="flex items-center">
+                                    <div class="flex flex-col">
                                         <label for="status_mitra" class="block text-sm font-medium text-gray-700 mb-1">Status Partisipasi</label>
-                                        <select id="status_mitra" name="status_mitra" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                        <select id="status_mitra" name="status_mitra" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                             <option value="">Semua Mitra</option>
                                             <option value="ikut" {{ request('status_mitra') == 'ikut' ? 'selected' : '' }}>Mengikuti Survei</option>
                                             <option value="tidak_ikut" {{ request('status_mitra') == 'tidak_ikut' ? 'selected' : '' }}>Tidak Mengikuti Survei</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Status Pekerjaan Filter -->
+                                    <div class="flex flex-col">
+                                        <label for="status_pekerjaan" class="block text-sm font-medium text-gray-700 mb-1">Status Pekerjaan</label>
+                                        <select id="status_pekerjaan" name="status_pekerjaan" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            <option value="">Semua Status</option>
+                                            <option value="0" {{ request('status_pekerjaan') == '0' ? 'selected' : '' }}>Bisa Mengikuti Survei</option>
+                                            <option value="1" {{ request('status_pekerjaan') == '1' ? 'selected' : '' }}>Tidak Bisa Mengikuti Survei</option>
                                         </select>
                                     </div>
                                 </div>
@@ -101,7 +123,7 @@ $title = 'Report Mitra';
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500">
                             <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                                <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-users text-lg"></i>
                                 </div>
                                 <div>
@@ -113,7 +135,7 @@ $title = 'Report Mitra';
                         
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500">
                             <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                                <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-check-circle text-lg"></i>
                                 </div>
                                 <div>
@@ -126,7 +148,7 @@ $title = 'Report Mitra';
                         
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-red-500">
                             <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4">
+                                <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-times-circle text-lg"></i>
                                 </div>
                                 <div>
@@ -136,6 +158,34 @@ $title = 'Report Mitra';
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-purple-500">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-check-circle text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Bisa Mengikuti Survei</p>
+                                    <p class="text-2xl font-bold text-gray-800">{{ $totalBisaIkutSurvei }}</p>
+                                    <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalBisaIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-yellow-500">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-times-circle text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Tidak Bisa Mengikuti Survei</p>
+                                    <p class="text-2xl font-bold text-gray-800">{{ $totalTidakBisaIkutSurvei }}</p>
+                                    <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalTidakBisaIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        
                     </div>
 
                     <!-- Table Section -->
@@ -202,57 +252,67 @@ $title = 'Report Mitra';
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            new TomSelect('#nama_mitra', {
-                placeholder: 'Cari Mitra',
-                searchField: 'text',
-            });
-
-            new TomSelect('#bulan', {
-                placeholder: 'Pilih Bulan',
-                searchField: 'text',
-            });
-
-            new TomSelect('#tahun', {
-                placeholder: 'Pilih Tahun',
-                searchField: 'text',
-            });
-
-            new TomSelect('#status_mitra', {
-                placeholder: 'Pilih Status',
-                searchField: 'text',
-            });
-               // Ambil elemen form dan select
-            const filterForm = document.getElementById('filterForm');
-            const tahunSelect = document.getElementById('tahun');
-            const bulanSelect = document.getElementById('bulan');
-            const statusSelect = document.getElementById('status_mitra');
-            const mitraSelect = document.getElementById('nama_mitra');
-
-            // Ganti fungsi submitForm dengan ini
-            let timeout;
-            function submitForm() {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    filterForm.submit();
-                }, 500); // Delay 500ms sebelum submit
-            }
-
-            // Tambahkan event listener untuk setiap select
-            tahunSelect.addEventListener('change', submitForm);
-            bulanSelect.addEventListener('change', submitForm);
-            statusSelect.addEventListener('change', submitForm);
-            mitraSelect.addEventListener('change', submitForm);
+        new TomSelect('#nama_mitra', {
+            placeholder: 'Cari Mitra',
+            searchField: 'text',
         });
-    
-        function exportData() {
-            // Ambil parameter filter dari form
-            const form = document.getElementById('filterForm');
-            const formData = new FormData(form);
-            const params = new URLSearchParams(formData).toString();
-            
-            // Redirect ke route export dengan parameter filter
-            window.location.href = `/ReportMitra/export-mitra?${params}`;
+        new TomSelect('#bulan', {
+            placeholder: 'Pilih Bulan',
+            searchField: 'text',
+        });
+        new TomSelect('#tahun', {
+            placeholder: 'Pilih Tahun',
+            searchField: 'text',
+        });
+        new TomSelect('#status_mitra', {
+            placeholder: 'Pilih Status',
+            searchField: 'text',
+        });
+        new TomSelect('#status_pekerjaan', {
+            placeholder: 'Pilih Status',
+            searchField: 'text',
+        });
+        new TomSelect('#kecamatan', {
+            placeholder: 'Pilih Kecamatan',
+            searchField: 'text',
+        });
+
+        // Ambil elemen form dan select
+        const filterForm = document.getElementById('filterForm');
+        const tahunSelect = document.getElementById('tahun');
+        const bulanSelect = document.getElementById('bulan');
+        const statusSelect = document.getElementById('status_mitra');
+        const statusPekerjaanSelect = document.getElementById('status_pekerjaan');
+        const kecamatanSelect = document.getElementById('kecamatan');
+        const mitraSelect = document.getElementById('nama_mitra');
+
+        // Ganti fungsi submitForm dengan ini
+        let timeout;
+        function submitForm() {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                filterForm.submit();
+            }, 500); // Delay 500ms sebelum submit
         }
+
+        // Tambahkan event listener untuk setiap select
+        tahunSelect.addEventListener('change', submitForm);
+        bulanSelect.addEventListener('change', submitForm);
+        statusSelect.addEventListener('change', submitForm);
+        mitraSelect.addEventListener('change', submitForm);
+        statusPekerjaanSelect.addEventListener('change', submitForm);
+        kecamatanSelect.addEventListener('change', submitForm);
+    });
+
+    function exportData() {
+        // Ambil parameter filter dari form
+        const form = document.getElementById('filterForm');
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData).toString();
+
+        // Redirect ke route export dengan parameter filter
+        window.location.href = `/ReportMitra/export-mitra?${params}`;
+    }
     </script>
 </body>
 </html>

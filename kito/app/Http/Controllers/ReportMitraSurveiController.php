@@ -143,13 +143,10 @@ class ReportMitraSurveiController extends Controller
             $mitrasAktif = Mitra::whereYear('tahun', '<=', $request->tahun)
                 ->whereYear('tahun_selesai', '>=', $request->tahun)
                 ->get();
-
             $bulanValid = collect();
-
             foreach ($mitrasAktif as $mitra) {
                 $tahunMulai = \Carbon\Carbon::parse($mitra->tahun);
                 $tahunSelesai = \Carbon\Carbon::parse($mitra->tahun_selesai);
-
                 // Jika tahun mulai dan selesai sama dengan tahun filter
                 if ($tahunMulai->year == $request->tahun && $tahunSelesai->year == $request->tahun) {
                     // Tambahkan semua bulan dari bulan mulai sampai bulan selesai
@@ -179,7 +176,6 @@ class ReportMitraSurveiController extends Controller
                     }
                 }
             }
-
             // Buat opsi bulan unik dan terurut
             $bulanOptions = $bulanValid->unique()
                 ->sort()
@@ -208,7 +204,6 @@ class ReportMitraSurveiController extends Controller
             ->orderBy('nama_kecamatan')
             ->get(['nama_kecamatan', 'id_kecamatan', 'kode_kecamatan']);
 
-
         // Filter Nama Mitra (hanya yang ada di tahun & bulan yang dipilih)
         $namaMitraOptions = Mitra::select('nama_lengkap')
             ->distinct()
@@ -234,7 +229,6 @@ class ReportMitraSurveiController extends Controller
                     ->whereHas('survei', function ($q) use ($request) {
                         $q->whereDate('jadwal_kegiatan', '>=', DB::raw('mitra.tahun'))
                             ->whereDate('jadwal_kegiatan', '<=', DB::raw('mitra.tahun_selesai'));
-
                         if ($request->filled('bulan')) {
                             $q->whereMonth('bulan_dominan', $request->bulan);
                         }
@@ -244,7 +238,6 @@ class ReportMitraSurveiController extends Controller
                     })
             ])
             ->orderByDesc('total_survei')
-
             ->when($request->filled('tahun'), function ($query) use ($request) {
                 $query->whereYear('tahun', '<=', $request->tahun)
                     ->whereYear('tahun_selesai', '>=', $request->tahun);
@@ -258,6 +251,9 @@ class ReportMitraSurveiController extends Controller
             })
             ->when($request->filled('nama_lengkap'), function ($query) use ($request) {
                 $query->where('nama_lengkap', $request->nama_lengkap);
+            })
+            ->when($request->filled('status_pekerjaan'), function ($query) use ($request) {
+                $query->where('status_pekerjaan', $request->status_pekerjaan);
             });
 
         // FILTER STATUS PARTISIPASI
@@ -285,7 +281,6 @@ class ReportMitraSurveiController extends Controller
 
         // HITUNG TOTAL-TOTAL
         $totalMitra = $mitrasQuery->count();
-
         $totalIkutSurvei = clone $mitrasQuery;
         $totalIkutSurvei = $totalIkutSurvei->whereHas('mitraSurveis', function ($query) use ($request) {
             if ($request->filled('bulan')) {
@@ -299,9 +294,18 @@ class ReportMitraSurveiController extends Controller
                 });
             }
         })->count();
-
         $totalTidakIkutSurvei = $totalMitra - $totalIkutSurvei;
 
+        // HITUNG TOTAL MITRA YANG BISA DAN TIDAK BISA MENGIKUTI SURVEI
+        $totalBisaIkutSurvei = clone $mitrasQuery;
+        $totalBisaIkutSurvei = $totalBisaIkutSurvei->where('status_pekerjaan', 0)->count();
+        $totalTidakBisaIkutSurvei = $totalMitra - $totalBisaIkutSurvei;
+
+        // HITUNG TOTAL MITRA DI KECAMATAN YANG DIPILIH
+        $totalMitraKecamatan = 0;
+        if ($request->filled('kecamatan')) {
+            $totalMitraKecamatan = $mitrasQuery->where('id_kecamatan', $request->kecamatan)->count();
+        }
         // HITUNG TOTAL HONOR
         $totalHonor = MitraSurvei::whereHas('mitra', function ($q) use ($request, $mitrasQuery) {
             $q->whereIn('id_mitra', $mitrasQuery->pluck('id_mitra'));
@@ -333,6 +337,9 @@ class ReportMitraSurveiController extends Controller
             'totalMitra',
             'totalIkutSurvei',
             'totalTidakIkutSurvei',
+            'totalBisaIkutSurvei',
+            'totalTidakBisaIkutSurvei',
+            'totalMitraKecamatan',
             'totalHonor',
             'request'
         ));

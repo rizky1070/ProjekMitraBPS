@@ -46,39 +46,37 @@ $title = 'Report Survei';
                                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Filter Data</h2>
                             </div>
                             <!-- Tahun Filter -->
-                            <div class="flex">
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 w-full">
-                                    <div class="flex items-center">
+                            <div class="flex flex-col space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                                    <!-- Tahun Filter -->
+                                    <div class="flex flex-col">
                                         <label for="jadwal_kegiatan" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
-                                        <select id="tahun" name="tahun" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                        <select id="tahun" name="tahun" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                             <option value="">Semua Tahun</option>
                                             @foreach($tahunOptions as $tahun)
-                                                <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>
-                                                    {{ $tahun }}
-                                                </option>
+                                                <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>{{ $tahun }}</option>
                                             @endforeach
                                         </select>
                                     </div>
+
                                     <!-- Bulan Filter -->
-                                    <div class="flex items-center">
+                                    <div class="flex flex-col">
                                         <label for="bulan" class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
-                                        <select id="bulan" name="bulan" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2"{{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                        <select id="bulan" name="bulan" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" {{ empty($bulanOptions) ? 'disabled' : '' }}>
                                             <option value="">Pilih Bulan</option>
                                             @foreach($bulanOptions as $key => $bulan)
-                                                <option value="{{ $key }}" {{ request('bulan') == $key ? 'selected' : '' }}>
-                                                    {{ $bulan }}
-                                                </option>
+                                                <option value="{{ $key }}" {{ request('bulan') == $key ? 'selected' : '' }}>{{ $bulan }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    
-                                    <!-- Partisipasi Filter -->
-                                    <div class="flex items-center">
+
+                                    <!-- Status Survei Filter -->
+                                    <div class="flex flex-col">
                                         <label for="status_survei" class="block text-sm font-medium text-gray-700 mb-1">Status Survei</label>
-                                        <select id="status_survei" name="status_survei" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2">
+                                        <select id="status_survei" name="status_survei" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                             <option value="">Semua Survei</option>
                                             <option value="aktif" {{ request('status_survei') == 'aktif' ? 'selected' : '' }}>Survei Aktif</option>
-                                            <option value="tidak_aktif" {{ request('status_survei') == 'tidak_aktif' ? 'selected' : '' }}>Survei Tidak aktif</option>
+                                            <option value="tidak_aktif" {{ request('status_survei') == 'tidak_aktif' ? 'selected' : '' }}>Survei Tidak Aktif</option>
                                         </select>
                                     </div>
                                 </div>
@@ -91,7 +89,7 @@ $title = 'Report Survei';
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500">
                             <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                                <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-users text-lg"></i>
                                 </div>
                                 <div>
@@ -103,7 +101,7 @@ $title = 'Report Survei';
                         
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500">
                             <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                                <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-check-circle text-lg"></i>
                                 </div>
                                 <div>
@@ -116,7 +114,7 @@ $title = 'Report Survei';
                         
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-red-500">
                             <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4">
+                                <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-times-circle text-lg"></i>
                                 </div>
                                 <div>
