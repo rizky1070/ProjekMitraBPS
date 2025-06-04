@@ -3,12 +3,13 @@
         /* ... (style tetap sama) ... */
     </style>
     <nav aria-label="Page navigation example"
-        class="mt-6 py-4 pr-16 flex w-min-[96] rounded-lg {{ $marginX ?? 'mx-4' }}">
-        <ul class="flex items-center -space-x-px h-10 text-base">
+        class="mt-6 py-4 pr-4 sm:pr-8 md:pr-16 flex w-full sm:w-auto rounded-lg {{ $marginX ?? 'mx-2 sm:mx-4' }}">
+        <ul class="flex items-center -space-x-px h-8 sm:h-10 text-sm sm:text-base w-full justify-center sm:justify-start">
             <li>
                 <a href="{{ $paginator->onFirstPage() ? '#' : $paginator->appends(Arr::except(request()->query(), 'page'))->previousPageUrl() }}" id="prev-btn"
-                    class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem] mx-[0.3rem] py-2 {{ $paginator->onFirstPage() ? 'hidden' : '' }}">
-                    Previous
+                    class="px-2 sm:px-4 bg-[#D9D9D9] text-black font-semibold h-[3rem] sm:h-[4rem] mx-[0.1rem] sm:mx-[0.3rem] py-2 {{ $paginator->onFirstPage() ? 'hidden' : '' }}">
+                    <span class="hidden sm:inline">Previous</span>
+                    <span class="sm:hidden">←</span>
                 </a>
             </li>
             
@@ -31,15 +32,15 @@
             
             {{-- First page --}}
             @if ($showFirstPage && $start > 1)
-                <li>
+                <li class="hidden sm:block">
                     <a href="{{ $paginator->appends(Arr::except(request()->query(), 'page'))->url(1) }}"
-                        class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem] mx-[0.3rem] py-2 visiblePageNum {{ $currentPage == 1 ? 'bg-blue-500' : '' }}">
+                        class="px-2 sm:px-4 bg-[#D9D9D9] text-black font-semibold h-[3rem] sm:h-[4rem] mx-[0.1rem] sm:mx-[0.3rem] py-2 visiblePageNum {{ $currentPage == 1 ? 'bg-blue-500' : '' }}">
                         1
                     </a>
                 </li>
                 
                 @if ($start > 2)
-                    <li class="ellipsis">...</li>
+                    <li class="ellipsis text-gray-500 text-xl px-1 sm:px-2 select-none hidden sm:block">• • •</li>
                 @endif
             @endif
             
@@ -48,7 +49,7 @@
                 @if ($page >= 1 && $page <= $lastPage)
                     <li>
                         <a href="{{ $paginator->appends(Arr::except(request()->query(), 'page'))->url($page) }}"
-                            class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem] mx-[0.3rem] py-2 visiblePageNum {{ $currentPage == $page ? 'bg-blue-500' : '' }}">
+                            class="px-2 sm:px-4 bg-[#D9D9D9] text-black font-semibold h-[3rem] sm:h-[4rem] mx-[0.1rem] sm:mx-[0.3rem] py-2 visiblePageNum {{ $currentPage == $page ? 'bg-blue-500' : '' }}">
                             {{ $page }}
                         </a>
                     </li>
@@ -58,11 +59,11 @@
             {{-- Last page --}}
             @if ($showLastPage && $end < $lastPage)
                 @if ($end < $lastPage - 1)
-                    <li class="ellipsis">...</li>
+                    <li class="ellipsis text-gray-500 text-xl px-1 sm:px-2 select-none hidden sm:block">• • •</li>
                 @endif
-                <li>
+                <li class="hidden sm:block">
                     <a href="{{ $paginator->appends(Arr::except(request()->query(), 'page'))->url($lastPage) }}"
-                        class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem] mx-[0.3rem] py-2 visiblePageNum {{ $currentPage == $lastPage ? 'bg-blue-500' : '' }}">
+                        class="px-2 sm:px-4 bg-[#D9D9D9] text-black font-semibold h-[3rem] sm:h-[4rem] mx-[0.1rem] sm:mx-[0.3rem] py-2 visiblePageNum {{ $currentPage == $lastPage ? 'bg-blue-500' : '' }}">
                         {{ $lastPage }}
                     </a>
                 </li>
@@ -70,8 +71,9 @@
 
             <li>
                 <a href="{{ $paginator->onLastPage() ? '#' : $paginator->appends(Arr::except(request()->query(), 'page'))->nextPageUrl() }}"
-                    class="px-4 bg-[#D9D9D9] text-black font-semibold h-[4rem] mx-[0.3rem] py-2 {{ $paginator->onLastPage() ? 'hidden' : '' }}">
-                    Next
+                    class="px-2 sm:px-4 bg-[#D9D9D9] text-black font-semibold h-[3rem] sm:h-[4rem] mx-[0.1rem] sm:mx-[0.3rem] py-2 {{ $paginator->onLastPage() ? 'hidden' : '' }}">
+                    <span class="hidden sm:inline">Next</span>
+                    <span class="sm:hidden">→</span>
                 </a>
             </li>
         </ul>
