@@ -152,7 +152,7 @@ $title = 'Report Mitra';
                                     <i class="fas fa-times-circle text-lg"></i>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-500">Tidak Aktif Mengikuti</p>
+                                    <p class="text-sm font-medium text-gray-500">Tidak Aktif Mengikuti Survei</p>
                                     <p class="text-2xl font-bold text-gray-800">{{ $totalTidakIkutSurvei }}</p>
                                     <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalTidakIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
                                 </div>
