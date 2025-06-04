@@ -123,16 +123,16 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
 
                 // Informasi Total
                 $sheet->setCellValue('A' . $row, 'Total Survei: ' . $this->totals['totalSurvei']);
-                $sheet->mergeCells('A' . $row . ':D' . $row);
                 $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                $row++;
 
-                $sheet->setCellValue('E' . $row, 'Aktif: ' . $this->totals['totalSurveiAktif']);
-                $sheet->mergeCells('E' . $row . ':H' . $row);
-                $sheet->getStyle('E' . $row)->getFont()->setBold(true);
+                $sheet->setCellValue('A' . $row, 'Aktif: ' . $this->totals['totalSurveiAktif']);
+                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                $row++;
 
-                $sheet->setCellValue('I' . $row, 'Tidak Aktif: ' . $this->totals['totalSurveiTidakAktif']);
-                $sheet->mergeCells('I' . $row . ':K' . $row);
-                $sheet->getStyle('I' . $row)->getFont()->setBold(true);
+                $sheet->setCellValue('A' . $row, 'Tidak Aktif: ' . $this->totals['totalSurveiTidakAktif']);
+                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                $row++;
 
                 // Spasi kosong sebelum header
                 $row += 2;

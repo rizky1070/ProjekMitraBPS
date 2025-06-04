@@ -19,7 +19,6 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
     protected $query;
     protected $filters;
     protected $totals;
-
     protected $headings = [
         'No',
         'Sobat ID',
@@ -36,7 +35,8 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
         'Jumlah Survei Diikuti',
         'Nama Survei',
         'Total Honor',
-        'Status'
+        'Status',
+        'Status Pekerjaan'
     ];
 
     public function __construct($query, $filters = [], $totals = [])
@@ -96,6 +96,9 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
             $totalHonor += $rateHonor * $vol;
         }
 
+        // Tentukan status pekerjaan
+        $statusPekerjaan = $mitra->status_pekerjaan == 0 ? 'Bisa Ikut Survei' : 'Tidak Bisa Ikut Survei';
+
         return [
             $count,
             ' ' . $mitra->sobat_id,
@@ -112,7 +115,8 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
             $jumlahSurvei,
             $namaSurvei,
             $totalHonor,
-            $jumlahSurvei > 0 ? 'Aktif' : 'Tidak Aktif'
+            $jumlahSurvei > 0 ? 'Aktif' : 'Tidak Aktif',
+            $statusPekerjaan
         ];
     }
 
@@ -139,7 +143,7 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
 
                 // Judul Laporan
                 $sheet->setCellValue('A' . $row, 'LAPORAN DATA MITRA');
-                $sheet->mergeCells('A' . $row . ':P' . $row);
+                $sheet->mergeCells('A' . $row . ':Q' . $row);
                 $sheet->getStyle('A' . $row)->getFont()
                     ->setBold(true)
                     ->setSize(14);
@@ -152,7 +156,7 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
 
                 // Tanggal Export
                 $sheet->setCellValue('A' . $row, 'Tanggal Export: ' . Carbon::now()->format('d/m/Y H:i'));
-                $sheet->mergeCells('A' . $row . ':P' . $row);
+                $sheet->mergeCells('A' . $row . ':Q' . $row);
                 $sheet->getStyle('A' . $row)->getFont()->setItalic(true);
                 $row++;
 
@@ -162,14 +166,14 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
                 // Informasi Filter
                 if (!empty($this->filters)) {
                     $sheet->setCellValue('A' . $row, 'Filter yang digunakan:');
-                    $sheet->mergeCells('A' . $row . ':P' . $row);
+                    $sheet->mergeCells('A' . $row . ':Q' . $row);
                     $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                     $row++;
 
                     foreach ($this->filters as $key => $value) {
                         $label = $this->getFilterLabel($key);
                         $sheet->setCellValue('A' . $row, $label . ': ' . $value);
-                        $sheet->mergeCells('A' . $row . ':P' . $row);
+                        $sheet->mergeCells('A' . $row . ':Q' . $row);
                         $row++;
                     }
 
@@ -179,21 +183,28 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
 
                 // Informasi Total
                 $sheet->setCellValue('A' . $row, 'Total Mitra: ' . $this->totals['totalMitra']);
-                $sheet->mergeCells('A' . $row . ':D' . $row);
                 $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                $row++;
 
-                $sheet->setCellValue('E' . $row, 'Aktif: ' . $this->totals['totalIkutSurvei']);
-                $sheet->mergeCells('E' . $row . ':H' . $row);
-                $sheet->getStyle('E' . $row)->getFont()->setBold(true);
+                $sheet->setCellValue('A' . $row, 'Aktif: ' . $this->totals['totalIkutSurvei']);
+                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                $row++;
 
-                $sheet->setCellValue('I' . $row, 'Tidak Aktif: ' . $this->totals['totalTidakIkutSurvei']);
-                $sheet->mergeCells('I' . $row . ':L' . $row);
-                $sheet->getStyle('I' . $row)->getFont()->setBold(true);
+                $sheet->setCellValue('A' . $row, 'Tidak Aktif: ' . $this->totals['totalTidakIkutSurvei']);
+                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                $row++;
 
-                $sheet->setCellValue('M' . $row, 'Total Honor: ' . number_format($this->totals['totalHonor'], 0, ',', '.'));
-                $sheet->mergeCells('M' . $row . ':P' . $row);
-                $sheet->getStyle('M' . $row)->getFont()->setBold(true);
+                $sheet->setCellValue('A' . $row, 'Bisa Ikut Survei: ' . $this->totals['totalBisaIkutSurvei']);
+                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                $row++;
 
+                $sheet->setCellValue('A' . $row, 'Tidak Bisa Ikut Survei: ' . $this->totals['totalTidakBisaIkutSurvei']);
+                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                $row++;
+
+                $sheet->setCellValue('A' . $row, 'Total Honor: ' . number_format($this->totals['totalHonor'], 0, ',', '.'));
+                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                $row++;
                 // Spasi kosong sebelum header
                 $row += 2;
 
@@ -213,7 +224,7 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
                         ],
                     ],
                 ];
-                $sheet->getStyle('A' . $row . ':P' . $row)->applyFromArray($headerStyle);
+                $sheet->getStyle('A' . $row . ':Q' . $row)->applyFromArray($headerStyle);
 
                 // Format kolom
                 $sheet->getStyle('O')
@@ -221,7 +232,7 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
                     ->setFormatCode('#,##0');
 
                 // Set kolom auto-size
-                foreach (range('A', 'P') as $column) {
+                foreach (range('A', 'Q') as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
             },
@@ -235,9 +246,9 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
             'bulan' => 'Bulan',
             'kecamatan' => 'Kecamatan',
             'nama_lengkap' => 'Nama Mitra',
-            'status_mitra' => 'Status Mitra'
+            'status_mitra' => 'Status Mitra',
+            'status_pekerjaan' => 'Status Pekerjaan'
         ];
-
         return $labels[$key] ?? ucfirst(str_replace('_', ' ', $key));
     }
 }

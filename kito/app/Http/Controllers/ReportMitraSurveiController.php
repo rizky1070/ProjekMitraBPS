@@ -389,6 +389,9 @@ class ReportMitraSurveiController extends Controller
             })
             ->when($request->filled('nama_lengkap'), function ($query) use ($request) {
                 $query->where('nama_lengkap', $request->nama_lengkap);
+            })
+            ->when($request->filled('status_pekerjaan'), function ($query) use ($request) {
+                $query->where('status_pekerjaan', $request->status_pekerjaan);
             });
 
         // Filter Status Partisipasi
@@ -432,10 +435,12 @@ class ReportMitraSurveiController extends Controller
         })->count();
         $totalTidakIkutSurvei = $totalMitra - $totalIkutSurvei;
 
+        // Hitung total mitra yang bisa dan tidak bisa ikut survei
+        $totalBisaIkutSurvei = $mitrasData->where('status_pekerjaan', 0)->count();
+        $totalTidakBisaIkutSurvei = $totalMitra - $totalBisaIkutSurvei;
+
         // Hitung total honor
         $mitraIds = $mitrasData->pluck('id_mitra');
-
-        // Hitung total honor dengan join ke posisi_mitra
         $totalHonor = MitraSurvei::join('posisi_mitra', 'mitra_survei.id_posisi_mitra', '=', 'posisi_mitra.id_posisi_mitra')
             ->whereIn('mitra_survei.id_mitra', $mitrasData->pluck('id_mitra'))
             ->whereHas('survei', function ($q) use ($request) {
@@ -463,12 +468,17 @@ class ReportMitraSurveiController extends Controller
         if ($request->filled('status_mitra')) {
             $filters['status_mitra'] = $request->status_mitra == 'ikut' ? 'Ikut Survei' : 'Tidak Ikut Survei';
         }
+        if ($request->filled('status_pekerjaan')) {
+            $filters['status_pekerjaan'] = $request->status_pekerjaan == 0 ? 'Bisa Ikut Survei' : 'Tidak Bisa Ikut Survei';
+        }
 
         // Data total
         $totals = [
             'totalMitra' => $totalMitra,
             'totalIkutSurvei' => $totalIkutSurvei,
             'totalTidakIkutSurvei' => $totalTidakIkutSurvei,
+            'totalBisaIkutSurvei' => $totalBisaIkutSurvei,
+            'totalTidakBisaIkutSurvei' => $totalTidakBisaIkutSurvei,
             'totalHonor' => $totalHonor,
         ];
 
