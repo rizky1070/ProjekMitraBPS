@@ -159,7 +159,6 @@ $title = 'Daftar Mitra';
                                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kontrak</th>
                                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Honor</th>
                                     
-                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -191,10 +190,9 @@ $title = 'Daftar Mitra';
                                                 Rp {{ number_format($mitra->total_honor, 0, ',', '.') }}
                                             @else
                                                 -
-                                            @endif                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            <a href="/profilMitra/{{ $mitra->id_mitra }}" class="px-4 py-1 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Lihat</a>
+                                            @endif                                        
                                         </td>
+                                        
                                     </tr>
                                 @endforeach
                             </tbody>

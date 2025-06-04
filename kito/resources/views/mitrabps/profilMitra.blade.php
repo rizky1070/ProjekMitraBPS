@@ -44,7 +44,7 @@ $title = 'Profil Mitra';
                         @csrf
                         @method('DELETE')
                         <button type="submit"
-                            class="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-all duration-200"
+                            class="bg-red-500 text-white font-medium px-3 py-1 rounded-md hover:bg-red-600 transition-all duration-200"
                             aria-label="Hapus mitra" title="Hapus permanen mitra ini">
                             Hapus
                         </button>
@@ -113,10 +113,11 @@ $title = 'Profil Mitra';
 
                             <!-- Button untuk status -->
                             <button type="submit"
-                                class="{{ $colorClasses }} transition-all duration-300 relative group mt-4 px-4 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-600"
+                                class="{{ $colorClasses }} hover:{{ $isActive ? 'bg-red-600' : 'bg-green-600' }} transition-all duration-300 relative group mt-4 px-4 py-2 text-white font-medium rounded-md"
                                 aria-label="Ubah status pekerjaan" title="Klik untuk mengubah status">
                                 {{ $statusText }}
                             </button>
+
                         </form>
                     </div>
                 </div>
