@@ -148,7 +148,7 @@ $title = 'Super Tim';
         </div>
 
         <!-- Add Office Modal -->
-        <div x-show="showAddModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div x-show="showAddModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" style="display: none;">
             <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
                 <h2 class="text-xl font-bold mb-4">Tambah Super Tim Baru</h2>
                 <form @submit.stop.prevent="submitAddForm">
@@ -194,7 +194,7 @@ $title = 'Super Tim';
         </div>
 
         <!-- Edit Office Modal -->
-        <div x-show="showEditModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div x-show="showEditModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" style="display: none;">
             <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
                 <h2 class="text-xl font-bold mb-4">Edit Super Tim</h2>
                 <form @submit.stop.prevent="submitEditForm">
@@ -305,6 +305,55 @@ $title = 'Super Tim';
                     Swal.fire("Error!", "Terjadi kesalahan jaringan", "error");
                 });
             },
+
+            getStatusText(status) {
+                    return status ? 'Aktif' : 'Nonaktif';
+                },
+
+                getStatusClass(status) {
+                    return status ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold';
+                },
+
+                resetForm() {
+                    this.newOfficeName = '';
+                    this.newOfficeLink = '';
+                    this.newOfficeCategory = '';
+                    this.newOfficeStatus = 1;
+                },
+
+                async submitAddForm() {
+                    try {
+                        this.isLoading = true;
+                        const response = await fetch('/daftarsupertim', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                name: this.newOfficeName,
+                                link: this.newOfficeLink,
+                                category_id: this.newOfficeCategory || null,
+                                status: this.newOfficeStatus
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Gagal menambahkan Sekretariat');
+                        }
+                        
+                        Swal.fire("Berhasil!", "Link Super Tim baru telah ditambahkan", "success")
+                            .then(() => window.location.reload());
+                    } catch (error) {
+                        Swal.fire("Error!", error.message, "error");
+                        console.error('Error:', error);
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
 
             async togglePin(id) {
                 try {

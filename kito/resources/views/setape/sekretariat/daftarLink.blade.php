@@ -347,7 +347,7 @@ $title = 'Sekretariat';
                             throw new Error(data.message || 'Gagal menambahkan Sekretariat');
                         }
                         
-                        Swal.fire("Berhasil!", "Sekretariat baru telah ditambahkan", "success")
+                        Swal.fire("Berhasil!", "Link Sekretariat baru telah ditambahkan", "success")
                             .then(() => window.location.reload());
                     } catch (error) {
                         Swal.fire("Error!", error.message, "error");
