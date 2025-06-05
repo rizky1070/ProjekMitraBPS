@@ -85,10 +85,34 @@ class PribadiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                // Validasi kustom untuk memeriksa kombinasi name dan category_user_id
+                function ($attribute, $value, $fail) use ($request) {
+                    $exists = Link::where('name', $value)
+                        ->where('category_user_id', $request->category_user_id)
+                        ->exists();
+                    if ($exists) {
+                        $fail('Nama sudah digunakan untuk kategori ini. Silakan pilih nama lain atau kategori lain.');
+                    }
+                }
+            ],
             'link' => 'required|url|max:255',
-            'category_user_id' => 'required|exists:category_users,id', // Diubah dari nullable ke required
-            'status' => 'required'
+            'category_user_id' => 'required|exists:category_users,id',
+            'status' => 'required|boolean'
+        ], [
+            'name.required' => 'Nama harus diisi.',
+            'name.string' => 'Nama harus berupa teks.',
+            'name.max' => 'Nama tidak boleh lebih dari 255 karakter.',
+            'link.required' => 'Link harus diisi.',
+            'link.url' => 'Link harus berupa URL yang valid.',
+            'link.max' => 'Link tidak boleh lebih dari 255 karakter.',
+            'category_user_id.required' => 'Kategori harus dipilih.',
+            'category_user_id.exists' => 'Kategori yang dipilih tidak valid.',
+            'status.required' => 'Status harus dipilih.',
+            'status.boolean' => 'Status harus berupa nilai benar atau salah.'
         ]);
 
         try {
@@ -115,31 +139,41 @@ class PribadiController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'sometimes|string|max:255',
+            'name' => [
+                'sometimes',
+                'string',
+                'max:255',
+                // Validasi kustom untuk memeriksa kombinasi name dan category_user_id
+                function ($attribute, $value, $fail) use ($request) {
+                    $exists = Link::where('name', $value)
+                        ->where('category_user_id', $request->category_user_id)
+                        ->exists();
+                    if ($exists) {
+                        $fail('Nama sudah digunakan untuk kategori ini. Silakan pilih nama lain atau kategori lain.');
+                    }
+                }
+            ],
             'link' => 'sometimes|url|max:255',
-            'category_user_id' => 'sometimes|nullable|exists:category_users,id',
+            'category_user_id' => 'sometimes|exists:category_users,id',
             'status' => 'sometimes|boolean'
+        ], [
+            'name.string' => 'Nama harus berupa teks.',
+            'name.max' => 'Nama tidak boleh lebih dari 255 karakter.',
+            'link.url' => 'Link harus berupa URL yang valid.',
+            'link.max' => 'Link tidak boleh lebih dari 255 karakter.',
+            'category_user_id.exists' => 'Kategori yang dipilih tidak valid.',
+            'status.boolean' => 'Status harus berupa nilai benar atau salah.'
         ]);
 
         try {
-            $link = Link::where('id', $id)
-                ->where('user_id', Auth::id())
-                ->firstOrFail();
+            $link = Link::findOrFail($id);
 
-            // Ambil hanya data yang ada di request
-            $updateData = $request->only(['name', 'link', 'category_user_id', 'status']);
-
-            // Jika 'status' ada di request, pastikan boolean
-            if ($request->has('status')) {
-                $updateData['status'] = (bool)$request->status;
-            }
-
-            // Hapus key yang bernilai null (jika tidak ingin mengubah field tertentu)
-            $updateData = array_filter($updateData, function ($value) {
-                return $value !== null; // Hanya update jika bukan null
-            });
-
-            $link->update($updateData);
+            $link->update([
+                'name' => $request->name ?? $link->name,
+                'link' => $request->link ?? $link->link,
+                'category_user_id' => $request->category_user_id ?? $link->category_user_id,
+                'status' => $request->status ?? $link->status
+            ]);
 
             return response()->json([
                 'success' => true,
