@@ -147,9 +147,9 @@ $title = 'Daftar Mitra';
                         });
                     });
                 </script>
-                <!-- Table -->
-                <div class="border rounded-lg shadow-sm bg-white bg-white p-3">
-                    <div class="cusScrollTableX">
+                <!-- Table Section -->
+                <div class="border rounded-lg shadow-sm bg-white p-3">
+                    <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
@@ -158,48 +158,48 @@ $title = 'Daftar Mitra';
                                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Survei yang Diikuti</th>
                                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kontrak</th>
                                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Honor</th>
-                                    
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach ($mitras as $mitra)
-                                    <tr class="hover:bg-gray-50" style=" border-top-width: 2px; border-color: #D1D5DB;">
-                                        @php
-                                            $bgStatus = $mitra->status_pekerjaan == 1 ? 'bg-red-500' : 'bg-green-500';
-                                        @endphp
-                                        <td class="text-sm font-medium text-gray-900 whitespace-normal break-words" style="max-width: 120px;">
-                                            <div class="ml-3 flex justify-center items-center text-center">
-                                                <p class="{{ $bgStatus }} m-1 p-1 border rounded-lg"></p>
-                                                <a href="/profilMitra/{{ $mitra->id_mitra }}" class="hover:underline transition duration-300 ease-in-out " style="text-decoration-color: #FFA500; text-decoration-thickness: 3px;">
-                                                    {{ $mitra->nama_lengkap }}
-                                                </a>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            {{ $mitra->kecamatan->nama_kecamatan ?? '-' }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            {{ $mitra->total_survei }}
-                                        </td>
-                                        <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
-                                            {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - 
-                                            {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            @if($mitra->total_survei > 0)
-                                                Rp {{ number_format($mitra->total_honor, 0, ',', '.') }}
-                                            @else
-                                                -
-                                            @endif                                        
-                                        </td>
-                                        
-                                    </tr>
+                                <tr class="hover:bg-gray-50" style="border-top-width: 2px; border-color: #D1D5DB;">
+                                    @php
+                                        $bgStatus = $mitra->status_pekerjaan == 1 ? 'bg-red-500' : 'bg-green-500';
+                                    @endphp
+                                    <td class="text-sm font-medium text-gray-900 whitespace-normal break-words" style="max-width: 120px;">
+                                        <div class="ml-3 flex justify-center items-center text-center">
+                                            <p class="{{ $bgStatus }} m-1 p-1 border rounded-lg"></p>
+                                            <a href="/profilMitra/{{ $mitra->id_mitra }}" class="hover:underline transition duration-300 ease-in-out" style="text-decoration-color: #FFA500; text-decoration-thickness: 3px;">
+                                                {{ $mitra->nama_lengkap }}
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        {{ $mitra->kecamatan->nama_kecamatan ?? '-' }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        {{ $mitra->total_survei }}
+                                    </td>
+                                    <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
+                                        {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - 
+                                        {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        @if($mitra->total_survei > 0)
+                                            Rp {{ number_format($mitra->total_honor, 0, ',', '.') }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
                 </div>
+                <!-- Pagination -->
                 @include('components.pagination', ['paginator' => $mitras])
+                
             </main>
         </div>
     </div>
@@ -224,7 +224,7 @@ $title = 'Daftar Mitra';
                     {{ session('success') }}
                 </div>
             @endif
-            
+
             <form action="{{ route('upload.excelMitra') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="file" name="file" accept=".xlsx, .xls" class="border p-2 w-full text-xs sm:text-sm">
