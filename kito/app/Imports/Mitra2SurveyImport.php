@@ -61,10 +61,8 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             $posisi = $this->validatePosisi($row['posisi']);
             $tahunMasuk = $this->validateAndParseDate($row['tgl_mitra_diterima'], 'tgl_mitra_diterima');
 
-            // Jika tgl_ikut_survei kosong, isi dengan jadwal_kegiatan dari tabel survei
-            $tglIkutSurvei = empty($row['tgl_ikut_survei'])
-                ? Carbon::parse($this->survei->jadwal_kegiatan)
-                : $this->validateAndParseDate($row['tgl_ikut_survei'], 'tgl_ikut_survei');
+            // Isi otomatis tgl_ikut_survei dengan jadwal_kegiatan dari tabel survei
+            $tglIkutSurvei = Carbon::parse($this->survei->jadwal_kegiatan);
 
             // Validate mitra exists
             $mitra = $this->validateMitraExists($sobatId, $tahunMasuk);
@@ -76,7 +74,7 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             $now = Carbon::now();
             $jadwalBerakhir = Carbon::parse($this->survei->jadwal_berakhir_kegiatan);
             if ($now->gt($jadwalBerakhir)) {
-                $warningMessage = "Peringatan: Survei dengan ID {$this->id_survei} telah selesai pada {$jadwalBerakhir->format('d-m-Y')}. Data yang diimpor mungkin tidak relevan.";
+                $warningMessage = "Peringatan: Survei telah selesai pada {$jadwalBerakhir->format('d-m-Y')}. Data yang diimpor mungkin tidak relevan.";
                 $this->surveyWarnings[] = $warningMessage; // Simpan di surveyWarnings
             }
 
@@ -167,16 +165,6 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             ],
             'tgl_mitra_diterima' => [
                 'required',
-                function ($attribute, $value, $fail) {
-                    try {
-                        $this->parseDate($value);
-                    } catch (\Exception $e) {
-                        $fail("Format tanggal tidak valid");
-                    }
-                }
-            ],
-            'tgl_ikut_survei' => [
-                'nullable',
                 function ($attribute, $value, $fail) {
                     try {
                         $this->parseDate($value);
