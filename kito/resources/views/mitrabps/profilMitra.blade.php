@@ -52,8 +52,8 @@ $title = 'Profil Mitra';
                 </div>
                 <div class="md:pl-6 w-full">
                     <div class="flex justify-between w-full border-b py-1">
-                        <strong>Kecamatan :</strong>
-                        <span class="text-right">{{ $mits->kecamatan->nama_kecamatan }}</span>
+                        <strong>Domisili :</strong>
+                        <span class="text-right">{{ $mits->kecamatan->nama_kecamatan }}, {{ $mits->kabupaten->nama_kabupaten }}</span>
                     </div>
                     <div class="flex justify-between w-full border-b py-1">
                         <strong>Alamat Detail :</strong>
