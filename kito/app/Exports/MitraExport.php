@@ -35,8 +35,9 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
         'Jumlah Survei Diikuti',
         'Nama Survei',
         'Total Honor',
+        'Status Pekerjaan',
+        'Detail Pekerjaan',
         'Status',
-        'Status Pekerjaan'
     ];
 
     public function __construct($query, $filters = [], $totals = [])
@@ -115,8 +116,9 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
             $jumlahSurvei,
             $namaSurvei,
             $totalHonor,
+            $statusPekerjaan,
+            $mitra->detail_pekerjaan ?? '-',
             $jumlahSurvei > 0 ? 'Aktif Mengikuti Survei' : 'Tidak Aktif Mengikuti Survei',
-            $statusPekerjaan
         ];
     }
 
@@ -143,7 +145,7 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
 
                 // Judul Laporan
                 $sheet->setCellValue('A' . $row, 'LAPORAN DATA MITRA');
-                $sheet->mergeCells('A' . $row . ':Q' . $row);
+                $sheet->mergeCells('A' . $row . ':R' . $row);
                 $sheet->getStyle('A' . $row)->getFont()
                     ->setBold(true)
                     ->setSize(14);
@@ -156,7 +158,7 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
 
                 // Tanggal Export
                 $sheet->setCellValue('A' . $row, 'Tanggal Export: ' . Carbon::now()->format('d/m/Y H:i'));
-                $sheet->mergeCells('A' . $row . ':Q' . $row);
+                $sheet->mergeCells('A' . $row . ':R' . $row);
                 $sheet->getStyle('A' . $row)->getFont()->setItalic(true);
                 $row++;
 
@@ -166,14 +168,14 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
                 // Informasi Filter
                 if (!empty($this->filters)) {
                     $sheet->setCellValue('A' . $row, 'Filter yang digunakan:');
-                    $sheet->mergeCells('A' . $row . ':Q' . $row);
+                    $sheet->mergeCells('A' . $row . ':R' . $row);
                     $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                     $row++;
 
                     foreach ($this->filters as $key => $value) {
                         $label = $this->getFilterLabel($key);
                         $sheet->setCellValue('A' . $row, $label . ': ' . $value);
-                        $sheet->mergeCells('A' . $row . ':Q' . $row);
+                        $sheet->mergeCells('A' . $row . ':R' . $row);
                         $row++;
                     }
 
@@ -224,7 +226,7 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
                         ],
                     ],
                 ];
-                $sheet->getStyle('A' . $row . ':Q' . $row)->applyFromArray($headerStyle);
+                $sheet->getStyle('A' . $row . ':R' . $row)->applyFromArray($headerStyle);
 
                 // Format kolom
                 $sheet->getStyle('O')
@@ -232,7 +234,7 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
                     ->setFormatCode('#,##0');
 
                 // Set kolom auto-size
-                foreach (range('A', 'Q') as $column) {
+                foreach (range('A', 'R') as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
             },
