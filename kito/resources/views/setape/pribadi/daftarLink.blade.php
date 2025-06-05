@@ -98,7 +98,7 @@ $title = 'Daftar Link Pribadi';
                                             @click="showEditModal = true; currentLink = {{ $link->id }}; 
                                                     editLinkName = '{{ $link->name }}'; 
                                                     editLinkLink = '{{ $link->link }}'; 
-                                                    editLinkCategory = {{ $link->category_id ?? 'null' }}; 
+                                                    editLinkCategory = {{ $link->category_user_id ?? 'null' }}; 
                                                     editLinkStatus = {{ $link->status ? 1 : 0 }};" 
                                             class="bg-yellow-500 text-white p-1 rounded-full hover:bg-yellow-600 transition-colors duration-200"
                                             title="Edit">
