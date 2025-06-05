@@ -323,7 +323,7 @@ $title = 'Kelola Survei';
                                     @endphp
                                     <td class="whitespace-normal text-center break-words" style="max-width: 120px;">
                                         <div class="flex justify-center items-center">
-                                            <a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a>
+                                            <a href="/profilMitra/{{ $mitra->id_mitra }}" class="hover:underline transition duration-300 ease-in-out" style="text-decoration-color: #FFA500; text-decoration-thickness: 3px;">{{ $mitra->nama_lengkap }} </a>
                                         </div>
                                     </td>
                                     <td class="whitespace-nowrap text-center" style="max-width: 120px;">{{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
