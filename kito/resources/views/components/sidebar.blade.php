@@ -187,13 +187,13 @@
 
 
 
-            <a class="flex items-center px-6 py-2  text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100"
+            {{-- <a class="flex items-center px-6 py-2  text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100"
                 href="https://www.link3516.com">
                 <img src="supertim.png" alt="Logo Super Tim" class="w-12 h-12" />
 
 
                 <span class="mx-3">SETAPE </span>
-            </a>
+            </a> --}}
 
         </div>
 
@@ -305,8 +305,7 @@
                 request()->is('daftarsekretariat') ||
                 request()->is('daftarlinkpribadi') ||
                 request()->is('setapedashboard');
-
-                @endphp
+        @endphp
                 <div>
                     <!-- Button Dropdown -->
                     <div class="flex items-center">
@@ -315,38 +314,34 @@
                         class="dropdown-btn flex items-center px-4 py-3 text-lg {{ $isDropdownMitraActive ? 'text-white' : 'text-gray-500' }} hover:bg-opacity-80 hover:text-white transition-all duration-300 rounded-md">
                         SETAPE
                         <i class="fa fa-caret-down ml-2"></i>
-                    </button>
-                </div>
+                        </button>
+                    </div>
                 
-                <div class="dropdown-container {{ $isDropdownMitraActive ? 'block' : 'hidden' }}">
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('setapedashboard') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/setapedashboard">
-                        <span class="mx-3">Dashboard</span>
-                    </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('supertim') || request()->is('sekretariat') ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/supertim">
-                        <span class="mx-3">Publik</span>
-                    </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarlinkpribadi') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/daftarlinkpribadi">
-                        <span class="mx-3">Pribadi</span>
-                    </a>
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ (request()->is('kategoriumum') || request()->is('kategoripribadi')) ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/kategoripribadi">
-                        <span class="mx-3">Kategori</span>
-                    </a>
-                    @if (auth()->user()->is_admin || auth()->user()->is_leader)
-                    <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ (request()->is('daftarsupertim') || request()->is('daftarsekretariat')) ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/daftarsupertim">
-                        <span class="mx-3">Kelompok Kerja</span>
-                    </a>
-                    @endif
-                    {{-- <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('ReportMitra') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
-                        href="/ReportMitra">
-                        <span class="mx-3">Laporan Mitra</span>
-                    </a> --}}
-            </div>
-        </div>
+                    <div class="dropdown-container {{ $isDropdownMitraActive ? 'block' : 'hidden' }}">
+                        <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('setapedashboard') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                            href="/setapedashboard">
+                            <span class="mx-3">Dashboard</span>
+                        </a>
+                        <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('supertim') || request()->is('sekretariat') ?  'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                            href="/supertim">
+                            <span class="mx-3">Publik</span>
+                        </a>
+                        <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarlinkpribadi') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                            href="/daftarlinkpribadi">
+                            <span class="mx-3">Pribadi</span>
+                        </a>
+                        <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ (request()->is('kategoriumum') || request()->is('kategoripribadi')) ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                            href="/kategoripribadi">
+                            <span class="mx-3">Kategori</span>
+                        </a>
+                        @if (auth()->user()->is_admin || auth()->user()->is_leader)
+                        <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ (request()->is('daftarsupertim') || request()->is('daftarsekretariat')) ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
+                            href="/daftarsupertim">
+                            <span class="mx-3">Kelompok Kerja</span>
+                        </a>
+                        @endif
+                    </div>
+                </div>
         
 
 
