@@ -189,41 +189,45 @@ $title = 'Report Mitra';
                     </div>
 
                     <!-- Table Section -->
-                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="border rounded-lg shadow-sm bg-white p-3">
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
-                                    <tr class="text-center">
+                                    <tr>
                                         <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mitra</th>
                                         <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kecamatan</th>
                                         <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Survei Diikuti</th>
-                                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa kontrak</th>
+                                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kontrak</th>
                                         <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach ($mitras as $mitra)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 text-center">
-                                            <div class="flex flex-col items-center justify-center">
-                                                <div class="text-sm font-medium text-gray-900 whitespace-normal break-words"><a href="/profilMitra/{{ $mitra->id_mitra }}">{{ $mitra->nama_lengkap }}</a></div>
-                                                <div class="text-sm text-gray-500">{{ $mitra->email_mitra }}</div>
-                                                <div class="text-sm text-gray-500">{{ $mitra->no_hp_mitra }}</div>
+                                    <tr class="hover:bg-gray-50" style="border-top-width: 2px; border-color: #D1D5DB;">
+                                        <td class="text-sm font-medium text-gray-900 whitespace-normal break-words" style="max-width: 120px;">
+                                            <div class="ml-3 flex justify-center items-center text-center">
+                                                <a href="/profilMitra/{{ $mitra->id_mitra }}" >
+                                                    {{ $mitra->nama_lengkap }}
+                                                </a>
                                             </div>
+                                            <div class="text-sm text-gray-500 text-center">{{ $mitra->email_mitra }}</div>
+                                            <div class="text-sm text-gray-500 text-center">{{ $mitra->no_hp_mitra }}</div>
                                         </td>
-                                        <td class="px-6 py-4 text-center">
-                                            <div class="text-sm text-gray-900">{{ $mitra->kecamatan->nama_kecamatan ?? '-' }}</div>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            {{ $mitra->kecamatan->nama_kecamatan ?? '-' }}
                                         </td>
-                                        <td class="px-6 py-4 text-center">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $mitra->mitra_survei_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            @if($mitra->total_survei > 0)
                                                 {{ $mitra->total_survei }} survei
-                                            </span>
+                                            @else
+                                                -
+                                            @endif
                                         </td>
-                                        <td class="px-6 py-4 text-center whitespace-normal break-words">
+                                        <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
                                             {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - 
                                             {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}
                                         </td>
-                                        <td class="px-6 py-4 text-center">
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
                                             @if($mitra->total_survei > 0)
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                     Aktif Mengikuti Survei
@@ -239,11 +243,10 @@ $title = 'Report Mitra';
                                 </tbody>
                             </table>
                         </div>
-                        <!-- Pagination -->
-                        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-                            @include('components.pagination', ['paginator' => $mitras])
-                        </div>
                     </div>
+                    <!-- Pagination -->
+                    @include('components.pagination', ['paginator' => $mitras])
+                    
                 </div>
             </main>
         </div>
