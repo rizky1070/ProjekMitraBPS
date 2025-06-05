@@ -297,7 +297,7 @@ $title = 'Kelola Survei';
 
                 </script>
                 <div class="border rounded-lg shadow-sm bg-white bg-white p-2 mx-4">
-                    <div class="overflow-x-auto">
+                    <div class="cuScrollTableX">
                         <table class="min-w-full divide-y divide-gray-500">
                             <thead class="bg-gray-50">
                                 <tr>
