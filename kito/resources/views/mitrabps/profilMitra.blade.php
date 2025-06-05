@@ -77,19 +77,19 @@ $title = 'Profil Mitra';
                         <div class="flex items-center gap-2">
                             <!-- Form untuk update detail pekerjaan -->
                             <form action="{{ route('mitra.updateDetailPekerjaan', $mits->id_mitra) }}" method="POST"
-                                class="flex items-center gap-2">
+                                class="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full">
                                 @csrf
                                 @method('PUT')
                                 <!-- Input detail pekerjaan -->
-                                <div class="relative">
+                                <div class="relative flex-1">
                                     <input type="text" name="detail_pekerjaan" value="{{ $mits->detail_pekerjaan }}"
-                                        class="border-0 px-2 py-1 text-right w-64 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                        class="border-0 px-2 py-1 text-right w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-orange-500"
                                         placeholder="Masukkan detail pekerjaan" title="Ubah detail pekerjaan">
                                 </div>
 
                                 <!-- Button submit untuk detail pekerjaan -->
                                 <button type="submit"
-                                    class="bg-oren text-white px-3 py-1 rounded-md  relative group  font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300"
+                                    class="bg-oren text-white px-3 py-1 rounded-md font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300 w-full md:w-auto"
                                     aria-label="Simpan detail pekerjaan" title="Klik untuk menyimpan detail pekerjaan">
                                     Simpan
                                 </button>
