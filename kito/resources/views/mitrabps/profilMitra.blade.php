@@ -189,131 +189,103 @@ $title = 'Profil Mitra';
                         <p class="font-sm text-gray-500">*Aktifkan filter bulan untuk melihat total gaji</p>
                     @endif
                 </div>
-                <div class="bg-white p-4 border border-gray-300 rounded-lg shadow-l">
-                    <div class="cuScrollTableX mb-2 pb-2">
-
-                        <h2 class="text-lg font-semibold text-gray-800">Survei yang sudah dikerjakan:</h2>
-
-                        @php
-                            $survei_dikerjakan = $survei->filter(fn($s) => $s->survei->status_survei == 3);
-                        @endphp
-
-                        @if($survei_dikerjakan->isEmpty())
-                            <h2 class="text-l text-gray-600 pl-4">Tidak ada survei yang sudah dikerjakan</h2>
-                        @else
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Nama Survei</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Jadwal Survei</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Vol</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Rate Honor</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Catatan</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Nilai</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach ($survei_dikerjakan as $sur)
-                                        <tr class="hover:bg-gray-50" style=" border-top-width: 2px; border-color: #D1D5DB;">
-                                            <td class="text-sm font-medium text-gray-900 whitespace-normal break-words"
-                                                style="max-width: 120px;">{{ $sur->survei->nama_survei }}</td>
-                                            <td class="text-center whitespace-normal break-words" style="max-width: 200px;">
-                                                {{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }}
-                                                -
-                                                {{ \Carbon\Carbon::parse($sur->survei->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->vol ?? '-' }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                Rp{{ number_format($sur->posisiMitra->rate_honor ?? 0, 0, ',', '.') }}</td>
-                                            @if($sur->catatan == null && $sur->nilai == null)
-                                                <td class="p-2 text-center text-red-700 font-bold">Tidak ada catatan</td>
-                                                <td class="p-2 text-center text-red-700 font-bold">Belum dinilai</td>
-                                            @else
-                                                <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->catatan }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                    {{ str_repeat('⭐', $sur->nilai) }}</td>
-                                            @endif
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                <a href="/penilaianMitra/{{ $sur->survei->id_survei }}"
-                                                    class="px-4 py-1 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Edit</a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        @endif
-                    </div>
-                    <div class="cuScrollTableX mb-4 pt-2" style=" border-top-width: 2px; border-color: #9CA3AF;">
-
-                        <h2 class="text-lg font-semibold text-gray-800">Survei yang belum/sedang dikerjakan:</h2>
-
-                        @php
-                            $survei_belum = $survei->filter(fn($s) => $s->survei->status_survei != 3);
-                        @endphp
-
-                        @if($survei_belum->isEmpty())
-                            <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang belum/sedang dikerjakan</h2>
-                        @else
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Nama Survei</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Jadwal Survei</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Vol</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Rate Honor</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Lihat Survei</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach ($survei_belum as $sur)
-                                        <tr class="hover:bg-gray-50" style=" border-top-width: 2px; border-color: #D1D5DB;">
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->survei->nama_survei }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                {{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }}
-                                                -
-                                                {{ \Carbon\Carbon::parse($sur->survei->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->vol ?? '-' }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                Rp{{ number_format($sur->posisiMitra->rate_honor ?? 0, 0, ',', '.') }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                <a href="/editSurvei/{{ $sur->survei->id_survei }}"
-                                                    class="px-4 py-1 bg-oren  rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Lihat</a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        @endif
-                    </div>
-
+                <div class="bg-white p-4 border border-gray-300 rounded-lg shadow-lg">
+                <!-- Survei yang sudah dikerjakan -->
+                <div class="overflow-x-auto mb-4 pb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Survei yang sudah dikerjakan:</h2>
+                    @php
+                        $survei_dikerjakan = $survei->filter(fn($s) => $s->survei->status_survei == 3);
+                    @endphp
+                    @if($survei_dikerjakan->isEmpty())
+                        <h2 class="text-l text-gray-600 pl-4">Tidak ada survei yang sudah dikerjakan</h2>
+                    @else
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Survei</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal Survei</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Vol</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rate Honor</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Catatan</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nilai</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach ($survei_dikerjakan as $sur)
+                                <tr class="hover:bg-gray-50" style="border-top-width: 2px; border-color: #D1D5DB;">
+                                    <td class="text-sm font-medium text-gray-900 whitespace-normal break-words" style="max-width: 120px;">
+                                        <div class="ml-3 flex justify-center items-center text-center">
+                                            <a href="/editSurvei/{{ $sur->survei->id_survei }}" class="hover:underline transition duration-300 ease-in-out" style="text-decoration-color: #FFA500; text-decoration-thickness: 3px;" >
+                                                {{ $sur->survei->nama_survei }}
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td class="text-center whitespace-normal break-words" style="max-width: 200px;">
+                                        {{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }} -
+                                        {{ \Carbon\Carbon::parse($sur->survei->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->vol ?? '-' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">Rp{{ number_format($sur->posisiMitra->rate_honor ?? 0, 0, ',', '.') }}</td>
+                                    @if($sur->catatan == null && $sur->nilai == null)
+                                        <td class="p-2 text-center text-red-700 font-bold">Tidak ada catatan</td>
+                                        <td class="p-2 text-center text-red-700 font-bold">Belum dinilai</td>
+                                    @else
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->catatan }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">{{ str_repeat('⭐', $sur->nilai) }}</td>
+                                    @endif
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <a href="/penilaianMitra/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Edit</a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
                 </div>
+
+                <!-- Survei yang belum/sedang dikerjakan -->
+                <div class="overflow-x-auto pt-4" style="border-top-width: 2px; border-color: #9CA3AF;">
+                    <h2 class="text-lg font-semibold text-gray-800">Survei yang belum/sedang dikerjakan:</h2>
+                    @php
+                        $survei_belum = $survei->filter(fn($s) => $s->survei->status_survei != 3);
+                    @endphp
+                    @if($survei_belum->isEmpty())
+                        <h2 class="text-l text-gray-600 pl-5">Tidak ada survei yang belum/sedang dikerjakan</h2>
+                    @else
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Survei</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal Survei</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Vol</th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rate Honor</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach ($survei_belum as $sur)
+                                <tr class="hover:bg-gray-50" style="border-top-width: 2px; border-color: #D1D5DB;">
+                                    <td class="text-sm font-medium text-gray-900 whitespace-normal break-words" style="max-width: 120px;">
+                                        <div class="ml-3 flex justify-center items-center text-center">
+                                            <a href="/editSurvei/{{ $sur->survei->id_survei }}" class="hover:underline transition duration-300 ease-in-out" style="text-decoration-color: #FFA500; text-decoration-thickness: 3px;">
+                                                {{ $sur->survei->nama_survei }}
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td class="text-center whitespace-normal break-words" style="max-width: 200px;">
+                                        {{ \Carbon\Carbon::parse($sur->survei->jadwal_kegiatan)->translatedFormat('j F Y') }} -
+                                        {{ \Carbon\Carbon::parse($sur->survei->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->vol ?? '-' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">Rp{{ number_format($sur->posisiMitra->rate_honor ?? 0, 0, ',', '.') }}</td>
+                                   
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </div>
+            </div>
 
             </div>
         </div>
