@@ -208,6 +208,23 @@ $title = 'Daftar Mitra';
         <div class="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-11/12 sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-1/3 mx-2">
             <h2 class="text-lg sm:text-xl font-bold mb-2">Import Mitra</h2>
             <p class="mb-2 text-red-700 text-xs sm:text-sm font-bold">Pastikan format file excel yang diimport sesuai!</p>
+            <!-- Error/Success Messages -->
+            @if($errors->any())
+                <div class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 text-xs sm:text-sm">
+                    <ul class="list-disc pl-5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            
+            @if(session('success'))
+                <div class="mb-4 p-3 bg-green-100 border-l-4 border-green-500 text-green-700 text-xs sm:text-sm">
+                    {{ session('success') }}
+                </div>
+            @endif
+            
             <form action="{{ route('upload.excelMitra') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="file" name="file" accept=".xlsx, .xls" class="border p-2 w-full text-xs sm:text-sm">
