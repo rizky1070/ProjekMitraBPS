@@ -132,14 +132,14 @@ $title = 'Profil Mitra';
                 <form method="GET" action="{{ route('profilMitra.filter', ['id_mitra' => $mits->id_mitra]) }}"
                     class="flex flex-wrap gap-4 items-center mb-2" id="filterForm">
                     <!-- Survey Name Row -->
-                    <div class="flex items-center">
-                        <label for="nama_survei" class="w-32 text-lg font-semibold text-gray-800">Cari Survei</label>
+                    <div class="flex flex-col md:flex-row items-start md:items-center">
+                        <label for="nama_survei" class="w-full md:w-32 text-sm md:text-lg font-semibold text-gray-800 mb-1 md:mb-0">Cari Survei</label>
                         <select name="nama_survei" id="nama_survei"
-                            class="w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaSurveiOptions) ? 'disabled' : '' }}>
+                            class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 md:ml-2"
+                            {{ empty($namaSurveiOptions) ? 'disabled' : '' }}>
                             <option value="">Semua Survei</option>
                             @foreach($namaSurveiOptions as $nama => $label)
-                                <option value="{{ $nama }}" @if(request('nama_survei') == $nama) selected @endif>{{ $label }}
-                                </option>
+                                <option value="{{ $nama }}" @if(request('nama_survei') == $nama) selected @endif>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>
