@@ -27,6 +27,7 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
     private $rowErrors = [];
     private $successCount = 0;
     private $honorWarnings = [];
+    private $surveyWarnings = [];
     private $currentRow = [];
     private $excelRowNumber = 2; // Data starts from row 2 (header at row 1)
 
@@ -59,13 +60,25 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             $nilai = isset($row['nilai']) ? $this->validateNilai($row['nilai']) : null;
             $posisi = $this->validatePosisi($row['posisi']);
             $tahunMasuk = $this->validateAndParseDate($row['tgl_mitra_diterima'], 'tgl_mitra_diterima');
-            $tglIkutSurvei = $this->validateAndParseDate($row['tgl_ikut_survei'], 'tgl_ikut_survei');
+
+            // Jika tgl_ikut_survei kosong, isi dengan jadwal_kegiatan dari tabel survei
+            $tglIkutSurvei = empty($row['tgl_ikut_survei'])
+                ? Carbon::parse($this->survei->jadwal_kegiatan)
+                : $this->validateAndParseDate($row['tgl_ikut_survei'], 'tgl_ikut_survei');
 
             // Validate mitra exists
             $mitra = $this->validateMitraExists($sobatId, $tahunMasuk);
 
             // Validate survey period
             $this->validateSurveyPeriod($tahunMasuk, $mitra->tahun_selesai, $tglIkutSurvei);
+
+            // Cek apakah survei telah selesai (tanggal saat ini > jadwal_berakhir_kegiatan)
+            $now = Carbon::now();
+            $jadwalBerakhir = Carbon::parse($this->survei->jadwal_berakhir_kegiatan);
+            if ($now->gt($jadwalBerakhir)) {
+                $warningMessage = "Peringatan: Survei dengan ID {$this->id_survei} telah selesai pada {$jadwalBerakhir->format('d-m-Y')}. Data yang diimpor mungkin tidak relevan.";
+                $this->surveyWarnings[] = $warningMessage; // Simpan di surveyWarnings
+            }
 
             // Get position data
             $posisiMitra = $this->getPosisiMitra($posisi);
@@ -163,7 +176,7 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
                 }
             ],
             'tgl_ikut_survei' => [
-                'required',
+                'nullable',
                 function ($attribute, $value, $fail) {
                     try {
                         $this->parseDate($value);
@@ -185,7 +198,6 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             'posisi.required' => 'Posisi harus diisi',
             'vol.required' => 'Volume harus diisi',
             'tgl_mitra_diterima.required' => 'Tanggal diterima mitra harus diisi',
-            'tgl_ikut_survei.required' => 'Tanggal ikut survei harus diisi',
         ];
     }
 
@@ -465,5 +477,17 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
     public function getHonorWarningsCount()
     {
         return count($this->honorWarnings);
+    }
+
+    public function getSurveyWarningMessages()
+    {
+        // Hapus duplikat pesan peringatan
+        return array_unique($this->surveyWarnings);
+    }
+
+    public function getSurveyWarningsCount()
+    {
+        // Hitung jumlah pesan peringatan setelah menghapus duplikat
+        return count(array_unique($this->surveyWarnings));
     }
 }

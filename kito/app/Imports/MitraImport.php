@@ -215,8 +215,8 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                     }
                 }
             ],
-            'tgl_mitra_diterima' => 'nullable|string',
-            'tgl_berakhir_mitra' => 'nullable|string'
+            'tgl_mitra_diterima' => 'nullable',
+            'tgl_berakhir_mitra' => 'nullable'
         ];
     }
 

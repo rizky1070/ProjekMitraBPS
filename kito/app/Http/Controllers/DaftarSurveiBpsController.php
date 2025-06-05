@@ -544,9 +544,12 @@ class DaftarSurveiBpsController extends Controller
             $successCount = $import->getSuccessCount();
             $failedCount = $import->getFailedCount();
             $honorWarningsCount = $import->getHonorWarningsCount();
+            $surveyWarningsCount = $import->getSurveyWarningsCount(); // Ambil peringatan survei
+
 
             $errorMessages = $import->getErrorMessages();
             $honorWarningMessages = $import->getHonorWarningMessages();
+            $surveyWarnings = $import->getSurveyWarningMessages(); // Ambil peringatan survei
 
             $message = "Import selesai! ";
             $message .= "{$successCount} data berhasil diproses. ";
@@ -568,6 +571,10 @@ class DaftarSurveiBpsController extends Controller
 
             if ($honorWarningsCount > 0) {
                 $response = $response->with('honor_warnings', $honorWarningMessages);
+            }
+
+            if ($surveyWarningsCount > 0) {
+                $response = $response->with('survei_warnings', $surveyWarnings);
             }
 
             return $response;

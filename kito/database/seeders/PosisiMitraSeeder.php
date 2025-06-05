@@ -18,6 +18,7 @@ class PosisiMitraSeeder extends Seeder
             ['nama_posisi' => 'UI/UX Designer', 'rate_honor' => 20000],
             ['nama_posisi' => 'Data Analyst', 'rate_honor' => 30000],
             ['nama_posisi' => 'System Administrator', 'rate_honor' => 40000],
+            ['nama_posisi' => 'Petugas Pendataan Lapangan (PPL Survei)', 'rate_honor' => 110000],
         ];
 
         // Insert data ke tabel

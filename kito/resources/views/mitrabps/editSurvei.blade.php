@@ -201,6 +201,17 @@ $title = 'Kelola Survei';
                             </div>
                         </div>
                     </form>
+                    @if(session('survei_warnings'))
+                        <div class="mt-2 mb-4 p-3 bg-blue-100 border-l-4 border-blue-500 text-blue-700">
+                            <h4 class="font-bold">Peringatan Survei:</h4>
+                            <ul class="list-disc pl-5">
+                                @foreach(session('survei_warnings') as $warning)
+                                    <li class="text-sm">{{ $warning }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    
                     @if(session('import_errors'))
                     <div class="mt-2 mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700">
                         <h4 class="font-bold">Mitra yang gagal diimport ke survei:</h4>
