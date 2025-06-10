@@ -340,7 +340,7 @@ $title = 'Kelola Survei';
                                             <input type="number" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="{{ $mitra->vol }}" style="width: 100%;">
                                         </td>
                                         <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <input type="text" name="rate_honor" value="Rp {{ number_format($mitra->rate_honor, 0, ',', '.') }}" class="w-full focus:outline-none text-center border-none" placeholder="Rp{{ number_format($mitra->rate_honor, 0, ',', '.') }}" style="width: 100%;" readonly>
+                                            Rp{{ number_format($mitra->rate_honor, 0, ',', '.') }}
                                         </td>
                                         <td class="whitespace-nowrap text-center" style="max-width: 120px;">
                                             <select name="id_posisi_mitra" id="posisi_{{ $mitra->id_mitra }}" class="w-full focus:outline-none text-center" style="width: 100%;">
