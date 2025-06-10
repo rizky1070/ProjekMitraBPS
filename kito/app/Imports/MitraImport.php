@@ -337,7 +337,7 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             ->where('id_kecamatan', $kecamatan->id_kecamatan)
             ->first();
         if (!$desa) {
-            throw new \Exception("Kode desa {$row['kode_desa']} tidak ditemukan di kecamatan {$kecamatan->nama_kecamatan}.");
+            throw new \Exception("Kode desa {$row['kode_desa']} tidak ditemukan di kecamatan {$kecamatan->nama_kecamatan} yang berada di kabupaten {$kecamatan->kabupaten->nama_kabupaten}.");
         }
         return $desa;
     }
