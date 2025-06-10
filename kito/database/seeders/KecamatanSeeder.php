@@ -31,7 +31,6 @@ class KecamatanSeeder extends Seeder
             ['010', '010', '76'],
             ['020', '020', '76'],
             ['021', '021', '76'],
-
         ];
 
         DB::table('kecamatan')->insert(
