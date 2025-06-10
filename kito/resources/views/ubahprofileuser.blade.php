@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('viteall')
     <link rel="icon" href="/Logo BPS.png" type="image/png">
     <title>Ubah Profile</title>
 </head>

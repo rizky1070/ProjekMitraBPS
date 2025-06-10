@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- Menambahkan file CSS dan JS dengan Laravel Vite -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <!-- Library Leaflet untuk peta -->
+    @include('viteall')
+        <!-- Library Leaflet untuk peta -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <!-- Favicon -->
     <link rel="icon" href="/Logo BPS.png" type="image/png">
