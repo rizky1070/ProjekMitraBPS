@@ -127,9 +127,9 @@ $title = 'Profil Mitra';
         <!-- Tabel Survei -->
         <div class="max-w-4xl mx-auto">
             <h2 class="text-xl font-bold mb-4">Survei yang diikuti mitra</h2>
-            <div class="cuScrollFilter bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div id="survei-dikerjakan" class="cuScrollFilter bg-white rounded-lg shadow-sm p-6 mb-6">
                 <!-- Form Filter -->
-                <form method="GET" action="{{ route('profilMitra.filter', ['id_mitra' => $mits->id_mitra]) }}"
+                <form method="GET" action="{{ route('profilMitra.filter', ['id_mitra' => $mits->id_mitra, 'scroll_to' => request('scroll_to')]) }}" 
                     class="flex flex-wrap gap-4 items-center mb-2" id="filterForm">
                     <!-- Survey Name Row -->
                     <div class="flex flex-col md:flex-row items-start md:items-center">
@@ -198,6 +198,7 @@ $title = 'Profil Mitra';
                     @endphp
                     @if($survei_dikerjakan->isEmpty())
                         <h2 class="text-l text-gray-600 pl-4">Tidak ada survei yang sudah dikerjakan</h2>
+                        autoscroll
                     @else
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -337,6 +338,21 @@ $title = 'Profil Mitra';
 
 
 </body>
+@if(request('scroll_to') == 'survei-dikerjakan')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cari elemen yang ingin di-scroll
+        const element = document.querySelector('.cuScrollFilter');
+        if (element) {
+            // Scroll ke elemen dengan offset untuk header
+            window.scrollTo({
+                top: element.offsetTop - 100,
+                behavior: 'smooth'
+            });
+        }
+    });
+</script>
+@endif
 <!-- ⭐⭐⭐⭐⭐ -->
 
 </html>

@@ -384,7 +384,13 @@ class MitraController extends Controller
                 'catatan' => $request->catatan,
             ]);
 
-        return redirect()->back()->with('success', 'Penilaian berhasil disimpan!');
+        // Ambil id_mitra untuk redirect
+        $mitraSurvei = MitraSurvei::find($request->id_mitra_survei);
+        
+        return redirect()->route('profilMitra.filter', [
+            'id_mitra' => $mitraSurvei->id_mitra,
+            'scroll_to' => 'survei-dikerjakan' // Parameter baru untuk scroll
+        ])->with('success', 'Penilaian berhasil disimpan!');
     }
 
     public function deleteMitra($id_mitra)
