@@ -377,9 +377,7 @@ $title = 'Kelola Survei';
                                         <td class="whitespace-nowrap text-center" style="max-width: 120px;">
                                             <input type="number" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Vol" style="width: 100%;">
                                         </td>
-                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <input type="text" name="rate_honor" id="rate_honor_{{ $mitra->id_mitra }}" value="" class="w-full focus:outline-none text-center border-none" placeholder="Rate Honor" style="width: 100%;" readonly>
-                                        </td>
+                                        <td class="whitespace-nowrap text-center text-gray-500" style="max-width: 100px;">Rate Honor</td>
                                         <td class="whitespace-nowrap text-center" style="max-width: 120px;">
                                             <select name="id_posisi_mitra" id="posisi_{{ $mitra->id_mitra }}" class="w-full focus:outline-none text-center" style="width: 100%;">
                                                 <option value="">Pilih Posisi</option>

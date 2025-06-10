@@ -198,7 +198,6 @@ $title = 'Profil Mitra';
                     @endphp
                     @if($survei_dikerjakan->isEmpty())
                         <h2 class="text-l text-gray-600 pl-4">Tidak ada survei yang sudah dikerjakan</h2>
-                        autoscroll
                     @else
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
