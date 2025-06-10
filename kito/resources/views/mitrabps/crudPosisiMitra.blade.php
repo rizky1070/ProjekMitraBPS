@@ -2,7 +2,6 @@
 $title = 'Daftar Posisi Mitra';
 ?>
 @include('mitrabps.headerTemp')
-@vite(['resources/css/app.css', 'resources/js/app.js'])
 <link rel="icon" href="/Logo BPS.png" type="image/png">
 @include('mitrabps.cuScroll')
 </head>

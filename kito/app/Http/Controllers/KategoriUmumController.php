@@ -24,7 +24,7 @@ class KategoriUmumController extends Controller
                     ->values()
                     ->all();
 
-        return view('Setape.kategoriUmum.daftar', compact('categories', 'kategoriNames'));
+        return view('setape.kategoriUmum.daftar', compact('categories', 'kategoriNames'));
     }
 
     public function store(Request $request)

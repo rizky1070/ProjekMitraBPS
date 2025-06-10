@@ -46,7 +46,7 @@ class SuperTimController extends Controller
             ->values()
             ->all();
 
-        return view('Setape.superTim.index', compact('offices', 'categories', 'officeNames'));
+        return view('setape.superTim.index', compact('offices', 'categories', 'officeNames'));
     }
 
     public function daftarLink(Request $request)
@@ -84,7 +84,7 @@ class SuperTimController extends Controller
             ->values()
             ->all();
 
-        return view('Setape.superTim.daftarLink', compact('offices', 'categories', 'officeNames'));
+        return view('setape.superTim.daftarLink', compact('offices', 'categories', 'officeNames'));
     }
 
     public function togglePin(Request $request, $id)

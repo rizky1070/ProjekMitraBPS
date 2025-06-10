@@ -17,7 +17,7 @@ class PribadiController extends Controller
             ->where('status', 1)
             ->where('user_id', Auth::id())
             ->get(); // hanya ambil data dengan status = 1
-        return view('Setape.pribadi.index', compact('links'));
+        return view('setape.pribadi.index', compact('links'));
     }
 
     public function daftarLink(Request $request)
@@ -55,7 +55,7 @@ class PribadiController extends Controller
             ->values()
             ->all();
 
-        return view('Setape.pribadi.daftarLink', compact('links', 'categories', 'linkNames', 'totalLink'));
+        return view('setape.pribadi.daftarLink', compact('links', 'categories', 'linkNames', 'totalLink'));
     }
 
     public function togglePin(Request $request, $id)

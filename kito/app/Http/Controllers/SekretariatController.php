@@ -47,7 +47,7 @@ class SekretariatController extends Controller
             ->values()
             ->all();
 
-        return view('Setape.sekretariat.index', compact('ketuas', 'categories', 'ketuaNames'));
+        return view('setape.sekretariat.index', compact('ketuas', 'categories', 'ketuaNames'));
     }
 
     public function daftarLink(Request $request)
@@ -85,7 +85,7 @@ class SekretariatController extends Controller
             ->values()
             ->all();
 
-        return view('Setape.sekretariat.daftarLink', compact('ketuas', 'categories', 'ketuaNames'));
+        return view('setape.sekretariat.daftarLink', compact('ketuas', 'categories', 'ketuaNames'));
     }
 
     public function togglePin(Request $request, $id)

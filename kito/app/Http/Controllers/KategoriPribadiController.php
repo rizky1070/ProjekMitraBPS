@@ -27,7 +27,7 @@ class KategoriPribadiController extends Controller
             ->values()
             ->all();
 
-        return view('Setape.kategoriPribadi.daftar', compact('categoryuser', 'kategoriNames'));
+        return view('setape.kategoriPribadi.daftar', compact('categoryuser', 'kategoriNames'));
     }
 
 
