@@ -12,7 +12,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('viteall')
     <link rel="icon" href="/Logo BPS.png" type="image/png">
     <title>Permintaan Barang Admin</title>
 </head>

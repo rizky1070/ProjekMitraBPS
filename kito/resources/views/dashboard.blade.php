@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('viteall')
     <link rel="icon" href="/Logo BPS.png" type="image/png">
     <title>Dashboard 3516</title>
 </head>
