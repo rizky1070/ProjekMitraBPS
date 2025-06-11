@@ -352,11 +352,19 @@ class DaftarSurveiBpsController extends Controller
 
         // Validasi apakah total honor melebihi batas maksimum
         if ($totalHonorSetelahUpdate > 4000000 && !$request->has('force_add')) {
+
+            // Hitung total honor mitra pada bulan survei *termasuk* data yang sedang diedit, sebelum update
+            $totalHonorSebelumUpdateSaatIni = MitraSurvei::join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
+                ->join('posisi_mitra', 'mitra_survei.id_posisi_mitra', '=', 'posisi_mitra.id_posisi_mitra')
+                ->where('mitra_survei.id_mitra', $id_mitra)
+                ->where('survei.bulan_dominan', $survey->bulan_dominan)
+                ->sum(DB::raw('posisi_mitra.rate_honor * mitra_survei.vol'));
+
             return redirect()->back()
                 ->with('confirm', [
                     'message' => "Mitra tidak bisa diperbarui karena total honor di bulan " .
                         \Carbon\Carbon::parse($survey->bulan_dominan)->locale('id')->translatedFormat('F Y') .
-                        " akan melebihi Rp 4.000.000 (Total saat ini: Rp " . number_format($totalHonorBulanIni, 0, ',', '.') .
+                        " akan melebihi Rp 4.000.000 (Total saat ini: Rp " . number_format($totalHonorSebelumUpdateSaatIni, 0, ',', '.') . // Gunakan variabel baru di sini
                         "). Tetap ingin menyimpan perubahan mitra ini?",
                     'data' => $request->all()
                 ])
