@@ -41,7 +41,7 @@ $title = 'Report Mitra';
                     <!-- Filter Section -->
                     <div class="bg-white rounded-lg shadow-sm p-6 mb-6 no-print">
                         <form id="filterForm" action="{{ route('reports.Mitra.filter') }}" method="GET" class="cuScrollFilter space-y-4">
-                            <!-- Tahun Filter -->
+                            <!-- nama Filter -->
                             <div class="flex items-center relative">
                                 <label for="nama_lengkap" class="w-32 text-lg font-semibold text-gray-800">Cari Mitra</label>
                                 <select name="nama_lengkap" id="nama_mitra" class="w-full md:w-64 

@@ -42,6 +42,17 @@ $title = 'Report Survei';
                     <!-- Filter Section -->
                     <div class="bg-white rounded-lg shadow-sm p-6 mb-6 no-print">
                         <form id="filterForm" action="{{ route('reports.survei.filter') }}" method="GET" class="space-y-4">
+                            <!-- [START] Filter Cari Survei -->
+                            <div class="flex items-center relative">
+                                <label for="nama_survei" class="w-32 text-lg font-semibold text-gray-800">Cari Survei</label>
+                                <select name="nama_survei" id="nama_survei" class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ $namaSurveiOptions->isEmpty() ? 'disabled' : '' }}>
+                                    <option value="">Semua Survei</option>
+                                    @foreach($namaSurveiOptions as $nama => $label)
+                                        <option value="{{ $nama }}" @if(request('nama_survei') == $nama) selected @endif>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <!-- [END] Filter Cari Survei -->
                             <div>
                                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Filter Data</h2>
                             </div>
@@ -202,11 +213,17 @@ $title = 'Report Survei';
                 searchField: 'text',
             });
 
+            new TomSelect('#nama_survei', {
+                placeholder: 'Cari Survei',
+                searchField: 'text',
+            });
+
             // Ambil elemen form dan select
             const filterForm = document.getElementById('filterForm');
             const tahunSelect = document.getElementById('tahun');
             const bulanSelect = document.getElementById('bulan');
             const statusSelect = document.getElementById('status_survei');
+            const namaSurveiSelect = document.getElementById('nama_survei');
 
             // Ganti fungsi submitForm dengan ini
             let timeout;
@@ -221,6 +238,7 @@ $title = 'Report Survei';
             tahunSelect.addEventListener('change', submitForm);
             bulanSelect.addEventListener('change', submitForm);
             statusSelect.addEventListener('change', submitForm);
+            namaSurveiSelect.addEventListener('change', submitForm);
         });
 
         function exportData() {

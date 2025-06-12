@@ -51,7 +51,7 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
 
         $jumlahResponden = $survei->total_mitra ?? 0;
 
-        // Perbaikan: akses sobat_id melalui relasi mitra
+        // Akses sobat_id melalui relasi mitra
         $namaResponden = $survei->mitraSurveis->isNotEmpty()
             ? $survei->mitraSurveis->map(function ($mitraSurvei) {
                 return $mitraSurvei->mitra->sobat_id ?? null;
@@ -85,14 +85,9 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                 // Judul Laporan
                 $sheet->setCellValue('A' . $row, 'LAPORAN DATA SURVEI');
                 $sheet->mergeCells('A' . $row . ':K' . $row);
-                $sheet->getStyle('A' . $row)->getFont()
-                    ->setBold(true)
-                    ->setSize(14);
-                $sheet->getStyle('A' . $row)->getAlignment()
-                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
+                $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 $row++;
-
-                // Spasi kosong setelah judul
                 $row++;
 
                 // Tanggal Export
@@ -100,8 +95,6 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                 $sheet->mergeCells('A' . $row . ':K' . $row);
                 $sheet->getStyle('A' . $row)->getFont()->setItalic(true);
                 $row++;
-
-                // Spasi kosong setelah tanggal export
                 $row++;
 
                 // Informasi Filter
@@ -115,19 +108,17 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                         $label = $this->getFilterLabel($key);
                         $displayValue = $value;
 
-                        // --- [FIX] Logika untuk memastikan nama bulan selalu dalam Bahasa Indonesia ---
+                        // Logika untuk memastikan nama bulan selalu dalam Bahasa Indonesia
                         if (strtolower($label) === 'bulan') {
                             Carbon::setLocale('id'); // Atur lokal ke Indonesia
-                            // Paksa parsing dan format ulang ke nama bulan dalam Bahasa Indonesia
-                            $displayValue = Carbon::parse($value)->translatedFormat('F');
+                            // Buat objek Carbon dari nomor bulan (contoh: '06')
+                            $displayValue = Carbon::create(null, $value)->translatedFormat('F');
                         }
 
                         $sheet->setCellValue('A' . $row, $label . ': ' . $displayValue);
                         $sheet->mergeCells('A' . $row . ':K' . $row);
                         $row++;
                     }
-
-                    // Spasi kosong setelah filter
                     $row++;
                 }
 
@@ -143,28 +134,16 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                 $sheet->setCellValue('A' . $row, 'Tidak Aktif Di Ikuti Mitra: ' . $this->totals['totalSurveiTidakAktif']);
                 $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                 $row++;
-
-                // Spasi kosong sebelum header
                 $row += 2;
 
                 // Header
-                $sheet->fromArray($this->headings, null, 'A' . $row);
-
-                // Style Header
-                $headerStyle = [
+                $headerRow = $row;
+                $sheet->fromArray($this->headings, null, 'A' . $headerRow);
+                $sheet->getStyle('A' . $headerRow . ':K' . $headerRow)->applyFromArray([
                     'font' => ['bold' => true],
-                    'fill' => [
-                        'fillType' => Fill::FILL_SOLID,
-                        'startColor' => ['argb' => 'FFD3D3D3']
-                    ],
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => Border::BORDER_THIN,
-                        ],
-                    ],
-                ];
-
-                $sheet->getStyle('A' . $row . ':K' . $row)->applyFromArray($headerStyle);
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFD3D3D3']],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+                ]);
 
                 // Set kolom auto-size
                 foreach (range('A', 'K') as $column) {
