@@ -7,7 +7,8 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeSheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use App\Models\Survei;
 use Carbon\Carbon;
 
@@ -88,7 +89,7 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                     ->setBold(true)
                     ->setSize(14);
                 $sheet->getStyle('A' . $row)->getAlignment()
-                    ->setHorizontal('center');
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 $row++;
 
                 // Spasi kosong setelah judul
@@ -112,7 +113,16 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
 
                     foreach ($this->filters as $key => $value) {
                         $label = $this->getFilterLabel($key);
-                        $sheet->setCellValue('A' . $row, $label . ': ' . $value);
+                        $displayValue = $value;
+
+                        // --- [FIX] Logika untuk memastikan nama bulan selalu dalam Bahasa Indonesia ---
+                        if (strtolower($label) === 'bulan') {
+                            Carbon::setLocale('id'); // Atur lokal ke Indonesia
+                            // Paksa parsing dan format ulang ke nama bulan dalam Bahasa Indonesia
+                            $displayValue = Carbon::parse($value)->translatedFormat('F');
+                        }
+
+                        $sheet->setCellValue('A' . $row, $label . ': ' . $displayValue);
                         $sheet->mergeCells('A' . $row . ':K' . $row);
                         $row++;
                     }
@@ -144,7 +154,7 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                 $headerStyle = [
                     'font' => ['bold' => true],
                     'fill' => [
-                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'fillType' => Fill::FILL_SOLID,
                         'startColor' => ['argb' => 'FFD3D3D3']
                     ],
                     'borders' => [

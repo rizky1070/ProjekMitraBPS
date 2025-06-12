@@ -136,10 +136,9 @@ class ReportMitraSurveiController extends Controller
             ->orderByDesc('tahun')
             ->pluck('tahun', 'tahun');
 
-        // OPTION FILTER BULAN (hanya bulan yang valid dalam rentang kontrak mitra di tahun yang dipilih)
+        // OPTION FILTER BULAN
         $bulanOptions = [];
         if ($request->filled('tahun')) {
-            // Ambil semua mitra yang aktif di tahun tersebut
             $mitrasAktif = Mitra::whereYear('tahun', '<=', $request->tahun)
                 ->whereYear('tahun_selesai', '>=', $request->tahun)
                 ->get();
@@ -147,36 +146,24 @@ class ReportMitraSurveiController extends Controller
             foreach ($mitrasAktif as $mitra) {
                 $tahunMulai = \Carbon\Carbon::parse($mitra->tahun);
                 $tahunSelesai = \Carbon\Carbon::parse($mitra->tahun_selesai);
-                // Jika tahun mulai dan selesai sama dengan tahun filter
                 if ($tahunMulai->year == $request->tahun && $tahunSelesai->year == $request->tahun) {
-                    // Tambahkan semua bulan dari bulan mulai sampai bulan selesai
                     for ($month = $tahunMulai->month; $month <= $tahunSelesai->month; $month++) {
                         $bulanValid->push($month);
                     }
-                }
-                // Jika tahun mulai < tahun filter dan tahun selesai = tahun filter
-                elseif ($tahunMulai->year < $request->tahun && $tahunSelesai->year == $request->tahun) {
-                    // Tambahkan semua bulan dari Januari sampai bulan selesai
+                } elseif ($tahunMulai->year < $request->tahun && $tahunSelesai->year == $request->tahun) {
                     for ($month = 1; $month <= $tahunSelesai->month; $month++) {
                         $bulanValid->push($month);
                     }
-                }
-                // Jika tahun mulai = tahun filter dan tahun selesai > tahun filter
-                elseif ($tahunMulai->year == $request->tahun && $tahunSelesai->year > $request->tahun) {
-                    // Tambahkan semua bulan dari bulan mulai sampai Desember
+                } elseif ($tahunMulai->year == $request->tahun && $tahunSelesai->year > $request->tahun) {
                     for ($month = $tahunMulai->month; $month <= 12; $month++) {
                         $bulanValid->push($month);
                     }
-                }
-                // Jika tahun mulai < tahun filter dan tahun selesai > tahun filter
-                else {
-                    // Tambahkan semua bulan (Jan-Des)
+                } else {
                     for ($month = 1; $month <= 12; $month++) {
                         $bulanValid->push($month);
                     }
                 }
             }
-            // Buat opsi bulan unik dan terurut
             $bulanOptions = $bulanValid->unique()
                 ->sort()
                 ->mapWithKeys(function ($month) {
@@ -204,7 +191,7 @@ class ReportMitraSurveiController extends Controller
             ->orderBy('nama_kecamatan')
             ->get(['nama_kecamatan', 'id_kecamatan', 'kode_kecamatan']);
 
-        // Filter Nama Mitra (hanya yang ada di tahun & bulan yang dipilih)
+        // Filter Nama Mitra
         $namaMitraOptions = Mitra::select('nama_lengkap')
             ->distinct()
             ->when($request->filled('tahun'), function ($query) use ($request) {
@@ -235,6 +222,16 @@ class ReportMitraSurveiController extends Controller
                         if ($request->filled('tahun')) {
                             $q->whereYear('bulan_dominan', $request->tahun);
                         }
+                    }),
+                'total_honor_per_mitra' => MitraSurvei::selectRaw('SUM(mitra_survei.vol * posisi_mitra.rate_honor)')
+                    ->join('posisi_mitra', 'mitra_survei.id_posisi_mitra', '=', 'posisi_mitra.id_posisi_mitra')
+                    ->join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
+                    ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
+                    ->when($request->filled('bulan'), function ($q) use ($request) {
+                        $q->whereMonth('survei.bulan_dominan', $request->bulan);
+                    })
+                    ->when($request->filled('tahun'), function ($q) use ($request) {
+                        $q->whereYear('survei.bulan_dominan', $request->tahun);
                     })
             ])
             ->orderByDesc('total_survei')
@@ -260,72 +257,64 @@ class ReportMitraSurveiController extends Controller
         if ($request->filled('status_mitra')) {
             if ($request->status_mitra == 'ikut') {
                 $mitrasQuery->whereHas('mitraSurveis.survei', function ($q) use ($request) {
-                    if ($request->filled('tahun')) {
-                        $q->whereYear('bulan_dominan', $request->tahun);
-                    }
-                    if ($request->filled('bulan')) {
-                        $q->whereMonth('bulan_dominan', $request->bulan);
-                    }
+                    if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
+                    if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
                 });
             } elseif ($request->status_mitra == 'tidak_ikut') {
                 $mitrasQuery->whereDoesntHave('mitraSurveis.survei', function ($q) use ($request) {
-                    if ($request->filled('tahun')) {
-                        $q->whereYear('bulan_dominan', $request->tahun);
-                    }
-                    if ($request->filled('bulan')) {
-                        $q->whereMonth('bulan_dominan', $request->bulan);
-                    }
+                    if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
+                    if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
                 });
             }
         }
 
+        // FILTER PARTISIPASI LEBIH DARI 1 (bergantung pada filter tahun dan bulan)
+        if ($request->filled('tahun') && $request->filled('bulan') && $request->input('partisipasi_lebih_dari_satu') == 'ya') {
+            $mitrasQuery->having('total_survei', '>', 1);
+        }
+
+        // FILTER HONOR > 4 JUTA (bergantung pada filter tahun dan bulan)
+        if ($request->filled('tahun') && $request->filled('bulan') && $request->input('honor_lebih_dari_4jt') == 'ya') {
+            $mitrasQuery->having('total_honor_per_mitra', '>', 4000000);
+        }
+
         // HITUNG TOTAL-TOTAL
-        $totalMitra = $mitrasQuery->count();
-        $totalIkutSurvei = clone $mitrasQuery;
-        $totalIkutSurvei = $totalIkutSurvei->whereHas('mitraSurveis', function ($query) use ($request) {
-            if ($request->filled('bulan')) {
+        $totalMitra = (clone $mitrasQuery)->count();
+        $totalIkutSurvei = (clone $mitrasQuery)->whereHas('mitraSurveis', function ($query) use ($request) {
+            if ($request->filled('bulan') || $request->filled('tahun')) {
                 $query->whereHas('survei', function ($q) use ($request) {
-                    $q->whereMonth('bulan_dominan', $request->bulan);
-                });
-            }
-            if ($request->filled('tahun')) {
-                $query->whereHas('survei', function ($q) use ($request) {
-                    $q->whereYear('bulan_dominan', $request->tahun);
+                    if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
+                    if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
                 });
             }
         })->count();
         $totalTidakIkutSurvei = $totalMitra - $totalIkutSurvei;
 
-        // HITUNG TOTAL MITRA YANG BISA DAN TIDAK BISA MENGIKUTI SURVEI
-        $totalBisaIkutSurvei = clone $mitrasQuery;
-        $totalBisaIkutSurvei = $totalBisaIkutSurvei->where('status_pekerjaan', 0)->count();
+        $totalBisaIkutSurvei = (clone $mitrasQuery)->where('status_pekerjaan', 0)->count();
         $totalTidakBisaIkutSurvei = $totalMitra - $totalBisaIkutSurvei;
 
-        // HITUNG TOTAL MITRA DI KECAMATAN YANG DIPILIH
         $totalMitraKecamatan = 0;
         if ($request->filled('kecamatan')) {
-            $totalMitraKecamatan = $mitrasQuery->where('id_kecamatan', $request->kecamatan)->count();
+            $totalMitraKecamatan = (clone $mitrasQuery)->where('id_kecamatan', $request->kecamatan)->count();
         }
+
         // HITUNG TOTAL HONOR
-        $totalHonor = MitraSurvei::whereHas('mitra', function ($q) use ($request, $mitrasQuery) {
-            $q->whereIn('id_mitra', $mitrasQuery->pluck('id_mitra'));
+        $totalHonor = MitraSurvei::whereHas('mitra', function ($q) use ($mitrasQuery) {
+            $mitraIds = (clone $mitrasQuery)->pluck('mitra.id_mitra');
+            $q->whereIn('id_mitra', $mitraIds);
         })
             ->whereHas('survei', function ($q) use ($request) {
-                if ($request->filled('bulan')) {
-                    $q->whereMonth('bulan_dominan', $request->bulan);
-                }
-                if ($request->filled('tahun')) {
-                    $q->whereYear('bulan_dominan', $request->tahun);
-                }
+                if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
+                if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
             })
             ->with(['posisiMitra'])
             ->get()
             ->sum(function ($item) {
-                return $item->vol * $item->posisiMitra->rate_honor;
+                return $item->vol * ($item->posisiMitra->rate_honor ?? 0);
             });
 
         // PAGINASI
-        $mitras = $mitrasQuery->paginate(10);
+        $mitras = $mitrasQuery->paginate(10)->appends($request->query());
 
         // RETURN VIEW
         return view('mitrabps.reportMitra', compact(
@@ -346,9 +335,10 @@ class ReportMitraSurveiController extends Controller
     }
 
 
+
     public function exportMitra(Request $request)
     {
-        // Gunakan query yang sama persis dengan report
+        // Gunakan query yang sama persis dengan report untuk konsistensi data
         $mitrasQuery = Mitra::with(['kecamatan', 'provinsi', 'kabupaten', 'desa'])
             ->addSelect([
                 'total_survei' => MitraSurvei::selectRaw('COUNT(*)')
@@ -363,17 +353,15 @@ class ReportMitraSurveiController extends Controller
                             $q->whereYear('bulan_dominan', $request->tahun);
                         }
                     }),
-                'total_honor' => MitraSurvei::selectRaw('COALESCE(SUM(vol * (SELECT rate_honor FROM posisi_mitra WHERE posisi_mitra.id_posisi_mitra = mitra_survei.id_posisi_mitra)), 0)')
+                'total_honor_per_mitra' => MitraSurvei::selectRaw('SUM(mitra_survei.vol * posisi_mitra.rate_honor)')
+                    ->join('posisi_mitra', 'mitra_survei.id_posisi_mitra', '=', 'posisi_mitra.id_posisi_mitra')
+                    ->join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
                     ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
-                    ->whereHas('survei', function ($q) use ($request) {
-                        $q->whereDate('jadwal_kegiatan', '>=', DB::raw('mitra.tahun'))
-                            ->whereDate('jadwal_kegiatan', '<=', DB::raw('mitra.tahun_selesai'));
-                        if ($request->filled('bulan')) {
-                            $q->whereMonth('bulan_dominan', $request->bulan);
-                        }
-                        if ($request->filled('tahun')) {
-                            $q->whereYear('bulan_dominan', $request->tahun);
-                        }
+                    ->when($request->filled('bulan'), function ($q) use ($request) {
+                        $q->whereMonth('survei.bulan_dominan', $request->bulan);
+                    })
+                    ->when($request->filled('tahun'), function ($q) use ($request) {
+                        $q->whereYear('survei.bulan_dominan', $request->tahun);
                     })
             ])
             ->when($request->filled('tahun'), function ($query) use ($request) {
@@ -397,82 +385,64 @@ class ReportMitraSurveiController extends Controller
         // Filter Status Partisipasi
         if ($request->filled('status_mitra')) {
             if ($request->status_mitra == 'ikut') {
-                $mitrasQuery->whereHas('mitraSurveis', function ($query) use ($request) {
-                    if ($request->filled('bulan')) {
-                        $query->whereHas('survei', function ($q) use ($request) {
-                            $q->whereMonth('bulan_dominan', $request->bulan);
-                        });
-                    }
-                    if ($request->filled('tahun')) {
-                        $query->whereHas('survei', function ($q) use ($request) {
-                            $q->whereYear('bulan_dominan', $request->tahun);
-                        });
-                    }
+                $mitrasQuery->whereHas('mitraSurveis.survei', function ($q) use ($request) {
+                    if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
+                    if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
                 });
             } elseif ($request->status_mitra == 'tidak_ikut') {
-                $mitrasQuery->whereDoesntHave('mitraSurveis', function ($query) use ($request) {
-                    if ($request->filled('bulan')) {
-                        $query->whereHas('survei', function ($q) use ($request) {
-                            $q->whereMonth('bulan_dominan', $request->bulan);
-                        });
-                    }
-                    if ($request->filled('tahun')) {
-                        $query->whereHas('survei', function ($q) use ($request) {
-                            $q->whereYear('bulan_dominan', $request->tahun);
-                        });
-                    }
+                $mitrasQuery->whereDoesntHave('mitraSurveis.survei', function ($q) use ($request) {
+                    if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
+                    if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
                 });
             }
         }
 
-        // Pastikan untuk mengambil data dengan get()
-        $mitrasData = $mitrasQuery->get();
+        // FILTER PARTISIPASI LEBIH DARI 1 (bergantung pada filter tahun dan bulan)
+        if ($request->filled('tahun') && $request->filled('bulan') && $request->input('partisipasi_lebih_dari_satu') == 'ya') {
+            $mitrasQuery->having('total_survei', '>', 1);
+        }
 
-        // Hitung total-total
-        $totalMitra = $mitrasData->count();
-        $totalIkutSurvei = $mitrasData->filter(function ($mitra) {
-            return $mitra->total_survei > 0;
-        })->count();
-        $totalTidakIkutSurvei = $totalMitra - $totalIkutSurvei;
+        // FILTER HONOR > 4 JUTA (bergantung pada filter tahun dan bulan)
+        if ($request->filled('tahun') && $request->filled('bulan') && $request->input('honor_lebih_dari_4jt') == 'ya') {
+            $mitrasQuery->having('total_honor_per_mitra', '>', 4000000);
+        }
 
-        // Hitung total mitra yang bisa dan tidak bisa ikut survei
-        $totalBisaIkutSurvei = $mitrasData->where('status_pekerjaan', 0)->count();
-        $totalTidakBisaIkutSurvei = $totalMitra - $totalBisaIkutSurvei;
-
-        // Hitung total honor
-        $mitraIds = $mitrasData->pluck('id_mitra');
-        $totalHonor = MitraSurvei::join('posisi_mitra', 'mitra_survei.id_posisi_mitra', '=', 'posisi_mitra.id_posisi_mitra')
-            ->whereIn('mitra_survei.id_mitra', $mitrasData->pluck('id_mitra'))
-            ->whereHas('survei', function ($q) use ($request) {
-                if ($request->filled('bulan')) {
-                    $q->whereMonth('bulan_dominan', $request->bulan);
-                }
-                if ($request->filled('tahun')) {
-                    $q->whereYear('bulan_dominan', $request->tahun);
-                }
-            })
-            ->sum(DB::raw('mitra_survei.vol * posisi_mitra.rate_honor'));
-
-        // Kumpulkan informasi filter
+        // Kumpulkan informasi filter untuk ditampilkan di Excel
         $filters = [];
-        if ($request->filled('tahun')) $filters['tahun'] = $request->tahun;
+        if ($request->filled('tahun')) $filters['Tahun'] = $request->tahun;
         if ($request->filled('bulan')) {
             $monthName = \Carbon\Carbon::create()->month($request->bulan)->translatedFormat('F');
-            $filters['bulan'] = $monthName;
+            $filters['Bulan'] = $monthName;
         }
         if ($request->filled('kecamatan')) {
             $kecamatan = Kecamatan::find($request->kecamatan);
-            $filters['kecamatan'] = $kecamatan ? $kecamatan->nama_kecamatan : $request->kecamatan;
+            $filters['Kecamatan'] = $kecamatan ? $kecamatan->nama_kecamatan : $request->kecamatan;
         }
-        if ($request->filled('nama_lengkap')) $filters['nama_lengkap'] = $request->nama_lengkap;
+        if ($request->filled('nama_lengkap')) $filters['Nama Mitra'] = $request->nama_lengkap;
         if ($request->filled('status_mitra')) {
-            $filters['status_mitra'] = $request->status_mitra == 'ikut' ? 'Ikut Survei' : 'Tidak Ikut Survei';
+            $filters['Status Partisipasi'] = $request->status_mitra == 'ikut' ? 'Mengikuti Survei' : 'Tidak Mengikuti Survei';
+        }
+        if ($request->filled('partisipasi_lebih_dari_satu') && $request->partisipasi_lebih_dari_satu == 'ya') {
+            $filters['Partisipasi > 1 Survei'] = 'Ya';
+        }
+        if ($request->filled('honor_lebih_dari_4jt') && $request->honor_lebih_dari_4jt == 'ya') {
+            $filters['Honor > 4 Juta'] = 'Ya';
         }
         if ($request->filled('status_pekerjaan')) {
-            $filters['status_pekerjaan'] = $request->status_pekerjaan == 0 ? 'Bisa Ikut Survei' : 'Tidak Bisa Ikut Survei';
+            $filters['Status Pekerjaan'] = $request->status_pekerjaan == 0 ? 'Bisa Mengikuti Survei' : 'Tidak Bisa Mengikuti Survei';
         }
 
-        // Data total
+        // Ambil data yang sudah difilter
+        $mitrasData = $mitrasQuery->get();
+
+        // Data total untuk ringkasan di Excel
+        $totalMitra = $mitrasData->count();
+        $totalIkutSurvei = $mitrasData->where('total_survei', '>', 0)->count();
+        $totalTidakIkutSurvei = $totalMitra - $totalIkutSurvei;
+        $totalBisaIkutSurvei = $mitrasData->where('status_pekerjaan', 0)->count();
+        $totalTidakBisaIkutSurvei = $totalMitra - $totalBisaIkutSurvei;
+        $totalHonor = $mitrasData->sum('total_honor_per_mitra');
+
         $totals = [
             'totalMitra' => $totalMitra,
             'totalIkutSurvei' => $totalIkutSurvei,
@@ -482,7 +452,7 @@ class ReportMitraSurveiController extends Controller
             'totalHonor' => $totalHonor,
         ];
 
-        return Excel::download(new MitraExport($mitrasQuery, $filters, $totals), 'laporan_mitra_' . now()->format('Ymd_His') . '.xlsx');
+        return Excel::download(new MitraExport($mitrasData, $filters, $totals), 'laporan_mitra_' . now()->format('Ymd_His') . '.xlsx');
     }
 
 
