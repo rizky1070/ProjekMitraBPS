@@ -30,6 +30,7 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
         'Kecamatan',
         'Desa',
         'Alamat Lengkap',
+        'Jenis Kelamin',
         'Tanggal Mulai Kontrak',
         'Tanggal Selesai Kontrak',
         'Jumlah Survei Diikuti',
@@ -39,12 +40,24 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
         'Detail Pekerjaan',
         'Status',
     ];
+    protected $isMonthFilterActive = false;
 
     public function __construct($query, $filters = [], $totals = [])
     {
         $this->query = $query;
         $this->filters = $filters;
         $this->totals = $totals;
+
+        if (!empty($this->filters['bulan'])) {
+            $this->isMonthFilterActive = true;
+            $namaSurveiIndex = array_search('Nama Survei', $this->headings);
+            if ($namaSurveiIndex !== false) {
+                array_splice($this->headings, $namaSurveiIndex + 1, 0, ['Nilai', 'Catatan']);
+            } else {
+                $this->headings[] = 'Nilai';
+                $this->headings[] = 'Catatan';
+            }
+        }
     }
 
     public function query()
@@ -80,16 +93,13 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
 
         $jumlahSurvei = $mitra->mitraSurveis->count();
 
-        // Ambil nama survei dari relasi mitraSurveis
         $namaSurvei = $mitra->mitraSurveis->isNotEmpty()
             ? $mitra->mitraSurveis->map(function ($mitraSurvei) {
                 return $mitraSurvei->survei ? $mitraSurvei->survei->nama_survei : null;
             })->filter()->unique()->implode(', ')
             : '-';
-
         $namaSurvei = empty(trim($namaSurvei)) ? '-' : $namaSurvei;
 
-        // Hitung total honor dari mitraSurveis
         $totalHonor = 0;
         foreach ($mitra->mitraSurveis as $mitraSurvei) {
             $rateHonor = $mitraSurvei->posisiMitra ? $mitraSurvei->posisiMitra->rate_honor : 0;
@@ -97,10 +107,9 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
             $totalHonor += $rateHonor * $vol;
         }
 
-        // Tentukan status pekerjaan
         $statusPekerjaan = $mitra->status_pekerjaan == 0 ? 'Bisa Ikut Survei' : 'Tidak Bisa Ikut Survei';
 
-        return [
+        $rowData = [
             $count,
             ' ' . $mitra->sobat_id,
             $mitra->nama_lengkap,
@@ -111,15 +120,39 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
             $mitra->kecamatan->nama_kecamatan ?? '-',
             $mitra->desa->nama_desa ?? '-',
             $mitra->alamat_mitra ?? '-',
+            $mitra->jenis_kelamin == '1' ? 'Lk' : ($mitra->jenis_kelamin == '2' ? 'Pr' : '-'),
             $mitra->tahun ? Carbon::parse($mitra->tahun)->format('d/m/Y') : '-',
             $mitra->tahun_selesai ? Carbon::parse($mitra->tahun_selesai)->format('d/m/Y') : '-',
             $jumlahSurvei,
             $namaSurvei,
+        ];
+
+        if ($this->isMonthFilterActive) {
+            // [MODIFIED] Menggunakan koma dan spasi sebagai pemisah
+            if ($mitra->mitraSurveis->isNotEmpty()) {
+                $nilai = $mitra->mitraSurveis->map(function ($ms) {
+                    return $ms->nilai ?? '-';
+                })->implode(", "); // Menggunakan koma sebagai pemisah
+
+                $catatan = $mitra->mitraSurveis->map(function ($ms) {
+                    return $ms->catatan ?? '-';
+                })->implode(", "); // Menggunakan koma sebagai pemisah
+            } else {
+                $nilai = '-';
+                $catatan = '-';
+            }
+            $rowData[] = $nilai;
+            $rowData[] = $catatan;
+        }
+
+        $rowData = array_merge($rowData, [
             $totalHonor,
             $statusPekerjaan,
             $mitra->detail_pekerjaan ?? '-',
             $jumlahSurvei > 0 ? 'Aktif Mengikuti Survei' : 'Tidak Aktif Mengikuti Survei',
-        ];
+        ]);
+
+        return $rowData;
     }
 
     private function formatPhoneNumber(?string $number): string
@@ -128,7 +161,6 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
             return '-';
         }
 
-        // Jika nomor mengandung karakter non-digit (misal +, spasi, dll)
         if (!ctype_digit($number)) {
             return '="' . str_replace('"', '""', $number) . '"';
         }
@@ -143,98 +175,73 @@ class MitraExport implements FromQuery, WithMapping, WithEvents
                 $sheet = $event->sheet->getDelegate();
                 $row = 1;
 
-                // Judul Laporan
+                $lastColumn = $this->isMonthFilterActive ? 'U' : 'S';
+
+                // ... (Kode untuk Judul, Filter, dan Total tetap sama)
                 $sheet->setCellValue('A' . $row, 'LAPORAN DATA MITRA');
-                $sheet->mergeCells('A' . $row . ':R' . $row);
-                $sheet->getStyle('A' . $row)->getFont()
-                    ->setBold(true)
-                    ->setSize(14);
-                $sheet->getStyle('A' . $row)->getAlignment()
-                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->mergeCells('A' . $row . ':' . $lastColumn . $row);
+                $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
+                $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 $row++;
-
-                // Spasi kosong setelah judul
                 $row++;
-
-                // Tanggal Export
                 $sheet->setCellValue('A' . $row, 'Tanggal Export: ' . Carbon::now()->format('d/m/Y H:i'));
-                $sheet->mergeCells('A' . $row . ':R' . $row);
+                $sheet->mergeCells('A' . $row . ':' . $lastColumn . $row);
                 $sheet->getStyle('A' . $row)->getFont()->setItalic(true);
                 $row++;
-
-                // Spasi kosong setelah tanggal export
                 $row++;
-
-                // Informasi Filter
                 if (!empty($this->filters)) {
                     $sheet->setCellValue('A' . $row, 'Filter yang digunakan:');
-                    $sheet->mergeCells('A' . $row . ':R' . $row);
+                    $sheet->mergeCells('A' . $row . ':' . $lastColumn . $row);
                     $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                     $row++;
-
                     foreach ($this->filters as $key => $value) {
                         $label = $this->getFilterLabel($key);
                         $sheet->setCellValue('A' . $row, $label . ': ' . $value);
-                        $sheet->mergeCells('A' . $row . ':R' . $row);
+                        $sheet->mergeCells('A' . $row . ':' . $lastColumn . $row);
                         $row++;
                     }
-
-                    // Spasi kosong setelah filter
                     $row++;
                 }
-
-                // Informasi Total
-                $sheet->setCellValue('A' . $row, 'Total Mitra: ' . $this->totals['totalMitra']);
-                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
-                $row++;
-
-                $sheet->setCellValue('A' . $row, 'Aktif Mengikuti Survei: ' . $this->totals['totalIkutSurvei']);
-                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
-                $row++;
-
-                $sheet->setCellValue('A' . $row, 'Tidak Aktif Mengikuti Survei: ' . $this->totals['totalTidakIkutSurvei']);
-                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
-                $row++;
-
-                $sheet->setCellValue('A' . $row, 'Bisa Ikut Survei: ' . $this->totals['totalBisaIkutSurvei']);
-                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
-                $row++;
-
-                $sheet->setCellValue('A' . $row, 'Tidak Bisa Ikut Survei: ' . $this->totals['totalTidakBisaIkutSurvei']);
-                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
-                $row++;
-
-                $sheet->setCellValue('A' . $row, 'Total Honor: ' . number_format($this->totals['totalHonor'], 0, ',', '.'));
-                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
-                $row++;
-                // Spasi kosong sebelum header
+                $summaryStartRow = $row;
+                $sheet->setCellValue('A' . $row++, 'Total Mitra: ' . $this->totals['totalMitra']);
+                $sheet->setCellValue('A' . $row++, 'Aktif Mengikuti Survei: ' . $this->totals['totalIkutSurvei']);
+                $sheet->setCellValue('A' . $row++, 'Tidak Aktif Mengikuti Survei: ' . $this->totals['totalTidakIkutSurvei']);
+                $sheet->setCellValue('A' . $row++, 'Bisa Ikut Survei: ' . $this->totals['totalBisaIkutSurvei']);
+                $sheet->setCellValue('A' . $row++, 'Tidak Bisa Ikut Survei: ' . $this->totals['totalTidakBisaIkutSurvei']);
+                $sheet->setCellValue('A' . $row++, 'Total Honor: ' . number_format($this->totals['totalHonor'], 0, ',', '.'));
+                $summaryEndRow = $row - 1;
+                $sheet->getStyle('A' . $summaryStartRow . ':A' . $summaryEndRow)->getFont()->setBold(true);
                 $row += 2;
+                // ... (Akhir dari kode yang sama)
 
-                // Header
-                $sheet->fromArray($this->headings, null, 'A' . $row);
 
-                // Style Header
+                $headerRow = $row;
+                $sheet->fromArray($this->headings, null, 'A' . $headerRow);
+
                 $headerStyle = [
                     'font' => ['bold' => true],
-                    'fill' => [
-                        'fillType' => Fill::FILL_SOLID,
-                        'startColor' => ['argb' => 'FFD3D3D3']
-                    ],
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => Border::BORDER_THIN,
-                        ],
-                    ],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFD3D3D3']],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN,],],
                 ];
-                $sheet->getStyle('A' . $row . ':R' . $row)->applyFromArray($headerStyle);
+                $sheet->getStyle('A' . $headerRow . ':' . $lastColumn . $headerRow)->applyFromArray($headerStyle);
 
-                // Format kolom
-                $sheet->getStyle('O')
-                    ->getNumberFormat()
-                    ->setFormatCode('#,##0');
+                if ($this->isMonthFilterActive) {
+                    $nilaiColumn = 'P';
+                    $catatanColumn = 'Q';
+                    $honorColumn = 'R';
 
-                // Set kolom auto-size
-                foreach (range('A', 'R') as $column) {
+                    // Pengaturan wrap text tidak lagi krusial, tapi tidak masalah jika tetap ada
+                    $sheet->getStyle($nilaiColumn . ($headerRow + 1) . ':' . $nilaiColumn . ($sheet->getHighestRow()))
+                        ->getAlignment()->setWrapText(true);
+                    $sheet->getStyle($catatanColumn . ($headerRow + 1) . ':' . $catatanColumn . ($sheet->getHighestRow()))
+                        ->getAlignment()->setWrapText(true);
+                } else {
+                    $honorColumn = 'P';
+                }
+
+                $sheet->getStyle($honorColumn)->getNumberFormat()->setFormatCode('#,##0');
+
+                foreach (range('A', $lastColumn) as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
             },

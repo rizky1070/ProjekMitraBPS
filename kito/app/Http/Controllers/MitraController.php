@@ -360,35 +360,58 @@ class MitraController extends Controller
     }
 
 
-    public function penilaianMitra($id_survei)
+    public function penilaianMitra($id_mitra, $id_survei)
     {
-        $surMit = MitraSurvei::with(['survei', 'mitra']) // Menarik data survei dan mitra
+        \Carbon\Carbon::setLocale('id');
+        // Eager load semua relasi yang dibutuhkan untuk mendapatkan data mitra dari survei
+        $surMit = MitraSurvei::with(['survei', 'mitra', 'posisiMitra'])
+            ->where('id_mitra', $id_mitra)
             ->where('id_survei', $id_survei)
-            ->first();
+            ->firstOrFail(); // Mengambil satu data survei-mitra yang spesifik
 
-        return view('mitrabps.penilaianMitra', compact('surMit'));
+        // Generate GitHub profile image URL
+        // Mengakses sobat_id melalui relasi: $surMit->mitra->sobat_id
+        $githubBaseUrl = 'https://raw.githubusercontent.com/mainchar42/assetgambar/main/myGambar/';
+        $profileImage = $githubBaseUrl . $surMit->mitra->sobat_id . '.jpg';
+
+        // Kirim data $surMit DAN $profileImage ke view menggunakan compact()
+        return view('mitrabps.penilaianMitra', compact('surMit', 'profileImage'));
     }
 
     public function simpanPenilaian(Request $request)
     {
+        // Mendefinisikan pesan error kustom dalam Bahasa Indonesia
+        $messages = [
+            'id_mitra_survei.required' => 'ID Mitra Survei wajib diisi.',
+            'id_mitra_survei.exists'   => 'Mitra Survei yang dipilih tidak valid.',
+
+            'nilai.required' => 'Kolom nilai wajib diisi.',
+            'nilai.integer'  => 'Nilai harus berupa angka bulat.',
+            'nilai.min'      => 'Nilai minimal :min.',
+            'nilai.max'      => 'Nilai maksimal :max.',
+
+            'catatan.string' => 'Catatan harus berupa teks.',
+        ];
+
+        // Melakukan validasi dengan pesan kustom
         $request->validate([
             'id_mitra_survei' => 'required|exists:mitra_survei,id_mitra_survei',
-            'nilai' => 'required|integer|min:1|max:5',
-            'catatan' => 'nullable|string'
-        ]);
+            'nilai'           => 'required|integer|min:1|max:5',
+            'catatan'         => 'nullable|string'
+        ], $messages); // <-- Tambahkan variabel $messages di sini
 
         // Simpan ke database
         MitraSurvei::where('id_mitra_survei', $request->id_mitra_survei)
             ->update([
-                'nilai' => $request->nilai,
+                'nilai'   => $request->nilai,
                 'catatan' => $request->catatan,
             ]);
 
         // Ambil id_mitra untuk redirect
         $mitraSurvei = MitraSurvei::find($request->id_mitra_survei);
-        
+
         return redirect()->route('profilMitra.filter', [
-            'id_mitra' => $mitraSurvei->id_mitra,
+            'id_mitra'  => $mitraSurvei->id_mitra,
             'scroll_to' => 'survei-dikerjakan' // Parameter baru untuk scroll
         ])->with('success', 'Penilaian berhasil disimpan!');
     }

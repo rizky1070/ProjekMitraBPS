@@ -227,9 +227,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     {
         $value = strtolower(trim($value));
 
-        if ($value === 'Lk' || $value === '1') {
+        if ($value === 'Lk' || $value === '1'|| $value === 'lk') {
             return 1;
-        } elseif ($value === 'Pr' || $value === '2') {
+        } elseif ($value === 'Pr' || $value === '2'|| $value === 'pr') {
             return 2;
         }
 
