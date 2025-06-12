@@ -488,14 +488,28 @@ class DaftarSurveiBpsController extends Controller
     // Method untuk menyimpan data survei
     public function store(Request $request)
     {
+        // Validasi input dari form dengan pesan error kustom dalam Bahasa Indonesia
         $validated = $request->validate([
             'nama_survei' => 'required|string|max:1024',
             'kro' => 'required|string|max:1024',
             'jadwal_kegiatan' => 'required|date',
             'jadwal_berakhir_kegiatan' => 'required|date',
             'tim' => 'required|string|max:1024',
+        ], [
+            // Pesan untuk aturan 'required'
+            'nama_survei.required' => 'Nama survei wajib diisi.',
+            'kro.required' => 'Kolom KRO wajib diisi.',
+            'jadwal_kegiatan.required' => 'Tanggal mulai kegiatan wajib diisi.',
+            'jadwal_berakhir_kegiatan.required' => 'Tanggal berakhir kegiatan wajib diisi.',
+            'tim.required' => 'Nama tim wajib diisi.',
+
+            // Pesan umum untuk aturan lainnya
+            '*.string' => 'Kolom :attribute harus berupa teks.',
+            '*.max' => 'Kolom :attribute tidak boleh lebih dari :max karakter.',
+            '*.date' => 'Kolom :attribute harus dalam format tanggal yang benar.',
         ]);
 
+        // Fungsi untuk menentukan bulan dominan dari rentang tanggal
         $getDominantMonthYear = function ($startDate, $endDate) {
             $start = \Carbon\Carbon::parse($startDate);
             $end = \Carbon\Carbon::parse($endDate);
@@ -506,10 +520,12 @@ class DaftarSurveiBpsController extends Controller
             return $months->countBy()->sortDesc()->keys()->first();
         };
 
+        // Mendapatkan dan memformat bulan dominan
         $dominantMonthYear = $getDominantMonthYear($validated['jadwal_kegiatan'], $validated['jadwal_berakhir_kegiatan']);
         [$bulan, $tahun] = explode('-', $dominantMonthYear);
         $validated['bulan_dominan'] = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->toDateString();
 
+        // Menentukan status survei berdasarkan tanggal saat ini
         $today = now();
         $startDate = \Carbon\Carbon::parse($validated['jadwal_kegiatan']);
         $endDate = \Carbon\Carbon::parse($validated['jadwal_berakhir_kegiatan']);
@@ -522,15 +538,18 @@ class DaftarSurveiBpsController extends Controller
             $validated['status_survei'] = 2; // Berjalan
         }
 
+        // Menetapkan ID provinsi dan kabupaten secara default
         $validated['id_provinsi'] = 35;
         $validated['id_kabupaten'] = 16;
 
+        // Cek apakah survei dengan kriteria yang sama sudah ada
         $existingSurvei = Survei::where('nama_survei', $validated['nama_survei'])
             ->where('jadwal_kegiatan', $startDate->toDateString())
             ->where('jadwal_berakhir_kegiatan', $endDate->toDateString())
             ->where('bulan_dominan', $validated['bulan_dominan'])
             ->first();
 
+        // Jika sudah ada, perbarui data yang ada. Jika belum, buat data baru.
         if ($existingSurvei) {
             $existingSurvei->update(['kro' => $validated['kro'], 'status_survei' => $validated['status_survei'], 'tim' => $validated['tim']]);
             return redirect()->back()->with('info', 'Data survei sudah ada dan telah diperbarui!');

@@ -131,6 +131,7 @@ class ReportMitraSurveiController extends Controller
             foreach ($mitrasAktif as $mitra) {
                 $tahunMulai = \Carbon\Carbon::parse($mitra->tahun);
                 $tahunSelesai = \Carbon\Carbon::parse($mitra->tahun_selesai);
+
                 if ($tahunMulai->year == $request->tahun && $tahunSelesai->year == $request->tahun) {
                     for ($month = $tahunMulai->month; $month <= $tahunSelesai->month; $month++) {
                         $bulanValid->push($month);
@@ -215,7 +216,10 @@ class ReportMitraSurveiController extends Controller
             ->when($request->filled('bulan'), fn($q) => $q->whereMonth('tahun', '<=', $request->bulan)->whereMonth('tahun_selesai', '>=', $request->bulan))
             ->when($request->filled('kecamatan'), fn($q) => $q->where('id_kecamatan', $request->kecamatan))
             ->when($request->filled('nama_lengkap'), fn($q) => $q->where('nama_lengkap', $request->nama_lengkap))
-            ->when($request->filled('status_pekerjaan'), fn($q) => $q->where('status_pekerjaan', $request->status_pekerjaan));
+            ->when($request->filled('status_pekerjaan'), fn($q) => $q->where('status_pekerjaan', $request->status_pekerjaan))
+            // [START] PENAMBAHAN FILTER JENIS KELAMIN
+            ->when($request->filled('jenis_kelamin'), fn($q) => $q->where('jenis_kelamin', $request->jenis_kelamin));
+        // [END] PENAMBAHAN FILTER JENIS KELAMIN
 
         // FILTER STATUS PARTISIPASI
         if ($request->filled('status_mitra')) {
@@ -256,6 +260,11 @@ class ReportMitraSurveiController extends Controller
 
         $totalBisaIkutSurvei = (clone $mitrasQuery)->where('status_pekerjaan', 0)->count();
         $totalTidakBisaIkutSurvei = $totalMitra - $totalBisaIkutSurvei;
+
+        // [START] HITUNG TOTAL BERDASARKAN JENIS KELAMIN
+        $totalLaki = (clone $mitrasQuery)->where('jenis_kelamin', 1)->count();
+        $totalPerempuan = (clone $mitrasQuery)->where('jenis_kelamin', 2)->count();
+        // [END] HITUNG TOTAL BERDASARKAN JENIS KELAMIN
 
         $totalMitraKecamatan = 0;
         if ($request->filled('kecamatan')) {
@@ -307,6 +316,8 @@ class ReportMitraSurveiController extends Controller
             'totalHonor',
             'totalMitraLebihDariSatuSurvei', // Kirim ke view
             'totalMitraHonorLebihDari4Jt',   // Kirim ke view
+            'totalLaki',                     // Kirim ke view
+            'totalPerempuan',                // Kirim ke view
             'request'
         ));
     }
@@ -336,8 +347,10 @@ class ReportMitraSurveiController extends Controller
             ->when($request->filled('bulan'), fn($q) => $q->whereMonth('tahun', '<=', $request->bulan)->whereMonth('tahun_selesai', '>=', $request->bulan))
             ->when($request->filled('kecamatan'), fn($q) => $q->where('id_kecamatan', $request->kecamatan))
             ->when($request->filled('nama_lengkap'), fn($q) => $q->where('nama_lengkap', $request->nama_lengkap))
-            ->when($request->filled('status_pekerjaan'), fn($q) => $q->where('status_pekerjaan', $request->status_pekerjaan));
-
+            ->when($request->filled('status_pekerjaan'), fn($q) => $q->where('status_pekerjaan', $request->status_pekerjaan))
+            // [START] PENAMBAHAN FILTER JENIS KELAMIN UNTUK EXPORT
+            ->when($request->filled('jenis_kelamin'), fn($q) => $q->where('jenis_kelamin', $request->jenis_kelamin));
+        // [END] PENAMBAHAN FILTER JENIS KELAMIN UNTUK EXPORT
 
         // Filter Status Partisipasi
         if ($request->filled('status_mitra')) {
@@ -391,6 +404,11 @@ class ReportMitraSurveiController extends Controller
         if ($request->filled('status_pekerjaan')) {
             $filters['Status Pekerjaan'] = $request->status_pekerjaan == 0 ? 'Bisa Mengikuti Survei' : 'Tidak Bisa Mengikuti Survei';
         }
+        // [START] PENAMBAHAN INFO FILTER JENIS KELAMIN
+        if ($request->filled('jenis_kelamin')) {
+            $filters['Jenis Kelamin'] = $request->jenis_kelamin == 1 ? 'Laki-laki' : 'Perempuan';
+        }
+        // [END] PENAMBAHAN INFO FILTER JENIS KELAMIN
 
         // Data total untuk ringkasan di Excel
         $totalMitra = $mitrasData->count();
@@ -400,7 +418,11 @@ class ReportMitraSurveiController extends Controller
         $totalTidakBisaIkutSurvei = $totalMitra - $totalBisaIkutSurvei;
         $totalHonor = $mitrasData->sum('total_honor_per_mitra');
 
-        // [START] PENAMBAHAN LOGIKA BARU
+        // [START] PENAMBAHAN HITUNGAN TOTAL JENIS KELAMIN
+        $totalLaki = $mitrasData->where('jenis_kelamin', 1)->count();
+        $totalPerempuan = $mitrasData->where('jenis_kelamin', 2)->count();
+        // [END] PENAMBAHAN HITUNGAN TOTAL JENIS KELAMIN
+
         $totalMitraLebihDariSatuSurvei = 0;
         $totalMitraHonorLebihDari4Jt = 0;
 
@@ -408,17 +430,18 @@ class ReportMitraSurveiController extends Controller
             $totalMitraLebihDariSatuSurvei = $mitrasData->where('total_survei', '>', 1)->count();
             $totalMitraHonorLebihDari4Jt = $mitrasData->where('total_honor_per_mitra', '>', 4000000)->count();
         }
-        // [END] PENAMBAHAN LOGIKA BARU
 
         $totals = [
             'totalMitra' => $totalMitra,
+            'totalLaki' => $totalLaki,         // Ditambahkan untuk export
+            'totalPerempuan' => $totalPerempuan, // Ditambahkan untuk export
             'totalIkutSurvei' => $totalIkutSurvei,
             'totalTidakIkutSurvei' => $totalTidakIkutSurvei,
             'totalBisaIkutSurvei' => $totalBisaIkutSurvei,
             'totalTidakBisaIkutSurvei' => $totalTidakBisaIkutSurvei,
             'totalHonor' => $totalHonor,
-            'totalMitraLebihDariSatuSurvei' => $totalMitraLebihDariSatuSurvei, // Ditambahkan untuk export
-            'totalMitraHonorLebihDari4Jt' => $totalMitraHonorLebihDari4Jt,     // Ditambahkan untuk export
+            'totalMitraLebihDariSatuSurvei' => $totalMitraLebihDariSatuSurvei,
+            'totalMitraHonorLebihDari4Jt' => $totalMitraHonorLebihDari4Jt,
         ];
 
         return Excel::download(new MitraExport($mitrasData, $filters, $totals), 'laporan_mitra_' . now()->format('Ymd_His') . '.xlsx');

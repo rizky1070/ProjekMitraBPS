@@ -69,8 +69,10 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
             Carbon::setLocale('id');
 
             $tahun = $this->filters['Tahun'] ?? $this->filters['tahun'];
-            // Dapatkan nomor bulan dari nama bulan yang diformat
-            $bulan = Carbon::parse($this->filters['Bulan'] ?? $this->filters['bulan'])->month;
+
+            // Dapatkan nomor bulan dari nama bulan yang diformat atau nomor bulan langsung
+            $bulanValue = $this->filters['Bulan'] ?? $this->filters['bulan'];
+            $bulan = is_numeric($bulanValue) ? $bulanValue : Carbon::parse($bulanValue)->month;
 
             // Muat data survei mitra berdasarkan filter tahun dan bulan
             $this->data->load(['mitraSurveis' => function ($query) use ($tahun, $bulan) {
@@ -130,8 +132,14 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
                 $nilai = $mitra->mitraSurveis->map(fn($ms) => $ms->nilai ?? '-')->implode(", ");
                 $catatan = $mitra->mitraSurveis->map(fn($ms) => $ms->catatan ?? '-')->implode(", ");
             }
-            $rowData[] = $nilai;
-            $rowData[] = $catatan;
+            // Cari posisi 'Nama Survei' untuk menyisipkan data baru
+            $namaSurveiIndex = array_search('Nama Survei', $this->headings);
+            if ($namaSurveiIndex !== false) {
+                array_splice($rowData, $namaSurveiIndex + 1, 0, [$nilai, $catatan]);
+            } else {
+                $rowData[] = $nilai;
+                $rowData[] = $catatan;
+            }
         }
 
         // Gabungkan dengan sisa data baris
@@ -174,8 +182,20 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
                     $sheet->mergeCells('A' . $row . ':' . $lastColumn . $row);
                     $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                     $row++;
+
                     foreach ($this->filters as $key => $value) {
-                        $sheet->setCellValue('A' . $row, $this->getFilterLabel($key) . ': ' . $value);
+                        $label = $this->getFilterLabel($key);
+                        $displayValue = $value;
+
+                        // Logika untuk memastikan nama bulan selalu dalam Bahasa Indonesia
+                        // Menggunakan strtolower untuk perbandingan case-insensitive
+                        if (in_array(strtolower($key), ['bulan', 'Bulan'])) {
+                            Carbon::setLocale('id'); // Atur lokal ke Indonesia
+                            // Buat objek Carbon dari nomor bulan (contoh: '06') atau nama bulan
+                            $displayValue = is_numeric($value) ? Carbon::create()->month($value)->translatedFormat('F') : Carbon::parse($value)->translatedFormat('F');
+                        }
+
+                        $sheet->setCellValue('A' . $row, $label . ': ' . $displayValue);
                         $sheet->mergeCells('A' . $row . ':' . $lastColumn . $row);
                         $row++;
                     }
@@ -185,17 +205,17 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
                 // Ringkasan Total
                 $summaryStartRow = $row;
                 $sheet->setCellValue('A' . $row++, 'Total Mitra: ' . $this->totals['totalMitra']);
+                $sheet->setCellValue('A' . $row++, 'Total Mitra Laki-laki: ' . $this->totals['totalLaki']);
+                $sheet->setCellValue('A' . $row++, 'Total Mitra Perempuan: ' . $this->totals['totalPerempuan']);
                 $sheet->setCellValue('A' . $row++, 'Aktif Mengikuti Survei: ' . $this->totals['totalIkutSurvei']);
                 $sheet->setCellValue('A' . $row++, 'Tidak Aktif Mengikuti Survei: ' . $this->totals['totalTidakIkutSurvei']);
                 $sheet->setCellValue('A' . $row++, 'Bisa Ikut Survei: ' . $this->totals['totalBisaIkutSurvei']);
                 $sheet->setCellValue('A' . $row++, 'Tidak Bisa Ikut Survei: ' . $this->totals['totalTidakBisaIkutSurvei']);
 
-                // [START] PERUBAHAN: Tambahkan total baru jika filter bulan aktif
                 if ($this->isMonthFilterActive) {
                     $sheet->setCellValue('A' . $row++, 'Total Mitra Partisipasi > 1 Survei: ' . ($this->totals['totalMitraLebihDariSatuSurvei'] ?? 0));
                     $sheet->setCellValue('A' . $row++, 'Total Mitra Honor > 4 Juta: ' . ($this->totals['totalMitraHonorLebihDari4Jt'] ?? 0));
                 }
-                // [END] PERUBAHAN
 
                 $sheet->setCellValue('A' . $row++, 'Total Honor: ' . number_format($this->totals['totalHonor'], 0, ',', '.'));
                 $sheet->getStyle('A' . $summaryStartRow . ':A' . ($row - 1))->getFont()->setBold(true);
@@ -215,8 +235,11 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
                 $sheet->getRowDimension($headerRow)->setRowHeight(20);
 
                 // Format Kolom Honor
-                $honorColumn = $this->isMonthFilterActive ? 'R' : 'P';
-                $sheet->getStyle($honorColumn)->getNumberFormat()->setFormatCode('#,##0');
+                $honorColumnIndex = array_search('Total Honor', $this->headings);
+                if ($honorColumnIndex !== false) {
+                    $honorColumn = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($honorColumnIndex + 1);
+                    $sheet->getStyle($honorColumn)->getNumberFormat()->setFormatCode('#,##0');
+                }
 
                 // Auto-size semua kolom
                 foreach (range('A', $lastColumn) as $column) {
@@ -246,6 +269,8 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
             'partisipasi_lebih_dari_satu' => 'Partisipasi > 1 Survei',
             'Honor > 4 Juta' => 'Honor > 4 Juta',
             'honor_lebih_dari_4jt' => 'Honor > 4 Juta',
+            'Jenis Kelamin' => 'Jenis Kelamin',
+            'jenis_kelamin' => 'Jenis Kelamin',
         ];
         return $labels[$key] ?? ucfirst(str_replace('_', ' ', $key));
     }
