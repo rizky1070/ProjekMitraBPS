@@ -33,7 +33,7 @@ $title = 'Profil Mitra';
                 <div class="flex flex-col justify-center items-center text-center mb-4 md:mb-0">
                     <img alt="Profile picture" class="w-32 rounded-full border-4 object-cover {{ $mits->jenis_kelamin == 2 ? 'border-pink-500' : 'border-blue-500' }}"
                         src="{{ $profileImage }}"
-                        onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/mainchar42/assetgambar/main/myGambar/default.jpg'"
+                        onerror="this.onerror=null;this.src='{{ asset('person.png') }}'"
                         width="100" height="100">
 
                     <h2 class="text-xl font-bold mt-2">{{ $mits->nama_lengkap }}</h2>
@@ -235,7 +235,7 @@ $title = 'Profil Mitra';
                                         <td class="px-6 py-4 whitespace-nowrap text-center">{{ str_repeat('⭐', $sur->nilai) }}</td>
                                     @endif
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <a href="/penilaianMitra/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Edit</a>
+                                        <a href="/penilaianMitra/{{ $sur->mitra->id_mitra }}/{{ $sur->survei->id_survei }}" class="px-4 py-1 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Edit</a>
                                     </td>
                                 </tr>
                                 @endforeach

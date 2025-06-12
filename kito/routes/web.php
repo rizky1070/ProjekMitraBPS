@@ -357,7 +357,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/mitra/{id_mitra}', [MitraController::class, 'deleteMitra'])->name('mitra.destroy');
 
     //Halaman Mitra > Daftar Mitra > Penilaian Mitra
-    Route::get('/penilaianMitra/{id_mitra_survei}', [MitraController::class, 'penilaianMitra'])->name('penilaian.mitra');
+    Route::get('/penilaianMitra/{id_mitra}/{id_survei}', [MitraController::class, 'penilaianMitra'])->name('penilaian.mitra');
     Route::post('/simpan-penilaian', [MitraController::class, 'simpanPenilaian'])->name('simpan.penilaian');
     // Route::get('/penilaian-mitra', [PenilaianMitraController::class, 'index'])->name('penilaian.mitra');
     // Route::get('/penilaian-mitra/{id}', [PenilaianMitraController::class, 'show'])->name('penilaian.mitra.show');
