@@ -384,6 +384,21 @@ class DaftarSurveiBpsController extends Controller
         return redirect()->back()->with('success', $message);
     }
 
+    public function deleteAllMitraFromSurvey($id_survei)
+    {
+        // Cari survei untuk memastikan ID-nya valid
+        $survey = Survei::findOrFail($id_survei);
+
+        // Hapus semua relasi mitra untuk survei ini
+        MitraSurvei::where('id_survei', $id_survei)->delete();
+
+        // Siapkan pesan sukses
+        $message = "Semua mitra berhasil dihapus dari survei {$survey->nama_survei}!";
+
+        // Redirect kembali ke halaman sebelumnya dengan pesan sukses
+        return redirect()->back()->with('success', $message);
+    }
+
 
     private function sendWhatsAppNotification($mitra, $survey, $vol, $honor, $posisiMitra)
     {

@@ -333,6 +333,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/survey/{id_survei}/{id_mitra}/delete', [DaftarSurveiBpsController::class, 'deleteMitraFromSurvei'])->name('mitra.delete');
     Route::post('/upExcelMitra2Survey/{id_survei}', [DaftarSurveiBpsController::class, 'upExcelMitra2Survey'])->name('upload.excel');
     Route::delete('/survey/delete/{id_survei}', [DaftarSurveiBpsController::class, 'deleteSurvei'])->name('survey.delete');
+    Route::delete('/survei/{id_survei}/delete-all-mitra', [DaftarSurveiBpsController::class, 'deleteAllMitraFromSurvey'])->name('survey.deleteAllMitra');
 
     // Halaman Survei > Daftar Survei > Input Survei
     Route::get('/inputSurvei', action: [DaftarSurveiBpsController::class, 'create'])->name('inputSurvei');

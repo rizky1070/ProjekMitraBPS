@@ -144,6 +144,17 @@ $title = 'Kelola Survei';
                             Hapus Survei
                         </button>
                     </form>
+                    {{-- Form Hapus Semua Mitra --}}
+                    <form action="{{ route('survey.deleteAllMitra', ['id_survei' => $survey->id_survei]) }}"
+                        method="POST" id="form-hapus_semua_mitra-{{ $survey->id_survei }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button"
+                            onclick="showConfirmation('hapus_semua_mitra', {{ $survey->id_survei }}, '{{ $survey->nama_survei }}')"
+                            class="mt-4 px-4 py-2 bg-red-800 text-white font-medium rounded-md hover:bg-red-900">
+                            Hapus Semua Mitra
+                        </button>
+                    </form>
                     <button type="button"
                         class="mt-4 px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300"
                         onclick="openModal()">+ Tambah</button>
@@ -599,6 +610,12 @@ $title = 'Kelola Survei';
                     message =
                         `Apakah Anda yakin ingin menghapus survei <b>${name}</b>? SEMUA MITRA YANG TERKAIT AKAN DIPUTUSKAN RELASINYA.`;
                     formId = 'form-delete-survey';
+                    break;
+                case 'hapus_semua_mitra':
+                    title = 'Konfirmasi Hapus Semua Mitra';
+                    message =
+                        `Anda yakin ingin menghapus <b>SEMUA MITRA</b> dari survei <b>${name}</b>? Tindakan ini tidak dapat dibatalkan.`;
+                    formId = `form-${action}-${id}`;
                     break;
             }
 
