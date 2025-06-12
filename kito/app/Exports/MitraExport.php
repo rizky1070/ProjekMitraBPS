@@ -48,8 +48,10 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
         $this->filters = $filters;
         $this->totals = $totals;
 
+        // Cek jika filter 'Bulan' ada dan aktif
         if (!empty($this->filters['Bulan']) || !empty($this->filters['bulan'])) {
             $this->isMonthFilterActive = true;
+            // Sisipkan kolom 'Nilai' dan 'Catatan' setelah 'Nama Survei'
             $namaSurveiIndex = array_search('Nama Survei', $this->headings);
             if ($namaSurveiIndex !== false) {
                 array_splice($this->headings, $namaSurveiIndex + 1, 0, ['Nilai', 'Catatan']);
@@ -62,12 +64,15 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
 
     public function collection()
     {
+        // Jika filter bulan aktif, muat relasi yang diperlukan untuk kolom tambahan
         if ($this->isMonthFilterActive) {
             Carbon::setLocale('id');
 
             $tahun = $this->filters['Tahun'] ?? $this->filters['tahun'];
+            // Dapatkan nomor bulan dari nama bulan yang diformat
             $bulan = Carbon::parse($this->filters['Bulan'] ?? $this->filters['bulan'])->month;
 
+            // Muat data survei mitra berdasarkan filter tahun dan bulan
             $this->data->load(['mitraSurveis' => function ($query) use ($tahun, $bulan) {
                 $query->with('survei')
                     ->whereHas('survei', function ($sq) use ($tahun, $bulan) {
@@ -84,10 +89,12 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
         static $count = 0;
         $count++;
 
+        // Ambil data agregat dari query controller
         $jumlahSurvei = $mitra->total_survei ?? 0;
         $totalHonor = $mitra->total_honor_per_mitra ?? 0;
         $namaSurvei = '-';
 
+        // Jika ada survei dan relasi sudah dimuat, dapatkan nama survei
         if ($jumlahSurvei > 0 && $mitra->relationLoaded('mitraSurveis')) {
             $namaSurvei = $mitra->mitraSurveis->map(function ($mitraSurvei) {
                 return $mitraSurvei->survei ? $mitraSurvei->survei->nama_survei : null;
@@ -96,6 +103,7 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
 
         $statusPekerjaan = $mitra->status_pekerjaan == 0 ? 'Bisa Ikut Survei' : 'Tidak Bisa Ikut Survei';
 
+        // Data baris awal
         $rowData = [
             $count,
             ' ' . $mitra->sobat_id,
@@ -114,6 +122,7 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
             empty(trim($namaSurvei)) ? '-' : $namaSurvei,
         ];
 
+        // Jika filter bulan aktif, tambahkan kolom 'Nilai' dan 'Catatan'
         if ($this->isMonthFilterActive) {
             $nilai = '-';
             $catatan = '-';
@@ -125,6 +134,7 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
             $rowData[] = $catatan;
         }
 
+        // Gabungkan dengan sisa data baris
         $rowData = array_merge($rowData, [
             $totalHonor,
             $statusPekerjaan,
@@ -142,69 +152,73 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
                 $sheet = $event->sheet->getDelegate();
                 $row = 1;
 
+                // Tentukan kolom terakhir berdasarkan apakah filter bulan aktif atau tidak
                 $lastColumn = $this->isMonthFilterActive ? 'U' : 'S';
 
+                // Judul Laporan
                 $sheet->setCellValue('A' . $row, 'LAPORAN DATA MITRA');
                 $sheet->mergeCells('A' . $row . ':' . $lastColumn . $row);
                 $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
                 $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                $row++;
-                $row++;
+                $row += 2; // Beri spasi
 
+                // Tanggal Export
                 $sheet->setCellValue('A' . $row, 'Tanggal Export: ' . Carbon::now()->format('d/m/Y H:i'));
                 $sheet->mergeCells('A' . $row . ':' . $lastColumn . $row);
                 $sheet->getStyle('A' . $row)->getFont()->setItalic(true);
-                $row++;
-                $row++;
+                $row += 2; // Beri spasi
 
+                // Informasi Filter
                 if (!empty($this->filters)) {
                     $sheet->setCellValue('A' . $row, 'Filter yang digunakan:');
                     $sheet->mergeCells('A' . $row . ':' . $lastColumn . $row);
                     $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                     $row++;
                     foreach ($this->filters as $key => $value) {
-                        $label = $this->getFilterLabel($key);
-                        $displayValue = $value;
-
-                        // --- [FIX] Logika untuk memastikan nama bulan selalu dalam Bahasa Indonesia ---
-                        if (strtolower($label) === 'bulan') {
-                            Carbon::setLocale('id'); // Atur lokal ke Indonesia
-                            // Paksa parsing dan format ulang ke nama bulan dalam Bahasa Indonesia
-                            $displayValue = Carbon::parse($value)->translatedFormat('F');
-                        }
-
-                        $sheet->setCellValue('A' . $row, $label . ': ' . $displayValue);
+                        $sheet->setCellValue('A' . $row, $this->getFilterLabel($key) . ': ' . $value);
                         $sheet->mergeCells('A' . $row . ':' . $lastColumn . $row);
                         $row++;
                     }
-                    $row++;
+                    $row++; // Beri spasi
                 }
 
+                // Ringkasan Total
                 $summaryStartRow = $row;
                 $sheet->setCellValue('A' . $row++, 'Total Mitra: ' . $this->totals['totalMitra']);
                 $sheet->setCellValue('A' . $row++, 'Aktif Mengikuti Survei: ' . $this->totals['totalIkutSurvei']);
                 $sheet->setCellValue('A' . $row++, 'Tidak Aktif Mengikuti Survei: ' . $this->totals['totalTidakIkutSurvei']);
                 $sheet->setCellValue('A' . $row++, 'Bisa Ikut Survei: ' . $this->totals['totalBisaIkutSurvei']);
                 $sheet->setCellValue('A' . $row++, 'Tidak Bisa Ikut Survei: ' . $this->totals['totalTidakBisaIkutSurvei']);
+
+                // [START] PERUBAHAN: Tambahkan total baru jika filter bulan aktif
+                if ($this->isMonthFilterActive) {
+                    $sheet->setCellValue('A' . $row++, 'Total Mitra Partisipasi > 1 Survei: ' . ($this->totals['totalMitraLebihDariSatuSurvei'] ?? 0));
+                    $sheet->setCellValue('A' . $row++, 'Total Mitra Honor > 4 Juta: ' . ($this->totals['totalMitraHonorLebihDari4Jt'] ?? 0));
+                }
+                // [END] PERUBAHAN
+
                 $sheet->setCellValue('A' . $row++, 'Total Honor: ' . number_format($this->totals['totalHonor'], 0, ',', '.'));
                 $sheet->getStyle('A' . $summaryStartRow . ':A' . ($row - 1))->getFont()->setBold(true);
-                $row += 2;
+                $row += 2; // Beri spasi
 
+                // Header Tabel
                 $headerRow = $row;
                 $sheet->fromArray($this->headings, null, 'A' . $headerRow);
 
                 $headerStyle = [
                     'font' => ['bold' => true],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFD3D3D3']],
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN,],],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                     'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
                 ];
                 $sheet->getStyle('A' . $headerRow . ':' . $lastColumn . $headerRow)->applyFromArray($headerStyle);
                 $sheet->getRowDimension($headerRow)->setRowHeight(20);
 
+                // Format Kolom Honor
                 $honorColumn = $this->isMonthFilterActive ? 'R' : 'P';
                 $sheet->getStyle($honorColumn)->getNumberFormat()->setFormatCode('#,##0');
 
+                // Auto-size semua kolom
                 foreach (range('A', $lastColumn) as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
@@ -214,6 +228,7 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
 
     protected function getFilterLabel($key)
     {
+        // Peta untuk label filter yang lebih ramah pengguna
         $labels = [
             'Tahun' => 'Tahun',
             'tahun' => 'Tahun',

@@ -81,7 +81,7 @@ $title = 'Report Mitra';
 
                                     <!-- Partisipasi > 1 Survei Filter -->
                                     <div class="flex flex-col">
-                                        <label for="partisipasi_lebih_dari_satu" class="block text-sm font-medium text-gray-700 mb-1">Partisipasi > 1 Survei</label>
+                                        <label for="partisipasi_lebih_dari_satu" class="block text-sm font-medium text-gray-700 mb-1">Mitra > 1 Survei</label>
                                         <select id="partisipasi_lebih_dari_satu" name="partisipasi_lebih_dari_satu" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" {{ !($request->filled('tahun') && $request->filled('bulan')) ? 'disabled' : '' }}>
                                             <option value="">Semua</option>
                                             <option value="ya" {{ request('partisipasi_lebih_dari_satu') == 'ya' ? 'selected' : '' }}>Ya</option>
@@ -142,73 +142,103 @@ $title = 'Report Mitra';
                     </div>
 
                     <!-- Statistics Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500">
-                            <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-users text-lg"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-500">Total Mitra</p>
-                                    <p class="text-2xl font-bold text-gray-800">{{ $totalMitra }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500">
-                            <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-check-circle text-lg"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-500">Aktif Mengikuti Survei</p>
-                                    <p class="text-2xl font-bold text-gray-800">{{ $totalIkutSurvei }}</p>
-                                    <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-red-500">
-                            <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-times-circle text-lg"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-500">Tidak Aktif Mengikuti Survei</p>
-                                    <p class="text-2xl font-bold text-gray-800">{{ $totalTidakIkutSurvei }}</p>
-                                    <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalTidakIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-purple-500">
-                            <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-check-circle text-lg"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-500">Bisa Mengikuti Survei</p>
-                                    <p class="text-2xl font-bold text-gray-800">{{ $totalBisaIkutSurvei }}</p>
-                                    <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalBisaIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
-                                </div>
-                            </div>
-                        </div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-users text-lg"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-500">Total Mitra</p>
+                <p class="text-2xl font-bold text-gray-800">{{ $totalMitra }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-check-circle text-lg"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-500">Aktif Mengikuti Survei</p>
+                <p class="text-2xl font-bold text-gray-800">{{ $totalIkutSurvei }}</p>
+                <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-red-500">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-times-circle text-lg"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-500">Tidak Aktif Mengikuti Survei</p>
+                <p class="text-2xl font-bold text-gray-800">{{ $totalTidakIkutSurvei }}</p>
+                <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalTidakIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-purple-500">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-check-circle text-lg"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-500">Bisa Mengikuti Survei</p>
+                <p class="text-2xl font-bold text-gray-800">{{ $totalBisaIkutSurvei }}</p>
+                <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalBisaIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
+            </div>
+        </div>
+    </div>
 
-                        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-yellow-500">
-                            <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-times-circle text-lg"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-500">Tidak Bisa Mengikuti Survei</p>
-                                    <p class="text-2xl font-bold text-gray-800">{{ $totalTidakBisaIkutSurvei }}</p>
-                                    <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalTidakBisaIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
-                                </div>
-                            </div>
-                        </div>
+    <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-yellow-500">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-times-circle text-lg"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-500">Tidak Bisa Mengikuti Survei</p>
+                <p class="text-2xl font-bold text-gray-800">{{ $totalTidakBisaIkutSurvei }}</p>
+                <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalTidakBisaIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
+            </div>
+        </div>
+    </div>
 
-                        
-                    </div>
+    <!-- [START] KARTU STATISTIK KONDISIONAL -->
+    @if($request->filled('bulan'))
+        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-cyan-500">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-cyan-100 text-cyan-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-layer-group text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Mitra > 1 Survei</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ $totalMitraLebihDariSatuSurvei }}</p>
+                    <p class="text-xs text-gray-500">Pada bulan yang difilter</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-orange-500">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-orange-100 text-orange-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-wallet text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Honor > 4 Juta</p>
+                    <p class="text-2xl font-bold text-gray-800">{{ $totalMitraHonorLebihDari4Jt }}</p>
+                    <p class="text-xs text-gray-500">Pada bulan yang difilter</p>
+                </div>
+            </div>
+        </div>
+    @endif
+    <!-- [END] KARTU STATISTIK KONDISIONAL -->
+
+</div>
+
 
                     <!-- Table Section -->
                     <div class="border rounded-lg shadow-sm bg-white p-3">

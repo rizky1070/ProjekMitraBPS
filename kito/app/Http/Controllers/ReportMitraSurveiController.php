@@ -262,6 +262,22 @@ class ReportMitraSurveiController extends Controller
             $totalMitraKecamatan = (clone $mitrasQuery)->where('id_kecamatan', $request->kecamatan)->count();
         }
 
+        // [START] PENAMBAHAN LOGIKA BARU
+        $totalMitraLebihDariSatuSurvei = 0;
+        $totalMitraHonorLebihDari4Jt = 0;
+
+        if ($request->filled('bulan')) {
+            $baseQueryForCounts = (clone $mitrasQuery)->toBase();
+            $subQuery = DB::table($baseQueryForCounts)->select(
+                'total_survei',
+                'total_honor_per_mitra'
+            );
+
+            $totalMitraLebihDariSatuSurvei = (clone $subQuery)->where('total_survei', '>', 1)->count();
+            $totalMitraHonorLebihDari4Jt = (clone $subQuery)->where('total_honor_per_mitra', '>', 4000000)->count();
+        }
+        // [END] PENAMBAHAN LOGIKA BARU
+
         // HITUNG TOTAL HONOR
         $totalHonor = MitraSurvei::whereHas('mitra', function ($q) use ($mitrasQuery) {
             $mitraIds = (clone $mitrasQuery)->pluck('mitra.id_mitra');
@@ -289,6 +305,8 @@ class ReportMitraSurveiController extends Controller
             'totalTidakBisaIkutSurvei',
             'totalMitraKecamatan',
             'totalHonor',
+            'totalMitraLebihDariSatuSurvei', // Kirim ke view
+            'totalMitraHonorLebihDari4Jt',   // Kirim ke view
             'request'
         ));
     }
@@ -346,6 +364,9 @@ class ReportMitraSurveiController extends Controller
             $mitrasQuery->having('total_honor_per_mitra', '>', 4000000);
         }
 
+        // Ambil data yang sudah difilter
+        $mitrasData = $mitrasQuery->get();
+
         // Kumpulkan informasi filter untuk ditampilkan di Excel
         $filters = [];
         if ($request->filled('tahun')) $filters['Tahun'] = $request->tahun;
@@ -371,9 +392,6 @@ class ReportMitraSurveiController extends Controller
             $filters['Status Pekerjaan'] = $request->status_pekerjaan == 0 ? 'Bisa Mengikuti Survei' : 'Tidak Bisa Mengikuti Survei';
         }
 
-        // Ambil data yang sudah difilter
-        $mitrasData = $mitrasQuery->get();
-
         // Data total untuk ringkasan di Excel
         $totalMitra = $mitrasData->count();
         $totalIkutSurvei = $mitrasData->where('total_survei', '>', 0)->count();
@@ -382,6 +400,16 @@ class ReportMitraSurveiController extends Controller
         $totalTidakBisaIkutSurvei = $totalMitra - $totalBisaIkutSurvei;
         $totalHonor = $mitrasData->sum('total_honor_per_mitra');
 
+        // [START] PENAMBAHAN LOGIKA BARU
+        $totalMitraLebihDariSatuSurvei = 0;
+        $totalMitraHonorLebihDari4Jt = 0;
+
+        if ($request->filled('bulan')) {
+            $totalMitraLebihDariSatuSurvei = $mitrasData->where('total_survei', '>', 1)->count();
+            $totalMitraHonorLebihDari4Jt = $mitrasData->where('total_honor_per_mitra', '>', 4000000)->count();
+        }
+        // [END] PENAMBAHAN LOGIKA BARU
+
         $totals = [
             'totalMitra' => $totalMitra,
             'totalIkutSurvei' => $totalIkutSurvei,
@@ -389,6 +417,8 @@ class ReportMitraSurveiController extends Controller
             'totalBisaIkutSurvei' => $totalBisaIkutSurvei,
             'totalTidakBisaIkutSurvei' => $totalTidakBisaIkutSurvei,
             'totalHonor' => $totalHonor,
+            'totalMitraLebihDariSatuSurvei' => $totalMitraLebihDariSatuSurvei, // Ditambahkan untuk export
+            'totalMitraHonorLebihDari4Jt' => $totalMitraHonorLebihDari4Jt,     // Ditambahkan untuk export
         ];
 
         return Excel::download(new MitraExport($mitrasData, $filters, $totals), 'laporan_mitra_' . now()->format('Ymd_His') . '.xlsx');
