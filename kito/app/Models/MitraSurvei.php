@@ -17,10 +17,10 @@ class MitraSurvei extends Model
     protected $fillable = [
         'id_mitra',
         'id_survei',
-        'posisi_mitra',
         'catatan',
         'nilai',
         'vol',
+        'rate_honor',
         'id_posisi_mitra',
         'tgl_ikut_survei'
     ];

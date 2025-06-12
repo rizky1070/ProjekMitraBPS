@@ -314,13 +314,7 @@ $title = 'Kelola Survei';
                             <tbody class="bg-white divide-y divide-gray-500">
                                 @foreach($mitras as $mitra)
                                 <tr class="hover:bg-gray-50" style=" border-top-width: 2px; border-color: #D1D5DB;">
-                                    @php
-                                        if ($mitra->status_pekerjaan == 1) {
-                                            $bgStatus = 'bg-red-500';
-                                        } else {
-                                            $bgStatus = 'bg-green-500';
-                                        }
-                                    @endphp
+                                    {{-- Kolom Nama, Domisili, etc. tidak berubah --}}
                                     <td class="whitespace-normal text-center break-words" style="max-width: 120px;">
                                         <div class="flex justify-center items-center">
                                             <a href="/profilMitra/{{ $mitra->id_mitra }}" class="hover:underline transition duration-300 ease-in-out" style="text-decoration-color: #FFA500; text-decoration-thickness: 3px;">{{ $mitra->nama_lengkap }} </a>
@@ -332,66 +326,73 @@ $title = 'Kelola Survei';
                                         {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - 
                                         {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}
                                     </td>
+
                                     @if ($mitra->isFollowingSurvey)
-                                    <!-- Form Edit -->
-                                    <form action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                        @csrf
-                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <input type="number" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="{{ $mitra->vol }}" style="width: 100%;">
-                                        </td>
-                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                            Rp{{ number_format($mitra->rate_honor, 0, ',', '.') }}
-                                        </td>
-                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <select name="id_posisi_mitra" id="posisi_{{ $mitra->id_mitra }}" class="w-full focus:outline-none text-center" style="width: 100%;">
-                                                <option value="">Pilih Posisi</option>
-                                                @foreach($posisiMitraOptions as $posisi)
-                                                    <option value="{{ $posisi->id_posisi_mitra }}" 
-                                                        data-rate="{{ $posisi->rate_honor }}"
-                                                        @if($mitra->id_posisi_mitra == $posisi->id_posisi_mitra) selected @endif>
-                                                        {{ $posisi->nama_posisi }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <div class="flex justify-center items-center py-2 text-center">
-                                                <button type="submit" class="bg-oren text-white px-2 py-1 rounded hover:bg-orange-500 mr-3" title="Edit">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                                </svg></button>
-                                    </form>
-                                    <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                        <form action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600" title="Hapus">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                            </svg></button>
-                                        </div>
-                                    </td>
-                                    </form>
+                                            <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                                <input type="number" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="Vol" style="width: 100%;">
+                                            </td>
+                                            
+                                            <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                                <input type="number" name="rate_honor" value="{{ $mitra->rate_honor }}" class="w-full focus:outline-none text-center border-none" placeholder="Rate Honor" style="width: 100%;">
+                                            </td>
+                                            
+                                            <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                                <select name="id_posisi_mitra" class="w-full focus:outline-none text-center" style="width: 100%;">
+                                                    <option value="">Pilih Posisi</option>
+                                                    @foreach($posisiMitraOptions as $posisi)
+                                                        <option value="{{ $posisi->id_posisi_mitra }}" 
+                                                                @if($mitra->id_posisi_mitra == $posisi->id_posisi_mitra) selected @endif>
+                                                            {{ $posisi->nama_posisi }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            
+                                            {{-- Tombol Aksi (Edit & Hapus) --}}
+                                            <td>
+                                                <div class="flex justify-center items-center py-2 text-center">
+                                                    <button type="submit" class="bg-oren text-white px-2 py-1 rounded hover:bg-orange-500 mr-3" title="Simpan">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                        </svg>
+                                                    </button>
+                                                </form> {{-- Form Edit ditutup di sini --}}
+                                                
+                                                <form action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600" title="Hapus">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                                                    </button>
+                                                </form>
+                                                </div>
+                                            </td>
                                     @else
-                                    <!-- Form Tambah -->
-                                    <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
-                                        @csrf
-                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <input type="number" name="vol" value="{{ $mitra->vol }}" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Vol" style="width: 100%;">
-                                        </td>
-                                        <td class="whitespace-nowrap text-center text-gray-500" style="max-width: 100px;">Rate Honor</td>
-                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <select name="id_posisi_mitra" id="posisi_{{ $mitra->id_mitra }}" class="w-full focus:outline-none text-center" style="width: 100%;">
-                                                <option value="">Pilih Posisi</option>
-                                                @foreach($posisiMitraOptions as $posisi)
-                                                    <option value="{{ $posisi->id_posisi_mitra }}" data-rate="{{ $posisi->rate_honor }}">
-                                                        {{ $posisi->nama_posisi }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                        <td class="whitespace-nowrap p-2 text-center" style="max-width: 120px;">
-                                            <button type="submit" class="bg-green-500 px-3 rounded text-white font-medium hover:bg-green-600 hover:shadow-lg transition-all duration-300">Tambah</button>
-                                        </td>
-                                    </form>
+                                        <form action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}" method="POST">
+                                            @csrf
+                                            <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                                <input type="number" name="vol" value="" class="w-full focus:outline-none text-center border-none" placeholder="Masukkan Vol" style="width: 100%;">
+                                            </td>
+
+                                            <td class="whitespace-nowrap text-center" style="max-width: 100px;">
+                                                <input type="number" name="rate_honor" value="" class="w-full focus:outline-none text-center border-none" placeholder="Rate Honor" style="width: 100%;">
+                                            </td>
+                                            
+                                            <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                                <select name="id_posisi_mitra" class="w-full focus:outline-none text-center" style="width: 100%;">
+                                                    <option value="">Pilih Posisi</option>
+                                                    @foreach($posisiMitraOptions as $posisi)
+                                                        <option value="{{ $posisi->id_posisi_mitra }}">
+                                                            {{ $posisi->nama_posisi }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td class="whitespace-nowrap p-2 text-center" style="max-width: 120px;">
+                                                <button type="submit" class="bg-green-500 px-3 rounded text-white font-medium hover:bg-green-600 hover:shadow-lg transition-all duration-300">Tambah</button>
+                                            </td>
+                                        </form>
                                     @endif
                                 </tr>
                                 @endforeach
@@ -450,26 +451,7 @@ $title = 'Kelola Survei';
             document.getElementById('uploadModal').classList.add('hidden');
         }
 
-        // Function to update rate honor based on selected position
-        function updateRateHonor(selectElement, mitraId) {
-            const selectedOption = selectElement.options[selectElement.selectedIndex];
-            const rateHonor = selectedOption.getAttribute('data-rate');
-            
-            // Format the rate honor with currency
-            const formattedRate = rateHonor ? 'Rp' + Number(rateHonor).toLocaleString('id-ID') : '';
-            
-            // Update the rate honor field
-            document.getElementById('rate_honor_' + mitraId).value = formattedRate;
-        }
-
-        // Initialize rate honor for existing entries
-        document.addEventListener('DOMContentLoaded', function() {
-            @foreach($mitras as $mitra)
-                @if($mitra->isFollowingSurvey && $mitra->rate_honor)
-                    document.getElementById('rate_honor_{{ $mitra->id_mitra }}').value = 'Rp{{ number_format($mitra->rate_honor, 0, ',', '.') }}';
-                @endif
-            @endforeach
-        });
+        
     </script>
 </body>
 </html>

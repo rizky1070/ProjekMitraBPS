@@ -41,80 +41,70 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
     {
         $this->currentRow = $row;
         $currentRowNum = $this->excelRowNumber;
-        $sobatId = $this->validateSobatId($row['sobat_id']);
-
-        // Fetch mitra name from database immediately
-        $mitraName = Mitra::where('sobat_id', $sobatId)->value('nama_lengkap') ?? 'Tidak diketahui';
+        $sobatId = null; // Inisialisasi
 
         try {
-            // Skip empty rows
             if ($this->isEmptyRow($row)) {
-                $this->excelRowNumber++;
-                return null;
+                return null; // Lewati baris kosong
             }
+
+            $sobatId = $this->validateSobatId($row['sobat_id']);
+            $mitraName = Mitra::where('sobat_id', $sobatId)->value('nama_lengkap') ?? 'Tidak diketahui';
 
             Log::info('Processing Excel row: ' . $currentRowNum, $row);
 
-            // Validate and process data
+            // Validasi data dari baris Excel
             $vol = $this->validateVol($row['vol']);
+            $rateHonor = $this->validateRateHonor($row['rate_honor']); // Validasi rate honor
             $nilai = isset($row['nilai']) ? $this->validateNilai($row['nilai']) : null;
             $posisi = $this->validatePosisi($row['posisi']);
             $tahunMasuk = $this->validateAndParseDate($row['tgl_mitra_diterima'], 'tgl_mitra_diterima');
 
-            // Isi otomatis tgl_ikut_survei dengan jadwal_kegiatan dari tabel survei
             $tglIkutSurvei = Carbon::parse($this->survei->jadwal_kegiatan);
 
-            // Validate mitra exists
+            // Validasi mitra dan periode survei
             $mitra = $this->validateMitraExists($sobatId, $tahunMasuk);
-
-            // Validate survey period
+            // Perbaikan logika
             $this->validateSurveyPeriod($tahunMasuk, $mitra->tahun_selesai, $tglIkutSurvei);
 
-            // Cek apakah survei telah selesai (tanggal saat ini > jadwal_berakhir_kegiatan)
-            $now = Carbon::now();
-            $jadwalBerakhir = Carbon::parse($this->survei->jadwal_berakhir_kegiatan);
-            if ($now->gt($jadwalBerakhir)) {
-                $warningMessage = "Peringatan: Survei telah selesai pada {$jadwalBerakhir->format('d-m-Y')}. Data yang diimpor mungkin tidak relevan.";
-                $this->surveyWarnings[] = $warningMessage; // Simpan di surveyWarnings
+            if (Carbon::now()->gt(Carbon::parse($this->survei->jadwal_berakhir_kegiatan))) {
+                $this->surveyWarnings[] = "Peringatan: Survei telah selesai. Data yang diimpor mungkin tidak relevan.";
             }
 
-            // Get position data
             $posisiMitra = $this->getPosisiMitra($posisi);
 
-            // Check for existing record
-            $existingMitra = MitraSurvei::where('id_mitra', $mitra->id_mitra)
-                ->where('id_survei', $this->id_survei)
-                ->first();
-
-            // Prepare data
             $data = [
                 'id_mitra' => $mitra->id_mitra,
                 'id_survei' => $this->id_survei,
                 'id_posisi_mitra' => $posisiMitra->id_posisi_mitra,
                 'vol' => $vol,
+                'rate_honor' => $rateHonor, // Tambahkan rate honor ke data
                 'catatan' => $row['catatan'] ?? null,
                 'nilai' => $nilai,
                 'tgl_ikut_survei' => $tglIkutSurvei,
             ];
 
-            // Update or create
-            if ($existingMitra) {
-                $existingMitra->update($data);
-            } else {
-                MitraSurvei::create($data);
-            }
+            MitraSurvei::updateOrCreate(
+                ['id_mitra' => $mitra->id_mitra, 'id_survei' => $this->id_survei],
+                $data
+            );
 
-            // Check honor limit
-            $this->checkHonorLimit($mitra, $posisiMitra, $vol);
+            // FIX: Panggil checkHonorLimit dengan parameter yang benar (angka, bukan objek)
+            $this->checkHonorLimit($mitra, $rateHonor, $vol);
 
             $this->successCount++;
-            $this->excelRowNumber++;
-            return null;
         } catch (\Exception $e) {
-            $this->logError($currentRowNum, $mitraName, $e->getMessage());
+            // Ambil nama mitra bahkan jika validasi awal gagal
+            $mitraNameForError = 'Tidak diketahui';
+            if ($sobatId) {
+                $mitraNameForError = Mitra::where('sobat_id', $sobatId)->value('nama_lengkap') ?? 'Tidak diketahui';
+            }
+            $this->logError($currentRowNum, $mitraNameForError, $e->getMessage());
+        } finally {
             $this->excelRowNumber++;
-            return null;
         }
+
+        return null;
     }
 
     /**
@@ -146,6 +136,15 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
                     $numericValue = $this->convertToNumeric($value);
                     if (!is_numeric($numericValue) || $numericValue <= 0) {
                         $fail("Volume harus angka positif");
+                    }
+                }
+            ],
+            'rate_honor' => [ // Aturan untuk rate_honor
+                'required',
+                function ($attribute, $value, $fail) {
+                    $numericValue = $this->convertToNumeric($value);
+                    if (!is_numeric($numericValue) || $numericValue < 0) {
+                        $fail("Rate Honor harus angka non-negatif");
                     }
                 }
             ],
@@ -185,6 +184,7 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
             'sobat_id.required' => 'SOBAT ID harus diisi',
             'posisi.required' => 'Posisi harus diisi',
             'vol.required' => 'Volume harus diisi',
+            'rate_honor.required' => 'Rate Honor harus diisi',
             'tgl_mitra_diterima.required' => 'Tanggal diterima mitra harus diisi',
         ];
     }
@@ -378,22 +378,32 @@ class Mitra2SurveyImport implements ToModel, WithHeadingRow, WithValidation, Ski
         return $posisi;
     }
 
-    private function checkHonorLimit($mitra, $posisiMitra, $vol)
+    private function checkHonorLimit(Mitra $mitra, float $rateHonorFromExcel, int $vol)
     {
+        // Query ini sekarang menghitung total honor dari data yang sudah ada di database
         $totalHonorBulanIni = MitraSurvei::join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
-            ->join('posisi_mitra', 'mitra_survei.id_posisi_mitra', '=', 'posisi_mitra.id_posisi_mitra')
             ->where('mitra_survei.id_mitra', $mitra->id_mitra)
             ->where('survei.bulan_dominan', $this->survei->bulan_dominan)
-            ->sum(DB::raw('mitra_survei.vol * posisi_mitra.rate_honor'));
+            ->where('mitra_survei.id_survei', '!=', $this->id_survei) // Kecualikan data yang sedang diproses
+            ->sum(DB::raw('mitra_survei.vol * mitra_survei.rate_honor'));
 
-        $honorYangAkanDitambahkan = $posisiMitra->rate_honor * $vol;
+        // Tambahkan honor dari baris Excel saat ini
+        $honorYangAkanDitambahkan = $rateHonorFromExcel * $vol;
         $totalHonorSetelahDitambah = $totalHonorBulanIni + $honorYangAkanDitambahkan;
 
         if ($totalHonorSetelahDitambah > 4000000) {
-            $warningMessage = "Baris {$this->excelRowNumber}: Mitra {$mitra->nama_lengkap} - Total honor melebihi Rp 4.000.000 (Total: Rp " .
-                number_format($totalHonorSetelahDitambah, 0, ',', '.') . ")";
+            $warningMessage = "Baris {$this->excelRowNumber}: Mitra {$mitra->nama_lengkap} - Total honor melebihi Rp 4.000.000 (Total: Rp " . number_format($totalHonorSetelahDitambah, 0, ',', '.') . ")";
             $this->honorWarnings[] = $warningMessage;
         }
+    }
+
+    private function validateRateHonor($rateHonor)
+    {
+        $numericRate = $this->convertToNumeric($rateHonor);
+        if (!is_numeric($numericRate) || $numericRate < 0) {
+            throw new \Exception("Rate Honor harus angka non-negatif");
+        }
+        return $numericRate;
     }
 
     private function logError($rowNumber, $mitraName, $errorMessage)

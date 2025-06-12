@@ -14,11 +14,11 @@ class PosisiMitraSeeder extends Seeder
     public function run(): void
     {
         $posisiMitra = [
-            ['nama_posisi' => 'Programmer', 'rate_honor' => 10000],
-            ['nama_posisi' => 'UI/UX Designer', 'rate_honor' => 20000],
-            ['nama_posisi' => 'Data Analyst', 'rate_honor' => 30000],
-            ['nama_posisi' => 'System Administrator', 'rate_honor' => 40000],
-            ['nama_posisi' => 'Petugas Pendataan Lapangan (PPL Survei)', 'rate_honor' => 110000],
+            ['nama_posisi' => 'Programmer' ],
+            ['nama_posisi' => 'UI/UX Designer' ],
+            ['nama_posisi' => 'Data Analyst'],
+            ['nama_posisi' => 'System Administrator'],
+            ['nama_posisi' => 'Petugas Pendataan Lapangan (PPL Survei)'],
         ];
 
         // Insert data ke tabel

@@ -15,7 +15,6 @@ class PosisiMitra extends Model
 
     protected $fillable = [
         'nama_posisi',
-        'rate_honor',
     ];
 
     // Relasi ke MitraSurvei (one-to-many)

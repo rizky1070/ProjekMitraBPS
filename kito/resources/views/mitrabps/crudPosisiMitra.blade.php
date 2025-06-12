@@ -6,7 +6,7 @@ $title = 'Daftar Posisi Mitra';
 @include('mitrabps.cuScroll')
 </head>
 <body class="h-full">
-    <div x-data="PosisiData()" x-init="sidebarOpen = false" x-bind="sidebarOpen" class="flex h-screen">
+    <div x-data="PosisiData()" x-init="sidebarOpen = false" class="flex h-screen">
         <x-sidebar></x-sidebar>
         
         <div class="flex flex-col flex-1 overflow-hidden">
@@ -21,7 +21,7 @@ $title = 'Daftar Posisi Mitra';
                     <div class="flex justify-between items-center mb-4">
                         <div class="flex justify-between w-64">
                             <select id="searchSelect" placeholder="Cari posisi..." class="w-full">
-                                <option value="">Semua Nama</option>
+                                <option value="">Semua Posisi</option>
                                 @foreach($posisiNames as $name)
                                     <option value="{{ $name }}" {{ request('search') == $name ? 'selected' : '' }}>
                                         {{ $name }}
@@ -29,36 +29,33 @@ $title = 'Daftar Posisi Mitra';
                                 @endforeach
                             </select>
                         </div>
-                        <button @click="showAddModal = true; newPosisiName = ''; newRateHonor = ''" 
+                        <button @click="showAddModal = true; newPosisiName = ''" 
                             class="bg-oren text-white ml-2 px-4 py-2 rounded hover:bg-orange-500 transition"
                             title="Tambah Posisi Mitra Baru">
                             Tambah
                         </button>
                     </div>
                     
-                    <!-- Table Structure -->
                     <div class="cuScrollTableX">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="min-w-full divide-y divide-gray-200">
+                            <thead>
                                 <tr class="bg-gray-50 border-b">
                                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Posisi</th>
-                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Rate Honor</th>
                                     <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($posisiMitra as $Posisi)
-                                <tr class="hover:bg-gray-50" style=" border-top-width: 2px; border-color: #D1D5DB;">
-                                    <td class="px-4 py-2 text-left">{{ $Posisi->nama_posisi }}</td>
-                                    <td class="px-4 py-2 whitespace-nowrap text-center">Rp {{ number_format($Posisi->rate_honor, 0, ',', '.') }}</td>
+                                @foreach ($posisiMitra as $posisi)
+                                <tr class="hover:bg-gray-50" style="border-top-width: 2px; border-color: #D1D5DB;">
+                                    <td class="px-4 py-2 text-left">{{ $posisi->nama_posisi }}</td>
                                     <td class="px-4 py-2 whitespace-nowrap text-center">
                                         <!-- Edit Button -->
-                                        <button @click="showEditModal = true; currentPosisi = {{ $Posisi->id_posisi_mitra }}; editPosisiName = '{{ $Posisi->nama_posisi }}'; editRateHonor = '{{ $Posisi->rate_honor }}'"
+                                        <button @click="showEditModal = true; currentPosisi = {{ $posisi->id_posisi_mitra }}; editPosisiName = '{{ $posisi->nama_posisi }}'"
                                             class="bg-oren text-white px-3 py-1 rounded-lg hover:bg-orange-500 mr-3">
                                             Edit
                                         </button>
                                         <!-- Delete Button -->
-                                        <button @click="deletePosisi({{ $Posisi->id_posisi_mitra }}, '{{ $Posisi->nama_posisi }}')"
+                                        <button @click="deletePosisi({{ $posisi->id_posisi_mitra }}, '{{ $posisi->nama_posisi }}')"
                                             class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600">
                                             Hapus
                                         </button>
@@ -75,27 +72,17 @@ $title = 'Daftar Posisi Mitra';
         
         <!-- Add Posisi Modal -->
         <div x-show="showAddModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" style="display: none;">
-            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <div @click.away="showAddModal = false" class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
                 <h2 class="text-xl font-bold mb-4">Tambah Posisi Mitra Baru</h2>
-                <form @submit.stop.prevent="submitAddForm">
+                <form @submit.prevent="submitAddForm">
                     <div class="mb-4">
                         <label class="block text-gray-700 mb-2" for="newPosisiName">Nama Posisi</label>
                         <input x-model="newPosisiName" type="text" id="newPosisiName" 
                             class="w-full px-3 py-2 border rounded" required>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2" for="newRateHonor">Rate Honor</label>
-                        <input x-model="newRateHonor" type="number" id="newRateHonor" 
-                            class="w-full px-3 py-2 border rounded" required>
-                    </div>
                     <div class="flex justify-end space-x-3">
-                        <button type="button" @click="showAddModal = false" 
-                            class="px-4 py-2 border rounded hover:bg-gray-100">
-                            Batal
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                            Simpan
-                        </button>
+                        <button type="button" @click="showAddModal = false" class="px-4 py-2 border rounded hover:bg-gray-100">Batal</button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -103,27 +90,17 @@ $title = 'Daftar Posisi Mitra';
         
         <!-- Edit Posisi Modal -->
         <div x-show="showEditModal" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" style="display: none;">
-            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <div @click.away="showEditModal = false" class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
                 <h2 class="text-xl font-bold mb-4">Edit Posisi Mitra</h2>
-                <form @submit.stop.prevent="submitEditForm">
+                <form @submit.prevent="submitEditForm">
                     <div class="mb-4">
                         <label class="block text-gray-700 mb-2" for="editPosisiName">Nama Posisi</label>
                         <input x-model="editPosisiName" type="text" id="editPosisiName" 
                             class="w-full px-3 py-2 border rounded" required>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 mb-2" for="editRateHonor">Rate Honor</label>
-                        <input x-model="editRateHonor" type="number" id="editRateHonor" 
-                            class="w-full px-3 py-2 border rounded" required>
-                    </div>
                     <div class="flex justify-end space-x-3">
-                        <button type="button" @click="showEditModal = false" 
-                            class="px-4 py-2 border rounded hover:bg-gray-100">
-                            Batal
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                            Simpan Perubahan
-                        </button>
+                        <button type="button" @click="showEditModal = false" class="px-4 py-2 border rounded hover:bg-gray-100">Batal</button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Simpan Perubahan</button>
                     </div>
                 </form>
             </div>
@@ -140,20 +117,21 @@ $title = 'Daftar Posisi Mitra';
             showEditModal: false,
             currentPosisi: null,
             newPosisiName: '',
-            newRateHonor: '',
             editPosisiName: '',
-            editRateHonor: '',
             isLoading: false,
             
             init() {
                 new TomSelect('#searchSelect', {
                     create: false,
                     sortField: { field: "text", direction: "asc" },
-                    maxOptions: null,
                     onChange: (value) => {
-                        const params = new URLSearchParams();
-                        if (value) params.append('search', value);
-                        window.location.href = window.location.pathname + '?' + params.toString();
+                        const params = new URLSearchParams(window.location.search);
+                        if (value) {
+                            params.set('search', value);
+                        } else {
+                            params.delete('search');
+                        }
+                        window.location.search = params.toString();
                     }
                 });
             },
@@ -165,18 +143,16 @@ $title = 'Daftar Posisi Mitra';
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
                         },
-                        body: JSON.stringify({
-                            nama_posisi: this.newPosisiName,
-                            rate_honor: this.newRateHonor
-                        })
+                        body: JSON.stringify({ nama_posisi: this.newPosisiName })
                     });
                     
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.message || 'Gagal menambahkan posisi');
                     
-                    Swal.fire("Berhasil!", "Posisi mitra baru telah ditambahkan", "success")
+                    Swal.fire("Berhasil!", "Posisi mitra baru telah ditambahkan.", "success")
                         .then(() => window.location.reload());
                 } catch (error) {
                     Swal.fire("Error!", error.message, "error");
@@ -193,18 +169,16 @@ $title = 'Daftar Posisi Mitra';
                         method: 'PUT',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
                         },
-                        body: JSON.stringify({
-                            nama_posisi: this.editPosisiName,
-                            rate_honor: this.editRateHonor
-                        })
+                        body: JSON.stringify({ nama_posisi: this.editPosisiName })
                     });
                     
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.message || 'Gagal memperbarui posisi');
                     
-                    Swal.fire("Berhasil!", "Posisi mitra telah diperbarui", "success")
+                    Swal.fire("Berhasil!", "Posisi mitra telah diperbarui.", "success")
                         .then(() => window.location.reload());
                 } catch (error) {
                     Swal.fire("Error!", error.message, "error");
@@ -218,26 +192,25 @@ $title = 'Daftar Posisi Mitra';
                 try {
                     const result = await Swal.fire({
                         title: "Apakah Anda yakin?",
-                        text: `Anda akan menghapus Posisi mitra "${nama_posisi}"`,
+                        text: `Anda akan menghapus posisi "${nama_posisi}". Ini tidak dapat dibatalkan!`,
                         icon: "warning",
                         showCancelButton: true,
                         confirmButtonColor: "#3085d6",
                         cancelButtonColor: "#d33",
-                        confirmButtonText: "Ya, hapus!"
+                        confirmButtonText: "Ya, hapus!",
+                        cancelButtonText: "Batal"
                     });
                     
                     if (result.isConfirmed) {
                         const response = await fetch(`/posisimitra/${id}`, {
                             method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
                         });
                         
                         const data = await response.json();
-                        if (!response.ok) throw new Error(data.message || 'Gagal menghapus posisi');
+                        if (!response.ok) throw new Error(data.message || 'Gagal menghapus posisi.');
                         
-                        Swal.fire("Berhasil!", `Posisi "${nama_posisi}" telah dihapus`, "success")
+                        Swal.fire("Berhasil!", `Posisi "${nama_posisi}" telah dihapus.`, "success")
                             .then(() => window.location.reload());
                     }
                 } catch (error) {
@@ -249,4 +222,3 @@ $title = 'Daftar Posisi Mitra';
     </script>
 </body>
 </html>
-

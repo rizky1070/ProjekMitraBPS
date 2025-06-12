@@ -199,44 +199,23 @@ class ReportMitraSurveiController extends Controller
                 'total_survei' => MitraSurvei::selectRaw('COUNT(*)')
                     ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
                     ->whereHas('survei', function ($q) use ($request) {
-                        $q->whereDate('jadwal_kegiatan', '>=', DB::raw('mitra.tahun'))
-                            ->whereDate('jadwal_kegiatan', '<=', DB::raw('mitra.tahun_selesai'));
-                        if ($request->filled('bulan')) {
-                            $q->whereMonth('bulan_dominan', $request->bulan);
-                        }
-                        if ($request->filled('tahun')) {
-                            $q->whereYear('bulan_dominan', $request->tahun);
-                        }
+                        if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
+                        if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
                     }),
-                'total_honor_per_mitra' => MitraSurvei::selectRaw('SUM(mitra_survei.vol * posisi_mitra.rate_honor)')
-                    ->join('posisi_mitra', 'mitra_survei.id_posisi_mitra', '=', 'posisi_mitra.id_posisi_mitra')
-                    ->join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
+
+                'total_honor_per_mitra' => MitraSurvei::selectRaw('SUM(vol * rate_honor)') // Disederhanakan
                     ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
-                    ->when($request->filled('bulan'), function ($q) use ($request) {
-                        $q->whereMonth('survei.bulan_dominan', $request->bulan);
-                    })
-                    ->when($request->filled('tahun'), function ($q) use ($request) {
-                        $q->whereYear('survei.bulan_dominan', $request->tahun);
+                    ->whereHas('survei', function ($q) use ($request) {
+                        if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
+                        if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
                     })
             ])
             ->orderByDesc('total_survei')
-            ->when($request->filled('tahun'), function ($query) use ($request) {
-                $query->whereYear('tahun', '<=', $request->tahun)
-                    ->whereYear('tahun_selesai', '>=', $request->tahun);
-            })
-            ->when($request->filled('bulan'), function ($query) use ($request) {
-                $query->whereMonth('tahun', '<=', $request->bulan)
-                    ->whereMonth('tahun_selesai', '>=', $request->bulan);
-            })
-            ->when($request->filled('kecamatan'), function ($query) use ($request) {
-                $query->where('id_kecamatan', $request->kecamatan);
-            })
-            ->when($request->filled('nama_lengkap'), function ($query) use ($request) {
-                $query->where('nama_lengkap', $request->nama_lengkap);
-            })
-            ->when($request->filled('status_pekerjaan'), function ($query) use ($request) {
-                $query->where('status_pekerjaan', $request->status_pekerjaan);
-            });
+            ->when($request->filled('tahun'), fn($q) => $q->whereYear('tahun', '<=', $request->tahun)->whereYear('tahun_selesai', '>=', $request->tahun))
+            ->when($request->filled('bulan'), fn($q) => $q->whereMonth('tahun', '<=', $request->bulan)->whereMonth('tahun_selesai', '>=', $request->bulan))
+            ->when($request->filled('kecamatan'), fn($q) => $q->where('id_kecamatan', $request->kecamatan))
+            ->when($request->filled('nama_lengkap'), fn($q) => $q->where('nama_lengkap', $request->nama_lengkap))
+            ->when($request->filled('status_pekerjaan'), fn($q) => $q->where('status_pekerjaan', $request->status_pekerjaan));
 
         // FILTER STATUS PARTISIPASI
         if ($request->filled('status_mitra')) {
@@ -292,13 +271,8 @@ class ReportMitraSurveiController extends Controller
                 if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
                 if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
             })
-            ->with(['posisiMitra'])
-            ->get()
-            ->sum(function ($item) {
-                return $item->vol * ($item->posisiMitra->rate_honor ?? 0);
-            });
+            ->sum(DB::raw('vol * rate_honor')); // Kalkulasi langsung dari database
 
-        // PAGINASI
         $mitras = $mitrasQuery->paginate(10)->appends($request->query());
 
         // RETURN VIEW
@@ -329,43 +303,23 @@ class ReportMitraSurveiController extends Controller
                 'total_survei' => MitraSurvei::selectRaw('COUNT(*)')
                     ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
                     ->whereHas('survei', function ($q) use ($request) {
-                        $q->whereDate('jadwal_kegiatan', '>=', DB::raw('mitra.tahun'))
-                            ->whereDate('jadwal_kegiatan', '<=', DB::raw('mitra.tahun_selesai'));
-                        if ($request->filled('bulan')) {
-                            $q->whereMonth('bulan_dominan', $request->bulan);
-                        }
-                        if ($request->filled('tahun')) {
-                            $q->whereYear('bulan_dominan', $request->tahun);
-                        }
+                        if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
+                        if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
                     }),
-                'total_honor_per_mitra' => MitraSurvei::selectRaw('SUM(mitra_survei.vol * posisi_mitra.rate_honor)')
-                    ->join('posisi_mitra', 'mitra_survei.id_posisi_mitra', '=', 'posisi_mitra.id_posisi_mitra')
-                    ->join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
+
+                'total_honor_per_mitra' => MitraSurvei::selectRaw('SUM(vol * rate_honor)') // Disederhanakan
                     ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
-                    ->when($request->filled('bulan'), function ($q) use ($request) {
-                        $q->whereMonth('survei.bulan_dominan', $request->bulan);
-                    })
-                    ->when($request->filled('tahun'), function ($q) use ($request) {
-                        $q->whereYear('survei.bulan_dominan', $request->tahun);
+                    ->whereHas('survei', function ($q) use ($request) {
+                        if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
+                        if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
                     })
             ])
-            ->when($request->filled('tahun'), function ($query) use ($request) {
-                $query->whereYear('tahun', '<=', $request->tahun)
-                    ->whereYear('tahun_selesai', '>=', $request->tahun);
-            })
-            ->when($request->filled('bulan'), function ($query) use ($request) {
-                $query->whereMonth('tahun', '<=', $request->bulan)
-                    ->whereMonth('tahun_selesai', '>=', $request->bulan);
-            })
-            ->when($request->filled('kecamatan'), function ($query) use ($request) {
-                $query->where('id_kecamatan', $request->kecamatan);
-            })
-            ->when($request->filled('nama_lengkap'), function ($query) use ($request) {
-                $query->where('nama_lengkap', $request->nama_lengkap);
-            })
-            ->when($request->filled('status_pekerjaan'), function ($query) use ($request) {
-                $query->where('status_pekerjaan', $request->status_pekerjaan);
-            });
+            ->when($request->filled('tahun'), fn($q) => $q->whereYear('tahun', '<=', $request->tahun)->whereYear('tahun_selesai', '>=', $request->tahun))
+            ->when($request->filled('bulan'), fn($q) => $q->whereMonth('tahun', '<=', $request->bulan)->whereMonth('tahun_selesai', '>=', $request->bulan))
+            ->when($request->filled('kecamatan'), fn($q) => $q->where('id_kecamatan', $request->kecamatan))
+            ->when($request->filled('nama_lengkap'), fn($q) => $q->where('nama_lengkap', $request->nama_lengkap))
+            ->when($request->filled('status_pekerjaan'), fn($q) => $q->where('status_pekerjaan', $request->status_pekerjaan));
+
 
         // Filter Status Partisipasi
         if ($request->filled('status_mitra')) {

@@ -13,6 +13,7 @@ class CreateMitraSurveiTable extends Migration
             $table->unsignedBigInteger('id_mitra');
             $table->unsignedBigInteger('id_survei');
             $table->unsignedBigInteger('id_posisi_mitra')->nullable();
+            $table->string('rate_honor')->nullable();
             $table->string('catatan')->nullable();
             $table->string('nilai')->nullable();
             $table->string('vol')->nullable();

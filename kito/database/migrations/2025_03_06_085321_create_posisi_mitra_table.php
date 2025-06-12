@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('posisi_mitra', function (Blueprint $table) {
             $table->id('id_posisi_mitra');
             $table->string('nama_posisi');
-            $table->string('rate_honor');
             $table->timestamps();
         });
     }

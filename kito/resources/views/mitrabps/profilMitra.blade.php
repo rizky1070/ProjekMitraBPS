@@ -226,7 +226,7 @@ $title = 'Profil Mitra';
                                         {{ \Carbon\Carbon::parse($sur->survei->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->vol ?? '-' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">Rp{{ number_format($sur->posisiMitra->rate_honor ?? 0, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">Rp{{ number_format($sur->rate_honor ?? 0, 0, ',', '.') }}</td>
                                     @if($sur->catatan == null && $sur->nilai == null)
                                         <td class="p-2 text-center text-red-700 font-bold">Tidak ada catatan</td>
                                         <td class="p-2 text-center text-red-700 font-bold">Belum dinilai</td>
@@ -277,8 +277,7 @@ $title = 'Profil Mitra';
                                         {{ \Carbon\Carbon::parse($sur->survei->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">{{ $sur->vol ?? '-' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">Rp{{ number_format($sur->posisiMitra->rate_honor ?? 0, 0, ',', '.') }}</td>
-                                   
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">Rp{{ number_format($sur->rate_honor ?? 0, 0, ',', '.') }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
