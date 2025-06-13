@@ -104,6 +104,11 @@ class DaftarSurveiBpsController extends Controller
         ])
             ->select('id_survei', 'status_survei', 'nama_survei', 'jadwal_kegiatan', 'jadwal_berakhir_kegiatan', 'kro', 'tim', 'bulan_dominan')
             ->where('id_survei', $id_survei)
+            ->withCount([
+                'mitraSurveis as mitra_survei_count' => function ($query) {
+                    $query->whereNotNull('mitra_survei.id_posisi_mitra');
+                }
+            ])
             ->firstOrFail();
 
         \Carbon\Carbon::setLocale('id');
