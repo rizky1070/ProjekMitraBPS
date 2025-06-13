@@ -209,7 +209,14 @@ class ReportMitraSurveiController extends Controller
                     ->whereHas('survei', function ($q) use ($request) {
                         if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
                         if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
-                    })
+                    }),
+                'rata_rata_nilai' => MitraSurvei::selectRaw('AVG(nilai)')
+                    ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
+                    ->whereNotNull('nilai') // Hanya menghitung yang memiliki nilai
+                    ->whereHas('survei', function ($q) use ($request) {
+                        if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
+                        if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
+                    }),
             ])
             ->orderByDesc('total_survei')
             ->when($request->filled('tahun'), fn($q) => $q->whereYear('tahun', '<=', $request->tahun)->whereYear('tahun_selesai', '>=', $request->tahun))
@@ -341,16 +348,23 @@ class ReportMitraSurveiController extends Controller
                     ->whereHas('survei', function ($q) use ($request) {
                         if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
                         if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
-                    })
+                    }),
+
+                'rata_rata_nilai' => MitraSurvei::selectRaw('AVG(nilai)')
+                    ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
+                    ->whereNotNull('nilai') // Hanya menghitung yang memiliki nilai
+                    ->whereHas('survei', function ($q) use ($request) {
+                        if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
+                        if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
+                    }),
+
             ])
             ->when($request->filled('tahun'), fn($q) => $q->whereYear('tahun', '<=', $request->tahun)->whereYear('tahun_selesai', '>=', $request->tahun))
             ->when($request->filled('bulan'), fn($q) => $q->whereMonth('tahun', '<=', $request->bulan)->whereMonth('tahun_selesai', '>=', $request->bulan))
             ->when($request->filled('kecamatan'), fn($q) => $q->where('id_kecamatan', $request->kecamatan))
             ->when($request->filled('nama_lengkap'), fn($q) => $q->where('nama_lengkap', $request->nama_lengkap))
             ->when($request->filled('status_pekerjaan'), fn($q) => $q->where('status_pekerjaan', $request->status_pekerjaan))
-            // [START] PENAMBAHAN FILTER JENIS KELAMIN UNTUK EXPORT
             ->when($request->filled('jenis_kelamin'), fn($q) => $q->where('jenis_kelamin', $request->jenis_kelamin));
-        // [END] PENAMBAHAN FILTER JENIS KELAMIN UNTUK EXPORT
 
         // Filter Status Partisipasi
         if ($request->filled('status_mitra')) {
@@ -378,7 +392,7 @@ class ReportMitraSurveiController extends Controller
         }
 
         // Ambil data yang sudah difilter
-        $mitrasData = $mitrasQuery->get();
+        $mitrasData = $mitrasQuery->orderBy('nama_lengkap')->get();
 
         // Kumpulkan informasi filter untuk ditampilkan di Excel
         $filters = [];
@@ -404,11 +418,9 @@ class ReportMitraSurveiController extends Controller
         if ($request->filled('status_pekerjaan')) {
             $filters['Status Pekerjaan'] = $request->status_pekerjaan == 0 ? 'Bisa Mengikuti Survei' : 'Tidak Bisa Mengikuti Survei';
         }
-        // [START] PENAMBAHAN INFO FILTER JENIS KELAMIN
         if ($request->filled('jenis_kelamin')) {
             $filters['Jenis Kelamin'] = $request->jenis_kelamin == 1 ? 'Laki-laki' : 'Perempuan';
         }
-        // [END] PENAMBAHAN INFO FILTER JENIS KELAMIN
 
         // Data total untuk ringkasan di Excel
         $totalMitra = $mitrasData->count();
@@ -418,10 +430,8 @@ class ReportMitraSurveiController extends Controller
         $totalTidakBisaIkutSurvei = $totalMitra - $totalBisaIkutSurvei;
         $totalHonor = $mitrasData->sum('total_honor_per_mitra');
 
-        // [START] PENAMBAHAN HITUNGAN TOTAL JENIS KELAMIN
         $totalLaki = $mitrasData->where('jenis_kelamin', 1)->count();
         $totalPerempuan = $mitrasData->where('jenis_kelamin', 2)->count();
-        // [END] PENAMBAHAN HITUNGAN TOTAL JENIS KELAMIN
 
         $totalMitraLebihDariSatuSurvei = 0;
         $totalMitraHonorLebihDari4Jt = 0;
@@ -433,8 +443,8 @@ class ReportMitraSurveiController extends Controller
 
         $totals = [
             'totalMitra' => $totalMitra,
-            'totalLaki' => $totalLaki,         // Ditambahkan untuk export
-            'totalPerempuan' => $totalPerempuan, // Ditambahkan untuk export
+            'totalLaki' => $totalLaki,
+            'totalPerempuan' => $totalPerempuan,
             'totalIkutSurvei' => $totalIkutSurvei,
             'totalTidakIkutSurvei' => $totalTidakIkutSurvei,
             'totalBisaIkutSurvei' => $totalBisaIkutSurvei,

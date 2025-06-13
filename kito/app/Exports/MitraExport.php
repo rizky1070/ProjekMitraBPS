@@ -35,6 +35,8 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
         'Tanggal Selesai Kontrak',
         'Jumlah Survei Diikuti',
         'Nama Survei',
+        'Rata-Rata Nilai',
+        'Skor Kinerja (%)',
         'Total Honor',
         'Status Pekerjaan',
         'Detail Pekerjaan',
@@ -51,12 +53,12 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
         // Cek jika filter 'Bulan' ada dan aktif
         if (!empty($this->filters['Bulan']) || !empty($this->filters['bulan'])) {
             $this->isMonthFilterActive = true;
-            // Sisipkan kolom 'Nilai' dan 'Catatan' setelah 'Nama Survei'
-            $namaSurveiIndex = array_search('Nama Survei', $this->headings);
+            // Sisipkan kolom 'Nilai' dan 'Catatan' setelah 'Skor Kinerja (%)'
+            $namaSurveiIndex = array_search('Skor Kinerja (%)', $this->headings);
             if ($namaSurveiIndex !== false) {
-                array_splice($this->headings, $namaSurveiIndex + 1, 0, ['Nilai', 'Catatan']);
+                array_splice($this->headings, $namaSurveiIndex + 1, 0, ['Detail Nilai', 'Catatan']);
             } else {
-                $this->headings[] = 'Nilai';
+                $this->headings[] = 'Detail Nilai';
                 $this->headings[] = 'Catatan';
             }
         }
@@ -64,17 +66,13 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
 
     public function collection()
     {
-        // Jika filter bulan aktif, muat relasi yang diperlukan untuk kolom tambahan
         if ($this->isMonthFilterActive) {
+            // Logika lama: Jika filter bulan aktif, muat relasi berdasarkan bulan dan tahun.
             Carbon::setLocale('id');
-
             $tahun = $this->filters['Tahun'] ?? $this->filters['tahun'];
-
-            // Dapatkan nomor bulan dari nama bulan yang diformat atau nomor bulan langsung
             $bulanValue = $this->filters['Bulan'] ?? $this->filters['bulan'];
             $bulan = is_numeric($bulanValue) ? $bulanValue : Carbon::parse($bulanValue)->month;
 
-            // Muat data survei mitra berdasarkan filter tahun dan bulan
             $this->data->load(['mitraSurveis' => function ($query) use ($tahun, $bulan) {
                 $query->with('survei')
                     ->whereHas('survei', function ($sq) use ($tahun, $bulan) {
@@ -82,9 +80,16 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
                             ->whereMonth('bulan_dominan', $bulan);
                     });
             }]);
+        } else {
+            // Logika baru: Jika filter bulan TIDAK aktif, muat semua relasi survei
+            // milik mitra tanpa batasan waktu.
+            // 'mitraSurveis.survei' memuat relasi mitraSurveis DAN nested relasi survei di dalamnya.
+            $this->data->load('mitraSurveis.survei');
         }
+
         return $this->data;
     }
+
 
     public function map($mitra): array
     {
@@ -96,6 +101,10 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
         $totalHonor = $mitra->total_honor_per_mitra ?? 0;
         $namaSurvei = '-';
 
+        // Pengambilan dan perhitungan nilai baru
+        $rataRataNilai = $mitra->rata_rata_nilai;
+        $skorKinerja = $rataRataNilai !== null ? ($rataRataNilai / 5) : null;
+
         // Jika ada survei dan relasi sudah dimuat, dapatkan nama survei
         if ($jumlahSurvei > 0 && $mitra->relationLoaded('mitraSurveis')) {
             $namaSurvei = $mitra->mitraSurveis->map(function ($mitraSurvei) {
@@ -105,7 +114,7 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
 
         $statusPekerjaan = $mitra->status_pekerjaan == 0 ? 'Bisa Ikut Survei' : 'Tidak Bisa Ikut Survei';
 
-        // Data baris awal
+        // Susun data baris secara berurutan
         $rowData = [
             $count,
             ' ' . $mitra->sobat_id,
@@ -122,9 +131,12 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
             $mitra->tahun_selesai ? Carbon::parse($mitra->tahun_selesai)->format('d/m/Y') : '-',
             $jumlahSurvei,
             empty(trim($namaSurvei)) ? '-' : $namaSurvei,
+            // Format rata-rata nilai konsisten di sini
+            $rataRataNilai !== null ? number_format($rataRataNilai, 1, ',', '.') : '-',
+            $skorKinerja !== null ? $skorKinerja : '-',
         ];
 
-        // Jika filter bulan aktif, tambahkan kolom 'Nilai' dan 'Catatan'
+        // Jika filter bulan aktif, tambahkan kolom 'Detail Nilai' dan 'Catatan' pada posisi yang benar
         if ($this->isMonthFilterActive) {
             $nilai = '-';
             $catatan = '-';
@@ -132,23 +144,16 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
                 $nilai = $mitra->mitraSurveis->map(fn($ms) => $ms->nilai ?? '-')->implode(", ");
                 $catatan = $mitra->mitraSurveis->map(fn($ms) => $ms->catatan ?? '-')->implode(", ");
             }
-            // Cari posisi 'Nama Survei' untuk menyisipkan data baru
-            $namaSurveiIndex = array_search('Nama Survei', $this->headings);
-            if ($namaSurveiIndex !== false) {
-                array_splice($rowData, $namaSurveiIndex + 1, 0, [$nilai, $catatan]);
-            } else {
-                $rowData[] = $nilai;
-                $rowData[] = $catatan;
-            }
+            // Menambahkan data setelah Skor Kinerja, sesuai dengan urutan heading
+            $rowData[] = $nilai;
+            $rowData[] = $catatan;
         }
 
-        // Gabungkan dengan sisa data baris
-        $rowData = array_merge($rowData, [
-            $totalHonor,
-            $statusPekerjaan,
-            $mitra->detail_pekerjaan ?? '-',
-            $jumlahSurvei > 0 ? 'Aktif Mengikuti Survei' : 'Tidak Aktif Mengikuti Survei',
-        ]);
+        // Tambahkan sisa data di akhir baris
+        $rowData[] = $totalHonor;
+        $rowData[] = $statusPekerjaan;
+        $rowData[] = $mitra->detail_pekerjaan ?? '-';
+        $rowData[] = $jumlahSurvei > 0 ? 'Aktif Mengikuti Survei' : 'Tidak Aktif Mengikuti Survei';
 
         return $rowData;
     }
@@ -161,7 +166,7 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
                 $row = 1;
 
                 // Tentukan kolom terakhir berdasarkan apakah filter bulan aktif atau tidak
-                $lastColumn = $this->isMonthFilterActive ? 'U' : 'S';
+                $lastColumn = $this->isMonthFilterActive ? 'W' : 'U';
 
                 // Judul Laporan
                 $sheet->setCellValue('A' . $row, 'LAPORAN DATA MITRA');
@@ -239,6 +244,23 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
                 if ($honorColumnIndex !== false) {
                     $honorColumn = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($honorColumnIndex + 1);
                     $sheet->getStyle($honorColumn)->getNumberFormat()->setFormatCode('#,##0');
+                }
+
+                $skorKinerjaColumnIndex = array_search('Skor Kinerja (%)', $this->headings);
+                if ($skorKinerjaColumnIndex !== false) {
+                    $skorKinerjaColumn = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($skorKinerjaColumnIndex + 1);
+                    // Terapkan format persentase dengan 1 angka desimal.
+                    // Excel akan secara otomatis menangani pemisah desimal (koma atau titik) berdasarkan pengaturan lokal pengguna.
+                    $sheet->getStyle($skorKinerjaColumn)->getNumberFormat()->setFormatCode('0.0%');
+                }
+
+                if ($this->isMonthFilterActive) {
+                    $catatanColumnIndex = array_search('Catatan', $this->headings);
+                    if ($catatanColumnIndex !== false) {
+                        $catatanColumn = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($catatanColumnIndex + 1);
+                        // Terapkan format text ke seluruh kolom 'Catatan'
+                        $sheet->getStyle($catatanColumn)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
+                    }
                 }
 
                 // Auto-size semua kolom

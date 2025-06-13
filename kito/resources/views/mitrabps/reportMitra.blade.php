@@ -2,21 +2,24 @@
 $title = 'Report Mitra';
 ?>
 @include('mitrabps.headerTemp')
-    <style>
+<style>
+    .only-print {
+        display: none;
+    }
+
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
         .only-print {
-            display: none;
+            display: flex;
         }
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-            .only-print {
-                display: flex;
-            }
-        }
-    </style>
-    @include('mitrabps.cuScroll')
+    }
+</style>
+@include('mitrabps.cuScroll')
 </head>
+
 <body class="h-full bg-gray-50">
     @include('mitrabps.reportSweetAlert')
     <div x-data="{ sidebarOpen: false }" class="flex h-screen">
@@ -28,27 +31,36 @@ $title = 'Report Mitra';
                     <!-- Title and Header -->
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                         <div>
-                            <button class="px-2 py-1 bg-oren rounded-md no-print text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300" ><a href="/ReportSurvei">Report Survei</a></button>
+                            <button
+                                class="px-2 py-1 bg-oren rounded-md no-print text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300"><a
+                                    href="/ReportSurvei">Report Survei</a></button>
                             <h1 class="text-2xl font-bold text-gray-800">Report Mitra</h1>
                             <p class="text-gray-600 no-print">Data partisipasi mitra dalam survei BPS</p>
                         </div>
                         <div class="mt-4 md:mt-0">
-                            <button onclick="exportData()" class="px-4 py-2 bg-green-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 no-print">
+                            <button onclick="exportData()"
+                                class="px-4 py-2 bg-green-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 no-print">
                                 <i class="fas fa-file-excel mr-2"></i>Export Excel
                             </button>
                         </div>
                     </div>
                     <!-- Filter Section -->
                     <div class="bg-white rounded-lg shadow-sm p-6 mb-6 no-print">
-                        <form id="filterForm" action="{{ route('reports.Mitra.filter') }}" method="GET" class="cuScrollFilter space-y-4">
+                        <form id="filterForm" action="{{ route('reports.Mitra.filter') }}" method="GET"
+                            class="cuScrollFilter space-y-4">
                             <!-- nama Filter -->
                             <div class="flex items-center relative">
-                                <label for="nama_lengkap" class="w-32 text-lg font-semibold text-gray-800">Cari Mitra</label>
-                                <select name="nama_lengkap" id="nama_mitra" class="w-full md:w-64 
-                                border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2" {{ empty($namaMitraOptions) ? 'disabled' : '' }}>
+                                <label for="nama_lengkap" class="w-32 text-lg font-semibold text-gray-800">Cari
+                                    Mitra</label>
+                                <select name="nama_lengkap" id="nama_mitra"
+                                    class="w-full md:w-64 
+                                border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2"
+                                    {{ empty($namaMitraOptions) ? 'disabled' : '' }}>
                                     <option value="">Semua Mitra</option>
-                                    @foreach($namaMitraOptions as $nama => $label)
-                                    <option value="{{ $nama }}" @if(request('nama_lengkap')==$nama) selected @endif>{{ $label }}</option>
+                                    @foreach ($namaMitraOptions as $nama => $label)
+                                        <option value="{{ $nama }}"
+                                            @if (request('nama_lengkap') == $nama) selected @endif>{{ $label }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -59,42 +71,62 @@ $title = 'Report Mitra';
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                                     <!-- Tahun Filter -->
                                     <div class="flex flex-col">
-                                        <label for="tahun" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
-                                        <select id="tahun" name="tahun" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                        <label for="tahun"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
+                                        <select id="tahun" name="tahun"
+                                            class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                             <option value="">Semua Tahun</option>
-                                            @foreach($tahunOptions as $tahun)
-                                            <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>{{ $tahun }}</option>
+                                            @foreach ($tahunOptions as $tahun)
+                                                <option value="{{ $tahun }}"
+                                                    {{ request('tahun') == $tahun ? 'selected' : '' }}>
+                                                    {{ $tahun }}</option>
                                             @endforeach
                                         </select>
                                     </div>
 
                                     <!-- Bulan Filter -->
                                     <div class="flex flex-col">
-                                        <label for="bulan" class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
-                                        <select id="bulan" name="bulan" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" {{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                        <label for="bulan"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
+                                        <select id="bulan" name="bulan"
+                                            class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                            {{ empty($bulanOptions) ? 'disabled' : '' }}>
                                             <option value="">Semua Bulan</option>
-                                            @foreach($bulanOptions as $key => $value)
-                                            <option value="{{ $key }}" {{ request('bulan') == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                            @foreach ($bulanOptions as $key => $value)
+                                                <option value="{{ $key }}"
+                                                    {{ request('bulan') == $key ? 'selected' : '' }}>
+                                                    {{ $value }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    
+
                                     <!-- --- TAMBAHAN FILTER HONOR --- -->
                                     <div class="flex flex-col">
-                                        <label for="honor_lebih_dari_4jt" class="block text-sm font-medium text-gray-700 mb-1">Honor > 4 Juta</label>
-                                        <select id="honor_lebih_dari_4jt" name="honor_lebih_dari_4jt" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" {{ !$request->filled('bulan') ? 'disabled' : '' }}>
+                                        <label for="honor_lebih_dari_4jt"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Honor > 4 Juta</label>
+                                        <select id="honor_lebih_dari_4jt" name="honor_lebih_dari_4jt"
+                                            class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                            {{ !$request->filled('bulan') ? 'disabled' : '' }}>
                                             <option value="">Semua</option>
-                                            <option value="ya" {{ request('honor_lebih_dari_4jt') == 'ya' ? 'selected' : '' }}>Ya</option>
+                                            <option value="ya"
+                                                {{ request('honor_lebih_dari_4jt') == 'ya' ? 'selected' : '' }}>Ya
+                                            </option>
                                         </select>
                                     </div>
                                     <!-- --- FILTER HONOR --- -->
 
                                     <!-- Partisipasi > 1 Survei Filter -->
                                     <div class="flex flex-col">
-                                        <label for="partisipasi_lebih_dari_satu" class="block text-sm font-medium text-gray-700 mb-1">Mitra > 1 Survei</label>
-                                        <select id="partisipasi_lebih_dari_satu" name="partisipasi_lebih_dari_satu" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" {{ !($request->filled('tahun') && $request->filled('bulan')) ? 'disabled' : '' }}>
+                                        <label for="partisipasi_lebih_dari_satu"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Mitra > 1
+                                            Survei</label>
+                                        <select id="partisipasi_lebih_dari_satu" name="partisipasi_lebih_dari_satu"
+                                            class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                            {{ !($request->filled('tahun') && $request->filled('bulan')) ? 'disabled' : '' }}>
                                             <option value="">Semua</option>
-                                            <option value="ya" {{ request('partisipasi_lebih_dari_satu') == 'ya' ? 'selected' : '' }}>Ya</option>
+                                            <option value="ya"
+                                                {{ request('partisipasi_lebih_dari_satu') == 'ya' ? 'selected' : '' }}>
+                                                Ya</option>
                                         </select>
                                     </div>
 
@@ -103,47 +135,71 @@ $title = 'Report Mitra';
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                                     <!-- [START] FILTER JENIS KELAMIN -->
                                     <div class="flex flex-col">
-                                        <label for="jenis_kelamin" class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label>
-                                        <select id="jenis_kelamin" name="jenis_kelamin" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                        <label for="jenis_kelamin"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label>
+                                        <select id="jenis_kelamin" name="jenis_kelamin"
+                                            class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                             <option value="">Semua</option>
-                                            <option value="1" {{ request('jenis_kelamin') == '1' ? 'selected' : '' }}>Laki-laki</option>
-                                            <option value="2" {{ request('jenis_kelamin') == '2' ? 'selected' : '' }}>Perempuan</option>
+                                            <option value="1"
+                                                {{ request('jenis_kelamin') == '1' ? 'selected' : '' }}>Laki-laki
+                                            </option>
+                                            <option value="2"
+                                                {{ request('jenis_kelamin') == '2' ? 'selected' : '' }}>Perempuan
+                                            </option>
                                         </select>
                                     </div>
                                     <!-- [END] FILTER JENIS KELAMIN -->
-                                    
-                                    
+
+
 
                                     <!-- Kecamatan Filter -->
                                     <div class="flex flex-col">
-                                        <label for="kecamatan" class="block text-sm font-medium text-gray-700 mb-1">Kecamatan</label>
-                                        <select id="kecamatan" name="kecamatan" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
+                                        <label for="kecamatan"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Kecamatan</label>
+                                        <select id="kecamatan" name="kecamatan"
+                                            class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                            {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
                                             <option value="">Semua Kecamatan</option>
-                                            @foreach($kecamatanOptions as $kecam)
-                                            <option value="{{ $kecam->id_kecamatan }}" @if(request('kecamatan')==$kecam->id_kecamatan) selected @endif>
-                                                [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
-                                            </option>
+                                            @foreach ($kecamatanOptions as $kecam)
+                                                <option value="{{ $kecam->id_kecamatan }}"
+                                                    @if (request('kecamatan') == $kecam->id_kecamatan) selected @endif>
+                                                    [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
 
                                     <!-- Partisipasi Filter -->
                                     <div class="flex flex-col">
-                                        <label for="status_mitra" class="block text-sm font-medium text-gray-700 mb-1">Status Partisipasi</label>
-                                        <select id="status_mitra" name="status_mitra" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                        <label for="status_mitra"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Status
+                                            Partisipasi</label>
+                                        <select id="status_mitra" name="status_mitra"
+                                            class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                             <option value="">Semua Mitra</option>
-                                            <option value="ikut" {{ request('status_mitra') == 'ikut' ? 'selected' : '' }}>Mengikuti Survei</option>
-                                            <option value="tidak_ikut" {{ request('status_mitra') == 'tidak_ikut' ? 'selected' : '' }}>Tidak Mengikuti Survei</option>
+                                            <option value="ikut"
+                                                {{ request('status_mitra') == 'ikut' ? 'selected' : '' }}>Mengikuti
+                                                Survei</option>
+                                            <option value="tidak_ikut"
+                                                {{ request('status_mitra') == 'tidak_ikut' ? 'selected' : '' }}>Tidak
+                                                Mengikuti Survei</option>
                                         </select>
                                     </div>
 
                                     <!-- Status Pekerjaan Filter -->
                                     <div class="flex flex-col">
-                                        <label for="status_pekerjaan" class="block text-sm font-medium text-gray-700 mb-1">Status Pekerjaan</label>
-                                        <select id="status_pekerjaan" name="status_pekerjaan" class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                        <label for="status_pekerjaan"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Status
+                                            Pekerjaan</label>
+                                        <select id="status_pekerjaan" name="status_pekerjaan"
+                                            class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                             <option value="">Semua Status</option>
-                                            <option value="0" {{ request('status_pekerjaan') == '0' ? 'selected' : '' }}>Bisa Mengikuti Survei</option>
-                                            <option value="1" {{ request('status_pekerjaan') == '1' ? 'selected' : '' }}>Tidak Bisa Mengikuti Survei</option>
+                                            <option value="0"
+                                                {{ request('status_pekerjaan') == '0' ? 'selected' : '' }}>Bisa
+                                                Mengikuti Survei</option>
+                                            <option value="1"
+                                                {{ request('status_pekerjaan') == '1' ? 'selected' : '' }}>Tidak Bisa
+                                                Mengikuti Survei</option>
                                         </select>
                                     </div>
                                 </div>
@@ -156,7 +212,8 @@ $title = 'Report Mitra';
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500">
                             <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4"
+                                    style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-users text-lg"></i>
                                 </div>
                                 <div>
@@ -169,110 +226,135 @@ $title = 'Report Mitra';
                         <!-- [START] KARTU STATISTIK JENIS KELAMIN -->
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-sky-500">
                             <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-sky-100 text-sky-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                <div class="p-3 rounded-full bg-sky-100 text-sky-600 mr-4"
+                                    style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-male text-lg"></i>
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Mitra Laki-laki</p>
                                     <p class="text-2xl font-bold text-gray-800">{{ $totalLaki }}</p>
-                                    <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalLaki/$totalMitra)*100, 1) : 0 }}% dari total</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $totalMitra > 0 ? round(($totalLaki / $totalMitra) * 100, 1) : 0 }}% dari
+                                        total
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-pink-500">
                             <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-pink-100 text-pink-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                <div class="p-3 rounded-full bg-pink-100 text-pink-600 mr-4"
+                                    style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-female text-lg"></i>
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Mitra Perempuan</p>
                                     <p class="text-2xl font-bold text-gray-800">{{ $totalPerempuan }}</p>
-                                    <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalPerempuan/$totalMitra)*100, 1) : 0 }}% dari total</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $totalMitra > 0 ? round(($totalPerempuan / $totalMitra) * 100, 1) : 0 }}%
+                                        dari
+                                        total</p>
                                 </div>
                             </div>
                         </div>
                         <!-- [END] KARTU STATISTIK JENIS KELAMIN -->
-                        
+
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500">
                             <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4"
+                                    style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-check-circle text-lg"></i>
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Aktif Mengikuti Survei</p>
                                     <p class="text-2xl font-bold text-gray-800">{{ $totalIkutSurvei }}</p>
-                                    <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $totalMitra > 0 ? round(($totalIkutSurvei / $totalMitra) * 100, 1) : 0 }}%
+                                        dari
+                                        total</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-red-500">
                             <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4"
+                                    style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-times-circle text-lg"></i>
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Tidak Aktif Mengikuti Survei</p>
                                     <p class="text-2xl font-bold text-gray-800">{{ $totalTidakIkutSurvei }}</p>
-                                    <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalTidakIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $totalMitra > 0 ? round(($totalTidakIkutSurvei / $totalMitra) * 100, 1) : 0 }}%
+                                        dari total</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-purple-500">
                             <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4"
+                                    style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-check-circle text-lg"></i>
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Bisa Mengikuti Survei</p>
                                     <p class="text-2xl font-bold text-gray-800">{{ $totalBisaIkutSurvei }}</p>
-                                    <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalBisaIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $totalMitra > 0 ? round(($totalBisaIkutSurvei / $totalMitra) * 100, 1) : 0 }}%
+                                        dari total</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-yellow-500">
                             <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4"
+                                    style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-times-circle text-lg"></i>
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Tidak Bisa Mengikuti Survei</p>
                                     <p class="text-2xl font-bold text-gray-800">{{ $totalTidakBisaIkutSurvei }}</p>
-                                    <p class="text-xs text-gray-500">{{ $totalMitra > 0 ? round(($totalTidakBisaIkutSurvei/$totalMitra)*100, 1) : 0 }}% dari total</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $totalMitra > 0 ? round(($totalTidakBisaIkutSurvei / $totalMitra) * 100, 1) : 0 }}%
+                                        dari total</p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- [START] KARTU STATISTIK KONDISIONAL -->
-                        @if($request->filled('bulan'))
-                        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-cyan-500">
-                            <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-cyan-100 text-cyan-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-layer-group text-lg"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-500">Mitra > 1 Survei</p>
-                                    <p class="text-2xl font-bold text-gray-800">{{ $totalMitraLebihDariSatuSurvei }}</p>
-                                    <p class="text-xs text-gray-500">Pada bulan yang difilter</p>
+                        @if ($request->filled('bulan'))
+                            <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-cyan-500">
+                                <div class="flex items-center">
+                                    <div class="p-3 rounded-full bg-cyan-100 text-cyan-600 mr-4"
+                                        style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-layer-group text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Mitra > 1 Survei</p>
+                                        <p class="text-2xl font-bold text-gray-800">
+                                            {{ $totalMitraLebihDariSatuSurvei }}</p>
+                                        <p class="text-xs text-gray-500">Pada bulan yang difilter</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-orange-500">
-                            <div class="flex items-center">
-                                <div class="p-3 rounded-full bg-orange-100 text-orange-600 mr-4" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-wallet text-lg"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-medium text-gray-500">Honor > 4 Juta</p>
-                                    <p class="text-2xl font-bold text-gray-800">{{ $totalMitraHonorLebihDari4Jt }}</p>
-                                    <p class="text-xs text-gray-500">Pada bulan yang difilter</p>
+                            <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-orange-500">
+                                <div class="flex items-center">
+                                    <div class="p-3 rounded-full bg-orange-100 text-orange-600 mr-4"
+                                        style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-wallet text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Honor > 4 Juta</p>
+                                        <p class="text-2xl font-bold text-gray-800">{{ $totalMitraHonorLebihDari4Jt }}
+                                        </p>
+                                        <p class="text-xs text-gray-500">Pada bulan yang difilter</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         @endif
                         <!-- [END] KARTU STATISTIK KONDISIONAL -->
 
@@ -286,51 +368,86 @@ $title = 'Report Mitra';
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mitra</th>
-                                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kecamatan</th>
-                                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Survei Diikuti</th>
-                                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kontrak</th>
-                                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Nama Mitra</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Kecamatan</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Survei Diikuti</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Mitra Tahun</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Skor Kinerja</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach ($mitras as $mitra)
-                                    <tr class="hover:bg-gray-50" style="border-top-width: 2px; border-color: #D1D5DB;">
-                                        <td class="text-sm font-medium text-gray-900 whitespace-normal break-words" style="max-width: 120px;">
-                                            <div class="ml-3 flex justify-center items-center text-center">
-                                                <a href="/profilMitra/{{ $mitra->id_mitra }}" >
-                                                    {{ $mitra->nama_lengkap }}
-                                                </a>
-                                            </div>
-                                            <div class="text-sm text-gray-500 text-center">{{ $mitra->email_mitra }}</div>
-                                            <div class="text-sm text-gray-500 text-center">{{ $mitra->no_hp_mitra }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            {{ $mitra->kecamatan->nama_kecamatan ?? '-' }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            @if($mitra->total_survei > 0)
-                                                {{ $mitra->total_survei }} survei
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
-                                            {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} - 
-                                            {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            @if($mitra->total_survei > 0)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    Aktif Mengikuti Survei
-                                                </span>
-                                            @else
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                    Tidak Aktif Mengikuti Survei
-                                                </span>
-                                            @endif
-                                        </td>
-                                    </tr>
+                                        <tr class="hover:bg-gray-50"
+                                            style="border-top-width: 2px; border-color: #D1D5DB;">
+                                            <td class="text-sm font-medium text-gray-900 whitespace-normal break-words"
+                                                style="max-width: 120px;">
+                                                <div class="ml-3 flex justify-center items-center text-center">
+                                                    <a href="/profilMitra/{{ $mitra->id_mitra }}">
+                                                        {{ $mitra->nama_lengkap }}
+                                                    </a>
+                                                </div>
+                                                <div class="text-sm text-gray-500 text-center">
+                                                    {{ $mitra->no_hp_mitra }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                {{ $mitra->kecamatan->nama_kecamatan ?? '-' }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                @if ($mitra->total_survei > 0)
+                                                    {{ $mitra->total_survei }} survei
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td class="text-center whitespace-normal break-words"
+                                                style="max-width: 120px;">
+                                                {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('Y') }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                @if ($mitra->rata_rata_nilai)
+                                                    @php
+                                                        // Hitung skor kinerja, dengan maksimal nilai 5
+                                                        $skor_kinerja = ($mitra->rata_rata_nilai / 5) * 100;
+                                                    @endphp
+                                                    {{-- Tampilkan skor sebagai persentase --}}
+                                                    <span
+                                                        class="font-semibold">{{ number_format($skor_kinerja, 1) }}%</span>
+
+                                                    {{-- Tampilkan nilai rata-rata sebagai referensi --}}
+                                                    <span class="block text-xs text-gray-500">
+                                                        ({{ number_format($mitra->rata_rata_nilai, 1) }}/5)
+                                                    </span>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                @if ($mitra->total_survei > 0)
+                                                    <span
+                                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                        Aktif Mengikuti Survei
+                                                    </span>
+                                                @else
+                                                    <span
+                                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                        Tidak Aktif Mengikuti Survei
+                                                    </span>
+                                                @endif
+                                            </td>
+                                        </tr>
                                     @endforeach
                                 </tbody>
                             </table>
@@ -338,94 +455,96 @@ $title = 'Report Mitra';
                     </div>
                     <!-- Pagination -->
                     @include('components.pagination', ['paginator' => $mitras])
-                    
+
                 </div>
             </main>
         </div>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-        new TomSelect('#nama_mitra', {
-            placeholder: 'Cari Mitra',
-            searchField: 'text',
-        });
-        new TomSelect('#bulan', {
-            placeholder: 'Pilih Bulan',
-            searchField: 'text',
-        });
-        new TomSelect('#tahun', {
-            placeholder: 'Pilih Tahun',
-            searchField: 'text',
-        });
-        new TomSelect('#status_mitra', {
-            placeholder: 'Pilih Status',
-            searchField: 'text',
-        });
-        new TomSelect('#status_pekerjaan', {
-            placeholder: 'Pilih Status',
-            searchField: 'text',
-        });
-        new TomSelect('#kecamatan', {
-            placeholder: 'Pilih Kecamatan',
-            searchField: 'text',
-        });
-        new TomSelect('#partisipasi_lebih_dari_satu', {
-            placeholder: 'Pilih',
-            searchField: 'text',
-        });
-        new TomSelect('#honor_lebih_dari_4jt', {
-            placeholder: 'Pilih',
-            searchField: 'text',
-        });
-        new TomSelect('#jenis_kelamin', {
-            placeholder: 'Pilih Jenis Kelamin',
-            searchField: 'text',
+            new TomSelect('#nama_mitra', {
+                placeholder: 'Cari Mitra',
+                searchField: 'text',
+            });
+            new TomSelect('#bulan', {
+                placeholder: 'Pilih Bulan',
+                searchField: 'text',
+            });
+            new TomSelect('#tahun', {
+                placeholder: 'Pilih Tahun',
+                searchField: 'text',
+            });
+            new TomSelect('#status_mitra', {
+                placeholder: 'Pilih Status',
+                searchField: 'text',
+            });
+            new TomSelect('#status_pekerjaan', {
+                placeholder: 'Pilih Status',
+                searchField: 'text',
+            });
+            new TomSelect('#kecamatan', {
+                placeholder: 'Pilih Kecamatan',
+                searchField: 'text',
+            });
+            new TomSelect('#partisipasi_lebih_dari_satu', {
+                placeholder: 'Pilih',
+                searchField: 'text',
+            });
+            new TomSelect('#honor_lebih_dari_4jt', {
+                placeholder: 'Pilih',
+                searchField: 'text',
+            });
+            new TomSelect('#jenis_kelamin', {
+                placeholder: 'Pilih Jenis Kelamin',
+                searchField: 'text',
+            });
+
+            // Ambil elemen form dan select
+            const filterForm = document.getElementById('filterForm');
+            const tahunSelect = document.getElementById('tahun');
+            const bulanSelect = document.getElementById('bulan');
+            const statusSelect = document.getElementById('status_mitra');
+            const statusPekerjaanSelect = document.getElementById('status_pekerjaan');
+            const kecamatanSelect = document.getElementById('kecamatan');
+            const mitraSelect = document.getElementById('nama_mitra');
+            const partisipasiLebihDariSatuSelect = document.getElementById('partisipasi_lebih_dari_satu');
+            const honorLebihDari4jtSelect = document.getElementById('honor_lebih_dari_4jt');
+            const jenisKelaminSelect = document.getElementById('jenis_kelamin');
+
+            // Ganti fungsi submitForm dengan ini
+            let timeout;
+
+            function submitForm() {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    filterForm.submit();
+                }, 500); // Delay 500ms sebelum submit
+            }
+
+            // Tambahkan event listener untuk setiap select
+            tahunSelect.addEventListener('change', submitForm);
+            bulanSelect.addEventListener('change', submitForm);
+            statusSelect.addEventListener('change', submitForm);
+            mitraSelect.addEventListener('change', submitForm);
+            statusPekerjaanSelect.addEventListener('change', submitForm);
+            kecamatanSelect.addEventListener('change', submitForm);
+            partisipasiLebihDariSatuSelect.addEventListener('change', submitForm);
+            honorLebihDari4jtSelect.addEventListener('change', submitForm);
+            jenisKelaminSelect.addEventListener('change', submitForm);
         });
 
-        // Ambil elemen form dan select
-        const filterForm = document.getElementById('filterForm');
-        const tahunSelect = document.getElementById('tahun');
-        const bulanSelect = document.getElementById('bulan');
-        const statusSelect = document.getElementById('status_mitra');
-        const statusPekerjaanSelect = document.getElementById('status_pekerjaan');
-        const kecamatanSelect = document.getElementById('kecamatan');
-        const mitraSelect = document.getElementById('nama_mitra');
-        const partisipasiLebihDariSatuSelect = document.getElementById('partisipasi_lebih_dari_satu');
-        const honorLebihDari4jtSelect = document.getElementById('honor_lebih_dari_4jt');
-        const jenisKelaminSelect = document.getElementById('jenis_kelamin');
+        function exportData() {
+            // Ambil parameter filter dari form
+            const form = document.getElementById('filterForm');
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData).toString();
 
-        // Ganti fungsi submitForm dengan ini
-        let timeout;
-        function submitForm() {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                filterForm.submit();
-            }, 500); // Delay 500ms sebelum submit
+            // Redirect ke route export dengan parameter filter
+            window.location.href = `/ReportMitra/export-mitra?${params}`;
         }
-
-        // Tambahkan event listener untuk setiap select
-        tahunSelect.addEventListener('change', submitForm);
-        bulanSelect.addEventListener('change', submitForm);
-        statusSelect.addEventListener('change', submitForm);
-        mitraSelect.addEventListener('change', submitForm);
-        statusPekerjaanSelect.addEventListener('change', submitForm);
-        kecamatanSelect.addEventListener('change', submitForm);
-        partisipasiLebihDariSatuSelect.addEventListener('change', submitForm);
-        honorLebihDari4jtSelect.addEventListener('change', submitForm);
-        jenisKelaminSelect.addEventListener('change', submitForm);
-    });
-
-    function exportData() {
-        // Ambil parameter filter dari form
-        const form = document.getElementById('filterForm');
-        const formData = new FormData(form);
-        const params = new URLSearchParams(formData).toString();
-
-        // Redirect ke route export dengan parameter filter
-        window.location.href = `/ReportMitra/export-mitra?${params}`;
-    }
     </script>
 </body>
+
 </html>
