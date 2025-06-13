@@ -23,7 +23,7 @@ class SurveiDetailExport implements FromCollection, WithMapping, WithEvents, Wit
         'No',
         'Sobat ID', // DITAMBAHKAN
         'Nama Mitra',
-        'Domisili',
+        'Kecamatan',
         'Posisi',
         'Vol',
         'Rate Honor',
