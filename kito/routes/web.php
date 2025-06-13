@@ -378,10 +378,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/ReportMitra/export-mitra', [ReportMitraSurveiController::class, 'exportMitra'])->name('export.mitra');
 
     // Halaman crud posisi
-    Route::get('/posisimitra', [PosisiMitraController::class, 'index']);
-    Route::post('/posisimitra', [PosisiMitraController::class, 'store']);
-    Route::put('/posisimitra/{id}', [PosisiMitraController::class, 'update']);
-    Route::delete('/posisimitra/{id}', [PosisiMitraController::class, 'destroy']);
+    Route::get('/posisimitra', [PosisiMitraController::class, 'index'])->name('posisi.index');
+    Route::post('/posisimitra', [PosisiMitraController::class, 'store'])->name('posisi.store');
+    Route::put('/posisimitra/{id}', [PosisiMitraController::class, 'update'])->name('posisi.update');
+    Route::delete('/posisimitra/{id}', [PosisiMitraController::class, 'destroy'])->name('posisi.destroy');
 });
 
 

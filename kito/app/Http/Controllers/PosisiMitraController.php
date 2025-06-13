@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\PosisiMitra;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule; // Import Rule
 
 class PosisiMitraController extends Controller
 {
     /**
-     * Menampilkan daftar posisi mitra dengan filter pencarian dan paginasi.
+     * Menampilkan daftar posisi mitra.
      */
     public function index(Request $request)
     {
@@ -20,95 +20,65 @@ class PosisiMitraController extends Controller
         }
 
         $posisiMitra = $query->orderBy('nama_posisi')->paginate(10);
-        $posisiNames = PosisiMitra::pluck('nama_posisi')->unique()->values()->all();
+        $posisiNames = PosisiMitra::pluck('nama_posisi')->unique()->sort()->values()->all();
 
         return view('mitrabps.crudPosisiMitra', compact('posisiMitra', 'posisiNames'));
     }
 
     /**
-     * Menyimpan posisi mitra baru ke database.
+     * Menyimpan posisi mitra baru. (Disesuaikan untuk Web Route)
      */
     public function store(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'nama_posisi' => 'required|string|max:255|unique:posisi_mitra,nama_posisi',
-            ], [
-                'nama_posisi.required' => 'Nama posisi wajib diisi.',
-                'nama_posisi.unique' => 'Nama posisi sudah digunakan.',
-            ]);
+        $request->validate([
+            'nama_posisi' => 'required|string|max:255|unique:posisi_mitra,nama_posisi',
+        ], [
+            'nama_posisi.required' => 'Nama posisi wajib diisi.',
+            'nama_posisi.unique' => 'Nama posisi tersebut sudah ada.',
+        ]);
 
-            $posisi = PosisiMitra::create($validated);
+        PosisiMitra::create($request->only('nama_posisi'));
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Posisi berhasil ditambahkan.',
-                'data' => $posisi
-            ]);
-        } catch (ValidationException $e) {
-            $errorMsg = collect($e->errors())->first()[0];
-            return response()->json(['success' => false, 'message' => $errorMsg], 422);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Gagal menambahkan posisi: ' . $e->getMessage()], 500);
-        }
+        return redirect()->route('posisi.index')->with('success', 'Posisi mitra baru berhasil ditambahkan.');
     }
 
     /**
-     * Memperbarui nama posisi mitra yang ada.
+     * Memperbarui nama posisi mitra. (Disesuaikan untuk Web Route)
      */
     public function update(Request $request, $id)
     {
-        try {
-            $validated = $request->validate([
-                'nama_posisi' => 'required|string|max:255|unique:posisi_mitra,nama_posisi,' . $id . ',id_posisi_mitra',
-            ], [
-                'nama_posisi.required' => 'Nama posisi wajib diisi.',
-                'nama_posisi.unique' => 'Nama posisi sudah digunakan.',
-            ]);
+        $posisi = PosisiMitra::findOrFail($id);
 
-            $posisi = PosisiMitra::findOrFail($id);
-            $posisi->update($validated);
+        $request->validate([
+            'nama_posisi' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('posisi_mitra')->ignore($posisi->id_posisi_mitra, 'id_posisi_mitra'),
+            ],
+        ], [
+            'nama_posisi.required' => 'Nama posisi wajib diisi.',
+            'nama_posisi.unique' => 'Nama posisi tersebut sudah ada.',
+        ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Posisi berhasil diperbarui.',
-                'data' => $posisi
-            ]);
-        } catch (ValidationException $e) {
-            $errorMessage = collect($e->errors())->first()[0];
-            return response()->json(['success' => false, 'message' => $errorMessage], 422);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Gagal memperbarui posisi: ' . $e->getMessage()], 500);
-        }
+        $posisi->update($request->only('nama_posisi'));
+
+        return redirect()->route('posisi.index')->with('success', 'Posisi mitra berhasil diperbarui.');
     }
 
     /**
-     * Menghapus posisi mitra dari database.
+     * Menghapus posisi mitra. (Disesuaikan untuk Web Route)
      */
     public function destroy($id)
     {
-        try {
-            $posisi = PosisiMitra::findOrFail($id);
+        $posisi = PosisiMitra::findOrFail($id);
 
-            // Tambahkan pengecekan jika posisi masih digunakan
-            if ($posisi->mitraSurvei()->exists()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal menghapus: Posisi ini masih digunakan oleh mitra dalam survei.'
-                ], 409); // 409 Conflict
-            }
-
-            $posisi->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Posisi berhasil dihapus.'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus posisi: ' . $e->getMessage()
-            ], 500);
+        if ($posisi->mitraSurvei()->exists()) {
+            return back()->withErrors(['delete' => 'Gagal menghapus! Posisi ini masih digunakan oleh setidaknya satu mitra dalam survei.']);
         }
+
+        $posisi->delete();
+
+        return redirect()->route('posisi.index')->with('success', 'Posisi mitra berhasil dihapus.');
     }
 }
