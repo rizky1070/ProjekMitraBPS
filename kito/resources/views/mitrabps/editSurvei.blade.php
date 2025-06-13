@@ -46,39 +46,33 @@ $title = 'Kelola Survei';
             swal("Success!", "{{ session('success') }}", "success");
         </script>
     @endif
-
     @if (session('error'))
         <script>
             swal("Error!", "{!! session('error') !!}", "error");
         </script>
     @endif
 
-    {{-- HAPUS blok @if (session('confirm')) yang lama. Kita ganti dengan modal universal di bawah --}}
-
+    {{-- Modal Konfirmasi Universal --}}
     <div class="confirmation-modal" id="confirmationModal">
         <div class="confirmation-modal-content">
             <h3 class="text-lg font-bold mb-4" id="modalTitle">Konfirmasi Aksi</h3>
             <div id="modalBody">
                 <p id="modalMessage" class="mb-4">Apakah Anda yakin ingin melanjutkan?</p>
-                {{-- Area untuk menampilkan error validasi --}}
                 <div id="modalErrors" class="mb-4 hidden">
                     <p class="font-bold text-red-600">Harap perbaiki error berikut:</p>
                     <ul id="modalErrorList" class="error-list"></ul>
                 </div>
             </div>
-
             <div class="flex justify-end space-x-3">
-                <button id="cancelButton" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
-                    Batal
-                </button>
-                <button id="confirmButton" class="px-4 py-2 bg-oren text-white rounded hover:bg-orange-500">
-                    Iya, Lanjutkan
-                </button>
+                <button id="cancelButton" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Batal</button>
+                <button id="confirmButton" class="px-4 py-2 bg-oren text-white rounded hover:bg-orange-500">Iya,
+                    Lanjutkan</button>
             </div>
         </div>
     </div>
-    <main class="flex-1 overflow-x-hidden bg-gray-200">
 
+    <main class="flex-1 overflow-x-hidden bg-gray-200">
+        {{-- TATA LETAK ASLI ANDA UNTUK BAGIAN ATAS --}}
         <a href="{{ url('/daftarSurvei') }}"
             class="inline-flex items-center gap-2 px-4 py-2 bg-oren hover:bg-orange-500 text-black font-semibold rounded-br-md transition-all duration-200 shadow-md">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -90,15 +84,13 @@ $title = 'Kelola Survei';
         <div class="p-4">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold">Detail Survei</h2>
-                {{-- Form Hapus Survei --}}
                 <form action="{{ route('survey.delete', ['id_survei' => $survey->id_survei]) }}" method="POST"
                     id="form-delete-survey">
                     @csrf
                     @method('DELETE')
                     <button type="button" onclick="showConfirmation('hapus_survei', 0, '{{ $survey->nama_survei }}')"
-                        class="mt-4 px-4 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-600">
-                        Hapus Survei
-                    </button>
+                        class="mt-4 px-4 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-600">Hapus
+                        Survei</button>
                 </form>
             </div>
             <div class="bg-white p-4 rounded-lg shadow">
@@ -111,45 +103,31 @@ $title = 'Kelola Survei';
                         </p>
                         <p><strong>Tim :</strong> {{ $survey->tim }}</p>
                         <p><strong>KRO :</strong> {{ $survey->kro }} </p>
-                        <div class="flex items-center">
-                        </div>
                     </div>
                 </div>
-
                 <div class="flex items-center">
                     <p><strong>Status :</strong>
                         <span class="font-bold">
                             @if ($survey->status_survei == 1)
-                                <div class="bg-red-500 text-white  px-2 py-1 rounded ml-2 mr-5">Belum Dikerjakan</div>
+                                <div class="bg-red-500 text-white px-2 py-1 rounded ml-2 mr-5">Belum Dikerjakan</div>
                             @elseif($survey->status_survei == 2)
-                                <div class="bg-yellow-300 text-white  px-2 py-1 rounded ml-2 mr-5">Sedang Dikerjakan
+                                <div class="bg-yellow-300 text-white px-2 py-1 rounded ml-2 mr-5">Sedang Dikerjakan
                                 </div>
                             @elseif($survey->status_survei == 3)
-                                <div class="bg-green-500 text-white  px-2 py-1 rounded ml-2 mr-5">Sudah Dikerjakan</div>
-                            @else
-                                <span class="bg-gray-500 text-white rounded-md px-2 py-1 ml-2">Status Tidak
+                                <div class="bg-green-500 text-white px-2 py-1 rounded ml-2 mr-5">Sudah Dikerjakan</div>
+                            @else<span class="bg-gray-500 text-white rounded-md px-2 py-1 ml-2">Status Tidak
                                     Diketahui</span>
                             @endif
                         </span>
                     </p>
                 </div>
-
-                <script>
-                    function toggleDropdown() {
-                        var dropdown = document.getElementById("dropdown");
-                        dropdown.classList.toggle("hidden");
-                    }
-                </script>
-
             </div>
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold mt-4">Daftar Mitra</h3>
                 <div class="flex gap-2">
                     <a href="{{ route('mitraSurvei.export.excel', ['id_survei' => $survey->id_survei]) }}"
-                        class="mt-4 px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-all duration-300">
-                        Export Excel
-                    </a>
-                    {{-- Form Hapus Semua Mitra --}}
+                        class="mt-4 px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-all duration-300">Export
+                        Excel</a>
                     @if ($survey->mitra_survei_count > 0)
                         <form action="{{ route('survey.deleteAllMitra', ['id_survei' => $survey->id_survei]) }}"
                             method="POST" id="form-hapus_semua_mitra-{{ $survey->id_survei }}">
@@ -157,9 +135,8 @@ $title = 'Kelola Survei';
                             @method('DELETE')
                             <button type="button"
                                 onclick="showConfirmation('hapus_semua_mitra', {{ $survey->id_survei }}, '{{ $survey->nama_survei }}')"
-                                class="mt-4 px-4 py-2 bg-red-800 text-white font-medium rounded-md hover:bg-red-900">
-                                Hapus Semua Mitra
-                            </button>
+                                class="mt-4 px-4 py-2 bg-red-800 text-white font-medium rounded-md hover:bg-red-900">Hapus
+                                Semua Mitra</button>
                         </form>
                     @endif
                     <button type="button"
@@ -167,12 +144,9 @@ $title = 'Kelola Survei';
                         onclick="openModal()">+ Tambah</button>
                 </div>
             </div>
-
             <div class="cuScrollFilter bg-white rounded-lg shadow-sm p-6">
-                <!-- Year Row -->
                 <form id="filterForm" action="{{ route('editSurvei.filter', ['id_survei' => $survey->id_survei]) }}"
                     method="GET" class="space-y-4">
-                    <!-- Survey Name Row -->
                     <div class="flex items-center relative">
                         <label for="nama_lengkap" class="w-32 text-lg font-semibold text-gray-800 mb-4">Cari
                             Mitra</label>
@@ -203,7 +177,6 @@ $title = 'Kelola Survei';
                                     @endforeach
                                 </select>
                             </div>
-                            <!-- Month Row -->
                             <div class="flex items-center">
                                 <label for="bulan" class="w-32 text-sm font-medium text-gray-700">Bulan</label>
                                 <select name="bulan" id="bulan"
@@ -217,7 +190,6 @@ $title = 'Kelola Survei';
                                     @endforeach
                                 </select>
                             </div>
-                            <!-- District Row -->
                             <div class="flex items-center">
                                 <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
                                 <select name="kecamatan" id="kecamatan"
@@ -227,309 +199,184 @@ $title = 'Kelola Survei';
                                     @foreach ($kecamatanOptions as $kecam)
                                         <option value="{{ $kecam->id_kecamatan }}"
                                             @if (request('kecamatan') == $kecam->id_kecamatan) selected @endif>
-                                            [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}
-                                        </option>
+                                            [{{ $kecam->kode_kecamatan }}] {{ $kecam->nama_kecamatan }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
                     </div>
                 </form>
-                @if (session('survei_warnings'))
-                    <div class="mt-2 mb-4 p-3 bg-blue-100 border-l-4 border-blue-500 text-blue-700">
-                        <h4 class="font-bold">Peringatan Survei:</h4>
-                        <ul class="list-disc pl-5">
-                            @foreach (session('survei_warnings') as $warning)
-                                <li class="text-sm">{{ $warning }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                @if (session('import_errors'))
-                    <div class="mt-2 mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700">
-                        <h4 class="font-bold">Mitra yang gagal diimport ke survei:</h4>
-                        <ul class="cuScrollError list-disc pl-5">
-                            @foreach (session('import_errors') as $error)
-                                <li class="text-sm">{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                @if (session('honor_warnings'))
-                    <div class="mt-2 mb-4 p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
-                        <h4 class="font-bold">Peringatan Honor Mitra:</h4>
-                        <ul class="list-disc pl-5">
-                            @foreach (session('honor_warnings') as $warning)
-                                <li class="text-sm">{{ $warning }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+                {{-- Area Notifikasi (jika ada) --}}
             </div>
-        </div>
-        <!-- JavaScript Tom Select -->
-        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-        <!-- Inisialisasi Tom Select -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                new TomSelect('#nama_mitra', {
-                    placeholder: 'Pilih Mitra',
-                    searchField: 'text',
-                });
+            <br>
 
-                new TomSelect('#tahun', {
-                    placeholder: 'Pilih Tahun',
-                    searchField: 'text',
-                });
-
-                new TomSelect('#bulan', {
-                    placeholder: 'Pilih Bulan',
-                    searchField: 'text',
-                });
-
-                new TomSelect('#kecamatan', {
-                    placeholder: 'Pilih Kecamatan',
-                    searchField: 'text',
-                });
-
-                // Initialize Tom Select for position dropdowns
-                document.querySelectorAll('select[name="id_posisi_mitra"]').forEach(select => {
-                    new TomSelect(select, {
-                        placeholder: 'Pilih Posisi',
-                        searchField: 'text',
-                        onChange: function(value) {
-                            const mitraId = select.getAttribute('onchange').match(/\d+/)[0];
-                            updateRateHonor(select, mitraId);
-                        }
-                    });
-                });
-
-                // Auto submit saat filter berubah
-                const filterForm = document.getElementById('filterForm');
-                const tahunSelect = document.getElementById('tahun');
-                const bulanSelect = document.getElementById('bulan');
-                const kecamatanSelect = document.getElementById('kecamatan');
-                const mitraSelect = document.getElementById('nama_mitra');
-
-                // Ganti fungsi submitForm dengan ini
-                let timeout;
-
-                function submitForm() {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => {
-                        filterForm.submit();
-                    }, 500); // Delay 500ms sebelum submit
-                }
-
-                // Tambahkan event listener untuk setiap select
-                tahunSelect.addEventListener('change', submitForm);
-                bulanSelect.addEventListener('change', submitForm);
-                kecamatanSelect.addEventListener('change', submitForm);
-                mitraSelect.addEventListener('change', submitForm);
-            });
-        </script>
-        <div class="border rounded-lg shadow-sm bg-white bg-white p-2 mx-4">
-            <div class="cuScrollTableX">
-                {{-- STRUKTUR TABEL YANG SUDAH DIPERBAIKI --}}
-                <table class="min-w-full divide-y divide-gray-500">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col"
-                                class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Nama Mitra</th>
-                            <th scope="col"
-                                class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Domisili</th>
-                            <th scope="col"
-                                class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Survei yang Diikuti</th>
-                            <th scope="col"
-                                class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Mitra Tahun</th>
-                            <th scope="col"
-                                class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Vol</th>
-                            <th scope="col"
-                                class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Rate Honor</th>
-                            <th scope="col"
-                                class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Posisi</th>
-                            <th scope="col"
-                                class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-500">
-                        @php
-                            $errorMitraId = null;
-                            if (session('show_modal')) {
-                                $parts = explode('-', session('show_modal'));
-                                if (count($parts) === 2) {
-                                    $errorMitraId = (int) $parts[1];
-                                }
-                            }
-                        @endphp
-                        @foreach ($mitras as $mitra)
-                            {{-- Form kini didefinisikan secara tersembunyi agar tidak merusak struktur tabel --}}
-                            @if ($mitra->isFollowingSurvey)
-                                <form
-                                    action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
-                                    method="POST" id="form-edit-{{ $mitra->id_mitra }}" class="hidden">
-                                    @csrf
-                                    <input type="hidden" name="force_action" value="1"
-                                        class="force-action-input">
-                                </form>
-                                <form
-                                    action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
-                                    method="POST" id="form-hapus-{{ $mitra->id_mitra }}" class="hidden">
-                                    @csrf
-                                </form>
-                            @else
-                                <form
-                                    action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
-                                    method="POST" id="form-tambah-{{ $mitra->id_mitra }}" class="hidden">
-                                    @csrf
-                                    <input type="hidden" name="force_action" value="1"
-                                        class="force-action-input">
-                                </form>
-                            @endif
-
-                            <tr class="hover:bg-gray-50" style=" border-top-width: 2px; border-color: #D1D5DB;">
-                                {{-- Kolom data statis, gaya asli dipertahankan --}}
-                                <td class="whitespace-normal text-center break-words" style="max-width: 120px;">
-                                    <div class="flex justify-center items-center">
-                                        <a href="/profilMitra/{{ $mitra->id_mitra }}"
-                                            class="hover:underline transition duration-300 ease-in-out"
-                                            style="text-decoration-color: #FFA500; text-decoration-thickness: 3px;">
-                                            {{ $mitra->nama_lengkap }}
-                                        </a>
-                                    </div>
-                                </td>
-                                <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                    {{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}
-                                </td>
-                                <td class="whitespace-nowrap text-center" style="max-width: 100px;">
-                                    {{ $mitra->total_survei }}
-                                </td>
-                                <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
-                                    {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('Y') }}
-                                </td>
-
-                                {{-- Kolom input dinamis, kini dalam <td> yang valid --}}
-                                @if ($mitra->isFollowingSurvey)
-                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                        <input type="number" name="vol" form="form-edit-{{ $mitra->id_mitra }}"
-                                            value="{{ $errorMitraId == $mitra->id_mitra ? old('vol') : $mitra->vol }}"
-                                            class="w-full focus:outline-none text-center border-none"
-                                            placeholder="Vol">
-                                    </td>
-                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                        <input type="number" name="rate_honor"
-                                            form="form-edit-{{ $mitra->id_mitra }}"
-                                            value="{{ $errorMitraId == $mitra->id_mitra ? old('rate_honor') : $mitra->rate_honor }}"
-                                            class="w-full focus:outline-none text-center border-none"
-                                            placeholder="Rate Honor">
-                                    </td>
-                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                        <select name="id_posisi_mitra" form="form-edit-{{ $mitra->id_mitra }}"
-                                            class="w-full focus:outline-none text-center">
-                                            <option value="">Pilih Posisi</option>
-                                            @foreach ($posisiMitraOptions as $posisi)
-                                                <option value="{{ $posisi->id_posisi_mitra }}"
-                                                    @if (($errorMitraId == $mitra->id_mitra ? old('id_posisi_mitra') : $mitra->id_posisi_mitra) == $posisi->id_posisi_mitra) selected @endif>
-                                                    {{ $posisi->nama_posisi }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    {{-- Kolom Aksi dengan tata letak tombol yang diperbaiki --}}
-                                    <td class="p-2">
-                                        <div class="grid grid-cols-2 gap-2 w-full">
-                                            <button type="button"
-                                                onclick="showConfirmation('edit', {{ $mitra->id_mitra }}, '{{ $mitra->nama_lengkap }}')"
-                                                class="flex justify-center items-center bg-oren text-white px-2 py-1 rounded hover:bg-orange-500"
-                                                title="Simpan">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
-                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                    <path
-                                                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                                </svg>
-                                            </button>
-                                            <button type="button"
-                                                onclick="showConfirmation('hapus', {{ $mitra->id_mitra }}, '{{ $mitra->nama_lengkap }}')"
-                                                class="flex justify-center items-center bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                                                title="Hapus">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
-                                                    viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd"
-                                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
-                                @else
-                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                        <input type="number" name="vol"
-                                            form="form-tambah-{{ $mitra->id_mitra }}"
-                                            value="{{ $errorMitraId == $mitra->id_mitra ? old('vol') : '' }}"
-                                            class="w-full focus:outline-none text-center border-none"
-                                            placeholder="Masukkan Vol">
-                                    </td>
-                                    <td class="whitespace-nowrap text-center" style="max-width: 100px;">
-                                        <input type="number" name="rate_honor"
-                                            form="form-tambah-{{ $mitra->id_mitra }}"
-                                            value="{{ $errorMitraId == $mitra->id_mitra ? old('rate_honor') : '' }}"
-                                            class="w-full focus:outline-none text-center border-none"
-                                            placeholder="Rate Honor">
-                                    </td>
-                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                        <select name="id_posisi_mitra" form="form-tambah-{{ $mitra->id_mitra }}"
-                                            class="w-full focus:outline-none text-center">
-                                            <option value="">Pilih Posisi</option>
-                                            @foreach ($posisiMitraOptions as $posisi)
-                                                <option value="{{ $posisi->id_posisi_mitra }}"
-                                                    @if ($errorMitraId == $mitra->id_mitra && old('id_posisi_mitra') == $posisi->id_posisi_mitra) selected @endif>
-                                                    {{ $posisi->nama_posisi }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </td>
-                                    {{-- Kolom Aksi dengan tombol Tambah selebar kolom --}}
-                                    <td class="p-2">
-                                        <button type="button"
-                                            onclick="showConfirmation('tambah', {{ $mitra->id_mitra }}, '{{ $mitra->nama_lengkap }}')"
-                                            class="w-full bg-green-500 px-3 rounded text-white font-medium hover:bg-green-600 hover:shadow-lg transition-all duration-300">
-                                            Tambah
-                                        </button>
-                                    </td>
-                                @endif
+            {{-- BAGIAN TABEL YANG SUDAH DIPERBAIKI TOTAL --}}
+            <div class="border rounded-lg shadow-sm bg-white p-4">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y-2 divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
+                                    Nama Mitra</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
+                                    Domisili</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
+                                    Total Survei</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
+                                    Mitra Tahun</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+                                    Vol</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                                    Rate Honor</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
+                                    Posisi</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-36">
+                                    Aksi</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @php
+                                $errorMitraId = session('show_modal')
+                                    ? (int) (explode('-', session('show_modal'))[1] ?? 0)
+                                    : null;
+                            @endphp
+                            @forelse ($mitras as $mitra)
+                                @if ($mitra->isFollowingSurvey)
+                                    <form
+                                        action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
+                                        method="POST" id="form-edit-{{ $mitra->id_mitra }}" class="hidden">
+                                        @csrf<input type="hidden" name="force_action" value="1"
+                                            class="force-action-input"></form>
+                                    <form
+                                        action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
+                                        method="POST" id="form-hapus-{{ $mitra->id_mitra }}" class="hidden">@csrf
+                                        @method('DELETE')</form>
+                                @else
+                                    <form
+                                        action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
+                                        method="POST" id="form-tambah-{{ $mitra->id_mitra }}" class="hidden">
+                                        @csrf<input type="hidden" name="force_action" value="1"
+                                            class="force-action-input"></form>
+                                @endif
+
+                                <tr id="baris-mitra-{{ $mitra->id_mitra }}" class="hover:bg-gray-50">
+                                    <td class="px-4 py-2 whitespace-normal break-words text-sm text-center"><a
+                                            href="/profilMitra/{{ $mitra->id_mitra }}"
+                                            class="font-medium text-gray-800 hover:text-oren hover:underline">{{ $mitra->nama_lengkap }}</a>
+                                    </td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600 text-center">
+                                        {{ $mitra->kecamatan->nama_kecamatan ?? 'N/A' }}</td>
+                                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600 text-center">
+                                        {{ $mitra->total_survei }}</td>
+                                    <td
+                                        class="px-4 py-2 whitespace-normal break-words text-sm text-gray-600 text-center">
+                                        {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('Y') }}
+                                    </td>
+
+                                    @if ($mitra->isFollowingSurvey)
+                                        <td class="p-2"><input type="number" name="vol"
+                                                form="form-edit-{{ $mitra->id_mitra }}"
+                                                value="{{ $errorMitraId == $mitra->id_mitra ? old('vol') : $mitra->vol }}"
+                                                class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
+                                                placeholder="Vol"></td>
+                                        <td class="p-2"><input type="number" name="rate_honor"
+                                                form="form-edit-{{ $mitra->id_mitra }}"
+                                                value="{{ $errorMitraId == $mitra->id_mitra ? old('rate_honor') : $mitra->rate_honor }}"
+                                                class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
+                                                placeholder="Rate"></td>
+                                        <td class="p-2">
+                                            {{-- FIX: Menambahkan data-mitra-id untuk diakses oleh Javascript --}}
+                                            <select name="id_posisi_mitra" data-mitra-id="{{ $mitra->id_mitra }}"
+                                                form="form-edit-{{ $mitra->id_mitra }}"
+                                                class="w-full p-2 text-center  rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm">
+                                                <option value="">Pilih Posisi</option>
+                                                @foreach ($posisiMitraOptions as $posisi)
+                                                    <option value="{{ $posisi->id_posisi_mitra }}"
+                                                        @if (($errorMitraId == $mitra->id_mitra ? old('id_posisi_mitra') : $mitra->id_posisi_mitra) == $posisi->id_posisi_mitra) selected @endif>
+                                                        {{ $posisi->nama_posisi }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td class="p-2">
+                                            <div class="grid grid-cols-2 gap-2 w-full">
+                                                <button type="button"
+                                                    onclick="showConfirmation('edit', {{ $mitra->id_mitra }}, '{{ $mitra->nama_lengkap }}')"
+                                                    class="flex justify-center items-center p-2 bg-oren text-white rounded-md hover:bg-orange-600 transition-all"
+                                                    title="Simpan"><svg xmlns="http://www.w3.org/2000/svg"
+                                                        class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path
+                                                            d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                    </svg></button>
+                                                <button type="button"
+                                                    onclick="showConfirmation('hapus', {{ $mitra->id_mitra }}, '{{ $mitra->nama_lengkap }}')"
+                                                    class="flex justify-center items-center p-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-all"
+                                                    title="Hapus"><svg xmlns="http://www.w3.org/2000/svg"
+                                                        class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd"
+                                                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                            clip-rule="evenodd" />
+                                                    </svg></button>
+                                            </div>
+                                        </td>
+                                    @else
+                                        <td class="p-2"><input type="number" name="vol"
+                                                form="form-tambah-{{ $mitra->id_mitra }}"
+                                                value="{{ $errorMitraId == $mitra->id_mitra ? old('vol') : '' }}"
+                                                class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
+                                                placeholder="Vol"></td>
+                                        <td class="p-2"><input type="number" name="rate_honor"
+                                                form="form-tambah-{{ $mitra->id_mitra }}"
+                                                value="{{ $errorMitraId == $mitra->id_mitra ? old('rate_honor') : '' }}"
+                                                class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
+                                                placeholder="Rate"></td>
+                                        <td class="p-2">
+                                            {{-- FIX: Menambahkan data-mitra-id untuk diakses oleh Javascript --}}
+                                            <select name="id_posisi_mitra" data-mitra-id="{{ $mitra->id_mitra }}"
+                                                form="form-tambah-{{ $mitra->id_mitra }}"
+                                                class="w-full p-2 text-center  rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm">
+                                                <option value="">Pilih Posisi</option>
+                                                @foreach ($posisiMitraOptions as $posisi)
+                                                    <option value="{{ $posisi->id_posisi_mitra }}"
+                                                        @if ($errorMitraId == $mitra->id_mitra && old('id_posisi_mitra') == $posisi->id_posisi_mitra) selected @endif>
+                                                        {{ $posisi->nama_posisi }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td class="p-2"><button type="button"
+                                                onclick="showConfirmation('tambah', {{ $mitra->id_mitra }}, '{{ $mitra->nama_lengkap }}')"
+                                                class="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition-all">Tambah</button>
+                                        </td>
+                                    @endif
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="text-center py-5 text-gray-500">Tidak ada data mitra
+                                        untuk ditampilkan.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                @include('components.pagination', ['paginator' => $mitras])
             </div>
-        </div>
-        </div>
-        @include('components.pagination', ['paginator' => $mitras])
         </div>
     </main>
 
-    <!-- Modal Upload Excel -->
-    <div id="uploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden"
-        style="z-index: 50;">
-        <div
-            class="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-11/12 sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-1/3 mx-2 max-h-[90vh] overflow-y-auto">
-            <h2 class="text-lg sm:text-xl font-bold mb-2">Import Mitra ke Survei</h2>
-            <p class="mb-2 text-red-700 text-xs sm:text-sm font-bold">Pastikan format file excel yang diimport sesuai!
-            </p>
-
-            <!-- Error/Success Messages -->
+    <div id="uploadModal"
+        class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-1/2 lg:w-1/3 max-h-[90vh] overflow-y-auto">
+            <h2 class="text-xl font-bold mb-4">Import Mitra ke Survei</h2>
+            <p class="mb-4 text-sm text-red-600 font-bold">Pastikan format file excel yang diimport sesuai!</p>
             @if ($errors->any())
-                <div class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 text-xs sm:text-sm">
+                <div class="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 text-sm">
                     <ul class="list-disc pl-5">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -537,35 +384,25 @@ $title = 'Kelola Survei';
                     </ul>
                 </div>
             @endif
-
-            @if (session('success'))
-                <div class="mb-4 p-3 bg-green-100 border-l-4 border-green-500 text-green-700 text-xs sm:text-sm">
-                    {{ session('success') }}
-                </div>
-            @endif
-
             <form action="{{ route('upload.excel', ['id_survei' => $survey->id_survei]) }}" method="POST"
                 enctype="multipart/form-data">
                 @csrf
                 <input type="file" name="file" accept=".xlsx, .xls"
-                    class="border p-2 w-full text-xs sm:text-sm mb-2">
-                <p class="py-2 text-xs sm:text-sm">Belum punya file excel?
-                    <a href="{{ asset('addMitra2Survey.xlsx') }}" class="text-blue-500 hover:text-blue-600 font-bold"
-                        download>
-                        Download template disini.
-                    </a>
-                </p>
-                <div class="flex justify-end mt-4 space-x-2">
+                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none mb-2">
+                <p class="py-2 text-sm">Belum punya template? <a href="{{ asset('addMitra2Survey.xlsx') }}"
+                        class="text-blue-500 hover:text-blue-600 font-bold" download>Download di sini.</a></p>
+                <div class="flex justify-end mt-4 space-x-3">
                     <button type="button"
-                        class="px-3 py-1 sm:px-4 sm:py-2 bg-gray-500 text-white rounded-md text-xs sm:text-sm font-medium hover:bg-gray-600 transition-all duration-300"
+                        class="px-4 py-2 bg-gray-500 text-white rounded-md font-medium hover:bg-gray-600"
                         onclick="closeModal()">Batal</button>
                     <button type="submit"
-                        class="px-3 py-1 sm:px-4 sm:py-2 bg-oren rounded-md text-white text-xs sm:text-sm font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Unggah</button>
+                        class="px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500">Unggah</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script>
         function openModal() {
             document.getElementById('uploadModal').classList.remove('hidden');
@@ -574,67 +411,47 @@ $title = 'Kelola Survei';
         function closeModal() {
             document.getElementById('uploadModal').classList.add('hidden');
         }
-    </script>
 
-    <script>
-        // Ambil elemen-elemen modal
-        const modal = document.getElementById('confirmationModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalMessage = document.getElementById('modalMessage');
-        const modalErrors = document.getElementById('modalErrors');
-        const modalErrorList = document.getElementById('modalErrorList');
-        const confirmButton = document.getElementById('confirmButton');
-        const cancelButton = document.getElementById('cancelButton');
+        const modal = document.getElementById('confirmationModal'),
+            modalTitle = document.getElementById('modalTitle'),
+            modalMessage = document.getElementById('modalMessage'),
+            modalErrors = document.getElementById('modalErrors'),
+            modalErrorList = document.getElementById('modalErrorList'),
+            confirmButton = document.getElementById('confirmButton'),
+            cancelButton = document.getElementById('cancelButton');
 
-        // Fungsi untuk menampilkan modal konfirmasi
         function showConfirmation(action, id, name, force = false, customMessage = '', errors = null) {
-            let title = '';
-            let message = '';
-            let formId = `form-${action}-${id}`;
-
-            // Atur pesan default berdasarkan aksi
+            let title, message, formId = `form-${action}-${id}`;
             switch (action) {
                 case 'tambah':
-                    title = `Konfirmasi Tambah Mitra`;
+                    title = 'Konfirmasi Tambah Mitra';
                     message = `Anda yakin ingin menambahkan <b>${name}</b> ke survei ini?`;
                     break;
                 case 'edit':
-                    title = `Konfirmasi Simpan Perubahan`;
+                    title = 'Konfirmasi Simpan Perubahan';
                     message = `Anda yakin ingin menyimpan perubahan untuk mitra <b>${name}</b>?`;
                     break;
                 case 'hapus':
-                    title = `Konfirmasi Hapus Mitra`;
-                    message =
-                        `Anda yakin ingin menghapus <b>${name}</b> dari survei ini? Tindakan ini tidak dapat dibatalkan.`;
+                    title = 'Konfirmasi Hapus Mitra';
+                    message = `Anda yakin ingin menghapus <b>${name}</b> dari survei ini?`;
                     break;
                 case 'hapus_survei':
                     title = 'Konfirmasi Hapus Survei';
-                    message =
-                        `Apakah Anda yakin ingin menghapus survei <b>${name}</b>? SEMUA MITRA YANG TERKAIT AKAN DIPUTUSKAN RELASINYA.`;
+                    message = `Yakin ingin menghapus survei <b>${name}</b>? SEMUA relasi mitra akan ikut terhapus.`;
                     formId = 'form-delete-survey';
                     break;
                 case 'hapus_semua_mitra':
                     title = 'Konfirmasi Hapus Semua Mitra';
-                    message =
-                        `Anda yakin ingin menghapus <b>SEMUA MITRA</b> dari survei <b>${name}</b>? Tindakan ini tidak dapat dibatalkan.`;
-                    formId = `form-${action}-${id}`;
+                    message = `Yakin ingin menghapus <b>SEMUA MITRA</b> dari survei <b>${name}</b>?`;
                     break;
             }
-
-            // Jika ada pesan kustom dari controller (misal: honor limit)
             if (customMessage) {
                 message = customMessage;
             }
-
-            // Tampilkan pesan di modal
             modalTitle.textContent = title;
             modalMessage.innerHTML = message;
-
-            // Reset dan sembunyikan area error
             modalErrors.classList.add('hidden');
             modalErrorList.innerHTML = '';
-
-            // Jika ada error validasi dari controller
             if (errors && errors.length > 0) {
                 errors.forEach(error => {
                     const li = document.createElement('li');
@@ -643,25 +460,16 @@ $title = 'Kelola Survei';
                 });
                 modalErrors.classList.remove('hidden');
             }
-
-            // Atur form yang akan disubmit
             confirmButton.dataset.formId = formId;
-
-            // Sembunyikan atau tampilkan input `force_action`
             const formToSubmit = document.getElementById(formId);
             if (formToSubmit) {
                 const forceInput = formToSubmit.querySelector('.force-action-input');
                 if (forceInput) {
-                    // 'force' true jika ini adalah konfirmasi kedua (misal honor limit)
                     forceInput.disabled = !force;
                 }
             }
-
-            // Tampilkan modal
             modal.style.display = 'flex';
         }
-
-        // Event listener untuk tombol "Iya, lanjutkan"
         confirmButton.addEventListener('click', () => {
             const formId = confirmButton.dataset.formId;
             if (formId) {
@@ -670,51 +478,67 @@ $title = 'Kelola Survei';
                     form.submit();
                 }
             }
-            modal.style.display = 'none'; // Sembunyikan modal setelah submit
+            modal.style.display = 'none';
         });
-
-        // Event listener untuk tombol "Batal"
         cancelButton.addEventListener('click', () => {
             modal.style.display = 'none';
         });
-
-        // Event listener untuk menutup modal jika klik di luar konten
         window.addEventListener('click', (event) => {
             if (event.target == modal) {
                 modal.style.display = 'none';
             }
         });
 
-        // Logika untuk menampilkan modal secara otomatis saat halaman dimuat
-        // Ini dieksekusi jika controller mengembalikan error atau butuh konfirmasi
         document.addEventListener('DOMContentLoaded', function() {
+            // Inisialisasi TomSelect untuk filter
+            ['#nama_mitra', '#tahun', '#bulan', '#kecamatan'].forEach(selector => {
+                if (document.querySelector(selector)) {
+                    new TomSelect(selector, {
+                        placeholder: `Pilih...`,
+                        searchField: 'text'
+                    });
+                }
+            });
 
-            // Kasus 1: Validasi Gagal
-            @if ($errors->any() && session('show_modal'))
-                const actionInfo = "{{ session('show_modal') }}".split('-'); // cth: ['edit', '123']
-                const actionType = actionInfo[0];
-                const mitraId = actionInfo[1];
-                const mitraRow = document.getElementById(`form-${actionType}-${mitraId}`);
+            // Auto submit filter dengan debounce
+            const filterForm = document.getElementById('filterForm');
+            let timeout;
+            document.querySelectorAll('#filterForm select').forEach(select => {
+                select.addEventListener('change', () => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        filterForm.submit();
+                    }, 500);
+                });
+            });
+
+            // FIX: Inisialisasi TomSelect untuk dropdown posisi di dalam tabel
+            document.querySelectorAll('select[name="id_posisi_mitra"]').forEach(selectEl => {
+                new TomSelect(selectEl, {
+                    placeholder: 'Pilih Posisi',
+                    searchField: 'text',
+                    dropdownParent: 'body', // <-- Kunci agar dropdown tidak merusak layout tabel
+                    // Optional: jika Anda punya fungsi onchange
+                    onChange: function(value) {
+                        if (typeof updateRateHonor === 'function') {
+                            const mitraId = selectEl.dataset
+                                .mitraId; // Ambil ID dari atribut data-*
+                            updateRateHonor(selectEl, mitraId);
+                        }
+                    }
+                });
+            });
+
+            // FIX: Logika untuk menampilkan modal error setelah validasi gagal
+            @if ($errors->any() && session('show_modal')) const actionInfo = "{{ session('show_modal') }}".split('-'), actionType = actionInfo[0], mitraId = actionInfo[1];
+                const mitraRow = document.getElementById(`baris-mitra-${mitraId}`);
                 if (mitraRow) {
-                    // Ambil nama dari link di baris yang sama untuk pesan error yang lebih baik
-                    const mitraName = mitraRow.closest('tr').querySelector('a').textContent.trim();
+                    const mitraLink = mitraRow.querySelector('a'), mitraName = mitraLink ? mitraLink.textContent.trim() : 'Mitra';
                     const allErrors = {!! json_encode($errors->all()) !!};
                     showConfirmation(actionType, mitraId, mitraName, false, '', allErrors);
-                }
-            @endif
-
-            // Kasus 2: Butuh Konfirmasi Lanjutan (Honor Limit)
-            @if (session('show_modal_confirmation'))
-                const confirmData = {!! json_encode(session('show_modal_confirmation')) !!};
-                showConfirmation(
-                    confirmData.type,
-                    confirmData.mitra_id,
-                    '', // nama tidak perlu karena sudah ada di custom message
-                    true, // Force=true untuk mengaktifkan input hidden
-                    confirmData.message
-                );
-            @endif
-
+                } @endif
+            @if (session('show_modal_confirmation')) const confirmData = {!! json_encode(session('show_modal_confirmation')) !!};
+                showConfirmation(confirmData.type, confirmData.mitra_id, '', true, confirmData.message); @endif
         });
     </script>
 </body>
