@@ -176,7 +176,7 @@ class DaftarSurveiBpsController extends Controller
                     }
                 });
             })
-            ->orderBy('nama_kecamatan')->get(['id_kecamatan', 'kode_kecamatan', 'nama_kecamatan']);
+            ->orderBy('kode_kecamatan')->get(['id_kecamatan', 'kode_kecamatan', 'nama_kecamatan']);
 
         $namaMitraOptions = Mitra::whereDate('tahun', '<=', $survey->jadwal_kegiatan)
             ->whereDate('tahun_selesai', '>=', $survey->jadwal_berakhir_kegiatan)

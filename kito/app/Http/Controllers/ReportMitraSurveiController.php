@@ -174,7 +174,7 @@ class ReportMitraSurveiController extends Controller
                     }
                 });
             })
-            ->orderBy('nama_kecamatan')
+            ->orderBy('kode_kecamatan')
             ->get(['nama_kecamatan', 'id_kecamatan', 'kode_kecamatan']);
 
         // Filter Nama Mitra
