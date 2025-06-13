@@ -126,9 +126,8 @@ $title = 'Profil Mitra';
                         <span class="text-right">{{ $mits->email_mitra }}</span>
                     </div>
                     <div class="flex justify-between w-full border-b py-1">
-                        <strong>Masa Kontrak :</strong>
-                        <span class="text-right">{{ \Carbon\Carbon::parse($mits->tahun)->translatedFormat('j F Y') }} -
-                            {{ \Carbon\Carbon::parse($mits->tahun_selesai)->translatedFormat('j F Y') }}</span>
+                        <strong>Mitra Tahun :</strong>
+                        <span class="text-right">{{ \Carbon\Carbon::parse($mits->tahun)->translatedFormat('Y') }}
                     </div>
 
                     {{-- Form untuk update detail pekerjaan --}}

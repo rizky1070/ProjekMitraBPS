@@ -346,7 +346,7 @@ $title = 'Kelola Survei';
                                 Survei yang Diikuti</th>
                             <th scope="col"
                                 class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Masa Kontrak</th>
+                                Mitra Tahun</th>
                             <th scope="col"
                                 class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Vol</th>
@@ -388,8 +388,7 @@ $title = 'Kelola Survei';
                                 <td class="whitespace-nowrap text-center" style="max-width: 100px;">
                                     {{ $mitra->total_survei }}</td>
                                 <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
-                                    {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('j F Y') }} -
-                                    {{ \Carbon\Carbon::parse($mitra->tahun_selesai)->translatedFormat('j F Y') }}
+                                    {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('Y') }}
                                 </td>
 
                                 @if ($mitra->isFollowingSurvey)
