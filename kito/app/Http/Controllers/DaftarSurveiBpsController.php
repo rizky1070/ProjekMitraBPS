@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\Mitra2SurveyImport;
 use App\Imports\SurveiImport;
+use App\Exports\SurveiDetailExport;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -402,6 +403,40 @@ class DaftarSurveiBpsController extends Controller
 
         // Redirect kembali ke halaman sebelumnya dengan pesan sukses
         return redirect()->back()->with('success', $message);
+    }
+
+    public function exportExcelMitraSurvei($id_survei)
+    {
+        // 1. Ambil data survei dan semua relasi yang diperlukan untuk ekspor
+        // Query ini harus memuat semua informasi yang ingin Anda tampilkan di Excel
+        $survey = Survei::with([
+            // Eager load relasi 'mitraSurveis'
+            'mitraSurveis' => function ($query) {
+                // Di dalam 'mitraSurveis', eager load lagi relasi 'mitra' dan 'posisiMitra'
+                $query->with([
+                    'mitra' => function ($mitraQuery) {
+                        // Di dalam 'mitra', eager load relasi 'kecamatan'
+                        $mitraQuery->with('kecamatan');
+                    },
+                    'posisiMitra'
+                ]);
+            }
+        ])
+            ->withCount([
+                // Menghitung jumlah mitra yang valid (punya posisi)
+                'mitraSurveis as mitra_survei_count' => function ($query) {
+                    $query->whereNotNull('mitra_survei.id_posisi_mitra');
+                }
+            ])
+            ->findOrFail($id_survei);
+
+        // 2. Siapkan nama file
+        // Mengganti spasi dengan strip dan membersihkan karakter yang tidak valid
+        $safeSurveyName = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $survey->nama_survei));
+        $fileName = 'Detail-Survei-' . $safeSurveyName . now()->format('Ymd_His') . '.xlsx';
+
+        // 3. Panggil class Export dan mulai unduh
+        return Excel::download(new SurveiDetailExport($survey), $fileName);
     }
 
 

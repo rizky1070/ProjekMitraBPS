@@ -95,8 +95,7 @@ $title = 'Kelola Survei';
                     id="form-delete-survey">
                     @csrf
                     @method('DELETE')
-                    <button type="button"
-                        onclick="showConfirmation('hapus_survei', 0, '{{ $survey->nama_survei }}')"
+                    <button type="button" onclick="showConfirmation('hapus_survei', 0, '{{ $survey->nama_survei }}')"
                         class="mt-4 px-4 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-600">
                         Hapus Survei
                     </button>
@@ -146,18 +145,22 @@ $title = 'Kelola Survei';
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold mt-4">Daftar Mitra</h3>
                 <div class="flex gap-2">
+                    <a href="{{ route('mitraSurvei.export.excel', ['id_survei' => $survey->id_survei]) }}"
+                        class="mt-4 px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-all duration-300">
+                        Export Excel
+                    </a>
                     {{-- Form Hapus Semua Mitra --}}
                     @if ($survey->mitra_survei_count > 0)
-                    <form action="{{ route('survey.deleteAllMitra', ['id_survei' => $survey->id_survei]) }}"
-                        method="POST" id="form-hapus_semua_mitra-{{ $survey->id_survei }}">
-                        @csrf
-                        @method('DELETE')
-                        <button type="button"
-                            onclick="showConfirmation('hapus_semua_mitra', {{ $survey->id_survei }}, '{{ $survey->nama_survei }}')"
-                            class="mt-4 px-4 py-2 bg-red-800 text-white font-medium rounded-md hover:bg-red-900">
-                            Hapus Semua Mitra
-                        </button>
-                    </form>
+                        <form action="{{ route('survey.deleteAllMitra', ['id_survei' => $survey->id_survei]) }}"
+                            method="POST" id="form-hapus_semua_mitra-{{ $survey->id_survei }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button"
+                                onclick="showConfirmation('hapus_semua_mitra', {{ $survey->id_survei }}, '{{ $survey->nama_survei }}')"
+                                class="mt-4 px-4 py-2 bg-red-800 text-white font-medium rounded-md hover:bg-red-900">
+                                Hapus Semua Mitra
+                            </button>
+                        </form>
                     @endif
                     <button type="button"
                         class="mt-4 px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300"
