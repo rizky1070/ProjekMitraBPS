@@ -131,28 +131,25 @@ $title = 'Profil Mitra';
                     </div>
 
                     {{-- Form untuk update detail pekerjaan --}}
-                    <div class="flex justify-between w-full border-b py-1">
+                    <div class="flex justify-between items-center w-full border-b py-2">
                         <strong>Pekerjaan :</strong>
-                        <div class="flex items-center gap-2">
-                            <form action="{{ route('mitra.updateDetailPekerjaan', $mits->id_mitra) }}" method="POST"
-                                id="form-simpan_pekerjaan"
-                                class="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full">
-                                @csrf
-                                @method('PUT')
-                                <div class="relative flex-1">
-                                    <input type="text" name="detail_pekerjaan" value="{{ $mits->detail_pekerjaan }}"
-                                        class="border-0 px-2 py-1 text-right w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                        placeholder="Masukkan detail pekerjaan" title="Ubah detail pekerjaan">
-                                </div>
-                                {{-- Tombol diubah menjadi type="button" dan memanggil JS --}}
-                                <button type="button"
-                                    onclick="showConfirmation('simpan_pekerjaan', {{ $mits->id_mitra }}, '{{ $mits->nama_lengkap }}')"
-                                    class="bg-oren text-white px-3 py-1 rounded-md font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300 w-full md:w-auto"
-                                    aria-label="Simpan detail pekerjaan" title="Klik untuk menyimpan detail pekerjaan">
-                                    Simpan
-                                </button>
-                            </form>
-                        </div>
+                        <form action="{{ route('mitra.updateDetailPekerjaan', $mits->id_mitra) }}" method="POST"
+                            id="form-simpan_pekerjaan" class="flex items-center gap-2 flex-1 ml-4">
+                            @csrf
+                            @method('PUT')
+                            <div class="flex-1">
+                                {{-- INPUT YANG DIUBAH STYLENYA --}}
+                                <input type="text" name="detail_pekerjaan" value="{{ $mits->detail_pekerjaan }}"
+                                    class="w-full p-2 text-right border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
+                                    placeholder="Masukkan detail pekerjaan" title="Ubah detail pekerjaan">
+                            </div>
+                            <button type="button"
+                                onclick="showConfirmation('simpan_pekerjaan', {{ $mits->id_mitra }}, '{{ $mits->nama_lengkap }}')"
+                                class="bg-oren text-white px-3 py-2 rounded-md font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300"
+                                aria-label="Simpan detail pekerjaan" title="Klik untuk menyimpan detail pekerjaan">
+                                Simpan
+                            </button>
+                        </form>
                     </div>
 
                     {{-- Form untuk update status --}}
