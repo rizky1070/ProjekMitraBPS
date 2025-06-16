@@ -139,8 +139,7 @@ class MitraController extends Controller
     {
         \Carbon\Carbon::setLocale('id');
         $mits = Mitra::with(['kecamatan', 'desa'])->findOrFail($id_mitra);
-        $githubBaseUrl = 'https://raw.githubusercontent.com/mainchar42/assetgambar/main/myGambar/';
-        $profileImage = $githubBaseUrl . $mits->sobat_id . '.jpg';
+        $profileImage = route('gambar.profil', ['sobat_id' => $mits->sobat_id]);
 
         // Bagian filter tidak berubah
         $tahunOptions = Survei::selectRaw('DISTINCT YEAR(bulan_dominan) as tahun')->join('mitra_survei', 'survei.id_survei', '=', 'mitra_survei.id_survei')->where('mitra_survei.id_mitra', $id_mitra)->orderByDesc('tahun')->pluck('tahun', 'tahun');

@@ -24,6 +24,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\InputMitraBpsController;
 use App\Http\Controllers\DaftarSurveiBpsController;
+use App\Http\Controllers\FotoProfilMitraGithubController;
 use App\Http\Controllers\MitraController;
 use App\Http\Controllers\ReportMitraSurveiController;
 use App\Http\Controllers\SKMitraController;
@@ -357,6 +358,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/mitra/{id_mitra}/detail', [MitraController::class, 'updateDetailPekerjaan'])->name('mitra.updateDetailPekerjaan');
     Route::put('/mitra/{id_mitra}/status', [MitraController::class, 'updateStatus'])->name('mitra.updateStatus');
     Route::delete('/mitra/{id_mitra}', [MitraController::class, 'deleteMitra'])->name('mitra.destroy');
+    Route::get('/profil/gambar/{sobat_id}', [FotoProfilMitraGithubController::class, 'getProfileImage'])->name('gambar.profil');
 
     //Halaman Mitra > Daftar Mitra > Penilaian Mitra
     Route::get('/penilaianMitra/{id_mitra}/{id_survei}', [MitraController::class, 'penilaianMitra'])->name('penilaian.mitra');
