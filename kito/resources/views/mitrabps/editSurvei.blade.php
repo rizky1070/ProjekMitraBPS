@@ -96,24 +96,30 @@ $title = 'Kelola Survei';
                     @csrf
                     @method('DELETE')
                     <button type="button" onclick="showConfirmation('hapus_survei', 0, '{{ $survey->nama_survei }}')"
-                        class="mt-4 px-4 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-600">
-                        Hapus Survei
+                        class="flex justify-center items-center mt-4 px-4 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
+                            viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                            clip-rule="evenodd" />
+                        </svg>Hapus Survei
                     </button>
                 </form>
             </div>
             <div class="bg-white p-4 rounded-lg shadow">
                 <p class="text-xl font-medium"><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
                 <div class="flex flex-col md:flex-row items-start md:items-center w-full">
-                    <div class="w-full md:w-1/2">
-                        <p><strong>Pelaksanaan :</strong>
-                            {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }} -
-                            {{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
-                        </p>
-                        <p><strong>Tim :</strong> {{ $survey->tim }}</p>
-                        <p><strong>KRO :</strong> {{ $survey->kro }} </p>
-                        <div class="flex items-center">
+                        <div class="w-full md:w-1/2">
+                            <p><strong>Pelaksanaan :</strong>
+                                {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }} -
+                                {{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
+                            </p>
+                            <p><strong>Tim :</strong> {{ $survey->tim }}</p>
                         </div>
-                    </div>
+                        <div class="w-full md:w-1/2">
+                            <p><strong>KRO :</strong> {{ $survey->kro }} </p>
+                            <p><strong>Jumlah mitra :</strong> {{ $survey->mitra_survei_count }} </p>
+                        </div>
                 </div>
 
                 <div class="flex items-center">
@@ -142,29 +148,37 @@ $title = 'Kelola Survei';
                 </script>
 
             </div>
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex flex-col md:flex-row justify-between mb-4">
                 <h3 class="text-xl font-bold mt-4">Daftar Mitra</h3>
-                <div class="flex gap-2">
-                    <a href="{{ route('mitraSurvei.export.excel', ['id_survei' => $survey->id_survei]) }}"
-                        class="mt-4 px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-all duration-300">
-                        Export Excel
-                    </a>
-                    {{-- Form Hapus Semua Mitra --}}
-                    @if ($survey->mitra_survei_count > 0)
+                <div>
+                    <div class="flex gap-2">
+                        {{-- Form Hapus Semua Mitra --}}
+                        @if ($survey->mitra_survei_count > 0)
+                        <a href="{{ route('mitraSurvei.export.excel', ['id_survei' => $survey->id_survei]) }}"
+                            class="flex justify-center items-center mt-4 px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-all duration-300">
+                            <i class="fas fa-file-excel mr-2"></i>Export Excel
+                        </a>
                         <form action="{{ route('survey.deleteAllMitra', ['id_survei' => $survey->id_survei]) }}"
                             method="POST" id="form-hapus_semua_mitra-{{ $survey->id_survei }}">
                             @csrf
                             @method('DELETE')
                             <button type="button"
                                 onclick="showConfirmation('hapus_semua_mitra', {{ $survey->id_survei }}, '{{ $survey->nama_survei }}')"
-                                class="mt-4 px-4 py-2 bg-red-800 text-white font-medium rounded-md hover:bg-red-900">
-                                Hapus Semua Mitra
+                                class="flex justify-center items-center mt-4 px-4 py-2 bg-red-800 text-white font-medium rounded-md hover:bg-red-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                    clip-rule="evenodd" />
+                                </svg>Hapus Semua Mitra
                             </button>
                         </form>
-                    @endif
-                    <button type="button"
-                        class="mt-4 px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300"
-                        onclick="openModal()">+ Tambah</button>
+                        @endif
+                        <button type="button"
+                            class="mt-4 px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300"
+                            onclick="openModal()">+ Tambah
+                        </button>
+                    </div>
                 </div>
             </div>
 
