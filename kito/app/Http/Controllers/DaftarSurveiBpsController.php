@@ -591,6 +591,7 @@ class DaftarSurveiBpsController extends Controller
         $validated = $request->validate([
             'nama_survei' => 'required|string|max:1024',
             'kro' => 'required|string|max:1024',
+            'tim' => 'required|string|max:1024',
             'jadwal_kegiatan' => 'required|date',
             'jadwal_berakhir_kegiatan' => 'required|date',
             'tim' => 'required|string|max:1024',
@@ -598,6 +599,7 @@ class DaftarSurveiBpsController extends Controller
             // Pesan untuk aturan 'required'
             'nama_survei.required' => 'Nama survei wajib diisi.',
             'kro.required' => 'Kolom KRO wajib diisi.',
+            'tim.required' => 'Kolom Tim wajib diisi.',
             'jadwal_kegiatan.required' => 'Tanggal mulai kegiatan wajib diisi.',
             'jadwal_berakhir_kegiatan.required' => 'Tanggal berakhir kegiatan wajib diisi.',
             'tim.required' => 'Nama tim wajib diisi.',

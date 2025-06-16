@@ -21,6 +21,17 @@ $title = 'Report Mitra';
 </head>
 
 <body class="h-full bg-gray-50">
+    @if (session('success'))
+        <script>
+            swal("Success!", "{{ session('success') }}", "success");
+        </script>
+    @endif
+
+    @if (session('error'))
+        <script>
+            swal("Error!", "{!! session('error') !!}", "error");
+        </script>
+    @endif
     @include('mitrabps.reportSweetAlert')
     <div x-data="{ sidebarOpen: false }" class="flex h-screen">
         <x-sidebar></x-sidebar>
@@ -28,7 +39,6 @@ $title = 'Report Mitra';
             <x-navbar></x-navbar>
             <main class="cuScrollFilter flex-1 overflow-x-hidden bg-gray-50">
                 <div class="container px-4 py-6 mx-auto">
-                    <!-- Title and Header -->
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                         <div>
                             <button
@@ -44,16 +54,14 @@ $title = 'Report Mitra';
                             </button>
                         </div>
                     </div>
-                    <!-- Filter Section -->
                     <div class="bg-white rounded-lg shadow-sm p-6 mb-6 no-print">
                         <form id="filterForm" action="{{ route('reports.Mitra.filter') }}" method="GET"
                             class="cuScrollFilter space-y-4">
-                            <!-- nama Filter -->
                             <div class="flex items-center relative">
                                 <label for="nama_lengkap" class="w-32 text-lg font-semibold text-gray-800">Cari
                                     Mitra</label>
                                 <select name="nama_lengkap" id="nama_mitra"
-                                    class="w-full md:w-64 
+                                    class="w-full md:w-64
                                 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2"
                                     {{ empty($namaMitraOptions) ? 'disabled' : '' }}>
                                     <option value="">Semua Mitra</option>
@@ -69,7 +77,22 @@ $title = 'Report Mitra';
                             </div>
                             <div class="flex flex-col space-y-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-                                    <!-- Tahun Filter -->
+
+                                    <div class="flex flex-col">
+                                        <label for="mode_export"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Mode Export</label>
+                                        <select id="mode_export" name="mode_export"
+                                            class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            <option value="detail"
+                                                {{ request('mode_export', 'detail') == 'detail' ? 'selected' : '' }}>
+                                                Export Detail
+                                            </option>
+                                            <option value="per_bulan"
+                                                {{ request('mode_export') == 'per_bulan' ? 'selected' : '' }}>
+                                                Export per Bulan
+                                            </option>
+                                        </select>
+                                    </div>
                                     <div class="flex flex-col">
                                         <label for="tahun"
                                             class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
@@ -84,7 +107,6 @@ $title = 'Report Mitra';
                                         </select>
                                     </div>
 
-                                    <!-- Bulan Filter -->
                                     <div class="flex flex-col">
                                         <label for="bulan"
                                             class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
@@ -100,7 +122,6 @@ $title = 'Report Mitra';
                                         </select>
                                     </div>
 
-                                    <!-- --- TAMBAHAN FILTER HONOR --- -->
                                     <div class="flex flex-col">
                                         <label for="honor_lebih_dari_4jt"
                                             class="block text-sm font-medium text-gray-700 mb-1">Honor > 4 Juta</label>
@@ -113,9 +134,9 @@ $title = 'Report Mitra';
                                             </option>
                                         </select>
                                     </div>
-                                    <!-- --- FILTER HONOR --- -->
+                                </div>
 
-                                    <!-- Partisipasi > 1 Survei Filter -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                                     <div class="flex flex-col">
                                         <label for="partisipasi_lebih_dari_satu"
                                             class="block text-sm font-medium text-gray-700 mb-1">Mitra > 1
@@ -130,10 +151,6 @@ $title = 'Report Mitra';
                                         </select>
                                     </div>
 
-                                </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-                                    <!-- [START] FILTER JENIS KELAMIN -->
                                     <div class="flex flex-col">
                                         <label for="jenis_kelamin"
                                             class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label>
@@ -148,11 +165,6 @@ $title = 'Report Mitra';
                                             </option>
                                         </select>
                                     </div>
-                                    <!-- [END] FILTER JENIS KELAMIN -->
-
-
-
-                                    <!-- Kecamatan Filter -->
                                     <div class="flex flex-col">
                                         <label for="kecamatan"
                                             class="block text-sm font-medium text-gray-700 mb-1">Kecamatan</label>
@@ -169,7 +181,6 @@ $title = 'Report Mitra';
                                         </select>
                                     </div>
 
-                                    <!-- Partisipasi Filter -->
                                     <div class="flex flex-col">
                                         <label for="status_mitra"
                                             class="block text-sm font-medium text-gray-700 mb-1">Status
@@ -186,7 +197,8 @@ $title = 'Report Mitra';
                                         </select>
                                     </div>
 
-                                    <!-- Status Pekerjaan Filter -->
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                                     <div class="flex flex-col">
                                         <label for="status_pekerjaan"
                                             class="block text-sm font-medium text-gray-700 mb-1">Status
@@ -204,7 +216,6 @@ $title = 'Report Mitra';
                                     </div>
                                 </div>
                             </div>
-
                         </form>
                     </div>
 
@@ -464,56 +475,94 @@ $title = 'Report Mitra';
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            new TomSelect('#nama_mitra', {
+            // Inisialisasi TomSelect untuk semua filter
+            const tomSelects = {};
+            tomSelects.nama_mitra = new TomSelect('#nama_mitra', {
                 placeholder: 'Cari Mitra',
-                searchField: 'text',
+                searchField: 'text'
             });
-            new TomSelect('#bulan', {
+            tomSelects.bulan = new TomSelect('#bulan', {
                 placeholder: 'Pilih Bulan',
-                searchField: 'text',
+                searchField: 'text'
             });
-            new TomSelect('#tahun', {
+            tomSelects.tahun = new TomSelect('#tahun', {
                 placeholder: 'Pilih Tahun',
-                searchField: 'text',
+                searchField: 'text'
             });
-            new TomSelect('#status_mitra', {
+            tomSelects.status_mitra = new TomSelect('#status_mitra', {
                 placeholder: 'Pilih Status',
-                searchField: 'text',
+                searchField: 'text'
             });
-            new TomSelect('#status_pekerjaan', {
+            tomSelects.status_pekerjaan = new TomSelect('#status_pekerjaan', {
                 placeholder: 'Pilih Status',
-                searchField: 'text',
+                searchField: 'text'
             });
-            new TomSelect('#kecamatan', {
+            tomSelects.kecamatan = new TomSelect('#kecamatan', {
                 placeholder: 'Pilih Kecamatan',
-                searchField: 'text',
+                searchField: 'text'
             });
-            new TomSelect('#partisipasi_lebih_dari_satu', {
+            tomSelects.partisipasi_lebih_dari_satu = new TomSelect('#partisipasi_lebih_dari_satu', {
                 placeholder: 'Pilih',
-                searchField: 'text',
+                searchField: 'text'
             });
-            new TomSelect('#honor_lebih_dari_4jt', {
+            tomSelects.honor_lebih_dari_4jt = new TomSelect('#honor_lebih_dari_4jt', {
                 placeholder: 'Pilih',
-                searchField: 'text',
+                searchField: 'text'
             });
-            new TomSelect('#jenis_kelamin', {
+            tomSelects.jenis_kelamin = new TomSelect('#jenis_kelamin', {
                 placeholder: 'Pilih Jenis Kelamin',
-                searchField: 'text',
+                searchField: 'text'
             });
+            tomSelects.mode_export = new TomSelect('#mode_export', {
+                placeholder: 'Pilih Mode',
+                searchField: 'text'
+            });
+
 
             // Ambil elemen form dan select
             const filterForm = document.getElementById('filterForm');
-            const tahunSelect = document.getElementById('tahun');
-            const bulanSelect = document.getElementById('bulan');
-            const statusSelect = document.getElementById('status_mitra');
-            const statusPekerjaanSelect = document.getElementById('status_pekerjaan');
-            const kecamatanSelect = document.getElementById('kecamatan');
-            const mitraSelect = document.getElementById('nama_mitra');
-            const partisipasiLebihDariSatuSelect = document.getElementById('partisipasi_lebih_dari_satu');
-            const honorLebihDari4jtSelect = document.getElementById('honor_lebih_dari_4jt');
-            const jenisKelaminSelect = document.getElementById('jenis_kelamin');
+            const selects = {
+                mode_export: document.getElementById('mode_export'),
+                tahun: document.getElementById('tahun'),
+                bulan: document.getElementById('bulan'),
+                status_mitra: document.getElementById('status_mitra'),
+                status_pekerjaan: document.getElementById('status_pekerjaan'),
+                kecamatan: document.getElementById('kecamatan'),
+                nama_mitra: document.getElementById('nama_mitra'),
+                partisipasi_lebih_dari_satu: document.getElementById('partisipasi_lebih_dari_satu'),
+                honor_lebih_dari_4jt: document.getElementById('honor_lebih_dari_4jt'),
+                jenis_kelamin: document.getElementById('jenis_kelamin')
+            };
 
-            // Ganti fungsi submitForm dengan ini
+            // Fungsi untuk mengatur filter berdasarkan Mode Export
+            function toggleFiltersByMode() {
+                const mode = selects.mode_export.value;
+                const bulanTomSelect = tomSelects.bulan;
+                const partisipasiTomSelect = tomSelects.partisipasi_lebih_dari_satu;
+                const honorTomSelect = tomSelects.honor_lebih_dari_4jt;
+
+                if (mode === 'per_bulan') {
+                    // Nonaktifkan filter bulan dan yang bergantung padanya
+                    bulanTomSelect.clear();
+                    bulanTomSelect.disable();
+                    partisipasiTomSelect.disable();
+                    honorTomSelect.disable();
+                } else { // mode 'detail'
+                    // Aktifkan kembali
+                    bulanTomSelect.enable();
+                    // Status disabled untuk partisipasi & honor akan di-handle oleh logic yang sudah ada
+                    partisipasiTomSelect.enable();
+                    honorTomSelect.enable();
+                }
+            }
+
+            // Panggil fungsi saat halaman dimuat untuk set state awal
+            toggleFiltersByMode();
+
+            // Tambahkan event listener untuk mode_export
+            selects.mode_export.addEventListener('change', toggleFiltersByMode);
+
+
             let timeout;
 
             function submitForm() {
@@ -524,15 +573,10 @@ $title = 'Report Mitra';
             }
 
             // Tambahkan event listener untuk setiap select
-            tahunSelect.addEventListener('change', submitForm);
-            bulanSelect.addEventListener('change', submitForm);
-            statusSelect.addEventListener('change', submitForm);
-            mitraSelect.addEventListener('change', submitForm);
-            statusPekerjaanSelect.addEventListener('change', submitForm);
-            kecamatanSelect.addEventListener('change', submitForm);
-            partisipasiLebihDariSatuSelect.addEventListener('change', submitForm);
-            honorLebihDari4jtSelect.addEventListener('change', submitForm);
-            jenisKelaminSelect.addEventListener('change', submitForm);
+            Object.values(selects).forEach(select => {
+                select.addEventListener('change', submitForm);
+            });
+
         });
 
         function exportData() {
@@ -545,6 +589,7 @@ $title = 'Report Mitra';
             window.location.href = `/ReportMitra/export-mitra?${params}`;
         }
     </script>
+
 </body>
 
 </html>

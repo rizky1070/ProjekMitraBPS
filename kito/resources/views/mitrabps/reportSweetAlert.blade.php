@@ -1,12 +1,11 @@
-
-    @if (session('success'))
+@if (session('success'))
     <script>
-    swal("Success!", "{{ session('success') }}", "success");
+        swal("Success!", "{{ session('success') }}", "success");
     </script>
-    @endif
+@endif
 
-    @if ($errors->any())
+@if ($errors->any())
     <script>
-    swal("Error!", "{{ $errors->first() }}", "error");
+        swal("Error!", "{{ $errors->first() }}", "error");
     </script>
-    @endif
+@endif
