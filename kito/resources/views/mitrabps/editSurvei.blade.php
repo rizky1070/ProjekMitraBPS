@@ -441,7 +441,7 @@ $title = 'Kelola Survei';
                                             </select>
                                         </td>
 
-                                        <td>
+                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
                                             <div class="flex justify-center items-center py-2 text-center">
                                                 {{-- Tombol Edit --}}
                                                 <button type="button"
@@ -454,8 +454,6 @@ $title = 'Kelola Survei';
                                                             d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                                     </svg>
                                                 </button>
-                                            </div>
-                                        </td>
                                     </form>
 
                                     {{-- FORM UNTUK HAPUS --}}
@@ -463,8 +461,6 @@ $title = 'Kelola Survei';
                                         action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
                                         method="POST" id="form-hapus-{{ $mitra->id_mitra }}">
                                         @csrf
-                                        <td class="whitespace-nowrap text-center">
-                                            <div class="flex justify-center items-center">
                                                 {{-- Tombol Hapus --}}
                                                 <button type="button"
                                                     onclick="showConfirmation('hapus', {{ $mitra->id_mitra }}, '{{ $mitra->nama_lengkap }}')"
