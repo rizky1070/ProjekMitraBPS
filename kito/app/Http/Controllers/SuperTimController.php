@@ -310,22 +310,46 @@ class SuperTimController extends Controller
                 $categoryUserId = $categoryUser->id;
             }
 
-            // Simpan data ke tabel Link
-            \DB::table('links')->insert([
-                'name' => $office->name,
-                'category_user_id' => $categoryUserId,
-                'link' => $office->link,
-                'status' => 1, // Status aktif
-                'priority' => 0, // Tidak disematkan
-                'created_at' => now(),
-                'updated_at' => now(),
-                'user_id' => $userId,
-            ]);
+            // Cek apakah link sudah ada di kategori 'Kelompok Kerja' user ini
+            $existingLink = \DB::table('links')
+                ->join('category_users', 'links.category_user_id', '=', 'category_users.id')
+                ->where('links.name', $office->name)
+                ->where('links.link', $office->link)
+                ->where('category_users.name', 'Kelompok Kerja')
+                ->where('links.user_id', $userId)
+                ->first();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Link berhasil disimpan ke koleksi pribadi'
-            ]);
+            if ($existingLink) {
+                // Jika sudah ada, update data yang ada
+                \DB::table('links')
+                    ->where('id', $existingLink->id)
+                    ->update([
+                        'status' => 1, // Set status aktif
+                        'updated_at' => now(),
+                    ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Link berhasil diperbarui di koleksi pribadi'
+                ]);
+            } else {
+                // Jika belum ada, buat baru
+                \DB::table('links')->insert([
+                    'name' => $office->name,
+                    'category_user_id' => $categoryUserId,
+                    'link' => $office->link,
+                    'status' => 1, // Status aktif
+                    'priority' => 0, // Tidak disematkan
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                    'user_id' => $userId,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Link berhasil disimpan ke koleksi pribadi'
+                ]);
+            }
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
