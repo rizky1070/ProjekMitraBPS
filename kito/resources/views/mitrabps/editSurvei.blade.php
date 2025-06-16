@@ -404,13 +404,13 @@ $title = 'Kelola Survei';
                                             {{-- Cek jika baris ini yang error, baru gunakan old(). Jika tidak, gunakan data asli. --}}
                                             <input type="number" name="vol"
                                                 value="{{ $errorMitraId == $mitra->id_mitra ? old('vol') : $mitra->vol }}"
-                                                class="w-full focus:outline-none text-center border-none"
+                                                class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
                                                 placeholder="Vol">
                                         </td>
                                         <td class="whitespace-nowrap text-center" style="max-width: 120px;">
                                             <input type="number" name="rate_honor"
                                                 value="{{ $errorMitraId == $mitra->id_mitra ? old('rate_honor') : $mitra->rate_honor }}"
-                                                class="w-full focus:outline-none text-center border-none"
+                                                class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
                                                 placeholder="Rate Honor">
                                         </td>
                                         <td class="whitespace-nowrap text-center" style="max-width: 120px;">
@@ -479,18 +479,18 @@ $title = 'Kelola Survei';
                                             {{-- Cek jika baris ini yang error, baru gunakan old(). Jika tidak, kosongkan. --}}
                                             <input type="number" name="vol"
                                                 value="{{ $errorMitraId == $mitra->id_mitra ? old('vol') : '' }}"
-                                                class="w-full focus:outline-none text-center border-none"
+                                                class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
                                                 placeholder="Masukkan Vol">
                                         </td>
                                         <td class="whitespace-nowrap text-center" style="max-width: 100px;">
                                             <input type="number" name="rate_honor"
                                                 value="{{ $errorMitraId == $mitra->id_mitra ? old('rate_honor') : '' }}"
-                                                class="w-full focus:outline-none text-center border-none"
+                                                class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
                                                 placeholder="Rate Honor">
                                         </td>
                                         <td class="whitespace-nowrap text-center" style="max-width: 120px;">
                                             <select name="id_posisi_mitra"
-                                                class="w-full focus:outline-none text-center">
+                                                class="w-full focus:outline-none text-left">
                                                 <option value="">Pilih Posisi</option>
                                                 @foreach ($posisiMitraOptions as $posisi)
                                                     {{-- Logika yang sama untuk select option --}}
