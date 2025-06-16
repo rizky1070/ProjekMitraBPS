@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Link; // Pastikan model Link di-import
 use Illuminate\Http\Request;
 
 class KategoriUmumController extends Controller
@@ -87,7 +88,24 @@ class KategoriUmumController extends Controller
     public function destroy($id)
     {
         try {
-            $category = Category::findOrFail($id);
+            $category = Category::withCount(['ketuas', 'offices'])->findOrFail($id);
+
+            // Cek apakah kategori digunakan di tabel lain
+            if ($category->ketuas_count > 0 || $category->offices_count > 0) {
+                $usedIn = [];
+                if ($category->ketuas_count > 0) {
+                    $usedIn[] = $category->ketuas_count . ' ketua';
+                }
+                if ($category->offices_count > 0) {
+                    $usedIn[] = $category->offices_count . ' office';
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Kategori tidak dapat dihapus karena digunakan pada: ' . implode(', ', $usedIn)
+                ], 422);
+            }
+
             $category->delete();
 
             return response()->json([
