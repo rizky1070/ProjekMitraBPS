@@ -66,7 +66,7 @@ class MitraController extends Controller
                     }
                 });
             })
-            ->orderBy('nama_kecamatan')->get(['nama_kecamatan', 'id_kecamatan', 'kode_kecamatan']);
+            ->orderBy('kode_kecamatan')->get(['nama_kecamatan', 'id_kecamatan', 'kode_kecamatan']);
 
         $namaMitraOptions = Mitra::select('nama_lengkap')->distinct()
             ->when($request->filled('tahun'), fn($q) => $q->whereYear('tahun', '<=', $request->tahun)->whereYear('tahun_selesai', '>=', $request->tahun))
