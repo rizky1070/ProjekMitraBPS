@@ -179,15 +179,38 @@ $title = 'Kelola Kategori Pribadi';
                         
                         const data = await response.json();
                         
+                        if (response.status === 422) {
+                            // Jika error karena kategori memiliki link
+                            await Swal.fire({
+                                title: "Gagal Menghapus",
+                                text: data.message,
+                                icon: "error",
+                                confirmButtonText: "Mengerti"
+                            });
+                            return;
+                        }
+                        
                         if (!response.ok) {
                             throw new Error(data.message || 'Gagal menghapus kategori');
                         }
                         
-                        Swal.fire("Berhasil!", `Kategori "${name}" telah dihapus`, "success")
-                            .then(() => window.location.reload());
+                        await Swal.fire({
+                            title: "Berhasil!",
+                            text: `Kategori "${name}" telah dihapus`,
+                            icon: "success",
+                            confirmButtonText: "OK"
+                        });
+                        window.location.reload();
                     }
                 } catch (error) {
-                    Swal.fire("Error!", error.message, "error");
+                    await Swal.fire({
+                        title: "Error!",
+                        text: error.message.includes('links()') 
+                            ? 'Gagal menghapus kategori karena kategori sedang digunakan' 
+                            : error.message,
+                        icon: "error",
+                        confirmButtonText: "Mengerti"
+                    });
                     console.error('Error:', error);
                 }
             }

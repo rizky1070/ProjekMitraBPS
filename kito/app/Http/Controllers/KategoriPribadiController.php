@@ -92,18 +92,23 @@ class KategoriPribadiController extends Controller
     public function destroy($id)
     {
         try {
-            $category = CategoryUser::where('user_id', Auth::id())->findOrFail($id);
+            $category = CategoryUser::withCount('links')
+                        ->where('id', $id)
+                        ->where('user_id', Auth::id())
+                        ->firstOrFail();
+
+            if ($category->links_count > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Kategori tidak dapat dihapus karena digunakan pada '.$category->links_count.' link'
+                ], 422);
+            }
+
             $category->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Kategori berhasil dihapus'
-            ]);
+            return response()->json(['success' => true, 'message' => 'Kategori berhasil dihapus']);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus kategori: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'message' => 'Gagal menghapus kategori'], 500);
         }
     }
 }

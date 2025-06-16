@@ -2,26 +2,24 @@
 
 namespace App\Models;
 
-use App\Models\Link;
-use App\Models\Ketua;
-use App\Models\Office;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
     use HasFactory;
 
     protected $guarded = ['id'];
+    protected $table = 'categories';
 
-    protected $table = 'categories'; // Pastikan sesuai dengan nama tabel
-    
-    public function ketuas()
+
+    public function ketuas(): HasMany
     {
         return $this->hasMany(Ketua::class);
     }
     
-    public function offices()
+    public function offices(): HasMany
     {
         return $this->hasMany(Office::class);
     }
