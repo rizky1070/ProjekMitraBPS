@@ -22,8 +22,9 @@
         class="bg-[url('/public/background_login.png')] bg-cover bg-center min-h-screen flex justify-center items-center">
         <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto w-full max-w-md lg:max-w-lg">
             <div>
-    <img style="max-width: 300px; min-width: 80px; height: auto; width: 10vw;" src="kanal3516.png" alt="logo">
-</div>
+                <img style="max-width: 300px; min-width: 80px; height: auto; width: 10vw;" src="kanal3516.png"
+                    alt="logo">
+            </div>
 
             <!-- Logo dan Judul -->
             <div
@@ -46,7 +47,7 @@
                         <div>
                             <label for="email" class="block mb-2 text-sm font-medium text-gray-700">
                                 Email/Username</label>
-                            <input type="text" name="email" id="email"
+                            <input type="text" name="email" id="email" value="{{ old('email') }}"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
                                 placeholder="Email/Username" required="">
                         </div>
