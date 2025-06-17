@@ -115,16 +115,18 @@ class PermintaanBarangController extends Controller
             . "Ada permintaan barang baru yang masuk:\n\n"
             . "👤 *Peminta:* {$namaPeminta}\n"
             . "📦 *Nama Barang:* {$namaBarang}\n"
-            . "🔢 *Jumlah:* {$jumlahStok} unit\n"
-            . "🗓️ *Tanggal Order:* {$tanggalFormatted}\n"; // Baris ini ditambahkan
-
+            . "🔢 *Jumlah:* {$jumlahStok} unit\n";
 
         // Tambahkan bagian catatan HANYA JIKA catatan diisi oleh pengguna
         if (!empty($catatan)) {
             $message .= "📝 *Catatan:* {$catatan}\n";
         }
 
+        // Tambahkan Tanggal Order SETELAH pengecekan catatan
+        $message .= "🗓️ *Tanggal Order:* {$tanggalFormatted}\n";
+
         $message .= "\nMohon untuk segera ditindaklanjuti.";
+
         // Mengirim request ke API Fonnte menggunakan cURL
         $curl = curl_init();
 
