@@ -417,7 +417,7 @@ $title = 'Report Mitra';
                                             style="border-top-width: 2px; border-color: #D1D5DB;">
                                             <td
                                                 class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900 w-1">
-                                                {{ $loop->iteration }}
+                                                {{ ($mitras->currentPage() - 1) * $mitras->perPage() + $loop->iteration }}
                                             </td>
                                             <td class="text-sm font-medium text-gray-900 whitespace-normal break-words"
                                                 style="max-width: 120px;">
