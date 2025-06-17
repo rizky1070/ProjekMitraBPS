@@ -121,6 +121,7 @@ $title = 'Report Mitra';
                                         <select id="bulan" name="bulan"
                                             class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                                             {{ empty($bulanOptions) ? 'disabled' : '' }}>
+                                            {{ request('mode_export', 'detail') != 'detail' || !$request->filled('tahun') ? 'disabled' : '' }}>
                                             <option value="">Semua Bulan</option>
                                             @foreach ($bulanOptions as $key => $value)
                                                 <option value="{{ $key }}"
@@ -135,7 +136,7 @@ $title = 'Report Mitra';
                                             class="block text-sm font-medium text-gray-700 mb-1">Honor > 4 Juta</label>
                                         <select id="honor_lebih_dari_4jt" name="honor_lebih_dari_4jt"
                                             class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                            {{ !$request->filled('bulan') ? 'disabled' : '' }}>
+                                            {{ request('mode_export', 'detail') != 'detail' || !($request->filled('tahun') && $request->filled('bulan')) ? 'disabled' : '' }}>
                                             <option value="">Semua</option>
                                             <option value="ya"
                                                 {{ request('honor_lebih_dari_4jt') == 'ya' ? 'selected' : '' }}>Ya
@@ -151,7 +152,7 @@ $title = 'Report Mitra';
                                             Survei</label>
                                         <select id="partisipasi_lebih_dari_satu" name="partisipasi_lebih_dari_satu"
                                             class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                            {{ !($request->filled('tahun') && $request->filled('bulan')) ? 'disabled' : '' }}>
+                                            {{ request('mode_export', 'detail') != 'detail' || !($request->filled('tahun') && $request->filled('bulan')) ? 'disabled' : '' }}>
                                             <option value="">Semua</option>
                                             <option value="ya"
                                                 {{ request('partisipasi_lebih_dari_satu') == 'ya' ? 'selected' : '' }}>
@@ -526,7 +527,6 @@ $title = 'Report Mitra';
                 searchField: 'text'
             });
 
-
             // Ambil elemen form dan select
             const filterForm = document.getElementById('filterForm');
             const selects = {
@@ -542,41 +542,63 @@ $title = 'Report Mitra';
                 jenis_kelamin: document.getElementById('jenis_kelamin')
             };
 
-            // Fungsi untuk mengatur filter berdasarkan Mode Export
-            function toggleFiltersByMode() {
+            // Fungsi utama untuk mengatur status aktif/nonaktif filter
+            function updateFilterStates() {
                 const mode = selects.mode_export.value;
+                const tahunSelected = selects.tahun.value !== '';
+                const bulanSelected = selects.bulan.value !== '';
+
                 const bulanTomSelect = tomSelects.bulan;
                 const partisipasiTomSelect = tomSelects.partisipasi_lebih_dari_satu;
                 const honorTomSelect = tomSelects.honor_lebih_dari_4jt;
 
-                if (mode === 'per_bulan') {
-                    // Nonaktifkan filter bulan dan yang bergantung padanya
-                    bulanTomSelect.clear();
+                if (mode === 'detail') {
+                    // Aturan untuk filter Bulan: Aktif jika Tahun dipilih
+                    if (tahunSelected) {
+                        bulanTomSelect.enable();
+                    } else {
+                        bulanTomSelect.disable();
+                        if (bulanSelected) {
+                            bulanTomSelect.clear();
+                        }
+                    }
+
+                    // Aturan untuk filter Honor & Partisipasi: Aktif jika Tahun DAN Bulan dipilih
+                    if (tahunSelected && bulanSelected) {
+                        partisipasiTomSelect.enable();
+                        honorTomSelect.enable();
+                    } else {
+                        partisipasiTomSelect.disable();
+                        honorTomSelect.disable();
+                        if (selects.partisipasi_lebih_dari_satu.value !== '') {
+                            partisipasiTomSelect.clear();
+                        }
+                        if (selects.honor_lebih_dari_4jt.value !== '') {
+                            honorTomSelect.clear();
+                        }
+                    }
+                } else {
+                    // Mode selain 'detail': Nonaktifkan semua filter yang bergantung
                     bulanTomSelect.disable();
                     partisipasiTomSelect.disable();
                     honorTomSelect.disable();
-                } else if (mode === 'per_tim') {
-                    // Nonaktifkan filter bulan dan yang bergantung padanya
-                    bulanTomSelect.clear();
-                    bulanTomSelect.disable();
-                    partisipasiTomSelect.disable();
-                    honorTomSelect.disable();
-                } else { // mode 'detail'
-                    // Aktifkan kembali
-                    bulanTomSelect.enable();
-                    // Status disabled untuk partisipasi & honor akan di-handle oleh logic yang sudah ada
-                    partisipasiTomSelect.enable();
-                    honorTomSelect.enable();
+
+                    // Kosongkan nilainya jika ada
+                    if (bulanSelected) bulanTomSelect.clear();
+                    if (selects.partisipasi_lebih_dari_satu.value !== '') partisipasiTomSelect.clear();
+                    if (selects.honor_lebih_dari_4jt.value !== '') honorTomSelect.clear();
                 }
             }
 
-            // Panggil fungsi saat halaman dimuat untuk set state awal
-            toggleFiltersByMode();
+            // Panggil fungsi saat halaman dimuat untuk mengatur state awal
+            updateFilterStates();
 
-            // Tambahkan event listener untuk mode_export
-            selects.mode_export.addEventListener('change', toggleFiltersByMode);
+            // Tambahkan event listener untuk memanggil updateFilterStates setiap ada perubahan
+            selects.mode_export.addEventListener('change', updateFilterStates);
+            selects.tahun.addEventListener('change', updateFilterStates);
+            selects.bulan.addEventListener('change', updateFilterStates);
 
-
+            // Logika untuk submit form setelah ada perubahan (dengan delay)
             let timeout;
 
             function submitForm() {
@@ -586,23 +608,21 @@ $title = 'Report Mitra';
                 }, 500); // Delay 500ms sebelum submit
             }
 
-            // Tambahkan event listener untuk setiap select
+            // Tambahkan event listener 'change' untuk semua filter agar men-submit form
             Object.values(selects).forEach(select => {
                 select.addEventListener('change', submitForm);
             });
-
         });
 
+        // Fungsi untuk export data (tidak berubah)
         function exportData() {
-            // Ambil parameter filter dari form
             const form = document.getElementById('filterForm');
             const formData = new FormData(form);
             const params = new URLSearchParams(formData).toString();
-
-            // Redirect ke route export dengan parameter filter
             window.location.href = `/ReportMitra/export-mitra?${params}`;
         }
     </script>
+
 
 </body>
 
