@@ -28,7 +28,7 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
         'Tanggal Selesai Survei',
         'Jumlah Mitra',
         'Sobat ID Mitra',
-        'Status Partisipasi' // [DIUBAH] Label diubah agar konsisten
+        'Status Partisipasi'
     ];
 
     public function __construct($query, $filters = [], $totals = [])
@@ -102,12 +102,24 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                     $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                     $row++;
 
-                    // Loop langsung dari array filter yang sudah rapi dari controller
+                    // 1. Atur lokal Carbon ke Indonesia agar nama bulan diterjemahkan
+                    Carbon::setLocale('id');
+
+                    // 2. Loop melalui filter
                     foreach ($this->filters as $label => $value) {
-                        $sheet->setCellValue('A' . $row, $label . ': ' . $value);
+                        $displayValue = $value; // Nilai default adalah nilai asli
+
+                        // 3. Cek jika label adalah 'Bulan' (dibuat case-insensitive)
+                        //    dan pastikan nilainya adalah angka.
+                        if (strtolower($label) === 'bulan' && is_numeric($value)) {
+                            // 4. Ubah angka bulan (misal: 6) menjadi nama bulan ("Juni")
+                            $displayValue = Carbon::create()->month($value)->translatedFormat('F');
+                        }
+
+                        // 5. Tulis ke sheet dengan nilai yang sudah diubah (jika ada)
+                        $sheet->setCellValue('A' . $row, $label . ': ' . $displayValue);
                         $row++;
                     }
-                    $row++; // Tambah spasi
                 }
 
                 // [DIUBAH] Informasi Total (Ditambahkan Total Tim)

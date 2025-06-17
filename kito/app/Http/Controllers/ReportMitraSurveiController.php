@@ -745,6 +745,7 @@ class ReportMitraSurveiController extends Controller
 
     public function exportSurvei(Request $request)
     {
+        \Carbon\Carbon::setLocale('id');
         // Gunakan query yang sama dengan report untuk konsistensi
         $surveisQuery = Survei::query()
             ->with(['provinsi', 'kabupaten']) // Eager load relasi jika diperlukan di export
@@ -777,7 +778,8 @@ class ReportMitraSurveiController extends Controller
         if ($request->filled('tahun')) $filters['Tahun'] = $request->tahun;
         if ($request->filled('bulan')) {
             // Mengubah nomor bulan menjadi nama bulan untuk ditampilkan di Excel
-            $filters['Bulan'] = \Carbon\Carbon::create()->month($request->bulan)->translatedFormat('F');
+            // [UBAH BARIS INI JUGA]
+            $filters['Bulan'] = \Carbon\Carbon::create()->month($request->bulan)->locale('id')->translatedFormat('F');
         }
         if ($request->filled('nama_survei')) $filters['Nama Survei'] = $request->nama_survei;
         if ($request->filled('status_survei')) {

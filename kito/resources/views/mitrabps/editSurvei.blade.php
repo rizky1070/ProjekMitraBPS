@@ -414,10 +414,6 @@ $title = 'Kelola Survei';
                                 </td>
 
                                 @if ($mitra->isFollowingSurvey)
-                                    {{-- =================================================================== --}}
-                                    {{-- KASUS 1: MITRA SUDAH MENGIKUTI (Form Edit & Hapus) --}}
-                                    {{-- =================================================================== --}}
-
                                     {{-- Kolom input Vol --}}
                                     <td class="whitespace-nowrap text-center" style="max-width: 120px;">
                                         <input type="number" name="vol"
@@ -491,10 +487,6 @@ $title = 'Kelola Survei';
                                         </div>
                                     </td>
                                 @else
-                                    {{-- =================================================================== --}}
-                                    {{-- KASUS 2: MITRA BELUM MENGIKUTI (Form Tambah) --}}
-                                    {{-- =================================================================== --}}
-
                                     {{-- Kolom input Vol --}}
                                     <td class="whitespace-nowrap text-center" style="max-width: 120px;">
                                         <input type="number" name="vol"
