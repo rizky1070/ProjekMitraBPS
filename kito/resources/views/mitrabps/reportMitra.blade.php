@@ -421,12 +421,12 @@ $title = 'Report Mitra';
                                             </td>
                                             <td class="text-sm font-medium text-gray-900 whitespace-normal break-words"
                                                 style="max-width: 120px;">
-                                                <div class="ml-3 flex justify-center items-center text-center">
+                                                <div class="ml-3 flex justify-left items-left text-left">
                                                     <a href="/profilMitra/{{ $mitra->id_mitra }}">
                                                         {{ $mitra->nama_lengkap }}
                                                     </a>
                                                 </div>
-                                                <div class="text-sm text-gray-500 text-center">
+                                                <div class="ml-3 text-sm text-gray-500 text-left">
                                                     {{ $mitra->no_hp_mitra }}</div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center">

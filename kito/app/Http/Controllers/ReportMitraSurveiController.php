@@ -747,7 +747,7 @@ class ReportMitraSurveiController extends Controller
     {
         // Gunakan query yang sama dengan report untuk konsistensi
         $surveisQuery = Survei::query()
-            ->with(['provinsi', 'kabupaten']) // Eager load relasi
+            ->with(['provinsi', 'kabupaten']) // Eager load relasi jika diperlukan di export
             ->withCount(['mitraSurveis as total_mitra'])
             ->when($request->filled('tahun'), function ($query) use ($request) {
                 $query->whereYear('bulan_dominan', $request->tahun);
@@ -757,9 +757,13 @@ class ReportMitraSurveiController extends Controller
             })
             ->when($request->filled('nama_survei'), function ($query) use ($request) {
                 $query->where('nama_survei', $request->nama_survei);
+            })
+            // Terapkan filter berdasarkan tim, sama seperti di report
+            ->when($request->filled('tim'), function ($query) use ($request) {
+                $query->where('tim', $request->tim);
             });
 
-        // Filter Status
+        // Filter Status Partisipasi
         if ($request->filled('status_survei')) {
             if ($request->status_survei == 'aktif') {
                 $surveisQuery->has('mitraSurveis');
@@ -768,17 +772,19 @@ class ReportMitraSurveiController extends Controller
             }
         }
 
-        // Kumpulkan filter yang digunakan untuk ditampilkan di Excel
+        // Kumpulkan filter yang digunakan untuk ditampilkan di header Excel
         $filters = [];
-        if ($request->filled('tahun')) $filters['tahun'] = $request->tahun;
+        if ($request->filled('tahun')) $filters['Tahun'] = $request->tahun;
         if ($request->filled('bulan')) {
-            // Kirim nomor bulan, biarkan kelas export yang format
-            $filters['bulan'] = $request->bulan;
+            // Mengubah nomor bulan menjadi nama bulan untuk ditampilkan di Excel
+            $filters['Bulan'] = \Carbon\Carbon::create()->month($request->bulan)->translatedFormat('F');
         }
-        if ($request->filled('nama_survei')) $filters['nama_survei'] = $request->nama_survei;
+        if ($request->filled('nama_survei')) $filters['Nama Survei'] = $request->nama_survei;
         if ($request->filled('status_survei')) {
-            $filters['status_survei'] = $request->status_survei == 'aktif' ? 'Survei Aktif' : 'Survei Tidak Aktif';
+            $filters['Status Partisipasi'] = $request->status_survei == 'aktif' ? 'Diikuti Mitra' : 'Tidak Diikuti Mitra';
         }
+        // tambahkan informasi filter tim jika digunakan
+        if ($request->filled('tim')) $filters['Tim'] = $request->tim;
 
         // Clone query untuk perhitungan total agar tidak mengganggu query utama
         $totalSurveiQuery = clone $surveisQuery;
@@ -787,14 +793,18 @@ class ReportMitraSurveiController extends Controller
         $totalSurvei = $totalSurveiQuery->count();
         $totalSurveiAktif = (clone $totalSurveiQuery)->has('mitraSurveis')->count();
         $totalSurveiTidakAktif = $totalSurvei - $totalSurveiAktif;
+        // [BARU] Hitung total tim berdasarkan query yang sudah difilter
+        $totalTim = (clone $totalSurveiQuery)->distinct()->count('tim');
 
+        // Kumpulkan semua total untuk dikirim ke kelas export
         $totals = [
             'totalSurvei' => $totalSurvei,
             'totalSurveiAktif' => $totalSurveiAktif,
             'totalSurveiTidakAktif' => $totalSurveiTidakAktif,
+            'totalTim' => $totalTim,
         ];
 
-        // Panggil kelas Export dengan query (bukan data yang sudah di-get)
+        // Panggil kelas Export dengan query, filter, dan total
         return \Maatwebsite\Excel\Facades\Excel::download(
             new \App\Exports\SurveiExport($surveisQuery, $filters, $totals),
             'laporan_survei_' . now()->format('Ymd_His') . '.xlsx'

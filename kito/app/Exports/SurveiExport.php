@@ -28,7 +28,7 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
         'Tanggal Selesai Survei',
         'Jumlah Mitra',
         'Sobat ID Mitra',
-        'Status'
+        'Status Partisipasi' // [DIUBAH] Label diubah agar konsisten
     ];
 
     public function __construct($query, $filters = [], $totals = [])
@@ -49,29 +49,30 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
         static $count = 0;
         $count++;
 
-        $jumlahResponden = $survei->total_mitra ?? 0;
+        $jumlahMitra = $survei->total_mitra ?? 0;
 
         // Akses sobat_id melalui relasi mitra
-        $namaResponden = $survei->mitraSurveis->isNotEmpty()
+        $sobatIds = $survei->mitraSurveis->isNotEmpty()
             ? $survei->mitraSurveis->map(function ($mitraSurvei) {
                 return $mitraSurvei->mitra->sobat_id ?? null;
             })->filter()->implode(', ')
             : '-';
 
-        $namaResponden = empty(trim($namaResponden)) ? '-' : $namaResponden;
+        $sobatIds = empty(trim($sobatIds)) ? '-' : $sobatIds;
 
         return [
             $count,
-            $survei->nama_survei,
+            $survei->nama_survei ?? '-',
             $survei->provinsi->kode_provinsi ?? '-',
             $survei->kabupaten->kode_kabupaten ?? '-',
-            $survei->kro,
-            $survei->tim,
+            $survei->kro ?? '-',
+            $survei->tim ?? '-',
             Carbon::parse($survei->jadwal_kegiatan)->format('d/m/Y'),
             Carbon::parse($survei->jadwal_berakhir_kegiatan)->format('d/m/Y'),
-            $jumlahResponden,
-            $namaResponden,
-            $jumlahResponden > 0 ? 'Aktif Di Ikuti Mitra' : 'Tidak Aktif Di Ikuti Mitra'
+            $jumlahMitra,
+            $sobatIds,
+            // [DIUBAH] Label diubah agar konsisten
+            $jumlahMitra > 0 ? 'Diikuti Mitra' : 'Tidak Diikuti Mitra'
         ];
     }
 
@@ -87,56 +88,49 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                 $sheet->mergeCells('A' . $row . ':K' . $row);
                 $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
                 $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                $row++;
-                $row++;
+                $row += 2; // Tambah spasi
 
                 // Tanggal Export
                 $sheet->setCellValue('A' . $row, 'Tanggal Export: ' . Carbon::now()->format('d/m/Y H:i'));
                 $sheet->mergeCells('A' . $row . ':K' . $row);
                 $sheet->getStyle('A' . $row)->getFont()->setItalic(true);
-                $row++;
-                $row++;
+                $row += 2; // Tambah spasi
 
-                // Informasi Filter
+                // [DIUBAH] Informasi Filter (Disederhanakan)
                 if (!empty($this->filters)) {
                     $sheet->setCellValue('A' . $row, 'Filter yang digunakan:');
-                    $sheet->mergeCells('A' . $row . ':K' . $row);
                     $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                     $row++;
 
-                    foreach ($this->filters as $key => $value) {
-                        $label = $this->getFilterLabel($key);
-                        $displayValue = $value;
-
-                        // Logika untuk memastikan nama bulan selalu dalam Bahasa Indonesia
-                        if (strtolower($label) === 'bulan') {
-                            Carbon::setLocale('id'); // Atur lokal ke Indonesia
-                            // Buat objek Carbon dari nomor bulan (contoh: '06')
-                            $displayValue = Carbon::create(null, $value)->translatedFormat('F');
-                        }
-
-                        $sheet->setCellValue('A' . $row, $label . ': ' . $displayValue);
-                        $sheet->mergeCells('A' . $row . ':K' . $row);
+                    // Loop langsung dari array filter yang sudah rapi dari controller
+                    foreach ($this->filters as $label => $value) {
+                        $sheet->setCellValue('A' . $row, $label . ': ' . $value);
                         $row++;
                     }
-                    $row++;
+                    $row++; // Tambah spasi
                 }
 
-                // Informasi Total
-                $sheet->setCellValue('A' . $row, 'Total Survei: ' . $this->totals['totalSurvei']);
+                // [DIUBAH] Informasi Total (Ditambahkan Total Tim)
+                $sheet->setCellValue('A' . $row, 'Ringkasan Data:');
                 $sheet->getStyle('A' . $row)->getFont()->setBold(true);
                 $row++;
 
-                $sheet->setCellValue('A' . $row, 'Aktif Di Ikuti Mitra: ' . $this->totals['totalSurveiAktif']);
-                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                $sheet->setCellValue('A' . $row, 'Total Survei: ' . ($this->totals['totalSurvei'] ?? 0));
                 $row++;
 
-                $sheet->setCellValue('A' . $row, 'Tidak Aktif Di Ikuti Mitra: ' . $this->totals['totalSurveiTidakAktif']);
-                $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+                $sheet->setCellValue('A' . $row, 'Diikuti Mitra: ' . ($this->totals['totalSurveiAktif'] ?? 0));
                 $row++;
-                $row += 2;
 
-                // Header
+                $sheet->setCellValue('A' . $row, 'Tidak Diikuti Mitra: ' . ($this->totals['totalSurveiTidakAktif'] ?? 0));
+                $row++;
+
+                // [BARU] Menampilkan Total Tim
+                $sheet->setCellValue('A' . $row, 'Total Tim: ' . ($this->totals['totalTim'] ?? 0));
+                $row++;
+
+                $row++; // Tambah spasi sebelum header tabel
+
+                // Header Tabel
                 $headerRow = $row;
                 $sheet->fromArray($this->headings, null, 'A' . $headerRow);
                 $sheet->getStyle('A' . $headerRow . ':K' . $headerRow)->applyFromArray([
@@ -151,17 +145,5 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                 }
             },
         ];
-    }
-
-    protected function getFilterLabel($key)
-    {
-        $labels = [
-            'tahun' => 'Tahun',
-            'bulan' => 'Bulan',
-            'nama_survei' => 'Nama Survei',
-            'status_survei' => 'Status Survei'
-        ];
-
-        return $labels[$key] ?? ucfirst(str_replace('_', ' ', $key));
     }
 }
