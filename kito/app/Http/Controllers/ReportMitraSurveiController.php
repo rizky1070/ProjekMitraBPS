@@ -625,7 +625,7 @@ class ReportMitraSurveiController extends Controller
 
     public function SurveiReport(Request $request)
     {
-        \Carbon\Carbon::setLocale('id');
+        \carbon\Carbon::setLocale('id');
 
         // OPTION FILTER TAHUN
         $tahunOptions = Survei::selectRaw('YEAR(jadwal_kegiatan) as tahun')
@@ -642,7 +642,7 @@ class ReportMitraSurveiController extends Controller
                 ->distinct()
                 ->get()
                 ->mapWithKeys(function ($item) {
-                    $monthName = \Carbon\Carbon::create()
+                    $monthName = \carbon\Carbon::create()
                         ->month($item->bulan)
                         ->translatedFormat('F');
                     return [
@@ -663,6 +663,23 @@ class ReportMitraSurveiController extends Controller
             ->orderBy('nama_survei')
             ->pluck('nama_survei', 'nama_survei');
 
+        // [BARU] OPTION FILTER TIM (berdasarkan filter lain yang aktif)
+        $timOptions = Survei::select('tim')
+            ->distinct()
+            ->whereNotNull('tim') // Hanya tim yang tidak null
+            ->when($request->filled('tahun'), function ($query) use ($request) {
+                $query->whereYear('bulan_dominan', $request->tahun);
+            })
+            ->when($request->filled('bulan'), function ($query) use ($request) {
+                $query->whereMonth('bulan_dominan', $request->bulan);
+            })
+            ->when($request->filled('nama_survei'), function ($query) use ($request) {
+                $query->where('nama_survei', $request->nama_survei);
+            })
+            ->orderBy('tim')
+            ->pluck('tim', 'tim');
+
+
         // QUERY UTAMA
         $surveisQuery = Survei::query()
             ->withCount(['mitraSurveis as total_mitra']) // Disederhanakan untuk efisiensi
@@ -674,6 +691,10 @@ class ReportMitraSurveiController extends Controller
             })
             ->when($request->filled('nama_survei'), function ($query) use ($request) {
                 $query->where('nama_survei', $request->nama_survei);
+            })
+            // [BARU] Tambahkan filter berdasarkan tim ke query utama
+            ->when($request->filled('tim'), function ($query) use ($request) {
+                $query->where('tim', $request->tim);
             });
 
         // FILTER STATUS PARTISIPASI
@@ -688,14 +709,18 @@ class ReportMitraSurveiController extends Controller
         // HITUNG TOTAL-TOTAL
         $totalSurveiQuery = clone $surveisQuery; // Gunakan clone untuk perhitungan
         $totalSurvei = $totalSurveiQuery->count();
-        $totalSurveiAktif = $totalSurveiQuery->has('mitraSurveis')->count();
+        // Perhitungan total aktif/tidak aktif perlu clone baru agar tidak saling menimpa
+        $totalSurveiAktif = (clone $totalSurveiQuery)->has('mitraSurveis')->count();
         $totalSurveiTidakAktif = $totalSurvei - $totalSurveiAktif;
+
+        // [BARU] HITUNG TOTAL TIM (berdasarkan filter yang aktif)
+        $totalTim = (clone $surveisQuery)->distinct()->count('tim');
 
         // HITUNG TOTAL MITRA YANG IKUT SURVEI (disesuaikan untuk akurasi)
         $totalMitraIkut = 0;
         if ($totalSurvei > 0) {
             $surveiIds = (clone $surveisQuery)->pluck('id_survei');
-            $totalMitraIkut = \App\Models\MitraSurvei::whereIn('id_survei', $surveiIds)->count();
+            $totalMitraIkut = MitraSurvei::whereIn('id_survei', $surveiIds)->count();
         }
 
         // PAGINASI
@@ -706,14 +731,17 @@ class ReportMitraSurveiController extends Controller
             'surveis',
             'tahunOptions',
             'bulanOptions',
-            'namaSurveiOptions', // Pastikan variabel ini dikirim
+            'namaSurveiOptions',
+            'timOptions', // [BARU] Kirim data tim ke view
             'totalSurvei',
             'totalSurveiAktif',
             'totalSurveiTidakAktif',
             'totalMitraIkut',
+            'totalTim', // [BARU] Kirim total tim ke view
             'request'
         ));
     }
+
 
     public function exportSurvei(Request $request)
     {

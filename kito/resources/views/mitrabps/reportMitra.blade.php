@@ -390,6 +390,9 @@ $title = 'Report Mitra';
                                     <tr>
                                         <th scope="col"
                                             class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            No</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Nama Mitra</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -412,6 +415,10 @@ $title = 'Report Mitra';
                                     @foreach ($mitras as $mitra)
                                         <tr class="hover:bg-gray-50"
                                             style="border-top-width: 2px; border-color: #D1D5DB;">
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">
+                                                {{ $loop->iteration }}
+                                            </td>
                                             <td class="text-sm font-medium text-gray-900 whitespace-normal break-words"
                                                 style="max-width: 120px;">
                                                 <div class="ml-3 flex justify-center items-center text-center">
