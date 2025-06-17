@@ -175,7 +175,7 @@ $title = 'Daftar Mitra';
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Nama Mitra</th>
                                         <th
                                             class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -201,7 +201,7 @@ $title = 'Daftar Mitra';
                                             @endphp
                                             <td class="text-sm font-medium text-gray-900 whitespace-normal break-words"
                                                 style="max-width: 120px;">
-                                                <div class="ml-3 flex justify-center items-center text-center">
+                                                <div class="flex items-center text-left">
                                                     <p class="{{ $bgStatus }} m-1 p-1 border rounded-lg"></p>
                                                     <a href="/profilMitra/{{ $mitra->id_mitra }}"
                                                         class="hover:underline transition duration-300 ease-in-out"

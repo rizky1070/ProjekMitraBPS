@@ -350,7 +350,7 @@ $title = 'Kelola Survei';
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col"
-                                class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Nama Mitra</th>
                             <th scope="col"
                                 class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -395,7 +395,7 @@ $title = 'Kelola Survei';
                             <tr class="hover:bg-gray-50" style="border-top-width: 2px; border-color: #D1D5DB;">
                                 {{-- Kolom info mitra (tidak berubah) --}}
                                 <td class="whitespace-normal text-center break-words" style="max-width: 120px;">
-                                    <div class="flex justify-center items-center">
+                                    <div class="flex text-left ml-2">
                                         <a href="/profilMitra/{{ $mitra->id_mitra }}"
                                             class="hover:underline transition duration-300 ease-in-out"
                                             style="text-decoration-color: #FFA500; text-decoration-thickness: 3px;">

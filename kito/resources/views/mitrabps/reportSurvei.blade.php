@@ -201,81 +201,79 @@ $title = 'Report Survei';
 
                     <!-- Table Section -->
                     <div class="border rounded-lg shadow-sm bg-white p-3">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            No </th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Nama Survei</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tim</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Jumlah Mitra</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Jadwal Kegiatan</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach ($surveis as $survei)
-                                        <tr class="hover:bg-gray-50"
-                                            style="border-top-width: 2px; border-color: #D1D5DB;">
-                                            <td
-                                                class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">
-                                                {{ $loop->iteration }}
-                                            </td>
-                                            <td class="text-sm font-medium text-gray-900 whitespace-normal break-words"
-                                                style="max-width: 120px;">
-                                                <div class="ml-3 flex justify-left items-left text-left">
-                                                    <a href="/editSurvei/{{ $survei->id_survei }}">
-                                                        {{ $survei->nama_survei }}
-                                                    </a>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-700">
-                                                {{ $survei->tim ?? '-' }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                @if ($survei->total_mitra > 0)
-                                                    {{ $survei->total_mitra }} mitra
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                            <td class="text-center whitespace-normal break-words"
-                                                style="max-width: 120px;">
-                                                {{ \Carbon\Carbon::parse($survei->jadwal_kegiatan)->translatedFormat('j F Y') }}
-                                                -
-                                                {{ \Carbon\Carbon::parse($survei->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                                @if ($survei->total_mitra > 0)
-                                                    <span
-                                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                        Aktif Di Ikuti Mitra
-                                                    </span>
-                                                @else
-                                                    <span
-                                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                        Tidak Aktif Di Ikuti Mitra
-                                                    </span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col"
+                        class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1">
+                        No</th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Nama Survei</th>
+                    <th scope="col"
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
+                        Tim</th>
+                    <th scope="col"
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
+                        Jumlah Mitra</th>
+                    <th scope="col"
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
+                        Jadwal Kegiatan</th>
+                    <th scope="col"
+                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
+                        Status</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                @foreach ($surveis as $survei)
+                    <tr class="hover:bg-gray-50"
+                        style="border-top-width: 2px; border-color: #D1D5DB;">
+                        <td
+                            class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900 w-1">
+                            {{ $loop->iteration }}
+                        </td>
+                        <td class="text-sm font-medium text-gray-900 whitespace-normal">
+                            <div class="ml-3 flex justify-left items-left text-left">
+                                <a href="/editSurvei/{{ $survei->id_survei }}">
+                                    {{ $survei->nama_survei }}
+                                </a>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-700 w-20">
+                            {{ $survei->tim ?? '-' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center w-10">
+                            @if ($survei->total_mitra > 0)
+                                {{ $survei->total_mitra }} mitra
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center w-20">
+                            {{ \Carbon\Carbon::parse($survei->jadwal_kegiatan)->translatedFormat('j F Y') }}
+                            -
+                            {{ \Carbon\Carbon::parse($survei->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center w-20">
+                            @if ($survei->total_mitra > 0)
+                                <span
+                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    Aktif Di Ikuti Mitra
+                                </span>
+                            @else
+                                <span
+                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    Tidak Aktif Di Ikuti Mitra
+                                </span>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
                     <!-- Pagination -->
                     @include('components.pagination', ['paginator' => $surveis])
 

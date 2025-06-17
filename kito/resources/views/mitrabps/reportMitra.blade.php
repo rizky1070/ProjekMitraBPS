@@ -389,7 +389,7 @@ $title = 'Report Mitra';
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th scope="col"
-                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1">
                                             No</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -416,7 +416,7 @@ $title = 'Report Mitra';
                                         <tr class="hover:bg-gray-50"
                                             style="border-top-width: 2px; border-color: #D1D5DB;">
                                             <td
-                                                class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">
+                                                class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900 w-1">
                                                 {{ $loop->iteration }}
                                             </td>
                                             <td class="text-sm font-medium text-gray-900 whitespace-normal break-words"
