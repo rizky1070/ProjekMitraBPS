@@ -71,8 +71,18 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
             Carbon::setLocale('id');
             $tahun = $this->filters['Tahun'] ?? $this->filters['tahun'];
             $bulanValue = $this->filters['Bulan'] ?? $this->filters['bulan'];
-            $bulan = is_numeric($bulanValue) ? $bulanValue : Carbon::parse($bulanValue)->month;
-
+            if (is_numeric($bulanValue)) {
+                $bulan = $bulanValue;
+            } else {
+                // Gunakan createFromFormat untuk mengurai nama bulan dalam bahasa Indonesia
+                // 'F' adalah format untuk nama bulan lengkap (e.g., "Februari")
+                try {
+                    $bulan = Carbon::createFromFormat('F', $bulanValue, 'id')->month;
+                } catch (\Exception $e) {
+                    // Fallback jika parsing gagal, default ke bulan saat ini atau 1
+                    $bulan = now()->month;
+                }
+            }
             $this->data->load(['mitraSurveis' => function ($query) use ($tahun, $bulan) {
                 $query->with('survei')
                     ->whereHas('survei', function ($sq) use ($tahun, $bulan) {
@@ -197,7 +207,14 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
                         if (in_array(strtolower($key), ['bulan', 'Bulan'])) {
                             Carbon::setLocale('id'); // Atur lokal ke Indonesia
                             // Buat objek Carbon dari nomor bulan (contoh: '06') atau nama bulan
-                            $displayValue = is_numeric($value) ? Carbon::create()->month($value)->translatedFormat('F') : Carbon::parse($value)->translatedFormat('F');
+                            if (is_numeric($value)) {
+                                // Jika nilainya angka (misal: '2'), ubah menjadi nama bulan ("Februari")
+                                $displayValue = Carbon::create()->month($value)->translatedFormat('F');
+                            } else {
+                                // Jika nilainya sudah berupa nama bulan (misal: "Februari"), langsung gunakan.
+                                // ucfirst memastikan huruf pertama kapital.
+                                $displayValue = ucfirst($value);
+                            }
                         }
 
                         $sheet->setCellValue('A' . $row, $label . ': ' . $displayValue);
