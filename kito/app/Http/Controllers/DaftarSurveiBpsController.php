@@ -310,9 +310,9 @@ class DaftarSurveiBpsController extends Controller
             'rate_honor' => 'required|numeric|min:0',
             'id_posisi_mitra' => 'required|exists:posisi_mitra,id_posisi_mitra'
         ], [
-            'vol.required' => 'Volume harus diisi',
-            'rate_honor.required' => 'Rate Honor harus diisi',
-            'id_posisi_mitra.required' => 'Posisi mitra harus dipilih',
+            'vol.required' => 'Volume harus diisi.',
+            'rate_honor.required' => 'Rate Honor harus diisi.',
+            'id_posisi_mitra.required' => 'Posisi mitra harus dipilih.',
         ]);
 
         if ($validator->fails()) {
@@ -323,33 +323,37 @@ class DaftarSurveiBpsController extends Controller
         }
 
         $survey = Survei::findOrFail($id_survei);
-        $mitra = Mitra::findOrFail($id_mitra); // Ambil data mitra untuk mendapatkan nama
+        $mitra = Mitra::findOrFail($id_mitra);
 
         if (now()->toDateString() > $survey->jadwal_berakhir_kegiatan) {
             return redirect()->back()->with('error', "Tidak bisa menambah mitra karena survei sudah berakhir.")->withInput();
         }
 
-        // Logika honor
         $honorYangAkanDitambahkan = $request->rate_honor * $request->vol;
         $totalHonorBulanIni = MitraSurvei::join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
             ->where('mitra_survei.id_mitra', $id_mitra)
             ->where('survei.bulan_dominan', $survey->bulan_dominan)
             ->sum(DB::raw('mitra_survei.rate_honor * mitra_survei.vol'));
-
         $totalHonorSetelahDitambah = $totalHonorBulanIni + $honorYangAkanDitambahkan;
 
         if ($totalHonorSetelahDitambah > 4000000 && !$request->has('force_action')) {
-            return redirect()->back()->withInput()->with('show_modal_confirmation', [
-                'type' => 'tambah',
-                'mitra_id' => $id_mitra,
-                'title' => 'Konfirmasi Tambah Mitra',
-                'message' => "Total honor mitra {$mitra->nama_lengkap} di bulan " . \carbon\Carbon::parse($survey->bulan_dominan)->translatedFormat('F Y') . " akan melebihi Rp 4.000.000 (Total saat ini: Rp " . number_format($totalHonorBulanIni, 0, ',', '.') . "). Tetap tambahkan?",
-                'form_id' => 'form-tambah-' . $id_mitra,
-                'force' => true
-            ]);
+            $namaBulan = \Carbon\Carbon::parse($survey->bulan_dominan)->translatedFormat('F Y');
+            $pesanKonfirmasi = "Total honor mitra <b>{$mitra->nama_lengkap}</b> di bulan {$namaBulan} akan menjadi <b>Rp " . number_format($totalHonorSetelahDitambah, 0, ',', '.') . "</b> (melebihi batas Rp 4.000.000). Yakin tetap ingin menambahkan?";
+
+            return redirect()->back()
+                ->withInput()
+                // --- INI PERBAIKANNYA ---
+                // Kirim juga session 'show_modal' agar view tahu baris mana yang harus di-repopulate
+                ->with('show_modal', 'tambah-' . $id_mitra)
+                ->with('show_modal_confirmation', [
+                    'type' => 'tambah',
+                    'mitra_id' => $id_mitra,
+                    'title' => 'Konfirmasi Tambah Mitra',
+                    'message' => $pesanKonfirmasi,
+                    'force' => true
+                ]);
         }
 
-        // Update atau buat data
         MitraSurvei::updateOrCreate(
             ['id_survei' => $id_survei, 'id_mitra' => $id_mitra],
             [
@@ -360,15 +364,14 @@ class DaftarSurveiBpsController extends Controller
             ]
         );
 
-        // -- PERUBAHAN --
-        // Gunakan nama mitra dalam pesan sukses.
         $message = "Mitra {$mitra->nama_lengkap} berhasil ditambahkan ke survei!";
         if ($totalHonorSetelahDitambah > 4000000) {
-            $message .= ' Perhatian: Total honor mitra melebihi batas Rp 4.000.000';
+            $message .= ' (Perhatian: Total honor mitra melebihi batas Rp 4.000.000)';
         }
 
         return redirect()->back()->with('success', $message);
     }
+
 
     /**
      * Menghapus mitra dari survei.

@@ -97,11 +97,10 @@ $title = 'Kelola Survei';
                     @method('DELETE')
                     <button type="button" onclick="showConfirmation('hapus_survei', 0, '{{ $survey->nama_survei }}')"
                         class="flex justify-center items-center mt-4 px-4 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
-                            viewBox="0 0 20 20" fill="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
-                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                            clip-rule="evenodd" />
+                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
                         </svg>Hapus Survei
                     </button>
                 </form>
@@ -109,17 +108,17 @@ $title = 'Kelola Survei';
             <div class="bg-white p-4 rounded-lg shadow">
                 <p class="text-xl font-medium"><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
                 <div class="flex flex-col md:flex-row items-start md:items-center w-full">
-                        <div class="w-full md:w-1/2">
-                            <p><strong>Pelaksanaan :</strong>
-                                {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }} -
-                                {{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
-                            </p>
-                            <p><strong>Tim :</strong> {{ $survey->tim }}</p>
-                        </div>
-                        <div class="w-full md:w-1/2">
-                            <p><strong>KRO :</strong> {{ $survey->kro }} </p>
-                            <p><strong>Jumlah mitra :</strong> {{ $survey->mitra_survei_count }} </p>
-                        </div>
+                    <div class="w-full md:w-1/2">
+                        <p><strong>Pelaksanaan :</strong>
+                            {{ \Carbon\Carbon::parse($survey->jadwal_kegiatan)->translatedFormat('j F Y') }} -
+                            {{ \Carbon\Carbon::parse($survey->jadwal_berakhir_kegiatan)->translatedFormat('j F Y') }}
+                        </p>
+                        <p><strong>Tim :</strong> {{ $survey->tim }}</p>
+                    </div>
+                    <div class="w-full md:w-1/2">
+                        <p><strong>KRO :</strong> {{ $survey->kro }} </p>
+                        <p><strong>Jumlah mitra :</strong> {{ $survey->mitra_survei_count }} </p>
+                    </div>
                 </div>
 
                 <div class="flex items-center">
@@ -154,25 +153,25 @@ $title = 'Kelola Survei';
                     <div class="flex gap-2">
                         {{-- Form Hapus Semua Mitra --}}
                         @if ($survey->mitra_survei_count > 0)
-                        <a href="{{ route('mitraSurvei.export.excel', ['id_survei' => $survey->id_survei]) }}"
-                            class="flex justify-center items-center mt-4 px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-all duration-300">
-                            <i class="fas fa-file-excel mr-2"></i>Export Excel
-                        </a>
-                        <form action="{{ route('survey.deleteAllMitra', ['id_survei' => $survey->id_survei]) }}"
-                            method="POST" id="form-hapus_semua_mitra-{{ $survey->id_survei }}">
-                            @csrf
-                            @method('DELETE')
-                            <button type="button"
-                                onclick="showConfirmation('hapus_semua_mitra', {{ $survey->id_survei }}, '{{ $survey->nama_survei }}')"
-                                class="flex justify-center items-center mt-4 px-4 py-2 bg-red-800 text-white font-medium rounded-md hover:bg-red-900">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
-                                    viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                    clip-rule="evenodd" />
-                                </svg>Hapus Semua Mitra
-                            </button>
-                        </form>
+                            <a href="{{ route('mitraSurvei.export.excel', ['id_survei' => $survey->id_survei]) }}"
+                                class="flex justify-center items-center mt-4 px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-all duration-300">
+                                <i class="fas fa-file-excel mr-2"></i>Export Excel
+                            </a>
+                            <form action="{{ route('survey.deleteAllMitra', ['id_survei' => $survey->id_survei]) }}"
+                                method="POST" id="form-hapus_semua_mitra-{{ $survey->id_survei }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button"
+                                    onclick="showConfirmation('hapus_semua_mitra', {{ $survey->id_survei }}, '{{ $survey->nama_survei }}')"
+                                    class="flex justify-center items-center mt-4 px-4 py-2 bg-red-800 text-white font-medium rounded-md hover:bg-red-900">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg>Hapus Semua Mitra
+                                </button>
+                            </form>
                         @endif
                         <button type="button"
                             class="mt-4 px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300"
@@ -233,7 +232,8 @@ $title = 'Kelola Survei';
                             </div>
                             <!-- District Row -->
                             <div class="flex items-center">
-                                <label for="kecamatan" class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
+                                <label for="kecamatan"
+                                    class="w-32 text-sm font-medium text-gray-700">Kecamatan</label>
                                 <select name="kecamatan" id="kecamatan"
                                     class="w-full md:w-64 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ml-2"
                                     {{ empty($kecamatanOptions) ? 'disabled' : '' }}>
@@ -376,150 +376,176 @@ $title = 'Kelola Survei';
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-500">
+                        {{-- BLOK PHP YANG DISEMPURNAKAN: Cek error dan konfirmasi --}}
                         @php
-                            // Ambil ID mitra yang mengalami error dari session untuk perbandingan di dalam loop
                             $errorMitraId = null;
                             if (session('show_modal')) {
                                 $parts = explode('-', session('show_modal'));
                                 if (count($parts) === 2) {
                                     $errorMitraId = (int) $parts[1];
                                 }
+                            } elseif (session('show_modal_confirmation')) {
+                                // Ini memastikan data lama (old) tetap terisi bahkan saat pop up konfirmasi honor muncul
+                                $confirmData = session('show_modal_confirmation');
+                                $errorMitraId = $confirmData['mitra_id'];
                             }
                         @endphp
+
                         @foreach ($mitras as $mitra)
-                            <tr class="hover:bg-gray-50" style=" border-top-width: 2px; border-color: #D1D5DB;">
-                                {{-- Kolom Nama, Domisili, etc. tidak berubah --}}
+                            <tr class="hover:bg-gray-50" style="border-top-width: 2px; border-color: #D1D5DB;">
+                                {{-- Kolom info mitra (tidak berubah) --}}
                                 <td class="whitespace-normal text-center break-words" style="max-width: 120px;">
                                     <div class="flex justify-center items-center">
                                         <a href="/profilMitra/{{ $mitra->id_mitra }}"
                                             class="hover:underline transition duration-300 ease-in-out"
-                                            style="text-decoration-color: #FFA500; text-decoration-thickness: 3px;">{{ $mitra->nama_lengkap }}
+                                            style="text-decoration-color: #FFA500; text-decoration-thickness: 3px;">
+                                            {{ $mitra->nama_lengkap }}
                                         </a>
                                     </div>
                                 </td>
                                 <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                    {{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}</td>
+                                    {{ $mitra->kecamatan->nama_kecamatan ?? 'Lokasi tidak tersedia' }}
+                                </td>
                                 <td class="whitespace-nowrap text-center" style="max-width: 100px;">
-                                    {{ $mitra->total_survei }}</td>
+                                    {{ $mitra->total_survei }}
+                                </td>
                                 <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
                                     {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('Y') }}
                                 </td>
 
                                 @if ($mitra->isFollowingSurvey)
-                                    {{-- FORM UNTUK EDIT --}}
-                                    <form
-                                        action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
-                                        method="POST" id="form-edit-{{ $mitra->id_mitra }}">
-                                        @csrf
-                                        <input type="hidden" name="force_action" value="1"
-                                            class="force-action-input">
+                                    {{-- =================================================================== --}}
+                                    {{-- KASUS 1: MITRA SUDAH MENGIKUTI (Form Edit & Hapus) --}}
+                                    {{-- =================================================================== --}}
 
-                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                            {{-- Cek jika baris ini yang error, baru gunakan old(). Jika tidak, gunakan data asli. --}}
-                                            <input type="number" name="vol"
-                                                value="{{ $errorMitraId == $mitra->id_mitra ? old('vol') : $mitra->vol }}"
-                                                class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
-                                                placeholder="Vol">
-                                        </td>
-                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <input type="number" name="rate_honor"
-                                                value="{{ $errorMitraId == $mitra->id_mitra ? old('rate_honor') : $mitra->rate_honor }}"
-                                                class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
-                                                placeholder="Rate Honor">
-                                        </td>
-                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <select name="id_posisi_mitra"
-                                                class="w-full focus:outline-none text-center">
-                                                <option value="">Pilih Posisi</option>
-                                                @foreach ($posisiMitraOptions as $posisi)
-                                                    {{-- Logika yang sama untuk select option --}}
-                                                    <option value="{{ $posisi->id_posisi_mitra }}"
-                                                        @if (($errorMitraId == $mitra->id_mitra ? old('id_posisi_mitra') : $mitra->id_posisi_mitra) == $posisi->id_posisi_mitra) selected @endif>
-                                                        {{ $posisi->nama_posisi }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </td>
+                                    {{-- Kolom input Vol --}}
+                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <input type="number" name="vol"
+                                            value="{{ $errorMitraId == $mitra->id_mitra ? old('vol') : $mitra->vol }}"
+                                            class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
+                                            placeholder="Vol" form="form-edit-{{ $mitra->id_mitra }}">
+                                        {{-- Tautkan ke form edit --}}
+                                    </td>
 
-                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <div class="flex justify-center items-center py-2 text-center">
-                                                {{-- Tombol Edit --}}
+                                    {{-- Kolom input Rate Honor --}}
+                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <input type="number" name="rate_honor"
+                                            value="{{ $errorMitraId == $mitra->id_mitra ? old('rate_honor') : $mitra->rate_honor }}"
+                                            class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
+                                            placeholder="Rate Honor" form="form-edit-{{ $mitra->id_mitra }}">
+                                        {{-- Tautkan ke form edit --}}
+                                    </td>
+
+                                    {{-- Kolom select Posisi --}}
+                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <select name="id_posisi_mitra" class="w-full focus:outline-none text-center"
+                                            form="form-edit-{{ $mitra->id_mitra }}"> {{-- Tautkan ke form edit --}}
+                                            <option value="">Pilih Posisi</option>
+                                            @foreach ($posisiMitraOptions as $posisi)
+                                                <option value="{{ $posisi->id_posisi_mitra }}"
+                                                    @if (($errorMitraId == $mitra->id_mitra ? old('id_posisi_mitra') : $mitra->id_posisi_mitra) == $posisi->id_posisi_mitra) selected @endif>
+                                                    {{ $posisi->nama_posisi }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+
+                                    {{-- Kolom Aksi (Tombol & Form diletakkan di sini) --}}
+                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <div class="flex justify-center items-center py-2 text-center">
+                                            {{-- FORM UNTUK EDIT sekarang berada di dalam <td> --}}
+                                            <form
+                                                action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
+                                                method="POST" id="form-edit-{{ $mitra->id_mitra }}" class="inline">
+                                                @csrf
+                                                <input type="hidden" name="force_action" value="1"
+                                                    class="force-action-input" disabled>
                                                 <button type="button"
                                                     onclick="showConfirmation('edit', {{ $mitra->id_mitra }}, '{{ $mitra->nama_lengkap }}')"
                                                     class="bg-oren text-white px-2 py-1 rounded hover:bg-orange-500 mr-3"
                                                     title="Simpan">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
-                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                                         <path
                                                             d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                                     </svg>
                                                 </button>
-                                    </form>
+                                            </form>
 
-                                    {{-- FORM UNTUK HAPUS --}}
-                                    <form
-                                        action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
-                                        method="POST" id="form-hapus-{{ $mitra->id_mitra }}">
-                                        @csrf
-                                                {{-- Tombol Hapus --}}
+                                            {{-- FORM UNTUK HAPUS sekarang berada di dalam <td> --}}
+                                            <form
+                                                action="{{ route('mitra.delete', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
+                                                method="POST" id="form-hapus-{{ $mitra->id_mitra }}"
+                                                class="inline">
+                                                @csrf
                                                 <button type="button"
                                                     onclick="showConfirmation('hapus', {{ $mitra->id_mitra }}, '{{ $mitra->nama_lengkap }}')"
                                                     class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                                                     title="Hapus">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
-                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                                         <path fill-rule="evenodd"
                                                             d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
                                                             clip-rule="evenodd" />
                                                     </svg>
                                                 </button>
-                                            </div>
-                                        </td>
-                                    </form>
+                                            </form>
+                                        </div>
+                                    </td>
                                 @else
-                                    {{-- FORM UNTUK TAMBAH --}}
-                                    <form
-                                        action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
-                                        method="POST" id="form-tambah-{{ $mitra->id_mitra }}">
-                                        @csrf
-                                        <input type="hidden" name="force_action" value="1"
-                                            class="force-action-input">
+                                    {{-- =================================================================== --}}
+                                    {{-- KASUS 2: MITRA BELUM MENGIKUTI (Form Tambah) --}}
+                                    {{-- =================================================================== --}}
 
-                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                            {{-- Cek jika baris ini yang error, baru gunakan old(). Jika tidak, kosongkan. --}}
-                                            <input type="number" name="vol"
-                                                value="{{ $errorMitraId == $mitra->id_mitra ? old('vol') : '' }}"
-                                                class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
-                                                placeholder="Masukkan Vol">
-                                        </td>
-                                        <td class="whitespace-nowrap text-center" style="max-width: 100px;">
-                                            <input type="number" name="rate_honor"
-                                                value="{{ $errorMitraId == $mitra->id_mitra ? old('rate_honor') : '' }}"
-                                                class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
-                                                placeholder="Rate Honor">
-                                        </td>
-                                        <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                            <select name="id_posisi_mitra"
-                                                class="w-full focus:outline-none text-left">
-                                                <option value="">Pilih Posisi</option>
-                                                @foreach ($posisiMitraOptions as $posisi)
-                                                    {{-- Logika yang sama untuk select option --}}
-                                                    <option value="{{ $posisi->id_posisi_mitra }}"
-                                                        @if ($errorMitraId == $mitra->id_mitra && old('id_posisi_mitra') == $posisi->id_posisi_mitra) selected @endif>
-                                                        {{ $posisi->nama_posisi }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </td>
+                                    {{-- Kolom input Vol --}}
+                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <input type="number" name="vol"
+                                            value="{{ $errorMitraId == $mitra->id_mitra ? old('vol') : '' }}"
+                                            class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
+                                            placeholder="Masukkan Vol" form="form-tambah-{{ $mitra->id_mitra }}">
+                                        {{-- Tautkan ke form tambah --}}
+                                    </td>
 
-                                        <td class="whitespace-nowrap p-2 text-center" style="max-width: 120px;"
-                                            colspan="2">
-                                            {{-- Tombol Tambah --}}
-                                            <button type="button"
-                                                onclick="showConfirmation('tambah', {{ $mitra->id_mitra }}, '{{ $mitra->nama_lengkap }}')"
-                                                class="bg-green-500 px-3 rounded text-white font-medium hover:bg-green-600 hover:shadow-lg transition-all duration-300">Tambah</button>
-                                        </td>
-                                    </form>
+                                    {{-- Kolom input Rate Honor --}}
+                                    <td class="whitespace-nowrap text-center" style="max-width: 100px;">
+                                        <input type="number" name="rate_honor"
+                                            value="{{ $errorMitraId == $mitra->id_mitra ? old('rate_honor') : '' }}"
+                                            class="w-full p-2 text-center border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm"
+                                            placeholder="Rate Honor" form="form-tambah-{{ $mitra->id_mitra }}">
+                                        {{-- Tautkan ke form tambah --}}
+                                    </td>
+
+                                    {{-- Kolom select Posisi --}}
+                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                        <select name="id_posisi_mitra" class="w-full focus:outline-none text-left"
+                                            form="form-tambah-{{ $mitra->id_mitra }}"> {{-- Tautkan ke form tambah --}}
+                                            <option value="">Pilih Posisi</option>
+                                            @foreach ($posisiMitraOptions as $posisi)
+                                                <option value="{{ $posisi->id_posisi_mitra }}"
+                                                    @if ($errorMitraId == $mitra->id_mitra && old('id_posisi_mitra') == $posisi->id_posisi_mitra) selected @endif>
+                                                    {{ $posisi->nama_posisi }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+
+                                    {{-- Kolom Aksi (Tombol & Form diletakkan di sini) --}}
+                                    <td class="whitespace-nowrap p-2 text-center" style="max-width: 120px;"
+                                        colspan="2">
+                                        {{-- FORM UNTUK TAMBAH sekarang ada di dalam <td>. Ini HTML yang valid. --}}
+                                        <form
+                                            action="{{ route('mitra.toggle', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
+                                            method="POST" id="form-tambah-{{ $mitra->id_mitra }}">
+                                            @csrf
+                                            <input type="hidden" name="force_action" value="1"
+                                                class="force-action-input" disabled>
+                                        </form>
+
+                                        {{-- Tombol ini akan men-trigger form di atas melalui JavaScript --}}
+                                        <button type="button"
+                                            onclick="showConfirmation('tambah', {{ $mitra->id_mitra }}, '{{ $mitra->nama_lengkap }}')"
+                                            class="bg-green-500 px-3 rounded text-white font-medium hover:bg-green-600 hover:shadow-lg transition-all duration-300">
+                                            Tambah
+                                        </button>
+                                    </td>
                                 @endif
                             </tr>
                         @endforeach
@@ -666,7 +692,8 @@ $title = 'Kelola Survei';
             if (formToSubmit) {
                 const forceInput = formToSubmit.querySelector('.force-action-input');
                 if (forceInput) {
-                    // 'force' true jika ini adalah konfirmasi kedua (misal honor limit)
+                    // 'force' bernilai true jika ini adalah konfirmasi kedua (honor limit).
+                    // Aktifkan input `force_action` agar nilainya terkirim saat form disubmit.
                     forceInput.disabled = !force;
                 }
             }
@@ -717,17 +744,18 @@ $title = 'Kelola Survei';
                 }
             @endif
 
-            // Kasus 2: Butuh Konfirmasi Lanjutan (Honor Limit)
+            // --- BAGIAN KUNCI: Menangkap data konfirmasi dari Controller ---
             @if (session('show_modal_confirmation'))
                 const confirmData = {!! json_encode(session('show_modal_confirmation')) !!};
                 showConfirmation(
                     confirmData.type,
                     confirmData.mitra_id,
                     '', // nama tidak perlu karena sudah ada di custom message
-                    true, // Force=true untuk mengaktifkan input hidden
+                    confirmData.force, // Akan bernilai 'true' dari controller
                     confirmData.message
                 );
             @endif
+
 
         });
     </script>
