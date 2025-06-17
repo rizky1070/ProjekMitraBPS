@@ -175,6 +175,9 @@ $title = 'Daftar Mitra';
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th
+                                            class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1">
+                                            No</th>
+                                        <th
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Nama Mitra</th>
                                         <th
@@ -195,6 +198,10 @@ $title = 'Daftar Mitra';
                                     @foreach ($mitras as $mitra)
                                         <tr class="hover:bg-gray-50"
                                             style="border-top-width: 2px; border-color: #D1D5DB;">
+                                            <td
+                                                class="px-3 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900 w-1">
+                                                {{ ($mitras->currentPage() - 1) * $mitras->perPage() + $loop->iteration }}
+                                            </td>
                                             @php
                                                 $bgStatus =
                                                     $mitra->status_pekerjaan == 1 ? 'bg-red-500' : 'bg-green-500';
@@ -265,7 +272,8 @@ $title = 'Daftar Mitra';
 
             <form action="{{ route('upload.excelMitra') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <input type="file" name="file" accept=".xlsx, .xls" class="border p-2 w-full text-xs sm:text-sm">
+                <input type="file" name="file" accept=".xlsx, .xls"
+                    class="border p-2 w-full text-xs sm:text-sm">
                 <p class="py-2 text-xs sm:text-sm">Belum punya file excel?
                     <a href="{{ asset('addMitra.xlsx') }}" class="text-blue-500 hover:text-blue-600 font-bold">
                         Download template disini.
