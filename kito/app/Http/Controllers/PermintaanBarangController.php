@@ -59,20 +59,101 @@ class PermintaanBarangController extends Controller
             'catatan' => $request->catatan,
         ]);
 
-        $iduser = Auth()->user()->id;
-        $peminta = User::findOrFail($iduser);
-        $pesannama = $peminta->name;
-        $emailadmin = User::where('email', 'annisarne12@gmail.com')->firstOrFail();
-        $idbarang = $request->barang_id;
-        $mintabarang = Barang::findOrFail($idbarang);
-        $pesanbarang = $mintabarang->namabarang;
-        $pesanstok = $request->stokpermintaan;
-        // $userminta = Auth::user();
-        $emailadmin->notify(new NotifikasiPermintaanBarang($pesannama, $pesanbarang, $pesanstok));
+        // Mengambil data untuk notifikasi
+        $peminta = Auth::user();
+        $admin = User::where('email', 'siti@example.com')->first(); // Gunakan first() agar tidak error jika tidak ada
+        $barang = Barang::findOrFail($request->barang_id);
+
+        // Kirim notifikasi WhatsApp jika admin ditemukan
+        if ($admin) {
+            $this->sendWhatsAppPermintaanBarang(
+                $admin,
+                $peminta->name,
+                $barang->namabarang,
+                $request->stokpermintaan,
+                $request->catatan, // Tambahkan parameter ini
+                $request->orderdate
+            );
+        } else {
+            // Opsional: catat ke log jika admin tidak ditemukan
+            // \Log::error('Admin dengan email annisarne12@gmail.com tidak ditemukan untuk notifikasi.');
+        }
+
+        // Jika Anda ingin menghapus notifikasi email, hapus atau beri komentar pada baris di bawah ini
+        // $emailadmin->notify(new NotifikasiPermintaanBarang($pesannama, $pesanbarang, $pesanstok));
 
 
         return redirect()->route('siminbarpermintaanbarang.getPermintaanBarangUser')->with(['success' => 'Data Berhasil Disimpan!']);
     }
+
+
+    private function sendWhatsAppPermintaanBarang($admin, $namaPeminta, $namaBarang, $jumlahStok, $catatan, $tanggalPermintaan)
+    {
+        // Ganti dengan token Fonnte Anda. Sebaiknya simpan di file .env untuk keamanan.
+        $token = env('FONNTE_TOKEN');
+
+        // Pastikan model User Anda memiliki kolom no_hp atau sesuaikan nama kolomnya
+        $targetPhoneNumber = $admin->nomer_telepon;
+
+        // Jika nomor telepon tidak ada, hentikan fungsi
+        if (!$targetPhoneNumber) {
+            // Anda bisa menambahkan log di sini jika perlu
+            // \Log::warning('Nomor HP admin tidak ditemukan untuk notifikasi WhatsApp.');
+            return;
+        }
+
+        // 1. Atur bahasa ke Indonesia untuk nama bulan
+        Carbon::setLocale('id');
+
+        // 2. Ubah format tanggal yang diterima dari parameter
+        $tanggalFormatted = Carbon::parse($tanggalPermintaan)->translatedFormat('d F Y');
+
+
+        // Membuat pesan notifikasi
+        $message = "🔔 *Notifikasi Permintaan Barang Baru* 🔔\n\n"
+            . "Halo *{$admin->name}*,\n"
+            . "Ada permintaan barang baru yang masuk:\n\n"
+            . "👤 *Peminta:* {$namaPeminta}\n"
+            . "📦 *Nama Barang:* {$namaBarang}\n"
+            . "🔢 *Jumlah:* {$jumlahStok} unit\n"
+            . "🗓️ *Tanggal Order:* {$tanggalFormatted}\n"; // Baris ini ditambahkan
+
+
+        // Tambahkan bagian catatan HANYA JIKA catatan diisi oleh pengguna
+        if (!empty($catatan)) {
+            $message .= "📝 *Catatan:* {$catatan}\n";
+        }
+
+        $message .= "\nMohon untuk segera ditindaklanjuti.";
+        // Mengirim request ke API Fonnte menggunakan cURL
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array(
+                'target' => $targetPhoneNumber,
+                'message' => $message,
+                'countryCode' => '62', // Opsional, sesuaikan jika perlu
+            ),
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: ' . $token
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        // Anda bisa menyimpan response dari Fonnte ke log untuk debugging
+        // \Log::info('Fonnte API Response: ' . $response);
+    }
+
 
     public function getPermintaanBarangAdminByID($id)
     {
@@ -630,19 +711,18 @@ class PermintaanBarangController extends Controller
             'id' => $permintaanbarang->id,
         ];
 
-               $tanggaldownload = Carbon::now()->format('d_m_Y'); // Ganti "-" dengan "_"
-        
+        $tanggaldownload = Carbon::now()->format('d_m_Y'); // Ganti "-" dengan "_"
+
         // Bersihkan nama user dan nama barang dari karakter tidak valid
         $namauser = preg_replace('/[^A-Za-z0-9_]/', '_', $namauser);
         $namabarang = preg_replace('/[^A-Za-z0-9_]/', '_', $namabarang);
-        
+
         $filename = strtolower($namauser . '_Laporan_Permintaan_' . $namabarang . '_' . $tanggaldownload . '.pdf');
-        
+
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('siminbar.laporanbarang', compact('permintaanbarangData'))->setPaper('a4', 'landscape');
-        
-        return $pdf->download($filename);
 
+        return $pdf->download($filename);
     }
 
     public function delete($id)

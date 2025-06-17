@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('jabatan');
+            $table->string('nomer_telepon')->nullable();
             $table->string('email')->unique();
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_leader')->default(false);
