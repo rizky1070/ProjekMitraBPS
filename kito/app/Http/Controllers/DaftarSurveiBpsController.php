@@ -254,47 +254,61 @@ class DaftarSurveiBpsController extends Controller
         }
 
         $survey = Survei::findOrFail($id_survei);
-        $mitra = Mitra::findOrFail($id_mitra); // Ambil data mitra untuk mendapatkan nama
+        $mitra = Mitra::findOrFail($id_mitra);
         $mitraSurvei = MitraSurvei::where('id_survei', $id_survei)->where('id_mitra', $id_mitra)->firstOrFail();
 
-        // Logika honor limit
+        // Hitung total honor mitra di bulan ini (termasuk survei lain kecuali yang sedang diupdate)
         $totalHonorBulanIni = MitraSurvei::join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
             ->where('mitra_survei.id_mitra', $id_mitra)
             ->where('survei.bulan_dominan', $survey->bulan_dominan)
-            ->where('mitra_survei.id_survei', '!=', $id_survei)
+            ->where('mitra_survei.id_survei', '!=', $id_survei) // Exclude current survey
             ->sum(DB::raw('mitra_survei.rate_honor * mitra_survei.vol'));
 
+        // Hitung honor yang akan diupdate
         $honorYangAkanDitambahkan = $request->input('rate_honor') * $request->input('vol');
         $totalHonorSetelahUpdate = $totalHonorBulanIni + $honorYangAkanDitambahkan;
 
-        if ($totalHonorSetelahUpdate > 4000000 && !$request->has('force_action')) {
-            $totalHonorSebelumUpdateSaatIni = MitraSurvei::join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
-                ->where('mitra_survei.id_mitra', $id_mitra)
-                ->where('survei.bulan_dominan', $survey->bulan_dominan)
-                ->sum(DB::raw('mitra_survei.rate_honor * mitra_survei.vol'));
+        // Hitung total honor saat ini (termasuk survei yang sedang diupdate)
+        $totalHonorSaatIni = MitraSurvei::join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
+            ->where('mitra_survei.id_mitra', $id_mitra)
+            ->where('survei.bulan_dominan', $survey->bulan_dominan)
+            ->sum(DB::raw('mitra_survei.rate_honor * mitra_survei.vol'));
 
-            // Kirim data konfirmasi ke modal universal
-            return redirect()->back()->withInput()->with('show_modal_confirmation', [
-                'type' => 'edit',
-                'mitra_id' => $id_mitra,
-                'title' => 'Konfirmasi Edit Mitra',
-                'message' => "Total honor mitra {$mitra->nama_lengkap} di bulan " . \carbon\Carbon::parse($survey->bulan_dominan)->translatedFormat('F Y') . " akan melebihi Rp 4.000.000 (Total saat ini: Rp " . number_format($totalHonorSebelumUpdateSaatIni, 0, ',', '.') . "). Tetap simpan perubahan?",
-                'form_id' => 'form-edit-' . $id_mitra,
-                'force' => true
-            ]);
+        // Jika akan melebihi batas dan bukan konfirmasi paksa
+        if ($totalHonorSetelahUpdate > 4000000 && !$request->has('force_action')) {
+            $namaBulan = \Carbon\Carbon::parse($survey->bulan_dominan)->locale('id')->translatedFormat('F Y');
+            
+            $pesanKonfirmasi = "Total honor mitra <b>{$mitra->nama_lengkap}</b> di bulan {$namaBulan} saat ini: Rp " . 
+                number_format($totalHonorSaatIni, 0, ',', '.') . 
+                "<br>Setelah update akan menjadi: <b>Rp " . 
+                number_format($totalHonorSetelahUpdate, 0, ',', '.') . 
+                "</b> (melebihi batas Rp 4.000.000). Yakin tetap ingin menyimpan perubahan?";
+
+            return redirect()->back()
+                ->withInput()
+                ->with('show_modal', 'edit-' . $id_mitra)
+                ->with('show_modal_confirmation', [
+                    'type' => 'edit',
+                    'mitra_id' => $id_mitra,
+                    'title' => 'Konfirmasi Update Honor Mitra',
+                    'message' => $pesanKonfirmasi,
+                    'form_id' => 'form-edit-' . $id_mitra,
+                    'force' => true
+                ]);
         }
 
-        // Update data
+        // Update data jika tidak melebihi batas atau user memaksa
         $mitraSurvei->vol = $request->input('vol');
         $mitraSurvei->rate_honor = $request->input('rate_honor');
         $mitraSurvei->id_posisi_mitra = $request->input('id_posisi_mitra');
         $mitraSurvei->save();
 
-        // -- PERUBAHAN --
-        // Gunakan nama mitra dalam pesan sukses.
+        // Siapkan pesan sukses
         $message = "Data mitra {$mitra->nama_lengkap} berhasil diperbarui!";
+        
+        // Tambahkan peringatan jika melebihi batas
         if ($totalHonorSetelahUpdate > 4000000) {
-            $message .= ' Perhatian: Total honor mitra melebihi batas Rp 4.000.000';
+            $message .= ' (Perhatian: Total honor mitra melebihi batas Rp 4.000.000)';
         }
 
         return redirect()->back()->with('success', $message);
@@ -337,7 +351,7 @@ class DaftarSurveiBpsController extends Controller
         $totalHonorSetelahDitambah = $totalHonorBulanIni + $honorYangAkanDitambahkan;
 
         if ($totalHonorSetelahDitambah > 4000000 && !$request->has('force_action')) {
-            $namaBulan = \Carbon\Carbon::parse($survey->bulan_dominan)->translatedFormat('F Y');
+            $namaBulan = \Carbon\Carbon::parse($survey->bulan_dominan)->locale('id')->translatedFormat('F Y');
             $pesanKonfirmasi = "Total honor mitra <b>{$mitra->nama_lengkap}</b> di bulan {$namaBulan} akan menjadi <b>Rp " . number_format($totalHonorSetelahDitambah, 0, ',', '.') . "</b> (melebihi batas Rp 4.000.000). Yakin tetap ingin menambahkan?";
 
             return redirect()->back()
