@@ -91,6 +91,14 @@ $title = 'Report Mitra';
                                                 {{ request('mode_export') == 'per_bulan' ? 'selected' : '' }}>
                                                 Export per Bulan
                                             </option>
+                                            <option value="detail"
+                                                {{ request('mode_export', 'detail') == 'detail' ? 'selected' : '' }}>
+                                                Export Detail
+                                            </option>
+                                            <option value="per_tim"
+                                                {{ request('mode_export') == 'per_tim' ? 'selected' : '' }}>
+                                                Export per Tim
+                                            </option>
                                         </select>
                                     </div>
                                     <div class="flex flex-col">
@@ -542,6 +550,12 @@ $title = 'Report Mitra';
                 const honorTomSelect = tomSelects.honor_lebih_dari_4jt;
 
                 if (mode === 'per_bulan') {
+                    // Nonaktifkan filter bulan dan yang bergantung padanya
+                    bulanTomSelect.clear();
+                    bulanTomSelect.disable();
+                    partisipasiTomSelect.disable();
+                    honorTomSelect.disable();
+                } else if (mode === 'per_tim') {
                     // Nonaktifkan filter bulan dan yang bergantung padanya
                     bulanTomSelect.clear();
                     bulanTomSelect.disable();

@@ -244,10 +244,13 @@ class ReportMitraSurveiController extends Controller
         \carbon\Carbon::setLocale('id');
         $mode = $request->input('mode_export', 'detail');
 
-        if ($mode === 'per_bulan') {
-            return $this->exportPerBulan($request);
-        } else {
-            return $this->exportDetail($request);
+        switch ($mode) {
+            case 'per_bulan':
+                return $this->exportPerBulan($request);
+            case 'per_tim': // TAMBAHKAN MODE BARU INI
+                return $this->exportPerTim($request);
+            default:
+                return $this->exportDetail($request);
         }
     }
 
@@ -390,6 +393,95 @@ class ReportMitraSurveiController extends Controller
         return Excel::download(
             new MitraPerBulanExport($exportData, $monthHeaders, $filters, $totals),
             'laporan_honor_mitra_per_bulan_' . $tahun . '_' . now()->format('Ymd_His') . '.xlsx'
+        );
+    }
+
+    private function exportPerTim(Request $request)
+    {
+        $tahun = $request->input('tahun');
+        if (!$tahun) {
+            return redirect()->back()->with('error', 'Silakan pilih tahun untuk mode export per tim.');
+        }
+
+        // 1. Dapatkan semua nama tim unik, bersihkan dan seragamkan ke huruf kecil.
+        $teamHeaders = \App\Models\Survei::whereYear('bulan_dominan', $tahun)
+            ->selectRaw("LOWER(TRIM(tim)) as tim_cleaned") // Gunakan LOWER() untuk menyeragamkan
+            ->distinct()
+            ->orderBy('tim_cleaned')
+            ->pluck('tim_cleaned')
+            ->map(function ($teamName) {
+                return is_null($teamName) || $teamName === '' ? 'Tanpa Tim' : $teamName;
+            })
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
+
+        // 2. Terapkan filter dasar.
+        $mitras = $this->applyBaseFilters(Mitra::query(), $request, true)
+            ->select('id_mitra', 'sobat_id', 'nama_lengkap', 'jenis_kelamin', 'status_pekerjaan')
+            ->orderBy('nama_lengkap')
+            ->get();
+
+        if ($mitras->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada data mitra yang cocok dengan filter yang dipilih.');
+        }
+
+        // 3. Ambil data honor, bersihkan dan seragamkan nama tim ke huruf kecil.
+        $mitraIds = $mitras->pluck('id_mitra');
+        $honorData = MitraSurvei::whereIn('mitra_survei.id_mitra', $mitraIds)
+            ->join('survei', 'mitra_survei.id_survei', '=', 'survei.id_survei')
+            ->whereYear('survei.bulan_dominan', $tahun)
+            ->selectRaw("mitra_survei.id_mitra, IF(TRIM(survei.tim) = '' OR survei.tim IS NULL, 'Tanpa Tim', LOWER(TRIM(survei.tim))) as tim_formatted, SUM(mitra_survei.vol * mitra_survei.rate_honor) as total_honor")
+            ->groupBy('mitra_survei.id_mitra', 'tim_formatted')
+            ->get()
+            ->groupBy('id_mitra');
+
+        // 4. Proses data mentah menjadi format yang siap diekspor.
+        $exportData = [];
+        $grandTotalHonor = 0;
+        foreach ($mitras as $mitra) {
+            $honorsByTeam = array_fill_keys($teamHeaders, 0);
+
+            if (isset($honorData[$mitra->id_mitra])) {
+                foreach ($honorData[$mitra->id_mitra] as $honor) {
+                    $teamKey = $honor->tim_formatted;
+                    if (array_key_exists($teamKey, $honorsByTeam)) {
+                        $honorsByTeam[$teamKey] += (float) $honor->total_honor; // Gunakan += untuk mengakumulasi
+                    }
+                }
+            }
+
+            $totalYearlyHonor = array_sum($honorsByTeam);
+            $grandTotalHonor += $totalYearlyHonor;
+
+            $exportData[] = [
+                'sobat_id'   => $mitra->sobat_id,
+                'nama_mitra' => $mitra->nama_lengkap,
+                'honors'     => $honorsByTeam,
+                'total'      => $totalYearlyHonor,
+            ];
+        }
+
+        // 5. Hitung total ringkasan.
+        $totals = [
+            'totalMitra'               => $mitras->count(),
+            'totalLaki'                => $mitras->where('jenis_kelamin', 1)->count(),
+            'totalPerempuan'           => $mitras->where('jenis_kelamin', 2)->count(),
+            'totalHonor'               => $grandTotalHonor,
+            'totalIkutSurvei'          => collect($exportData)->where('total', '>', 0)->count(),
+            'totalTidakIkutSurvei'     => $mitras->count() - collect($exportData)->where('total', '>', 0)->count(),
+            'totalBisaIkutSurvei'      => $mitras->where('status_pekerjaan', 0)->count(),
+            'totalTidakBisaIkutSurvei' => $mitras->where('status_pekerjaan', '!=', 0)->count(),
+        ];
+
+        // 6. Kumpulkan filter.
+        $filters = $this->getAppliedFilters($request, true);
+
+        // 7. Panggil kelas Export.
+        return Excel::download(
+            new \App\Exports\MitraPerTimExport($exportData, $teamHeaders, $filters, $totals),
+            'laporan_honor_mitra_per_tim_' . $tahun . '_' . now()->format('Ymd_His') . '.xlsx'
         );
     }
 
