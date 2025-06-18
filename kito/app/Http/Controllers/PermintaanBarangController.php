@@ -13,6 +13,7 @@ use App\Models\PermintaanBarang;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 // use Illuminate\Support\Facades\Storage;
 
 class PermintaanBarangController extends Controller
@@ -89,73 +90,125 @@ class PermintaanBarangController extends Controller
 
     private function sendWhatsAppPermintaanBarang($admin, $namaPeminta, $namaBarang, $jumlahStok, $catatan, $tanggalPermintaan)
     {
-        // Ganti dengan token Fonnte Anda. Sebaiknya simpan di file .env untuk keamanan.
+        // Ganti dengan token Fonnte Anda dari file .env
         $token = env('FONNTE_TOKEN');
 
-        // Pastikan model User Anda memiliki kolom no_hp atau sesuaikan nama kolomnya
-        $targetPhoneNumber = $admin->nomer_telepon;
+        // [PENTING] Lakukan pembersihan nomor telepon untuk memastikan formatnya benar
+        $targetPhoneNumber = $this->sanitizePhoneNumber($admin->nomer_telepon);
 
-        // Jika nomor telepon tidak ada, hentikan fungsi
         if (!$targetPhoneNumber) {
-            // Anda bisa menambahkan log di sini jika perlu
-            // \Log::warning('Nomor HP admin tidak ditemukan untuk notifikasi WhatsApp.');
+            Log::warning('Nomor HP admin tidak valid atau tidak ditemukan.', ['admin_id' => $admin->id]);
             return;
         }
 
-        // 1. Atur bahasa ke Indonesia untuk nama bulan
-        Carbon::setLocale('id');
+        // [ANTI-BANNED] 1. Jeda Pengiriman Acak (Random Delay)
+        // Meniru perilaku manusia dengan memberikan jeda 1-4 detik sebelum mengirim.
+        // Sangat berguna jika fungsi ini dipanggil berulang kali dalam waktu singkat.
+        sleep(rand(1, 4));
 
-        // 2. Ubah format tanggal yang diterima dari parameter
+        // Atur bahasa Carbon ke Indonesia
+        Carbon::setLocale('id');
         $tanggalFormatted = Carbon::parse($tanggalPermintaan)->translatedFormat('d F Y');
 
+        // [ANTI-BANNED] 2. Variasi Pesan (Spintax)
+        // Membuat beberapa template sapaan dan penutup agar pesan tidak identik setiap saat.
+        $sapaan = [
+            "Halo *{$admin->name}*,",
+            "Hi *{$admin->name}*,",
+            "Yth. *{$admin->name}*,"
+        ];
 
-        // Membuat pesan notifikasi
-        $message = "🔔 *Notifikasi Permintaan Barang Baru* 🔔\n\n"
-            . "Halo *{$admin->name}*,\n"
-            . "Ada permintaan barang baru yang masuk:\n\n"
-            . "👤 *Peminta:* {$namaPeminta}\n"
-            . "📦 *Nama Barang:* {$namaBarang}\n"
-            . "🔢 *Jumlah:* {$jumlahStok} unit\n";
+        $header = [
+            "🔔 *Notifikasi Permintaan Barang Baru* 🔔",
+            "📦 *Ada Permintaan Barang Masuk* 📦",
+            "📝 *Pemberitahuan Permintaan Barang* 📝"
+        ];
 
-        // Tambahkan bagian catatan HANYA JIKA catatan diisi oleh pengguna
+        $penutup = [
+            "Mohon untuk segera ditindaklanjuti.",
+            "Harap segera diproses.",
+            "Terima kasih atas perhatiannya."
+        ];
+
+        // Pilih sapaan, header, dan penutup secara acak
+        $randomSapaan = $sapaan[array_rand($sapaan)];
+        $randomHeader = $header[array_rand($header)];
+        $randomPenutup = $penutup[array_rand($penutup)];
+
+        // Susun pesan dengan format yang dinamis
+        $message  = "{$randomHeader}\n\n";
+        $message .= "{$randomSapaan}\n";
+        $message .= "Ada permintaan barang baru yang perlu diperiksa:\n\n";
+        $message .= "👤 *Peminta:* {$namaPeminta}\n";
+        $message .= "📦 *Nama Barang:* {$namaBarang}\n";
+        $message .= "🔢 *Jumlah:* {$jumlahStok} unit\n";
+
         if (!empty($catatan)) {
             $message .= "📝 *Catatan:* {$catatan}\n";
         }
 
-        // Tambahkan Tanggal Order SETELAH pengecekan catatan
-        $message .= "🗓️ *Tanggal Order:* {$tanggalFormatted}\n";
+        $message .= "🗓️ *Tanggal Order:* {$tanggalFormatted}\n\n";
+        $message .= $randomPenutup;
 
-        $message .= "\nMohon untuk segera ditindaklanjuti.";
+        // Persiapkan data untuk dikirim
+        $payload = [
+            'target'      => $targetPhoneNumber,
+            'message'     => $message,
+            'countryCode' => '62', // Opsional
+        ];
 
-        // Mengirim request ke API Fonnte menggunakan cURL
         $curl = curl_init();
-
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://api.fonnte.com/send',
+            CURLOPT_URL            => 'https://api.fonnte.com/send',
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 30, // Set timeout agar tidak hang terlalu lama
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => array(
-                'target' => $targetPhoneNumber,
-                'message' => $message,
-                'countryCode' => '62', // Opsional, sesuaikan jika perlu
-            ),
-            CURLOPT_HTTPHEADER => array(
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POSTFIELDS     => http_build_query($payload), // Gunakan http_build_query untuk encoding yang lebih aman
+            CURLOPT_HTTPHEADER     => array(
                 'Authorization: ' . $token
             ),
         ));
 
         $response = curl_exec($curl);
+        $err = curl_error($curl);
         curl_close($curl);
 
-        // Anda bisa menyimpan response dari Fonnte ke log untuk debugging
-        // \Log::info('Fonnte API Response: ' . $response);
+        // [ANTI-BANNED] 3. Logging yang Lebih Baik
+        // Selalu catat request dan response untuk audit dan deteksi dini masalah.
+        if ($err) {
+            Log::error('cURL Error saat kirim WA (Fonnte): ' . $err, ['payload' => $payload]);
+        } else {
+            Log::info('Fonnte API Response: ' . $response, ['payload' => $payload]);
+        }
     }
 
+    /**
+     * Membersihkan dan memvalidasi nomor telepon ke format internasional (62).
+     * Contoh: 081234567890 -> 6281234567890
+     * +6281234567890 -> 6281234567890
+     */
+    private function sanitizePhoneNumber($number)
+    {
+        if (empty($number)) {
+            return null;
+        }
+        // Hapus karakter selain angka
+        $number = preg_replace('/[^0-9]/', '', $number);
+        // Jika diawali dengan 0, ganti dengan 62
+        if (substr($number, 0, 1) == '0') {
+            $number = '62' . substr($number, 1);
+        }
+        // Jika sudah diawali 62, biarkan
+        // Anggap nomor valid jika panjangnya antara 10-15 digit setelah diformat
+        if (strlen($number) < 10 || strlen($number) > 15) {
+            return null;
+        }
+        return $number;
+    }
 
     public function getPermintaanBarangAdminByID($id)
     {
