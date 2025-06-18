@@ -38,4 +38,18 @@ class Office extends Model
     {
         return $query->where('status', 0);
     }
+
+    public function getFullUrlAttribute(): string
+    {
+        // Ambil nilai link asli dari database
+        $url = $this->attributes['link'];
+
+        // Jika link sudah memiliki http:// atau https://, kembalikan apa adanya.
+        if (preg_match('#^https?://#i', $url)) {
+            return $url;
+        }
+
+        // Jika tidak, tambahkan '//' di depannya.
+        return '//' . $url;
+    }
 }

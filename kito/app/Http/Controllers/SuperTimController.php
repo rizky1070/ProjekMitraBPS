@@ -6,6 +6,7 @@ use App\Models\Office;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class SuperTimController extends Controller
 {
@@ -112,30 +113,36 @@ class SuperTimController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        // 1. Validasi data yang masuk
+        $validatedData = $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                // Validasi kustom untuk memeriksa kombinasi name dan category_id
+                // Validasi kustom untuk memastikan nama unik per kategori
                 function ($attribute, $value, $fail) use ($request) {
                     $exists = Office::where('name', $value)
                         ->where('category_id', $request->category_id)
                         ->exists();
                     if ($exists) {
-                        $fail('Nama sudah digunakan untuk kategori ini. Silakan pilih nama lain atau kategori lain.');
+                        $fail('Nama sudah digunakan untuk kategori ini.');
                     }
                 }
             ],
-            'link' => 'required|url|max:255',
+            'link' => [
+                'required',
+                'max:255',
+                'regex:/^((https?:\/\/)?[\w\.-]+\.[a-z]{2,6})(\/.*)?$/i'
+            ],
             'category_id' => 'required|exists:categories,id',
             'status' => 'required|boolean'
         ], [
+            // Blok pesan error kustom yang lengkap dan konsisten
             'name.required' => 'Nama harus diisi.',
             'name.string' => 'Nama harus berupa teks.',
             'name.max' => 'Nama tidak boleh lebih dari 255 karakter.',
             'link.required' => 'Link harus diisi.',
-            'link.url' => 'Link harus berupa URL yang valid.',
+            'link.regex' => 'Link harus berupa URL yang valid.',
             'link.max' => 'Link tidak boleh lebih dari 255 karakter.',
             'category_id.required' => 'Kategori harus dipilih.',
             'category_id.exists' => 'Kategori yang dipilih tidak valid.',
@@ -144,44 +151,50 @@ class SuperTimController extends Controller
         ]);
 
         try {
-            Office::create([
-                'name' => $request->name,
-                'link' => $request->link,
-                'category_id' => $request->category_id,
-                'status' => $request->status,
-                'user_id' => Auth::id()
-            ]);
+            // 2. Tambahkan user_id yang sedang login
+            $validatedData['user_id'] = Auth::id();
 
+            // 3. Buat dan simpan data menggunakan data yang sudah divalidasi
+            Office::create($validatedData);
+
+            // 4. Kembalikan respons sukses dengan kode status yang tepat
             return response()->json([
                 'success' => true,
-                'message' => 'Super Tim berhasil ditambahkan'
-            ]);
+                'message' => 'Data berhasil ditambahkan.'
+            ], 201); // 201 Created
+
         } catch (\Exception $e) {
+            // Jika terjadi error, kembalikan respons gagal
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menambahkan Super Tim: ' . $e->getMessage()
+                'message' => 'Gagal menambahkan data: ' . $e->getMessage()
             ], 500);
         }
     }
 
     public function update(Request $request, $id)
     {
+        $office = Office::findOrFail($id);
+
         $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
                 // Validasi kustom untuk memeriksa kombinasi name dan category_id
-                function ($attribute, $value, $fail) use ($request) {
-                    $exists = Office::where('name', $value)
-                        ->where('category_id', $request->category_id)
-                        ->exists();
-                    if ($exists) {
-                        $fail('Nama sudah digunakan untuk kategori ini. Silakan pilih nama lain atau kategori lain.');
-                    }
-                }
+                Rule::unique('offices', 'name') // Cek di tabel 'offices'
+                    ->where(function ($query) use ($request, $office) {
+                        $categoryId = $request->input('category_id', $office->category_id);
+                        return $query->where('category_id', $categoryId);
+                    })
+                    ->ignore($office->id), // Abaikan ID dari data yang sedang diedit
             ],
-            'link' => 'required|url|max:255',
+
+            'link' => [
+                'required',
+                'max:255',
+                'regex:/^((https?:\/\/)?[\w\.-]+\.[a-z]{2,6})(\/.*)?$/i'
+            ],
             'category_id' => 'required|exists:categories,id',
             'status' => 'required|boolean'
         ], [
@@ -189,7 +202,7 @@ class SuperTimController extends Controller
             'name.string' => 'Nama harus berupa teks.',
             'name.max' => 'Nama tidak boleh lebih dari 255 karakter.',
             'link.required' => 'Link harus diisi.',
-            'link.url' => 'Link harus berupa URL yang valid.',
+            'link.regex' => 'Link harus berupa URL yang valid.',
             'link.max' => 'Link tidak boleh lebih dari 255 karakter.',
             'category_id.required' => 'Kategori harus dipilih.',
             'category_id.exists' => 'Kategori yang dipilih tidak valid.',

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\categoryUser;
 use App\Models\CategoryUser as ModelsCategoryUser;
+use Illuminate\Validation\Rule;
 
 class PribadiController extends Controller
 {
@@ -84,30 +85,37 @@ class PribadiController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        // 1. Validasi data yang masuk
+        $validatedData = $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                // Validasi kustom untuk memeriksa kombinasi name dan category_user_id
+                // Validasi kustom untuk memastikan nama unik per kategori
                 function ($attribute, $value, $fail) use ($request) {
                     $exists = Link::where('name', $value)
                         ->where('category_user_id', $request->category_user_id)
                         ->exists();
                     if ($exists) {
-                        $fail('Nama sudah digunakan untuk kategori ini. Silakan pilih nama lain atau kategori lain.');
+                        $fail('Nama link sudah digunakan untuk kategori ini.');
                     }
                 }
             ],
-            'link' => 'required|url|max:255',
+            // Aturan validasi link menggunakan regex yang fleksibel
+            'link' => [
+                'required',
+                'max:255',
+                'regex:/^((https?:\/\/)?[\w\.-]+\.[a-z]{2,6})(\/.*)?$/i'
+            ],
             'category_user_id' => 'required|exists:category_users,id',
             'status' => 'required|boolean'
         ], [
+            // Pesan-pesan error kustom
             'name.required' => 'Nama harus diisi.',
             'name.string' => 'Nama harus berupa teks.',
             'name.max' => 'Nama tidak boleh lebih dari 255 karakter.',
             'link.required' => 'Link harus diisi.',
-            'link.url' => 'Link harus berupa URL yang valid.',
+            'link.regex' => 'Format link yang Anda masukkan tidak valid.',
             'link.max' => 'Link tidak boleh lebih dari 255 karakter.',
             'category_user_id.required' => 'Kategori harus dipilih.',
             'category_user_id.exists' => 'Kategori yang dipilih tidak valid.',
@@ -116,19 +124,20 @@ class PribadiController extends Controller
         ]);
 
         try {
-            Link::create([
-                'name' => $request->name,
-                'link' => $request->link,
-                'category_user_id' => $request->category_user_id,
-                'status' => $request->status,
-                'user_id' => Auth::id()
-            ]);
+            // 2. Tambahkan user_id yang sedang login ke data
+            $validatedData['user_id'] = Auth::id();
 
+            // 3. Buat dan simpan data ke database
+            Link::create($validatedData);
+
+            // 4. Kembalikan respons sukses dalam format JSON
             return response()->json([
                 'success' => true,
-                'message' => 'Link berhasil ditambahkan'
-            ]);
+                'message' => 'Link berhasil ditambahkan.'
+            ], 201); // 201 Created
+
         } catch (\Exception $e) {
+            // Jika terjadi error, kembalikan respons gagal
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menambahkan Link: ' . $e->getMessage()
@@ -138,28 +147,32 @@ class PribadiController extends Controller
 
     public function update(Request $request, $id)
     {
+        $link = Link::findOrFail($id);
+
         $request->validate([
             'name' => [
                 'sometimes',
                 'string',
                 'max:255',
                 // Validasi kustom untuk memeriksa kombinasi name dan category_user_id
-                function ($attribute, $value, $fail) use ($request) {
-                    $exists = Link::where('name', $value)
-                        ->where('category_user_id', $request->category_user_id)
-                        ->exists();
-                    if ($exists) {
-                        $fail('Nama sudah digunakan untuk kategori ini. Silakan pilih nama lain atau kategori lain.');
-                    }
-                }
+                // Validasi nama unik yang mengabaikan ID link saat ini
+                Rule::unique('links')->where(function ($query) use ($request, $link) {
+                    $categoryUserId = $request->input('category_user_id', $link->category_user_id);
+                    return $query->where('category_user_id', $categoryUserId);
+                })->ignore($link->id),
             ],
-            'link' => 'sometimes|url|max:255',
+
+            'link' => [
+                'required',
+                'max:255',
+                'regex:/^((https?:\/\/)?[\w\.-]+\.[a-z]{2,6})(\/.*)?$/i'
+            ],
             'category_user_id' => 'sometimes|exists:category_users,id',
             'status' => 'sometimes|boolean'
         ], [
             'name.string' => 'Nama harus berupa teks.',
             'name.max' => 'Nama tidak boleh lebih dari 255 karakter.',
-            'link.url' => 'Link harus berupa URL yang valid.',
+            'link.regex' => 'Format link yang Anda masukkan tidak valid.',
             'link.max' => 'Link tidak boleh lebih dari 255 karakter.',
             'category_user_id.exists' => 'Kategori yang dipilih tidak valid.',
             'status.boolean' => 'Status harus berupa nilai benar atau salah.'

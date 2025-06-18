@@ -6,6 +6,7 @@ use App\Models\Ketua;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class SekretariatController extends Controller
 {
@@ -113,30 +114,37 @@ class SekretariatController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        // 1. Validasi data yang masuk
+        $validatedData = $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                // Validasi kustom untuk memeriksa kombinasi name dan category_id
+                // Validasi kustom untuk memastikan nama unik per kategori
                 function ($attribute, $value, $fail) use ($request) {
                     $exists = Ketua::where('name', $value)
                         ->where('category_id', $request->category_id)
                         ->exists();
                     if ($exists) {
-                        $fail('Nama sudah digunakan untuk kategori ini. Silakan pilih nama lain atau kategori lain.');
+                        // Pesan ini disamakan dengan 'name.unique' di update
+                        $fail('Nama sudah digunakan untuk kategori ini.');
                     }
                 }
             ],
-            'link' => 'required|url|max:255',
+            'link' => [
+                'required',
+                'max:255',
+                'regex:/^((https?:\/\/)?[\w\.-]+\.[a-z]{2,6})(\/.*)?$/i'
+            ],
             'category_id' => 'required|exists:categories,id',
             'status' => 'required|boolean'
         ], [
+            // Blok pesan error kustom yang lengkap
             'name.required' => 'Nama harus diisi.',
             'name.string' => 'Nama harus berupa teks.',
             'name.max' => 'Nama tidak boleh lebih dari 255 karakter.',
             'link.required' => 'Link harus diisi.',
-            'link.url' => 'Link harus berupa URL yang valid.',
+            'link.regex' => 'Link harus berupa URL yang valid.',
             'link.max' => 'Link tidak boleh lebih dari 255 karakter.',
             'category_id.required' => 'Kategori harus dipilih.',
             'category_id.exists' => 'Kategori yang dipilih tidak valid.',
@@ -145,44 +153,47 @@ class SekretariatController extends Controller
         ]);
 
         try {
-            ketua::create([
-                'name' => $request->name,
-                'link' => $request->link,
-                'category_id' => $request->category_id,
-                'status' => $request->status,
-                'user_id' => Auth::id()
-            ]);
+            // 2. Tambahkan user_id
+            $validatedData['user_id'] = Auth::id();
 
+            // 3. Simpan data
+            Ketua::create($validatedData);
+
+            // 4. Kembalikan respons sukses
             return response()->json([
                 'success' => true,
-                'message' => 'Sekretariat berhasil ditambahkan'
-            ]);
+                'message' => 'Data berhasil ditambahkan.'
+            ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menambahkan Sekretariat: ' . $e->getMessage()
+                'message' => 'Gagal menambahkan data: ' . $e->getMessage()
             ], 500);
         }
     }
 
+
     public function update(Request $request, $id)
     {
+        $ketua = ketua::findOrFail($id);
         $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
                 // Validasi kustom untuk memeriksa kombinasi name dan category_id
-                function ($attribute, $value, $fail) use ($request) {
-                    $exists = Ketua::where('name', $value)
-                        ->where('category_id', $request->category_id)
-                        ->exists();
-                    if ($exists) {
-                        $fail('Nama sudah digunakan untuk kategori ini. Silakan pilih nama lain atau kategori lain.');
-                    }
-                }
+                Rule::unique('ketuas', 'name')
+                    ->where(function ($query) use ($request, $ketua) {
+                        $categoryId = $request->input('category_id', $ketua->category_id);
+                        return $query->where('category_id', $categoryId);
+                    })
+                    ->ignore($ketua->id),
             ],
-            'link' => 'required|url|max:255',
+            'link' => [
+                'required',
+                'max:255',
+                'regex:/^((https?:\/\/)?[\w\.-]+\.[a-z]{2,6})(\/.*)?$/i'
+            ],
             'category_id' => 'required|exists:categories,id',
             'status' => 'required|boolean'
         ], [
@@ -190,7 +201,7 @@ class SekretariatController extends Controller
             'name.string' => 'Nama harus berupa teks.',
             'name.max' => 'Nama tidak boleh lebih dari 255 karakter.',
             'link.required' => 'Link harus diisi.',
-            'link.url' => 'Link harus berupa URL yang valid.',
+            'link.regex' => 'Link harus berupa URL yang valid.',
             'link.max' => 'Link tidak boleh lebih dari 255 karakter.',
             'category_id.required' => 'Kategori harus dipilih.',
             'category_id.exists' => 'Kategori yang dipilih tidak valid.',
