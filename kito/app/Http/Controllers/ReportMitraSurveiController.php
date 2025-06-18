@@ -113,7 +113,7 @@ class ReportMitraSurveiController extends Controller
                         if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
                     }),
 
-                'total_honor_per_mitra' => MitraSurvei::selectRaw('SUM(vol * rate_honor)') // Disederhanakan
+                'total_honor_per_mitra' => MitraSurvei::selectRaw('SUM(vol * rate_honor)')
                     ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
                     ->whereHas('survei', function ($q) use ($request) {
                         if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
@@ -121,21 +121,28 @@ class ReportMitraSurveiController extends Controller
                     }),
                 'rata_rata_nilai' => MitraSurvei::selectRaw('AVG(nilai)')
                     ->whereColumn('mitra_survei.id_mitra', 'mitra.id_mitra')
-                    ->whereNotNull('nilai') // Hanya menghitung yang memiliki nilai
+                    ->whereNotNull('nilai')
                     ->whereHas('survei', function ($q) use ($request) {
                         if ($request->filled('bulan')) $q->whereMonth('bulan_dominan', $request->bulan);
                         if ($request->filled('tahun')) $q->whereYear('bulan_dominan', $request->tahun);
                     }),
             ])
-            ->orderByDesc('total_survei')
+            // [START] MODIFIKASI PENGURUTAN
+            ->when($request->filled('sort_honor'), function ($q) use ($request) {
+                // Urutkan berdasarkan total honor jika parameter sort_honor ada
+                $q->orderBy('total_honor_per_mitra', $request->sort_honor);
+            }, function ($q) {
+                // Jika tidak, gunakan urutan default (berdasarkan total survei)
+                $q->orderByDesc('total_survei');
+            })
+            // [END] MODIFIKASI PENGURUTAN
             ->when($request->filled('tahun'), fn($q) => $q->whereYear('tahun', '<=', $request->tahun)->whereYear('tahun_selesai', '>=', $request->tahun))
             ->when($request->filled('bulan'), fn($q) => $q->whereMonth('tahun', '<=', $request->bulan)->whereMonth('tahun_selesai', '>=', $request->bulan))
             ->when($request->filled('kecamatan'), fn($q) => $q->where('id_kecamatan', $request->kecamatan))
             ->when($request->filled('nama_lengkap'), fn($q) => $q->where('nama_lengkap', $request->nama_lengkap))
             ->when($request->filled('status_pekerjaan'), fn($q) => $q->where('status_pekerjaan', $request->status_pekerjaan))
-            // [START] PENAMBAHAN FILTER JENIS KELAMIN
             ->when($request->filled('jenis_kelamin'), fn($q) => $q->where('jenis_kelamin', $request->jenis_kelamin));
-        // [END] PENAMBAHAN FILTER JENIS KELAMIN
+
 
         // FILTER STATUS PARTISIPASI
         if ($request->filled('status_mitra')) {
@@ -348,7 +355,17 @@ class ReportMitraSurveiController extends Controller
         }
 
         // Ambil data dan siapkan untuk export
-        $mitrasData = $mitrasQuery->orderBy('nama_lengkap')->get();
+        // Tambahkan logika pengurutan dinamis yang sama seperti di halaman web
+        $mitrasQuery->when($request->filled('sort_honor'), function ($q) use ($request) {
+            // Urutkan berdasarkan total honor jika parameter sort_honor ada
+            $q->orderBy('total_honor_per_mitra', $request->sort_honor);
+        }, function ($q) {
+            // Jika tidak, gunakan urutan default yang sama dengan web (berdasarkan total survei)
+            $q->orderByDesc('total_survei');
+        });
+
+        // Ambil data setelah diurutkan dengan benar
+        $mitrasData = $mitrasQuery->get();
 
         // Kumpulkan informasi filter untuk ditampilkan di Excel (sama seperti sebelumnya)
         $filters = $this->getAppliedFilters($request);
@@ -389,6 +406,12 @@ class ReportMitraSurveiController extends Controller
         // 4. Kumpulkan filter yang diterapkan untuk ditampilkan di file Excel.
         $filters = $this->getAppliedFilters($request, true);
 
+        if ($request->filled('sort_honor')) {
+            $exportData = collect($exportData)
+                ->sortBy('total', SORT_REGULAR, $request->sort_honor === 'desc')
+                ->values()
+                ->all();
+        }
         // 5. Kirim semua data yang sudah siap ke kelas Export.
         return Excel::download(
             new MitraPerBulanExport($exportData, $monthHeaders, $filters, $totals),
@@ -478,6 +501,12 @@ class ReportMitraSurveiController extends Controller
         // 6. Kumpulkan filter.
         $filters = $this->getAppliedFilters($request, true);
 
+        if ($request->filled('sort_honor')) {
+            $exportData = collect($exportData)
+                ->sortBy('total', SORT_REGULAR, $request->sort_honor === 'desc')
+                ->values()
+                ->all();
+        }
         // 7. Panggil kelas Export.
         return Excel::download(
             new \App\Exports\MitraPerTimExport($exportData, $teamHeaders, $filters, $totals),
@@ -586,6 +615,14 @@ class ReportMitraSurveiController extends Controller
 
         if ($request->filled('jenis_kelamin')) {
             $filters['Jenis Kelamin'] = $request->jenis_kelamin == 1 ? 'Laki-laki' : 'Perempuan';
+        }
+
+        if ($request->filled('sort_honor')) {
+            if ($request->sort_honor == 'desc') {
+                $filters['Urutan Honor'] = 'Honor Terbesar';
+            } elseif ($request->sort_honor == 'asc') {
+                $filters['Urutan Honor'] = 'Honor Terkecil';
+            }
         }
 
         return $filters;

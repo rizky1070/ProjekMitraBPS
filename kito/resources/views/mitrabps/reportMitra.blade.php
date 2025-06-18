@@ -223,6 +223,23 @@ $title = 'Report Mitra';
                                                 Mengikuti Survei</option>
                                         </select>
                                     </div>
+                                    <div class="flex flex-col">
+                                        <label for="sort_honor" class="block text-sm font-medium text-gray-700 mb-1">
+                                            Urutkan Honor
+                                        </label>
+                                        <select id="sort_honor" name="sort_honor"
+                                            class="w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            <option value="">Default</option>
+                                            <option value="desc"
+                                                {{ request('sort_honor') == 'desc' ? 'selected' : '' }}>
+                                                Honor Terbesar
+                                            </option>
+                                            <option value="asc"
+                                                {{ request('sort_honor') == 'asc' ? 'selected' : '' }}>
+                                                Honor Terkecil
+                                            </option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -408,6 +425,9 @@ $title = 'Report Mitra';
                                             Skor Kinerja</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Total Honor</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Status</th>
                                     </tr>
                                 </thead>
@@ -457,6 +477,13 @@ $title = 'Report Mitra';
                                                     <span class="block text-xs text-gray-500">
                                                         ({{ number_format($mitra->rata_rata_nilai, 1) }}/5)
                                                     </span>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-800">
+                                                @if ($mitra->total_honor_per_mitra > 0)
+                                                    Rp {{ number_format($mitra->total_honor_per_mitra, 0, ',', '.') }}
                                                 @else
                                                     -
                                                 @endif
@@ -533,6 +560,10 @@ $title = 'Report Mitra';
                 placeholder: 'Pilih Mode',
                 searchField: 'text'
             });
+            tomSelects.sort_honor = new TomSelect('#sort_honor', {
+                placeholder: 'Pilih Urutan',
+                searchField: 'text'
+            });
 
             // Ambil elemen form dan select
             const filterForm = document.getElementById('filterForm');
@@ -546,7 +577,9 @@ $title = 'Report Mitra';
                 nama_mitra: document.getElementById('nama_mitra'),
                 partisipasi_lebih_dari_satu: document.getElementById('partisipasi_lebih_dari_satu'),
                 honor_lebih_dari_4jt: document.getElementById('honor_lebih_dari_4jt'),
-                jenis_kelamin: document.getElementById('jenis_kelamin')
+                jenis_kelamin: document.getElementById('jenis_kelamin'),
+                sort_honor: document.getElementById('sort_honor') // Tambahkan select baru
+
             };
 
             // Fungsi utama untuk mengatur status aktif/nonaktif filter

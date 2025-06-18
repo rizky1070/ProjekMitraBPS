@@ -141,12 +141,11 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
             $mitra->tahun_selesai ? Carbon::parse($mitra->tahun_selesai)->format('d/m/Y') : '-',
             $jumlahSurvei,
             empty(trim($namaSurvei)) ? '-' : $namaSurvei,
-            // Format rata-rata nilai konsisten di sini
             $rataRataNilai !== null ? number_format($rataRataNilai, 1, ',', '.') : '-',
             $skorKinerja !== null ? $skorKinerja : '-',
         ];
 
-        // Jika filter bulan aktif, tambahkan kolom 'Detail Nilai' dan 'Catatan' pada posisi yang benar
+        // Jika filter bulan aktif, sisipkan data 'Detail Nilai' dan 'Catatan' pada posisi yang benar
         if ($this->isMonthFilterActive) {
             $nilai = '-';
             $catatan = '-';
@@ -154,13 +153,12 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
                 $nilai = $mitra->mitraSurveis->map(fn($ms) => $ms->nilai ?? '-')->implode(", ");
                 $catatan = $mitra->mitraSurveis->map(fn($ms) => $ms->catatan ?? '-')->implode(", ");
             }
-            // Menambahkan data setelah Skor Kinerja, sesuai dengan urutan heading
             $rowData[] = $nilai;
             $rowData[] = $catatan;
         }
 
-        // Tambahkan sisa data di akhir baris
-        $rowData[] = $totalHonor;
+        // Tambahkan sisa data SETELAH kolom kondisional, sesuai urutan headings
+        $rowData[] = $totalHonor; // Ini sekarang berada di posisi yang benar
         $rowData[] = $statusPekerjaan;
         $rowData[] = $mitra->detail_pekerjaan ?? '-';
         $rowData[] = $jumlahSurvei > 0 ? 'Aktif Mengikuti Survei' : 'Tidak Aktif Mengikuti Survei';
