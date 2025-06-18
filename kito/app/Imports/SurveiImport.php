@@ -43,7 +43,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
 
             Log::info('Processing Excel row: ' . $currentRowNum, $row);
 
-            // Validasi field wajib
+            // Validasi field wajib (KRO sudah dihapus dari sini)
             foreach ($this->requiredFields() as $field => $label) {
                 if (!array_key_exists($field, $row)) {
                     throw new \Exception("Kolom {$label} tidak ditemukan");
@@ -53,6 +53,11 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
                 }
             }
 
+            // --- TAMBAHKAN BLOK INI ---
+            // Cek dan set default value untuk KRO
+            $kroValue = !empty(trim($row['kro'] ?? null)) ? trim($row['kro']) : '-';
+            // --- AKHIR BLOK TAMBAHAN ---
+
             // Proses data wilayah
             $provinsi = $this->getProvinsi($surveyName);
             $kabupaten = $this->getKabupaten($provinsi, $surveyName);
@@ -60,7 +65,7 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
             // Proses tanggal
             $jadwalMulai = $this->parseTanggal($row['jadwal'] ?? null, $surveyName);
             $jadwalBerakhir = $this->parseTanggal($row['jadwal_berakhir'] ?? null, $surveyName);
-            
+
             // Validasi tanggal
             $this->validateDates($jadwalMulai, $jadwalBerakhir, $surveyName);
 
@@ -74,14 +79,16 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
             $existingSurvei = $this->checkForDuplicate($row, $jadwalMulai, $jadwalBerakhir);
 
             if ($existingSurvei) {
+                // Perbarui data yang ada, gunakan $kroValue
                 $this->updateExistingSurvey(
-                    $existingSurvei, 
-                    $row, 
-                    $kabupaten, 
-                    $provinsi, 
-                    $bulanDominan, 
+                    $existingSurvei,
+                    $row,
+                    $kabupaten,
+                    $provinsi,
+                    $bulanDominan,
                     $statusSurvei,
-                    $surveyName
+                    $surveyName,
+                    $kroValue // <--- Tambahkan parameter ini
                 );
                 $this->successCount++;
                 $this->excelRowNumber++;
@@ -98,15 +105,15 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
                 'nama_survei' => $row['nama_survei'],
                 'id_kabupaten' => $kabupaten->id_kabupaten,
                 'id_provinsi' => $provinsi->id_provinsi,
-                'kro' => $row['kro'],
+                'kro' => $kroValue, // <--- Gunakan $kroValue di sini
                 'jadwal_kegiatan' => $jadwalMulai,
                 'jadwal_berakhir_kegiatan' => $jadwalBerakhir,
                 'bulan_dominan' => $bulanDominan,
                 'status_survei' => $statusSurvei,
                 'tim' => $row['tim']
             ]);
-
         } catch (\Exception $e) {
+
             if (!isset($this->rowErrors[$currentRowNum])) {
                 $this->rowErrors[$currentRowNum] = [
                     'survey' => $surveyName,
@@ -146,14 +153,9 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
                 }
             ],
             'kro' => [
-                'required',
+                'nullable', // Izinkan nilai kosong
                 'string',
                 'max:100',
-                function ($attribute, $value, $fail) {
-                    if (empty($value)) {
-                        $fail("KRO harus diisi");
-                    }
-                }
             ],
             'tim' => [
                 'required',
@@ -191,7 +193,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
     {
         return [
             'nama_survei' => 'Nama Survei',
-            'kro' => 'KRO',
             'jadwal' => 'Jadwal Mulai',
             'jadwal_berakhir' => 'Jadwal Berakhir',
             'tim' => 'Tim'
@@ -307,12 +308,13 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
         Provinsi $provinsi,
         string $bulanDominan,
         int $statusSurvei,
-        string $surveyName
+        string $surveyName,
+        string $kroValue
     ): void {
         $existingSurvei->update([
             'id_kabupaten' => $kabupaten->id_kabupaten,
             'id_provinsi' => $provinsi->id_provinsi,
-            'kro' => $row['kro'],
+            'kro' => $kroValue,
             'bulan_dominan' => $bulanDominan,
             'status_survei' => $statusSurvei,
             'tim' => $row['tim'],
@@ -436,7 +438,6 @@ class SurveiImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnEr
     {
         return [
             'nama_survei.required' => 'Nama Survei harus diisi',
-            'kro.required' => 'KRO harus diisi',
             'tim.required' => 'Tim harus diisi',
             'jadwal.required' => 'Jadwal Mulai harus diisi',
             'jadwal_berakhir.required' => 'Jadwal Berakhir harus diisi'
