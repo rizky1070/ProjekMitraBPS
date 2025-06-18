@@ -227,9 +227,9 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     {
         $value = strtolower(trim($value));
 
-        if ($value === 'Lk' || $value === '1'|| $value === 'lk') {
+        if ($value === 'Lk' || $value === '1' || $value === 'lk') {
             return 1;
-        } elseif ($value === 'Pr' || $value === '2'|| $value === 'pr') {
+        } elseif ($value === 'Pr' || $value === '2' || $value === 'pr') {
             return 2;
         }
 
@@ -241,11 +241,19 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
      */
     private function formatPhoneNumber($phoneNumber)
     {
+        // 1. Hapus semua karakter kecuali angka dan tanda '+'
         $cleanedPhone = preg_replace('/[^0-9+]/', '', $phoneNumber);
 
+        // 2. Jika nomor diawali dengan '0', ganti dengan '+62'
+        // Contoh: '0812...' menjadi '+62812...'
         if (preg_match('/^0/', $cleanedPhone)) {
             $cleanedPhone = '+62' . substr($cleanedPhone, 1);
         }
+
+        // 3. (Tambahan) Jika nomor diawali dengan '+620', hapus angka '0' setelah '+62'
+        // Ini untuk menangani input seperti '+620812...' atau hasil dari langkah sebelumnya yang salah
+        // Pola /^\+620/ mencari '+620' di awal string.
+        $cleanedPhone = preg_replace('/^\+620/', '+62', $cleanedPhone);
 
         return $cleanedPhone;
     }
