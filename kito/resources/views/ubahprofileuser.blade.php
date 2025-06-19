@@ -130,6 +130,14 @@
                                     required readonly value="{{ auth()->user()->jabatan }}">
                             </div>
 
+                            <!-- Email -->
+                            <div class="mt-4">
+                                <label for="nomer_telepon" class="block text-sm font-medium text-gray-700">Nomer Telepon</label>
+                                <input type="nomer_telepon" id="nomer_telepon" name="nomer_telepon" placeholder="nomer telepon"
+                                    class="mt-1 p-2 bg-gray-100 border border-gray-300 text-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    required readonly value="{{ auth()->user()->nomer_telepon }}">
+                            </div>
+
 
 
 
