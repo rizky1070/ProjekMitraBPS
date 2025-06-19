@@ -78,8 +78,10 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             // Check if sobat_id already exists
             $existingMitra = Mitra::where('sobat_id', $sobatId)->first();
             if ($existingMitra) {
+                $formattedNamaLengkap = ucwords(strtolower($row['nama_lengkap']));
+
                 $existingMitra->update([
-                    'nama_lengkap' => $row['nama_lengkap'],
+                    'nama_lengkap' => $formattedNamaLengkap, // <--- BARIS YANG DIUBAH
                     'alamat_mitra' => $row['alamat_mitra'],
                     'id_desa' => $desa->id_desa,
                     'id_kecamatan' => $kecamatan->id_kecamatan,
@@ -105,8 +107,10 @@ class MitraImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
 
             $this->successCount++;
             $this->excelRowNumber++;
+            $formattedNamaLengkap = ucwords(strtolower($row['nama_lengkap']));
+
             return new Mitra([
-                'nama_lengkap' => $row['nama_lengkap'],
+                'nama_lengkap' => $formattedNamaLengkap, // <--- BARIS YANG DIUBAH
                 'sobat_id' => $sobatId,
                 'alamat_mitra' => $row['alamat_mitra'],
                 'id_desa' => $desa->id_desa,
