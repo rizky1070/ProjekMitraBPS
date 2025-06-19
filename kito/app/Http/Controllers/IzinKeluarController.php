@@ -7,6 +7,8 @@ use App\Models\Izinkeluar;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class IzinKeluarController extends Controller
 {
@@ -55,23 +57,159 @@ class IzinKeluarController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        // Pastikan user sudah login
+        // 1. Pastikan user sudah login
         if (!auth()->check()) {
             return redirect()->route('/')->with(['error' => 'Anda harus login terlebih dahulu!']);
         }
 
-        // Buat instansi
-        Izinkeluar::create([
-            'user_id' => Auth()->user()->id,
-            'tanggalizin' => $request->tanggalizin, // datepicker range start
-            'jamizin' => $request->jamizin,
-            'keperluan' => $request->keperluan,
-            'status' => 1,
+        // 2. Validasi request (opsional tapi sangat direkomendasikan)
+        $request->validate([
+            'tanggalizin' => 'required|date',
+            'jamizin' => 'required',
+            'keperluan' => 'required|string|max:255',
         ]);
 
+        // 3. Buat dan simpan data izin keluar
+        $izin = Izinkeluar::create([
+            'user_id'     => Auth()->user()->id,
+            'tanggalizin' => $request->tanggalizin,
+            'jamizin'     => $request->jamizin,
+            'keperluan'   => $request->keperluan,
+            'status'      => 1, // Status awal, misal: 1 = Diajukan
+        ]);
 
-        return redirect()->back()->with(['success' => 'Data Berhasil Disimpan!']);
+        // --- AWAL BAGIAN NOTIFIKASI WHATSAPP ---
+
+        // 4. Mengambil data untuk notifikasi
+        $pemohon = Auth::user();
+        
+        // Ganti dengan email admin yang akan menerima notifikasi
+        $admin = User::where('email', 'siti@example.com')->first(); 
+
+        // 5. Kirim notifikasi WhatsApp jika admin ditemukan
+        if ($admin) {
+            $this->sendWhatsAppIzinKeluar(
+                $admin,
+                $pemohon->name,
+                $izin->tanggalizin,
+                $izin->jamizin,
+                $izin->keperluan
+            );
+        } else {
+            // Opsional: catat ke log jika admin tidak ditemukan
+            Log::warning('Admin dengan email target tidak ditemukan untuk notifikasi izin keluar.');
+        }
+
+        // --- AKHIR BAGIAN NOTIFIKASI WHATSAPP ---
+
+        // 6. Redirect kembali dengan pesan sukses
+        return redirect()->back()->with(['success' => 'Data Izin Berhasil Diajukan!']);
     }
+
+    private function sendWhatsAppIzinKeluar($admin, $namaPemohon, $tanggalIzin, $jamIzin, $keperluan)
+    {
+        // Ganti dengan token Fonnte Anda dari file .env
+        $token = env('FONNTE_TOKEN');
+
+        // Lakukan pembersihan nomor telepon untuk memastikan formatnya benar
+        $targetPhoneNumber = $this->sanitizePhoneNumber($admin->nomer_telepon);
+
+        if (!$targetPhoneNumber) {
+            Log::warning('Nomor HP admin tidak valid atau tidak ditemukan.', ['admin_id' => $admin->id]);
+            return;
+        }
+
+        // Jeda pengiriman acak untuk meniru perilaku manusia
+        sleep(rand(1, 3));
+
+        // Atur bahasa Carbon ke Indonesia untuk format tanggal
+        Carbon::setLocale('id');
+        $tanggalFormatted = Carbon::parse($tanggalIzin)->translatedFormat('l, d F Y');
+
+        // Variasi Pesan (Spintax) untuk menghindari pemblokiran
+        $header = [
+            "🔔 *Notifikasi Izin Keluar Baru* 🔔",
+            "🚶‍♂️ *Ada Pengajuan Izin Keluar* 🚶‍♀️",
+            "📝 *Pemberitahuan Izin Keluar* 📝"
+        ];
+        
+        $sapaan = ["Halo *{$admin->name}*,", "Hi *{$admin->name}*,", "Yth. *{$admin->name}*,"];
+        $penutup = ["Mohon untuk segera ditindaklanjuti.", "Harap segera diproses.", "Terima kasih atas perhatiannya."];
+
+        $randomHeader = $header[array_rand($header)];
+        $randomSapaan = $sapaan[array_rand($sapaan)];
+        $randomPenutup = $penutup[array_rand($penutup)];
+
+        // Susun pesan notifikasi
+        $message  = "{$randomHeader}\n\n";
+        $message .= "{$randomSapaan}\n";
+        $message .= "Ada pengajuan izin keluar baru yang perlu diperiksa:\n\n";
+        $message .= "👤 *Nama Karyawan:* {$namaPemohon}\n";
+        $message .= "📅 *Tanggal Izin:* {$tanggalFormatted}\n";
+        $message .= "⏰ *Jam Kembali:* {$jamIzin}\n";
+        $message .= "📄 *Keperluan:* {$keperluan}\n\n";
+        $message .= $randomPenutup;
+
+        // Persiapkan payload untuk dikirim ke Fonnte
+        $payload = [
+            'target'      => $targetPhoneNumber,
+            'message'     => $message,
+            'countryCode' => '62',
+        ];
+
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL            => 'https://api.fonnte.com/send',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POSTFIELDS     => http_build_query($payload),
+            CURLOPT_HTTPHEADER     => ['Authorization: ' . $token],
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        // Catat response atau error untuk debugging
+        if ($err) {
+            Log::error('cURL Error saat kirim WA (Fonnte) untuk Izin Keluar: ' . $err, ['payload' => $payload]);
+        } else {
+            Log::info('Fonnte API Response (Izin Keluar): ' . $response, ['payload' => $payload]);
+        }
+    }
+
+
+    private function sanitizePhoneNumber($number)
+    {
+        if (empty($number)) {
+            return null;
+        }
+        // Hapus karakter selain angka
+        $number = preg_replace('/[^0-9]/', '', $number);
+        // Jika diawali 0, ganti dengan 62
+        if (substr($number, 0, 1) == '0') {
+            return '62' . substr($number, 1);
+        }
+        // Jika tidak diawali 62, tambahkan 62 di depan (asumsi nomor lokal)
+        if (substr($number, 0, 2) != '62') {
+             return '62' . $number;
+        }
+        
+        // Anggap nomor valid jika panjangnya antara 10-15 digit setelah diformat
+        if (strlen($number) < 10 || strlen($number) > 15) {
+            return null;
+        }
+
+        return $number;
+    }
+
+
+
 
     public function index()
     {

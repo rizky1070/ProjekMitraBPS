@@ -107,7 +107,7 @@
         if (jamSekarang < jamIzinTarget) {
             swal({
                     title: "Konfirmasi",
-                    text: "Anda kembali lebih awal dari jadwal. Apakah Anda yakin sudah sampai di kantor?",
+                    text: "Anda kembali lebih awal dari waktu kembali. Apakah Anda yakin sudah sampai di kantor?",
                     type: "warning",
                     showCancelButton: true,
                     confirmButtonColor: "#16a34a",
