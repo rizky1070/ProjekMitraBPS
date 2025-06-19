@@ -35,10 +35,12 @@ $title = 'Daftar Mitra';
                 <div class="container px-4 py-4 mx-auto">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-3xl font-medium text-black">Daftar Mitra</h3>
+                        @if (auth()->user()->is_admin || auth()->user()->is_leader)
                         <button type="button"
                             class="px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300"
                             onclick="openModal()">+ Tambah</button>
-                    </div>
+                        @endif
+                        </div>
                     <div>
                         <div class="cuScrollFilter bg-white rounded-lg shadow-sm p-6 mb-6">
                             <!-- Form Filter -->

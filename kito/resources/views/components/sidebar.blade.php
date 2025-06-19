@@ -266,7 +266,7 @@
             </div>
 
             <div class="dropdown-container {{ $isDropdownMitraActive ? 'block' : 'hidden' }}">
-                @if (auth()->user()->is_admin)
+                
                     <a class="flex items-center px-6 py-2 mt-4 ml-10 text-gray-500 hover:bg-gray-700 hover:bg-opacity-25 hover:text-gray-100 {{ request()->is('daftarSurvei') ? 'text-white bg-gray-700 bg-opacity-50' : '' }}"
                         href="/daftarSurvei">
                         <span class="mx-3">Daftar Survei</span>
@@ -287,7 +287,7 @@
                         href="/ReportMitra">
                         <span class="mx-3">Laporan Mitra</span>
                     </a> --}}
-                @endif
+                
             </div>
         </div>
 

@@ -106,6 +106,7 @@ $title = 'Kelola Survei';
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold">Detail Survei</h2>
                 {{-- Form Hapus Survei --}}
+                @if (auth()->user()->is_admin || auth()->user()->is_leader)
                 <form action="{{ route('survey.delete', ['id_survei' => $survey->id_survei]) }}" method="POST"
                     id="form-delete-survey">
                     @csrf
@@ -119,6 +120,7 @@ $title = 'Kelola Survei';
                         </svg>Hapus Survei
                     </button>
                 </form>
+                @endif
             </div>
             <div class="bg-white p-4 rounded-lg shadow">
                 <p class="text-xl font-medium"><strong>Nama Survei :</strong> {{ $survey->nama_survei }}</p>
@@ -172,6 +174,7 @@ $title = 'Kelola Survei';
                                 class="flex justify-center items-center mt-4 px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-all duration-300">
                                 <i class="fas fa-file-excel mr-2"></i>Export Excel
                             </a>
+                            @if (auth()->user()->is_admin || auth()->user()->is_leader)
                             <form action="{{ route('survey.deleteAllMitra', ['id_survei' => $survey->id_survei]) }}"
                                 method="POST" id="form-hapus_semua_mitra-{{ $survey->id_survei }}">
                                 @csrf
@@ -187,11 +190,14 @@ $title = 'Kelola Survei';
                                     </svg>Hapus Semua Mitra
                                 </button>
                             </form>
+                            @endif
                         @endif
+                        @if (auth()->user()->is_admin || auth()->user()->is_leader)
                         <button type="button"
                             class="mt-4 px-4 py-2 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300"
                             onclick="openModal()">+ Tambah
                         </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -426,10 +432,12 @@ $title = 'Kelola Survei';
                             <th scope="col"
                                 class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Posisi</th>
-                            <th scope="col"
+                            @if (auth()->user()->is_admin || auth()->user()->is_leader)
+                                <th scope="col"
                                 class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Aksi</th>
-                        </tr>
+                            @endif
+                            </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-500">
                         {{-- BLOK PHP YANG DISEMPURNAKAN: Cek error dan konfirmasi --}}
@@ -501,10 +509,11 @@ $title = 'Kelola Survei';
                                             @endforeach
                                         </select>
                                     </td>
-
+                                    @if (auth()->user()->is_admin || auth()->user()->is_leader)
                                     {{-- Kolom Aksi (Tombol & Form diletakkan di sini) --}}
                                     <td class="whitespace-nowrap text-center" style="max-width: 120px;">
                                         <div class="flex justify-center items-center py-2 text-center">
+
                                             {{-- FORM UNTUK EDIT sekarang berada di dalam <td> --}}
                                             <form
                                                 action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
@@ -542,6 +551,7 @@ $title = 'Kelola Survei';
                                             </form>
                                         </div>
                                     </td>
+                                    @endif
                                 @else
                                     {{-- Kolom input Vol --}}
                                     <td class="whitespace-nowrap text-center" style="max-width: 120px;">
@@ -576,6 +586,7 @@ $title = 'Kelola Survei';
                                     </td>
 
                                     {{-- Kolom Aksi (Tombol & Form diletakkan di sini) --}}
+                                    @if (auth()->user()->is_admin || auth()->user()->is_leader)
                                     <td class="whitespace-nowrap p-2 text-center" style="max-width: 120px;"
                                         colspan="2">
                                         {{-- FORM UNTUK TAMBAH sekarang ada di dalam <td>. Ini HTML yang valid. --}}
@@ -594,6 +605,7 @@ $title = 'Kelola Survei';
                                             Tambah
                                         </button>
                                     </td>
+                                    @endif
                                 @endif
                             </tr>
                         @endforeach
