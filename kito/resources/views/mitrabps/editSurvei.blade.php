@@ -433,11 +433,11 @@ $title = 'Kelola Survei';
                                 class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Posisi</th>
                             @if (auth()->user()->is_admin || auth()->user()->is_leader)
-                                <th scope="col"
+                            <th scope="col"
                                 class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Aksi</th>
                             @endif
-                            </tr>
+                        </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-500">
                         {{-- BLOK PHP YANG DISEMPURNAKAN: Cek error dan konfirmasi --}}
@@ -476,7 +476,7 @@ $title = 'Kelola Survei';
                                 <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
                                     {{ \Carbon\Carbon::parse($mitra->tahun)->translatedFormat('Y') }}
                                 </td>
-
+                            @if (auth()->user()->is_admin || auth()->user()->is_leader)
                                 @if ($mitra->isFollowingSurvey)
                                     {{-- Kolom input Vol --}}
                                     <td class="whitespace-nowrap text-center" style="max-width: 120px;">
@@ -509,11 +509,10 @@ $title = 'Kelola Survei';
                                             @endforeach
                                         </select>
                                     </td>
-                                    @if (auth()->user()->is_admin || auth()->user()->is_leader)
+
                                     {{-- Kolom Aksi (Tombol & Form diletakkan di sini) --}}
                                     <td class="whitespace-nowrap text-center" style="max-width: 120px;">
                                         <div class="flex justify-center items-center py-2 text-center">
-
                                             {{-- FORM UNTUK EDIT sekarang berada di dalam <td> --}}
                                             <form
                                                 action="{{ route('mitra.update', ['id_survei' => $survey->id_survei, 'id_mitra' => $mitra->id_mitra]) }}"
@@ -551,7 +550,6 @@ $title = 'Kelola Survei';
                                             </form>
                                         </div>
                                     </td>
-                                    @endif
                                 @else
                                     {{-- Kolom input Vol --}}
                                     <td class="whitespace-nowrap text-center" style="max-width: 120px;">
@@ -586,7 +584,6 @@ $title = 'Kelola Survei';
                                     </td>
 
                                     {{-- Kolom Aksi (Tombol & Form diletakkan di sini) --}}
-                                    @if (auth()->user()->is_admin || auth()->user()->is_leader)
                                     <td class="whitespace-nowrap p-2 text-center" style="max-width: 120px;"
                                         colspan="2">
                                         {{-- FORM UNTUK TAMBAH sekarang ada di dalam <td>. Ini HTML yang valid. --}}
@@ -605,8 +602,18 @@ $title = 'Kelola Survei';
                                             Tambah
                                         </button>
                                     </td>
-                                    @endif
                                 @endif
+                            @else
+                                <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                    {{ $mitra->vol ?? '-' }}
+                                </td>
+                                <td class="whitespace-nowrap text-center" style="max-width: 100px;">
+                                    {{ $mitra->rate_honor ?? '-' }}
+                                </td>
+                                <td class="text-center whitespace-normal break-words" style="max-width: 120px;">
+                                    {{ $mitra->nama_posisi ?? '-' }}
+                                </td>
+                            @endif
                             </tr>
                         @endforeach
                     </tbody>
