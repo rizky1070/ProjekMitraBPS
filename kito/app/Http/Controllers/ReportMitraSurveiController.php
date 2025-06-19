@@ -265,7 +265,8 @@ class ReportMitraSurveiController extends Controller
     {
         $tahun = $request->input('tahun');
 
-        // Tambahkan subquery untuk agregasi tahunan jika dalam mode 'per bulan' atau jika filter partisipasi/honor digunakan
+        // Bagian ini BENAR. Tetap diperlukan untuk menambahkan kolom agregasi tahunan
+        // yang akan digunakan nanti oleh fungsi exportPerBulan dan exportPerTim.
         $needsYearlyAggregation = $isPerBulanMode || $request->input('partisipasi_lebih_dari_satu') == 'ya' || $request->input('honor_lebih_dari_4jt') == 'ya';
 
         if ($needsYearlyAggregation && $request->filled('tahun')) {
@@ -280,33 +281,45 @@ class ReportMitraSurveiController extends Controller
             ]);
         }
 
-
-        // === Filter Dasar Mitra ===
+        // === Filter Dasar Mitra (SUDAH DIPERBAIKI) ===
+        // Bagian ini menerapkan filter dasar pada data mitra.
+        // Termasuk filter bulan pada kontrak mitra yang sudah benar.
         $query->when($request->filled('tahun'), fn($q) => $q->whereYear('tahun', '<=', $request->tahun)->whereYear('tahun_selesai', '>=', $request->tahun))
+            ->when($request->filled('bulan') && !$isPerBulanMode, function ($q) use ($request) {
+                $q->whereMonth('tahun', '<=', $request->bulan)
+                    ->whereMonth('tahun_selesai', '>=', $request->bulan);
+            })
             ->when($request->filled('kecamatan'), fn($q) => $q->where('id_kecamatan', $request->kecamatan))
             ->when($request->filled('nama_lengkap'), fn($q) => $q->where('nama_lengkap', 'like', '%' . $request->nama_lengkap . '%'))
             ->when($request->filled('status_pekerjaan'), fn($q) => $q->where('status_pekerjaan', $request->status_pekerjaan))
             ->when($request->filled('jenis_kelamin'), fn($q) => $q->where('jenis_kelamin', $request->jenis_kelamin));
 
-        // === Filter Status Partisipasi (berdasarkan tahun yang dipilih) ===
-        if ($request->filled('status_mitra') && $request->filled('tahun')) {
-            $query->where(function ($q) use ($request, $tahun) {
-                if ($request->status_mitra == 'ikut') {
-                    $q->whereHas('mitraSurveis.survei', fn($sq) => $sq->whereYear('bulan_dominan', $tahun));
-                } elseif ($request->status_mitra == 'tidak_ikut') {
-                    $q->whereDoesntHave('mitraSurveis.survei', fn($sq) => $sq->whereYear('bulan_dominan', $tahun));
+        // === Filter Status Partisipasi (SUDAH DIPERBAIKI TOTAL) ===
+        // Logika ini sekarang independen dan peka terhadap filter bulan/tahun.
+        if ($request->filled('status_mitra')) {
+            $query->where(function ($q) use ($request, $isPerBulanMode) {
+
+                $status_mitra = $request->status_mitra;
+
+                // Definisikan logika filter subquery dalam satu variabel agar bersih
+                $subQueryFilter = function ($sq) use ($request, $isPerBulanMode) {
+                    // Terapkan filter tahun jika ada
+                    if ($request->filled('tahun')) {
+                        $sq->whereYear('bulan_dominan', $request->tahun);
+                    }
+                    // Terapkan filter bulan jika ada, KECUALI untuk mode export per bulan/tim
+                    if ($request->filled('bulan') && !$isPerBulanMode) {
+                        $sq->whereMonth('bulan_dominan', $request->bulan);
+                    }
+                };
+
+                // Terapkan subquery filter ke whereHas atau whereDoesntHave
+                if ($status_mitra == 'ikut') {
+                    $q->whereHas('mitraSurveis.survei', $subQueryFilter);
+                } elseif ($status_mitra == 'tidak_ikut') {
+                    $q->whereDoesntHave('mitraSurveis.survei', $subQueryFilter);
                 }
             });
-        }
-
-        // === Filter Lanjutan (berdasarkan agregasi tahunan) ===
-        if ($needsYearlyAggregation && $request->filled('tahun')) {
-            if ($request->input('partisipasi_lebih_dari_satu') == 'ya') {
-                $query->having('total_survei_tahunan', '>', 1);
-            }
-            if ($request->input('honor_lebih_dari_4jt') == 'ya') {
-                $query->having('total_honor_tahunan', '>', 4000000);
-            }
         }
 
         return $query;
@@ -388,8 +401,19 @@ class ReportMitraSurveiController extends Controller
         }
 
         // 1. Terapkan filter dasar untuk mendapatkan daftar mitra yang relevan.
-        $mitras = $this->applyBaseFilters(Mitra::query(), $request, true)
-            ->select('id_mitra', 'nama_lengkap', 'sobat_id', 'jenis_kelamin', 'status_pekerjaan') // Ambil kolom yang dibutuhkan
+        // 1. Bangun query dasar. Kita beri nama $mitrasQuery.
+        $mitrasQuery = $this->applyBaseFilters(Mitra::query(), $request, true);
+
+        // [BENAR] Terapkan filter HAVING pada Query Builder
+        if ($request->input('partisipasi_lebih_dari_satu') == 'ya') {
+            $mitrasQuery->having('total_survei_tahunan', '>', 1);
+        }
+        if ($request->input('honor_lebih_dari_4jt') == 'ya') {
+            $mitrasQuery->having('total_honor_tahunan', '>', 4000000);
+        }
+
+        // Sekarang, setelah semua filter diterapkan, baru eksekusi query dengan .get()
+        $mitras = $mitrasQuery->select('id_mitra', 'nama_lengkap', 'sobat_id', 'jenis_kelamin', 'status_pekerjaan')
             ->orderBy('nama_lengkap')
             ->get();
 
@@ -441,10 +465,21 @@ class ReportMitraSurveiController extends Controller
             ->toArray();
 
         // 2. Terapkan filter dasar.
-        $mitras = $this->applyBaseFilters(Mitra::query(), $request, true)
-            ->select('id_mitra', 'sobat_id', 'nama_lengkap', 'jenis_kelamin', 'status_pekerjaan')
+        $mitrasQuery = $this->applyBaseFilters(Mitra::query(), $request, true);
+
+        // [BENAR] Terapkan filter HAVING pada Query Builder
+        if ($request->input('partisipasi_lebih_dari_satu') == 'ya') {
+            $mitrasQuery->having('total_survei_tahunan', '>', 1);
+        }
+        if ($request->input('honor_lebih_dari_4jt') == 'ya') {
+            $mitrasQuery->having('total_honor_tahunan', '>', 4000000);
+        }
+
+        // Setelah semua filter diterapkan, baru eksekusi query dengan .get()
+        $mitras = $mitrasQuery->select('id_mitra', 'sobat_id', 'nama_lengkap', 'jenis_kelamin', 'status_pekerjaan')
             ->orderBy('nama_lengkap')
             ->get();
+
 
         if ($mitras->isEmpty()) {
             return redirect()->back()->with('error', 'Tidak ada data mitra yang cocok dengan filter yang dipilih.');

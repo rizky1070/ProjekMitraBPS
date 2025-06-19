@@ -34,6 +34,9 @@ $title = 'Report Survei';
                             <button
                                 class="px-2 py-1 bg-oren rounded-md no-print text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300"><a
                                     href="/ReportMitra" class=" no-print">Report Mitra</a></button>
+
+                        </div>
+                        <div class="text-center my-4 md:my-0">
                             <h1 class="text-2xl font-bold text-gray-800">Report Survei</h1>
                             <p class="text-gray-600 no-print">Data survei</p>
                         </div>
