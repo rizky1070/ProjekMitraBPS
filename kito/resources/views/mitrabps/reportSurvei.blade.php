@@ -73,8 +73,8 @@ $title = 'Report Survei';
                             </div>
                             <!-- Tahun Filter -->
                             <div class="flex flex-col space-y-4">
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                                    <!-- Tahun Filter -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+
                                     <div class="flex flex-col">
                                         <label for="jadwal_kegiatan"
                                             class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
@@ -89,7 +89,6 @@ $title = 'Report Survei';
                                         </select>
                                     </div>
 
-                                    <!-- Bulan Filter -->
                                     <div class="flex flex-col">
                                         <label for="bulan"
                                             class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
@@ -120,7 +119,6 @@ $title = 'Report Survei';
                                         </select>
                                     </div>
 
-                                    <!-- Status Survei Filter -->
                                     <div class="flex flex-col">
                                         <label for="status_survei"
                                             class="block text-sm font-medium text-gray-700 mb-1">Status Survei</label>
@@ -136,13 +134,14 @@ $title = 'Report Survei';
                                         </select>
                                     </div>
                                 </div>
+
                             </div>
 
                         </form>
                     </div>
 
                     <!-- Statistics Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                         <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-blue-500">
                             <div class="flex items-center">
                                 <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4"
