@@ -161,7 +161,7 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
         $rowData[] = $totalHonor; // Ini sekarang berada di posisi yang benar
         $rowData[] = $statusPekerjaan;
         $rowData[] = $mitra->detail_pekerjaan ?? '-';
-        $rowData[] = $jumlahSurvei > 0 ? 'Aktif Mengikuti Survei' : 'Tidak Aktif Mengikuti Survei';
+        $rowData[] = $jumlahSurvei > 0 ? 'Sudah Mengikuti Survei' : 'Tidak Mengikuti Survei';
 
         return $rowData;
     }
@@ -227,8 +227,8 @@ class MitraExport implements FromCollection, WithMapping, WithEvents
                 $sheet->setCellValue('A' . $row++, 'Total Mitra: ' . $this->totals['totalMitra']);
                 $sheet->setCellValue('A' . $row++, 'Total Mitra Laki-laki: ' . $this->totals['totalLaki']);
                 $sheet->setCellValue('A' . $row++, 'Total Mitra Perempuan: ' . $this->totals['totalPerempuan']);
-                $sheet->setCellValue('A' . $row++, 'Aktif Mengikuti Survei: ' . $this->totals['totalIkutSurvei']);
-                $sheet->setCellValue('A' . $row++, 'Tidak Aktif Mengikuti Survei: ' . $this->totals['totalTidakIkutSurvei']);
+                $sheet->setCellValue('A' . $row++, 'Mitra Sudah Mengikuti Survei: ' . $this->totals['totalIkutSurvei']);
+                $sheet->setCellValue('A' . $row++, 'Mitra Tidak Mengikuti Survei: ' . $this->totals['totalTidakIkutSurvei']);
                 $sheet->setCellValue('A' . $row++, 'Bisa Ikut Survei: ' . $this->totals['totalBisaIkutSurvei']);
                 $sheet->setCellValue('A' . $row++, 'Tidak Bisa Ikut Survei: ' . $this->totals['totalTidakBisaIkutSurvei']);
 
