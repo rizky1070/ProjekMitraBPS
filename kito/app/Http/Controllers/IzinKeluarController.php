@@ -11,31 +11,31 @@ use Illuminate\Http\RedirectResponse;
 class IzinKeluarController extends Controller
 {
     //
-    
+
     public function histori(Request $request)
     {
         // Set the number of items per page
         $perPage = 10; // Change this number as needed
-    
+
         // Define the query to fetch data
         $query = Izinkeluar::query(); // Ganti dengan model yang sesuai
-    
+
         // Execute the query, order by 'name' and paginate
         $izinkeluars = $query->orderBy('tanggalizin', 'desc')->paginate($perPage);
-    
+
         // Map the results to transform the 'absen' format
         $izinkeluars->getCollection()->transform(function ($izinkeluar) {
             $namapegawai = $izinkeluar->user->name; // Using eager loading for 'user'
-            
+
             return [
                 'tanggalizin' => Carbon::parse($izinkeluar->tanggalizin)
                     ->locale('id') // Set locale to Indonesia
                     ->translatedFormat('d F Y'), // Format: 13 Oktober 2024
 
-    
+
                 'jamizin' => Carbon::parse($izinkeluar->jamizin)
                     ->format('H:i'), // Format as time (24-hour clock)
-    
+
                 'name' => $namapegawai,
                 'keperluan' => $izinkeluar->keperluan,
                 'id' => $izinkeluar->id,
@@ -44,7 +44,7 @@ class IzinKeluarController extends Controller
                     ->translatedFormat('H:i'), // Format as date and time
             ];
         });
-    
+
         // Return the view with paginated data
         return view('historiizinkeluar', [
             'izinkeluars' => $izinkeluars,
@@ -52,7 +52,7 @@ class IzinKeluarController extends Controller
         ]);
     }
 
-    
+
     public function store(Request $request): RedirectResponse
     {
         // Pastikan user sudah login
@@ -107,22 +107,24 @@ class IzinKeluarController extends Controller
 
     public function cekPulang()
     {
-        $user_id = Auth()->user()->id;
+        $user_id = auth()->user()->id; // Menggunakan helper auth() lebih singkat
+
         // Mengambil data terakhir dari Izinkeluar berdasarkan user_id dan status 1 (izin)
         $izinTerakhir = Izinkeluar::where('user_id', $user_id)
             ->where('status', 1) // status 'izin' dengan kode 1
-            ->orderBy('created_at', 'desc') // Atau bisa menggunakan kolom lain yang relevan, seperti 'jamizin' atau 'tanggalizin'
+            ->orderBy('created_at', 'desc')
             ->first(); // Ambil yang pertama (terbaru)
 
         if ($izinTerakhir) {
-            $izinid = $izinTerakhir->id;
-            // Jika data ditemukan, Anda bisa mengakses kolom-kolomnya, misalnya
-            return view('konfirmasiizin', ['userid' => $user_id, 'izinid' => $izinid]);
+            // [MODIFIKASI] Kirim seluruh object $izinTerakhir ke view
+            // Ini akan membawa semua data termasuk id, jamizin, dll.
+            return view('konfirmasiizin', ['izin' => $izinTerakhir]);
         } else {
-            // Jika tidak ada data, Anda bisa menghandle dengan cara lain
+            // Jika tidak ada data izin aktif, arahkan ke form pengajuan izin
             return view('izinkeluarform');
         }
     }
+
 
     public function update(Request $request, $id)
     {
