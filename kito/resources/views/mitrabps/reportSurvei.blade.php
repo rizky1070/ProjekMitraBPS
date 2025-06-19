@@ -127,10 +127,10 @@ $title = 'Report Survei';
                                             <option value="">Semua Survei</option>
                                             <option value="aktif"
                                                 {{ request('status_survei') == 'aktif' ? 'selected' : '' }}>Survei
-                                                Aktif</option>
+                                                Aktif Di Ikuti Mitra</option>
                                             <option value="tidak_aktif"
                                                 {{ request('status_survei') == 'tidak_aktif' ? 'selected' : '' }}>
-                                                Survei Tidak Aktif</option>
+                                                Survei Tidak Aktif Di Ikuti Mitra</option>
                                         </select>
                                     </div>
                                 </div>

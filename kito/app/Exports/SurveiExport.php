@@ -130,10 +130,10 @@ class SurveiExport implements FromQuery, WithMapping, WithEvents
                 $sheet->setCellValue('A' . $row, 'Total Survei: ' . ($this->totals['totalSurvei'] ?? 0));
                 $row++;
 
-                $sheet->setCellValue('A' . $row, 'Diikuti Mitra: ' . ($this->totals['totalSurveiAktif'] ?? 0));
+                $sheet->setCellValue('A' . $row, 'Survei Di Ikuti Mitra: ' . ($this->totals['totalSurveiAktif'] ?? 0));
                 $row++;
 
-                $sheet->setCellValue('A' . $row, 'Tidak Diikuti Mitra: ' . ($this->totals['totalSurveiTidakAktif'] ?? 0));
+                $sheet->setCellValue('A' . $row, 'Survei Tidak Di Ikuti Mitra: ' . ($this->totals['totalSurveiTidakAktif'] ?? 0));
                 $row++;
 
                 // [BARU] Menampilkan Total Tim
