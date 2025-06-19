@@ -168,18 +168,18 @@ $title = 'Profil Mitra';
                             @php
                                 $isActive = $mits->status_pekerjaan == 1;
                                 $colorClasses = $isActive
-                                    ? 'bg-green-500' // AKTIF -> warna hijau
-                                    : 'bg-red-500'; // NON-AKTIF -> warna merah
-                                $hoverColor = $isActive ? 'hover:bg-green-600' : 'hover:bg-red-600';
-                                $buttonText = $isActive ? 'Aktif' : 'Non-Aktif';
+                                    ? 'bg-red-500' // AKTIF -> warna hijau
+                                    : 'bg-green-500'; // NON-AKTIF -> warna merah
+                                $hoverColor = $isActive ? 'hover:bg-red-600' : 'hover:bg-green-600';
+                                $buttonText = $isActive ? 'Tidak bisa mengikuti survei' : 'Bisa mengikuti survei';
                                 // Teks untuk tombol berikutnya (aksi yang akan dilakukan)
-                                $actionText = $isActive ? 'Non-Aktifkan' : 'Aktifkan';
+                                $actionText = $isActive ? 'Aktifkan' : 'Non-Aktifkan';
                             @endphp
 
                             {{-- Tombol diubah menjadi type="button" dan memanggil JS --}}
                             <button type="button" {{-- Kirim status saat ini (0 atau 1) ke fungsi JS --}}
                                 onclick="showConfirmation('ubah_status', {{ $mits->id_mitra }}, '{{ $mits->nama_lengkap }}', {{ $mits->status_pekerjaan }})"
-                                class="{{ $colorClasses }} {{ $hoverColor }} transition-all duration-300 relative group mt-4 px-4 py-2 text-white font-medium rounded-md"
+                                class="{{ $colorClasses }} {{ $hoverColor }} transition-all duration-300 relative group px-2 py-0.5 text-white font-medium rounded-md"
                                 aria-label="Ubah status pekerjaan"
                                 title="Klik untuk mengubah status menjadi {{ $actionText }}">
                                 {{ $buttonText }}
@@ -188,9 +188,9 @@ $title = 'Profil Mitra';
                         @else
                         <span class="text-right">
                             @if ($mits->status_pekerjaan == 1)
-                                <span class="text-white bg-green-500 mt-4 px-2 py-0.5 font-medium rounded-md">Aktif</span>
+                            <span class="text-white bg-red-500 px-2 py-0.5 font-medium rounded-md">Tidak bisa mengikuti survei</span>
                             @else
-                                <span class="text-white bg-red-500 mt-4 px-2 py-0.5 font-medium rounded-md">Non-Aktif</span>
+                            <span class="text-white bg-green-500 px-2 py-0.5 font-medium rounded-md">Bisa mengikuti survei</span>
                             @endif
                         </span>
                         @endif
