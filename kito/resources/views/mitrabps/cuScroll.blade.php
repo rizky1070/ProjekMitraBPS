@@ -35,6 +35,7 @@
         .cuScrollTableX {
             overflow-x: auto;
             scrollbar-width: thin;
+            overflow: visible !important;
             scrollbar-color: #ff9733 #ffffff;
         }
 

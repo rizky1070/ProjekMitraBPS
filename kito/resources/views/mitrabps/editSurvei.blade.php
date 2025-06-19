@@ -35,6 +35,21 @@ $title = 'Kelola Survei';
         color: #EF4444;
         /* red-500 */
     }
+
+    #dropdownPortal {
+        top: 0;
+        left: 0;
+        width: 100%;
+        pointer-events: none; /* Biarkan interaksi tetap ke select */
+    }
+
+    .ts-dropdown {
+        position: absolute !important;
+        z-index: 10000 !important;
+        max-height: 300px !important;
+        overflow-y: auto !important;
+        pointer-events: auto; /* Aktifkan interaksi */
+    }
 </style>
 @include('mitrabps.cuScroll')
 </head>
@@ -342,6 +357,47 @@ $title = 'Kelola Survei';
                 bulanSelect.addEventListener('change', submitForm);
                 kecamatanSelect.addEventListener('change', submitForm);
                 mitraSelect.addEventListener('change', submitForm);
+
+                const portal = document.getElementById('dropdownPortal');
+
+  // Inisialisasi TomSelect untuk posisi mitra
+                document.querySelectorAll('select[name="id_posisi_mitra"]').forEach(select => {
+                    const tomSelect = new TomSelect(select, {
+                    placeholder: 'Pilih Posisi',
+                    onDropdownOpen: () => {
+                        // Pindahkan dropdown ke portal saat terbuka
+                        const dropdown = select.tomselect.dropdown;
+                        portal.appendChild(dropdown);
+                        
+                        // Atur posisi dropdown relatif terhadap select asli
+                        const selectRect = select.getBoundingClientRect();
+                        dropdown.style.top = `${selectRect.bottom + window.scrollY}px`;
+                        dropdown.style.left = `${selectRect.left + window.scrollX}px`;
+                        dropdown.style.width = `${selectRect.width}px`;
+                    },
+                    onDropdownClose: () => {
+                        // Kembalikan dropdown ke DOM asli (opsional)
+                        if (select.tomselect) {
+                        select.tomselect.wrapper.appendChild(select.tomselect.dropdown);
+                        }
+                    }
+                    });
+                });
+
+                // Update posisi dropdown saat scroll/resize
+                window.addEventListener('scroll', updateDropdownPosition);
+                window.addEventListener('resize', updateDropdownPosition);
+
+                function updateDropdownPosition() {
+                    document.querySelectorAll('select[name="id_posisi_mitra"]').forEach(select => {
+                    if (select.tomselect && select.tomselect.isOpen) {
+                        const dropdown = select.tomselect.dropdown;
+                        const selectRect = select.getBoundingClientRect();
+                        dropdown.style.top = `${selectRect.bottom + window.scrollY}px`;
+                        dropdown.style.left = `${selectRect.left + window.scrollX}px`;
+                    }
+                    });
+                }
             });
         </script>
         <div class="border rounded-lg shadow-sm bg-white bg-white p-2 mx-4">
@@ -543,6 +599,8 @@ $title = 'Kelola Survei';
                         @endforeach
                     </tbody>
                 </table>
+                
+<div id="dropdownPortal" class="fixed z-[9999]"></div>
             </div>
         </div>
         </div>
