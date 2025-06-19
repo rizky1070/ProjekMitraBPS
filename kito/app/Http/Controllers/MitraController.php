@@ -23,8 +23,6 @@ class MitraController extends Controller
     {
         \Carbon\Carbon::setLocale('id');
 
-        // Bagian filter (tahun, bulan, kecamatan, nama) tidak berubah
-        // ... (kode filter Anda dari baris 20-134 tetap sama)
         $tahunOptions = Mitra::selectRaw('YEAR(tahun) as tahun')->union(Mitra::query()->selectRaw('YEAR(tahun_selesai) as tahun'))->orderByDesc('tahun')->pluck('tahun', 'tahun');
 
         $bulanOptions = [];
@@ -74,7 +72,6 @@ class MitraController extends Controller
             ->when($request->filled('kecamatan'), fn($q) => $q->where('id_kecamatan', $request->kecamatan))
             ->orderBy('nama_lengkap')->pluck('nama_lengkap', 'nama_lengkap');
 
-        // #################### PERUBAHAN DI SINI ####################
         // QUERY UTAMA DENGAN PERHITUNGAN HONOR YANG DIPERBARUI
         $mitrasQuery = Mitra::with(['kecamatan'])
             ->addSelect([
@@ -105,17 +102,19 @@ class MitraController extends Controller
                         }
                     })
             ])
-            ->when($request->filled('bulan'), fn($q) => $q->orderByDesc('total_honor'), fn($q) => $q->orderByDesc('total_survei'))
+            // Modifikasi bagian orderBy
+            ->when($request->filled('tahun') || $request->filled('bulan'), 
+                fn($q) => $q->orderByDesc('total_honor'), 
+                fn($q) => $q->orderBy('nama_lengkap')
+            )
             ->when($request->filled('tahun'), fn($q) => $q->whereYear('tahun', '<=', $request->tahun)->whereYear('tahun_selesai', '>=', $request->tahun))
             ->when($request->filled('bulan'), fn($q) => $q->whereMonth('tahun', '<=', $request->bulan)->whereMonth('tahun_selesai', '>=', $request->bulan))
             ->when($request->filled('kecamatan'), fn($q) => $q->where('id_kecamatan', $request->kecamatan))
             ->when($request->filled('nama_lengkap'), fn($q) => $q->where('nama_lengkap', $request->nama_lengkap));
 
         // Filter status partisipasi tidak berubah
-        if ($request->filled('status_mitra')) { /* ... */
-        }
+        if ($request->filled('status_mitra')) { /* ... */ }
 
-        // #################### PERUBAHAN DI SINI ####################
         // HITUNG TOTAL HONOR KESELURUHAN DENGAN LOGIKA BARU
         $totalHonor = MitraSurvei::whereHas('mitra', fn($q) => $q->whereIn('id_mitra', (clone $mitrasQuery)->pluck('id_mitra')))
             ->whereHas('survei', function ($q) use ($request) {

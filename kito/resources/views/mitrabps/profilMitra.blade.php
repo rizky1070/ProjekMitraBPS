@@ -92,7 +92,7 @@ $title = 'Profil Mitra';
 
                     <h2 class="text-xl font-bold mt-2">{{ $mits->nama_lengkap }}</h2>
                     <h5 class=" my-2">{{ $mits->sobat_id }}</h5>
-
+                    @if (auth()->user()->is_admin || auth()->user()->is_leader)
                     <form action="{{ route('mitra.destroy', $mits->id_mitra) }}" method="POST" id="form-hapus_mitra">
                         @csrf
                         @method('DELETE')
@@ -104,6 +104,7 @@ $title = 'Profil Mitra';
                             Hapus
                         </button>
                     </form>
+                    @endif
                 </div>
 
                 <div class="md:pl-6 w-full">
@@ -133,6 +134,7 @@ $title = 'Profil Mitra';
                     {{-- Form untuk update detail pekerjaan --}}
                     <div class="flex justify-between items-center w-full border-b py-2">
                         <strong>Pekerjaan :</strong>
+                        @if (auth()->user()->is_admin || auth()->user()->is_leader)
                         <form action="{{ route('mitra.updateDetailPekerjaan', $mits->id_mitra) }}" method="POST"
                             id="form-simpan_pekerjaan" class="flex items-center gap-2 flex-1 ml-4">
                             @csrf
@@ -150,11 +152,15 @@ $title = 'Profil Mitra';
                                 Simpan
                             </button>
                         </form>
+                        @else
+                        <span class="text-right">{{ $mits->detail_pekerjaan }}</span>
+                        @endif
                     </div>
 
                     {{-- Form untuk update status --}}
                     <div class="flex justify-between w-full border-b py-1">
                         <strong>Status :</strong>
+                        @if (auth()->user()->is_admin || auth()->user()->is_leader)
                         <form action="{{ route('mitra.updateStatus', $mits->id_mitra) }}" method="POST"
                             id="form-ubah_status">
                             @csrf
@@ -179,6 +185,15 @@ $title = 'Profil Mitra';
                                 {{ $buttonText }}
                             </button>
                         </form>
+                        @else
+                        <span class="text-right">
+                            @if ($mits->status_pekerjaan == 1)
+                                <span class="text-white bg-green-500 mt-4 px-2 py-0.5 font-medium rounded-md">Aktif</span>
+                            @else
+                                <span class="text-white bg-red-500 mt-4 px-2 py-0.5 font-medium rounded-md">Non-Aktif</span>
+                            @endif
+                        </span>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -287,9 +302,11 @@ $title = 'Profil Mitra';
                                         <th scope="col"
                                             class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Nilai</th>
+                                        @if (auth()->user()->is_admin || auth()->user()->is_leader)
                                         <th scope="col"
                                             class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Aksi</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -326,10 +343,12 @@ $title = 'Profil Mitra';
                                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                                     {{ str_repeat('⭐', $sur->nilai) }}</td>
                                             @endif
+                                            @if (auth()->user()->is_admin || auth()->user()->is_leader)
                                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                                 <a href="/penilaianMitra/{{ $sur->mitra->id_mitra }}/{{ $sur->survei->id_survei }}"
                                                     class="px-4 py-1 bg-oren rounded-md text-white font-medium hover:bg-orange-500 hover:shadow-lg transition-all duration-300">Edit</a>
                                             </td>
+                                            @endif
                                         </tr>
                                     @endforeach
                                 </tbody>
