@@ -229,7 +229,9 @@ class DaftarSurveiBpsController extends Controller
         }
 
         $posisiMitraOptions = PosisiMitra::all();
-        $mitras = $mitrasQuery->orderByDesc('isFollowingSurvey')->paginate(10);
+        $mitras = $mitrasQuery->orderByDesc('isFollowingSurvey')
+            ->orderBy('mitra.nama_lengkap') // Tambahkan ini untuk pengurutan berdasarkan nama
+            ->paginate(10);
 
         return view('mitrabps.editSurvei', compact('survey', 'mitras', 'tahunOptions', 'bulanOptions', 'kecamatanOptions', 'namaMitraOptions', 'posisiMitraOptions', 'request'));
     }
