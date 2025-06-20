@@ -226,71 +226,110 @@ $title = 'Sekretariat';
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('sekretariatData', () => ({
-                sidebarOpen: false,
-                showAddModal: false,
-                showEditModal: false,
-                currentKetua: null,
-                newKetuaName: '',
-                newKetuaLink: '',
-                newKetuaCategory: '',
-                newKetuaStatus: 1,
-                editKetuaName: '',
-                editKetuaLink: '',
-                editKetuaCategory: null,
-                editKetuaStatus: 1,
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('sekretariatData', () => ({
+            // Data state
+            sidebarOpen: false,
+            showAddModal: false,
+            showEditModal: false,
+            currentKetua: null,
+            newKetuaName: '',
+            newKetuaLink: '',
+            newKetuaCategory: '',
+            newKetuaStatus: 1,
+            editKetuaName: '',
+            editKetuaLink: '',
+            editKetuaCategory: null,
+            editKetuaStatus: 1,
+            isLoading: false,
 
-                isLoading: false,
+            // Inisialisasi komponen
+            init() {
+                // Inisialisasi Tom Select untuk modal tambah
+                this.$watch('showAddModal', (isOpen) => {
+                    if (isOpen) {
+                        this.$nextTick(() => {
+                            new TomSelect(this.$refs.categorySelect, {
+                                create: false,
+                                placeholder: "Pilih kategori...",
+                                onChange: (value) => {
+                                    this.newKetuaCategory = value;
+                                },
+                                onInitialize: () => {
+                                    // Set nilai awal jika ada
+                                    if (this.newKetuaCategory) {
+                                        this.$refs.categorySelect.tomselect.setValue(this.newKetuaCategory);
+                                    }
+                                }
+                            });
+                        });
+                    }
+                });
+
+                // Inisialisasi Tom Select untuk modal edit (jika ada)
+                this.$watch('showEditModal', (isOpen) => {
+                    if (isOpen) {
+                        this.$nextTick(() => {
+                            new TomSelect(this.$refs.editCategorySelect, {
+                                create: false,
+                                placeholder: "Pilih kategori...",
+                                onChange: (value) => {
+                                    this.editKetuaCategory = value;
+                                }
+                            });
+                        });
+                    }
+                });
+            },
 
                 getStatusText(status) {
-                    return status ? 'Aktif' : 'Nonaktif';
-                },
+                return status ? 'Aktif' : 'Nonaktif';
+            },
 
-                getStatusClass(status) {
-                    return status ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold';
-                },
+            getStatusClass(status) {
+                return status ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold';
+            },
 
-                resetForm() {
-                    this.newKetuaName = '';
-                    this.newKetuaLink = '';
-                    this.newKetuaCategory = '';
-                    this.newKetuaStatus = 1;
-                },
+            resetForm() {
+                this.newKetuaName = '';
+                this.newKetuaLink = '';
+                this.newKetuaCategory = '';
+                this.newKetuaStatus = 1;
+            },
 
-                async submitAddForm() {
-                    try {
-                        this.isLoading = true;
-                        const response = await fetch('/daftarsekretariat', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                name: this.newKetuaName,
-                                link: this.newKetuaLink,
-                                category_id: this.newKetuaCategory || null,
-                                status: this.newKetuaStatus
-                            })
-                        });
+            async submitAddForm() {
+                try {
+                    this.isLoading = true;
+                    const response = await fetch('/daftarsekretariat', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: this.newKetuaName,
+                            link: this.newKetuaLink,
+                            category_id: this.newKetuaCategory || null,
+                            status: this.newKetuaStatus
+                        })
+                    });
 
-                        const data = await response.json();
+                    const data = await response.json();
 
-                        if (!response.ok) {
-                            throw new Error(data.message || 'Gagal menambahkan Sekretariat');
-                        }
-
-                        Swal.fire("Berhasil!", "Link Sekretariat baru telah ditambahkan", "success")
-                            .then(() => window.location.reload());
-                    } catch (error) {
-                        Swal.fire("Error!", error.message, "error");
-                        console.error('Error:', error);
-                    } finally {
-                        this.isLoading = false;
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Gagal menambahkan Sekretariat');
                     }
-                },
+
+                    Swal.fire("Berhasil!", "Link Sekretariat baru telah ditambahkan", "success")
+                        .then(() => window.location.reload());
+                } catch (error) {
+                    Swal.fire("Error!", error.message, "error");
+                    console.error('Error:', error);
+                } finally {
+                    this.isLoading = false;
+                }
+            },
 
                 async togglePin(id) {
                     try {
