@@ -201,7 +201,7 @@ $title = 'Super Tim';
                             create: false,
                             placeholder: "Pilih kategori...",
                             onChange: (value) => {
-                                this.newKetuaCategory = value;
+                                this.newOfficeCategory = value;
                             },
                         });
                     });
@@ -212,7 +212,7 @@ $title = 'Super Tim';
                             create: false,
                             placeholder: "Pilih kategori...",
                             onChange: (value) => {
-                                this.editKetuaCategory = value;
+                                this.editOfficeCategory = value;
                             },
                         });
                     });
@@ -221,7 +221,7 @@ $title = 'Super Tim';
                     this.$watch('showEditModal', (isOpen) => {
                         if (isOpen && this.editTomSelectInstance) {
                             this.$nextTick(() => {
-                                this.editTomSelectInstance.setValue(this.editKetuaCategory);
+                                this.editTomSelectInstance.setValue(this.editOfficeCategory);
                             });
                         } else if (!isOpen && this.editCategoryTomSelect) {
                             // Opsional: reset TomSelect saat modal ditutup
@@ -258,18 +258,18 @@ $title = 'Super Tim';
                 },
 
                 // Fungsi untuk membuka modal edit
-                openEditModal(ketua) {
-                    this.currentKetua = ketua.id;
-                    this.editKetuaName = ketua.name;
-                    this.editKetuaLink = ketua.link;
-                    this.editKetuaCategory = ketua.category_id; // Pastikan ini sesuai dengan field di database
-                    this.editKetuaStatus = ketua.status ? 1 : 0;
+                openEditModal(office) {
+                    this.currentOffice = office.id;
+                    this.editOfficeName = office.name;
+                    this.editOfficeLink = office.link;
+                    this.editOfficeCategory = office.category_id; // Pastikan ini sesuai dengan field di database
+                    this.editOfficeStatus = office.status ? 1 : 0;
                     this.showEditModal = true;
 
                     // Set nilai TomSelect setelah modal terbuka
                     this.$nextTick(() => {
                         if (this.editTomSelectInstance) {
-                            this.editTomSelectInstance.setValue(this.editKetuaCategory);
+                            this.editTomSelectInstance.setValue(this.editOfficeCategory);
                         }
                     });
                 },
