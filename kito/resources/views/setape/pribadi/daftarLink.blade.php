@@ -182,7 +182,6 @@ $title = 'Daftar Link Pribadi';
                                     this.newLinkCategory = value;
                                 },
                                 onInitialize: () => {
-                                    // Set nilai awal jika ada
                                     if (this.newLinkCategory) {
                                         this.$refs.categorySelect.tomselect.setValue(this.newLinkCategory);
                                     }
@@ -192,15 +191,20 @@ $title = 'Daftar Link Pribadi';
                     }
                 });
 
-                // Inisialisasi Tom Select untuk modal edit (jika ada)
+                // Inisialisasi Tom Select untuk modal edit
                 this.$watch('showEditModal', (isOpen) => {
                     if (isOpen) {
                         this.$nextTick(() => {
-                            new TomSelect(this.$refs.editCategorySelect, {
+                            const editSelect = new TomSelect(this.$refs.editCategorySelect, {
                                 create: false,
                                 placeholder: "Pilih kategori...",
                                 onChange: (value) => {
                                     this.editLinkCategory = value;
+                                },
+                                onInitialize: () => {
+                                    if (this.editLinkCategory) {
+                                        editSelect.setValue(this.editLinkCategory);
+                                    }
                                 }
                             });
                         });
