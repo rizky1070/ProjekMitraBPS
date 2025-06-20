@@ -122,12 +122,7 @@ $title = 'Super Tim';
                                             </div>
                                         </div>
                                         <div class="flex-shrink-0 items-center justify-center flex space-x-1">
-                                            <button
-                                                @click="showEditModal = true; currentOffice = {{ $office->id }}; 
-                                                        editOfficeName = '{{ $office->name }}'; 
-                                                        editOfficeLink = '{{ $office->link }}'; 
-                                                        editOfficeCategory = {{ $office->category_id ?? 'null' }}; 
-                                                        editOfficeStatus = {{ $office->status ? 1 : 0 }};"
+                                            <button @click="openEditModal({{ $office->toJson() }})"
                                                 class="bg-yellow-500 text-white p-1 rounded-full hover:bg-yellow-600 transition-colors duration-200"
                                                 title="Edit">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6"
@@ -191,90 +186,57 @@ $title = 'Super Tim';
                 editOfficeCategory: null,
                 editOfficeStatus: 1,
                 isLoading: false,
+                editTomSelectInstance: null,
+                addTomSelectInstance: null,
 
                 // Inisialisasi komponen
                 init() {
                     // Inisialisasi Tom Select untuk modal tambah
-                    this.$watch('showAddModal', (isOpen) => {
-                        if (isOpen) {
-                            this.$nextTick(() => {
-                                new TomSelect(this.$refs.categorySelect, {
-                                    create: false,
-                                    placeholder: "Pilih kategori...",
-                                    onChange: (value) => {
-                                        this.newOfficeCategory = value;
-                                    },
-                                    onInitialize: () => {
-                                        if (this.newOfficeCategory) {
-                                            this.$refs.categorySelect.tomselect.setValue(this.newOfficeCategory);
-                                        }
-                                    }
-                                });
-                            });
-                        }
+                    this.$nextTick(() => {
+                        this.addTomSelectInstance = new TomSelect(this.$refs.categorySelect, {
+                            create: false,
+                            placeholder: "Pilih kategori...",
+                            onChange: (value) => {
+                                this.newKetuaCategory = value;
+                            },
+                        });
                     });
 
                     // Inisialisasi Tom Select untuk modal edit
+                    this.$nextTick(() => {
+                        this.editTomSelectInstance = new TomSelect(this.$refs.editCategorySelect, {
+                            create: false,
+                            placeholder: "Pilih kategori...",
+                            onChange: (value) => {
+                                this.editKetuaCategory = value;
+                            },
+                        });
+                    });
+
+                    // Watcher untuk modal edit
                     this.$watch('showEditModal', (isOpen) => {
-                        if (isOpen) {
+                        if (isOpen && this.editTomSelectInstance) {
                             this.$nextTick(() => {
-                                const editSelect = new TomSelect(this.$refs.editCategorySelect, {
-                                    create: false,
-                                    placeholder: "Pilih kategori...",
-                                    onChange: (value) => {
-                                        this.editOfficeCategory = value;
-                                    },
-                                    onInitialize: () => {
-                                        if (this.editOfficeCategory) {
-                                            editSelect.setValue(this.editOfficeCategory);
-                                        }
-                                    }
-                                });
+                                this.editTomSelectInstance.setValue(this.editKetuaCategory);
                             });
                         }
                     });
                 },
 
-                // Method lainnya
-                toggleStatus(event) {
-                    const checkbox = event.target;
-                    const officeId = checkbox.dataset.officeId;
-                    const isActive = checkbox.checked;
-                    const slider = checkbox.nextElementSibling;
+                // Fungsi untuk membuka modal edit
+                openEditModal(ketua) {
+                    this.currentKetua = ketua.id;
+                    this.editKetuaName = ketua.name;
+                    this.editKetuaLink = ketua.link;
+                    this.editKetuaCategory = ketua.category_id; // Pastikan ini sesuai dengan field di database
+                    this.editKetuaStatus = ketua.status ? 1 : 0;
+                    this.showEditModal = true;
 
-                    fetch('{{ route('super-tim.update-status') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            office_id: officeId,
-                            status: isActive ? 'active' : 'inactive'
-                        })
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error('Network response was not ok');
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (!data.success) {
-                            checkbox.checked = !isActive;
-                            slider.classList.toggle('bg-blue-600', !isActive);
-                            slider.classList.toggle('bg-gray-400', isActive);
-                            Swal.fire("Error!", data.message, "error");
-                        } else {
-                            slider.classList.toggle('bg-blue-600', isActive);
-                            slider.classList.toggle('bg-gray-400', !isActive);
+                    // Set nilai TomSelect setelah modal terbuka
+                    this.$nextTick(() => {
+                        if (this.editTomSelectInstance) {
+                            this.editTomSelectInstance.setValue(this.editKetuaCategory);
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        checkbox.checked = !isActive;
-                        slider.classList.toggle('bg-blue-600', !isActive);
-                        slider.classList.toggle('bg-gray-400', isActive);
-                        Swal.fire("Error!", "Terjadi kesalahan jaringan", "error");
                     });
                 },
 
@@ -291,6 +253,9 @@ $title = 'Super Tim';
                     this.newOfficeLink = '';
                     this.newOfficeCategory = '';
                     this.newOfficeStatus = 1;
+                    if (this.addTomSelectInstance) {
+                        this.addTomSelectInstance.clear(true); // 'true' untuk trigger event change
+                    }
                 },
 
                 async submitAddForm() {
@@ -427,12 +392,6 @@ $title = 'Super Tim';
                     }
                 }
             }));
-        });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Tom Select for search dropdown
             const searchSelect = new TomSelect('#searchSelect', {
                 create: false,
                 sortField: {
@@ -491,6 +450,7 @@ $title = 'Super Tim';
             statusSelect.on('change', applyFilters);
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 </body>
 
 </html>

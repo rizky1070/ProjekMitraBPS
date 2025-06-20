@@ -120,12 +120,7 @@ $title = 'Sekretariat';
                                             </div>
                                         </div>
                                         <div class="flex-shrink-0 items-center justify-center flex space-x-1">
-                                            <button
-                                                @click="showEditModal = true; currentKetua = {{ $ketua->id }}; 
-                                                        editKetuaName = '{{ $ketua->name }}'; 
-                                                        editKetuaLink = '{{ $ketua->link }}'; 
-                                                        editKetuaCategory = {{ $ketua->category_id ?? 'null' }}; 
-                                                        editKetuaStatus = {{ $ketua->status ? 1 : 0 }};"
+                                            <button @click="openEditModal({{ $ketua->toJson() }})"
                                                 class="bg-yellow-500 text-white p-1 rounded-full hover:bg-yellow-600 transition-colors duration-200"
                                                 title="Edit">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6"
@@ -227,61 +222,76 @@ $title = 'Sekretariat';
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     document.addEventListener('alpine:init', () => {
-        Alpine.data('sekretariatData', () => ({
-            // Data state
-            sidebarOpen: false,
-            showAddModal: false,
-            showEditModal: false,
-            currentKetua: null,
-            newKetuaName: '',
-            newKetuaLink: '',
-            newKetuaCategory: '',
-            newKetuaStatus: 1,
-            editKetuaName: '',
-            editKetuaLink: '',
-            editKetuaCategory: null,
-            editKetuaStatus: 1,
-            isLoading: false,
+    Alpine.data('sekretariatData', () => ({
+        // Data state
+        sidebarOpen: false,
+        showAddModal: false,
+        showEditModal: false,
+        currentKetua: null,
+        newKetuaName: '',
+        newKetuaLink: '',
+        newKetuaCategory: '',
+        newKetuaStatus: 1,
+        editKetuaName: '',
+        editKetuaLink: '',
+        editKetuaCategory: null,
+        editKetuaStatus: 1,
+        isLoading: false,
+        editTomSelectInstance: null,
+        addTomSelectInstance: null,
 
-            // Inisialisasi komponen
-            init() {
-                // Inisialisasi Tom Select untuk modal tambah
-                this.$watch('showEditModal', (isOpen) => {
-                        if (isOpen) {
-                            this.$nextTick(() => {
-                                const editSelect = new TomSelect(this.$refs.editCategorySelect, {
-                                    create: false,
-                                    placeholder: "Pilih kategori...",
-                                    onChange: (value) => {
-                                        this.editOfficeCategory = value;
-                                    },
-                                    onInitialize: () => {
-                                        if (this.editOfficeCategory) {
-                                            editSelect.setValue(this.editOfficeCategory);
-                                        }
-                                    }
-                                });
-                            });
-                        }
-                    });
-
-                // Inisialisasi Tom Select untuk modal edit (jika ada)
-                this.$watch('showEditModal', (isOpen) => {
-                    if (isOpen) {
-                        this.$nextTick(() => {
-                            new TomSelect(this.$refs.editCategorySelect, {
-                                create: false,
-                                placeholder: "Pilih kategori...",
-                                onChange: (value) => {
-                                    this.editKetuaCategory = value;
-                                }
-                            });
-                        });
-                    }
+        // Inisialisasi komponen
+        init() {
+            // Inisialisasi Tom Select untuk modal tambah
+            this.$nextTick(() => {
+                this.addTomSelectInstance = new TomSelect(this.$refs.categorySelect, {
+                    create: false,
+                    placeholder: "Pilih kategori...",
+                    onChange: (value) => {
+                        this.newKetuaCategory = value;
+                    },
                 });
-            },
+            });
 
-                getStatusText(status) {
+            // Inisialisasi Tom Select untuk modal edit
+            this.$nextTick(() => {
+                this.editTomSelectInstance = new TomSelect(this.$refs.editCategorySelect, {
+                    create: false,
+                    placeholder: "Pilih kategori...",
+                    onChange: (value) => {
+                        this.editKetuaCategory = value;
+                    },
+                });
+            });
+
+            // Watcher untuk modal edit
+            this.$watch('showEditModal', (isOpen) => {
+                if (isOpen && this.editTomSelectInstance) {
+                    this.$nextTick(() => {
+                        this.editTomSelectInstance.setValue(this.editKetuaCategory);
+                    });
+                }
+            });
+        },
+
+        // Fungsi untuk membuka modal edit
+        openEditModal(ketua) {
+            this.currentKetua = ketua.id;
+            this.editKetuaName = ketua.name;
+            this.editKetuaLink = ketua.link;
+            this.editKetuaCategory = ketua.category_id; // Pastikan ini sesuai dengan field di database
+            this.editKetuaStatus = ketua.status ? 1 : 0;
+            this.showEditModal = true;
+
+            // Set nilai TomSelect setelah modal terbuka
+            this.$nextTick(() => {
+                if (this.editTomSelectInstance) {
+                    this.editTomSelectInstance.setValue(this.editKetuaCategory);
+                }
+            });
+        },
+
+            getStatusText(status) {
                 return status ? 'Aktif' : 'Nonaktif';
             },
 
@@ -294,6 +304,9 @@ $title = 'Sekretariat';
                 this.newKetuaLink = '';
                 this.newKetuaCategory = '';
                 this.newKetuaStatus = 1;
+                if (this.addTomSelectInstance) {
+                    this.addTomSelectInstance.clear(true); // 'true' untuk trigger event change
+                }
             },
 
             async submitAddForm() {
@@ -430,13 +443,6 @@ $title = 'Sekretariat';
                     }
                 }
             }));
-        });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-    <script>
-        // Di bagian JavaScript
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Tom Select for search dropdown
             const searchSelect = new TomSelect('#searchSelect', {
                 create: false,
                 sortField: {
@@ -495,6 +501,7 @@ $title = 'Sekretariat';
             statusSelect.on('change', applyFilters);
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 </body>
 
 </html>
