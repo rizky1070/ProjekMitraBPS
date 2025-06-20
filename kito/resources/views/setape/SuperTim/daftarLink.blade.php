@@ -122,12 +122,7 @@ $title = 'Super Tim';
                                             </div>
                                         </div>
                                         <div class="flex-shrink-0 items-center justify-center flex space-x-1">
-                                            <button
-                                                @click="showEditModal = true; currentOffice = {{ $office->id }}; 
-                                                        editOfficeName = '{{ $office->name }}'; 
-                                                        editOfficeLink = '{{ $office->link }}'; 
-                                                        editOfficeCategory = {{ $office->category_id ?? 'null' }}; 
-                                                        editOfficeStatus = {{ $office->status ? 1 : 0 }};"
+                                            <button @click="openEditModal({{ json_encode($office) }})"
                                                 class="bg-yellow-500 text-white p-1 rounded-full hover:bg-yellow-600 transition-colors duration-200"
                                                 title="Edit">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6"
@@ -192,45 +187,76 @@ $title = 'Super Tim';
                 editOfficeStatus: 1,
                 isLoading: false,
 
+                // Variabel untuk menyimpan instance TomSelect
+                addCategoryTomSelect: null,
+                editCategoryTomSelect: null,
+
                 // Inisialisasi komponen
                 init() {
-                    // Inisialisasi Tom Select untuk modal tambah
+                    // Inisialisasi Tom Select untuk modal tambah (hanya sekali)
                     this.$watch('showAddModal', (isOpen) => {
-                        if (isOpen) {
+                        if (isOpen && !this
+                            .addCategoryTomSelect) { // Pastikan belum diinisialisasi
                             this.$nextTick(() => {
-                                new TomSelect(this.$refs.categorySelect, {
-                                    create: false,
-                                    placeholder: "Pilih kategori...",
-                                    onChange: (value) => {
-                                        this.newOfficeCategory = value;
-                                    },
-                                    onInitialize: () => {
-                                        if (this.newOfficeCategory) {
-                                            this.$refs.categorySelect.tomselect.setValue(this.newOfficeCategory);
+                                this.addCategoryTomSelect = new TomSelect(this.$refs
+                                    .categorySelect, {
+                                        create: false,
+                                        placeholder: "Pilih kategori...",
+                                        onChange: (value) => {
+                                            this.newOfficeCategory = value;
                                         }
-                                    }
-                                });
+                                    });
                             });
+                        } else if (!isOpen && this.addCategoryTomSelect) {
+                            // Opsional: reset TomSelect saat modal ditutup
+                            this.addCategoryTomSelect.setValue('');
                         }
                     });
 
-                    // Inisialisasi Tom Select untuk modal edit
+                    // Inisialisasi Tom Select untuk modal edit (hanya sekali)
                     this.$watch('showEditModal', (isOpen) => {
-                        if (isOpen) {
+                        if (isOpen && !this
+                            .editCategoryTomSelect) { // Pastikan belum diinisialisasi
                             this.$nextTick(() => {
-                                const editSelect = new TomSelect(this.$refs.editCategorySelect, {
-                                    create: false,
-                                    placeholder: "Pilih kategori...",
-                                    onChange: (value) => {
-                                        this.editOfficeCategory = value;
-                                    },
-                                    onInitialize: () => {
-                                        if (this.editOfficeCategory) {
-                                            editSelect.setValue(this.editOfficeCategory);
+                                this.editCategoryTomSelect = new TomSelect(this.$refs
+                                    .editCategorySelect, {
+                                        create: false,
+                                        placeholder: "Pilih kategori...",
+                                        onChange: (value) => {
+                                            this.editOfficeCategory = value;
                                         }
-                                    }
-                                });
+                                    });
                             });
+                        } else if (!isOpen && this.editCategoryTomSelect) {
+                            // Opsional: reset TomSelect saat modal ditutup
+                            this.editCategoryTomSelect.setValue('');
+                        }
+                    });
+                },
+
+                // Method untuk membuka modal tambah
+                openAddModal() {
+                    this.resetForm(); // Pastikan form direset
+                    this.showAddModal = true;
+                    // Jika TomSelect sudah ada, set nilainya ke kosong
+                    if (this.addCategoryTomSelect) {
+                        this.addCategoryTomSelect.setValue('');
+                    }
+                },
+
+                // Method untuk membuka modal edit
+                openEditModal(office) {
+                    this.currentOffice = office.id;
+                    this.editOfficeName = office.name;
+                    this.editOfficeLink = office.link;
+                    this.editOfficeCategory = String(office.category_id || '');
+                    this.editOfficeStatus = String(office.status);
+                    this.showEditModal = true;
+
+                    this.$nextTick(() => {
+                        if (this.editCategoryTomSelect) {
+                            // Gunakan setValue dari instance TomSelect
+                            this.editCategoryTomSelect.setValue(this.editOfficeCategory);
                         }
                     });
                 },
@@ -243,39 +269,39 @@ $title = 'Super Tim';
                     const slider = checkbox.nextElementSibling;
 
                     fetch('{{ route('super-tim.update-status') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            office_id: officeId,
-                            status: isActive ? 'active' : 'inactive'
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                office_id: officeId,
+                                status: isActive ? 'active' : 'inactive'
+                            })
                         })
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error('Network response was not ok');
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (!data.success) {
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (!data.success) {
+                                checkbox.checked = !isActive;
+                                slider.classList.toggle('bg-blue-600', !isActive);
+                                slider.classList.toggle('bg-gray-400', isActive);
+                                Swal.fire("Error!", data.message, "error");
+                            } else {
+                                slider.classList.toggle('bg-blue-600', isActive);
+                                slider.classList.toggle('bg-gray-400', !isActive);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
                             checkbox.checked = !isActive;
                             slider.classList.toggle('bg-blue-600', !isActive);
                             slider.classList.toggle('bg-gray-400', isActive);
-                            Swal.fire("Error!", data.message, "error");
-                        } else {
-                            slider.classList.toggle('bg-blue-600', isActive);
-                            slider.classList.toggle('bg-gray-400', !isActive);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        checkbox.checked = !isActive;
-                        slider.classList.toggle('bg-blue-600', !isActive);
-                        slider.classList.toggle('bg-gray-400', isActive);
-                        Swal.fire("Error!", "Terjadi kesalahan jaringan", "error");
-                    });
+                            Swal.fire("Error!", "Terjadi kesalahan jaringan", "error");
+                        });
                 },
 
                 getStatusText(status) {
@@ -429,7 +455,9 @@ $title = 'Super Tim';
             }));
         });
     </script>
+
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Tom Select for search dropdown
@@ -491,6 +519,7 @@ $title = 'Super Tim';
             statusSelect.on('change', applyFilters);
         });
     </script>
+
 </body>
 
 </html>
