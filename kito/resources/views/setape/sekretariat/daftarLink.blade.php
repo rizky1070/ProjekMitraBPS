@@ -246,25 +246,24 @@ $title = 'Sekretariat';
             // Inisialisasi komponen
             init() {
                 // Inisialisasi Tom Select untuk modal tambah
-                this.$watch('showAddModal', (isOpen) => {
-                    if (isOpen) {
-                        this.$nextTick(() => {
-                            new TomSelect(this.$refs.categorySelect, {
-                                create: false,
-                                placeholder: "Pilih kategori...",
-                                onChange: (value) => {
-                                    this.newKetuaCategory = value;
-                                },
-                                onInitialize: () => {
-                                    // Set nilai awal jika ada
-                                    if (this.newKetuaCategory) {
-                                        this.$refs.categorySelect.tomselect.setValue(this.newKetuaCategory);
+                this.$watch('showEditModal', (isOpen) => {
+                        if (isOpen) {
+                            this.$nextTick(() => {
+                                const editSelect = new TomSelect(this.$refs.editCategorySelect, {
+                                    create: false,
+                                    placeholder: "Pilih kategori...",
+                                    onChange: (value) => {
+                                        this.editOfficeCategory = value;
+                                    },
+                                    onInitialize: () => {
+                                        if (this.editOfficeCategory) {
+                                            editSelect.setValue(this.editOfficeCategory);
+                                        }
                                     }
-                                }
+                                });
                             });
-                        });
-                    }
-                });
+                        }
+                    });
 
                 // Inisialisasi Tom Select untuk modal edit (jika ada)
                 this.$watch('showEditModal', (isOpen) => {

@@ -16,7 +16,7 @@
             <div class="mb-4">
                 <label class="block text-gray-700 mb-2" for="editOfficeCategory">Kategori</label>
                 <select x-model="editOfficeCategory" id="editOfficeCategory" 
-                    class="w-full" x-ref="editCategorySelect">
+                    class="w-full border rounded" x-ref="editCategorySelect">
                     <option value="">Pilih Kategori</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>

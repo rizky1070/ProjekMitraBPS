@@ -15,7 +15,7 @@
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 mb-2" for="linkCategory">Kategori</label>
-                <select x-model="newLinkCategory" id="linkCategory" class="w-full" x-ref="categorySelect">
+                <select x-model="newLinkCategory" id="linkCategory" class="w-full border rounded" x-ref="categorySelect">
                     <option value="">Pilih Kategori</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
