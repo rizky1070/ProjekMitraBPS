@@ -106,12 +106,7 @@ $title = 'Daftar Link Pribadi';
                                             </div>
                                         </div>
                                         <div class="flex-shrink-0 items-center justify-center flex space-x-1">
-                                            <button
-                                                @click="showEditModal = true; currentLink = {{ $link->id }}; 
-                                                    editLinkName = '{{ $link->name }}'; 
-                                                    editLinkLink = '{{ $link->link }}'; 
-                                                    editLinkCategory = {{ $link->category_user_id ?? 'null' }}; 
-                                                    editLinkStatus = {{ $link->status ? 1 : 0 }};"
+                                            <button @click="openEditModal({{ $link->toJson() }})"
                                                 class="bg-yellow-500 text-white p-1 rounded-full hover:bg-yellow-600 transition-colors duration-200"
                                                 title="Edit">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6"
@@ -150,117 +145,125 @@ $title = 'Daftar Link Pribadi';
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-<script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('linkData', () => ({
-            // Data state
-            sidebarOpen: false,
-            showAddModal: false,
-            showEditModal: false,
-            currentLink: null,
-            newLinkName: '',
-            newLinkLink: '',
-            newLinkCategory: '',
-            newLinkStatus: 1,
-            editLinkName: '',
-            editLinkLink: '',
-            editLinkCategory: null,
-            editLinkStatus: 1,
-            isLoading: false,
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('linkData', () => ({
+                // Data state
+                sidebarOpen: false,
+                showAddModal: false,
+                showEditModal: false,
+                currentLink: null,
+                newLinkName: '',
+                newLinkLink: '',
+                newLinkCategory: '',
+                newLinkStatus: 1,
+                editLinkName: '',
+                editLinkLink: '',
+                editLinkCategory: null, // Pastikan ini null atau string kosong
+                editLinkStatus: 1,
+                isLoading: false,
 
-            // Inisialisasi komponen
-            init() {
-                // Inisialisasi Tom Select untuk modal tambah
-                this.$watch('showAddModal', (isOpen) => {
-                    if (isOpen) {
-                        this.$nextTick(() => {
-                            new TomSelect(this.$refs.categorySelect, {
-                                create: false,
-                                placeholder: "Pilih kategori...",
-                                onChange: (value) => {
-                                    this.newLinkCategory = value;
-                                },
-                                onInitialize: () => {
-                                    if (this.newLinkCategory) {
-                                        this.$refs.categorySelect.tomselect.setValue(this.newLinkCategory);
-                                    }
-                                }
-                            });
+                // Tambahkan referensi TomSelect untuk edit modal
+                editTomSelectInstance: null,
+                addTomSelectInstance: null,
+
+                // Inisialisasi komponen
+                init() {
+                    // Inisialisasi Tom Select untuk modal tambah (hanya sekali)
+                    this.$nextTick(() => {
+                        this.addTomSelectInstance = new TomSelect(this.$refs.categorySelect, {
+                            create: false,
+                            placeholder: "Pilih kategori...",
+                            onChange: (value) => {
+                                this.newLinkCategory = value;
+                            },
                         });
-                    }
-                });
+                        if (this.newLinkCategory) {
+                            this.addTomSelectInstance.setValue(this.newLinkCategory);
+                        }
+                    });
 
-                // Inisialisasi Tom Select untuk modal edit
-                this.$watch('showEditModal', (isOpen) => {
-                    if (isOpen) {
-                        this.$nextTick(() => {
-                            const editSelect = new TomSelect(this.$refs.editCategorySelect, {
+                    // Inisialisasi Tom Select untuk modal edit (hanya sekali)
+                    this.$nextTick(() => {
+                        this.editTomSelectInstance = new TomSelect(this.$refs
+                            .editCategorySelect, {
                                 create: false,
                                 placeholder: "Pilih kategori...",
                                 onChange: (value) => {
                                     this.editLinkCategory = value;
                                 },
-                                onInitialize: () => {
-                                    if (this.editLinkCategory) {
-                                        editSelect.setValue(this.editLinkCategory);
-                                    }
-                                }
                             });
-                        });
-                    }
-                });
-            },
-
-                getStatusText(status) {
-                return status ? 'Aktif' : 'Nonaktif';
-            },
-
-            getStatusClass(status) {
-                return status ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold';
-            },
-
-            resetForm() {
-                this.newLinkName = '';
-                this.newLinkLink = '';
-                this.newLinkCategory = '';
-                this.newLinkStatus = 1;
-            },
-
-            async submitAddForm() {
-                try {
-                    this.isLoading = true;
-                    const response = await fetch('/daftarlinkpribadi', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            name: this.newLinkName,
-                            link: this.newLinkLink,
-                            category_user_id: this.newLinkCategory || null,
-                            status: this.newLinkStatus
-                        })
+                        // Set nilai awal jika ada (meskipun biasanya null/kosong saat init pertama kali)
+                        if (this.editLinkCategory) {
+                            this.editTomSelectInstance.setValue(this.editLinkCategory);
+                        }
                     });
 
-                    const data = await response.json();
+                    // Watcher untuk modal tambah: reset nilai setelah ditutup
+                    this.$watch('showAddModal', (isOpen) => {
+                        if (!isOpen) {
+                            this.resetForm();
+                            // Kosongkan TomSelect ketika modal add ditutup
+                            if (this.addTomSelectInstance) {
+                                this.addTomSelectInstance.clear(true);
+                            }
+                        }
+                    });
 
-                    if (!response.ok) {
-                        throw new Error(data.message || 'Gagal menambahkan Link');
+                    // Watcher untuk modal edit: atur nilai TomSelect saat dibuka
+                    this.$watch('showEditModal', (isOpen) => {
+                        if (isOpen) {
+                            this.$nextTick(() => {
+                                // Pastikan TomSelect instance sudah ada
+                                if (this.editTomSelectInstance) {
+                                    // Set nilai TomSelect dengan nilai editLinkCategory terbaru
+                                    this.editTomSelectInstance.setValue(this
+                                        .editLinkCategory);
+                                }
+                            });
+                        }
+                    });
+                },
+
+                // Fungsi untuk membuka modal edit dengan data link yang benar
+                // Ubah cara memanggil fungsi ini di button edit kamu
+                openEditModal(link) {
+                    this.currentLink = link.id;
+                    this.editLinkName = link.name;
+                    this.editLinkLink = link.link;
+                    this.editLinkCategory = link.category_user_id; // Ini yang penting untuk TomSelect
+                    this.editLinkStatus = link.status ? 1 : 0;
+                    this.showEditModal = true;
+
+                    // Setelah modal ditampilkan dan data diisi, pastikan TomSelect memperbarui dirinya
+                    this.$nextTick(() => {
+                        if (this.editTomSelectInstance) {
+                            this.editTomSelectInstance.setValue(this.editLinkCategory);
+                        }
+                    });
+                },
+
+                getStatusText(status) {
+                    return status ? 'Aktif' : 'Nonaktif';
+                },
+
+                getStatusClass(status) {
+                    return status ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold';
+                },
+
+                resetForm() {
+                    this.newLinkName = '';
+                    this.newLinkLink = '';
+                    this.newLinkCategory = '';
+                    this.newLinkStatus = 1;
+                    // Reset TomSelect jika instance ada
+                    if (this.addTomSelectInstance) {
+                        this.addTomSelectInstance.clear(true); // 'true' untuk trigger event change
                     }
+                },
 
-                    Swal.fire("Berhasil!", "Link baru telah ditambahkan", "success")
-                        .then(() => window.location.reload());
-                } catch (error) {
-                    Swal.fire("Error!", error.message, "error");
-                    console.error('Error:', error);
-                } finally {
-                    this.isLoading = false;
-                }
-            },
-
+                // submitAddForm dan fungsi lainnya sama seperti sebelumnya
                 async submitAddForm() {
                     try {
                         this.isLoading = true;
@@ -294,7 +297,6 @@ $title = 'Daftar Link Pribadi';
                         this.isLoading = false;
                     }
                 },
-
 
                 async togglePin(id) {
                     try {
@@ -396,57 +398,9 @@ $title = 'Daftar Link Pribadi';
                     }
                 }
             }));
-        });
-        document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Tom Select for search dropdown
-        const searchSelect = new TomSelect('#searchSelect', {
-            create: false,
-            sortField: {
-                field: "text",
-                direction: "asc"
-            },
-            placeholder: "Cari link...",
-            maxOptions: null,
-        });
 
-        // Initialize Tom Select for category dropdown
-        const categorySelect = new TomSelect('#categoryFilter', {
-            create: false,
-            sortField: {
-                field: "text",
-                direction: "asc"
-            },
-            placeholder: "Pilih kategori...",
-            maxOptions: null,
-        });
-
-        function applyFilters() {
-            const params = new URLSearchParams();
-
-            // Add search parameter
-            const searchValue = searchSelect.getValue();
-            if (searchValue) {
-                params.append('search', searchValue);
-            }
-
-            // Add category parameter
-            const categoryValue = categorySelect.getValue();
-            if (categoryValue && categoryValue !== 'all') {
-                params.append('category', categoryValue);
-            }
-
-            window.location.href = window.location.pathname + '?' + params.toString();
-        }
-
-        // Event listeners
-        searchSelect.on('change', applyFilters);
-        categorySelect.on('change', applyFilters);
-    });
-</script>
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Tom Select for search dropdown
+            // Inisialisasi Tom Select untuk filter search dan category di luar Alpine.data
+            // Hapus duplikasi script TomSelect
             const searchSelect = new TomSelect('#searchSelect', {
                 create: false,
                 sortField: {
@@ -457,7 +411,6 @@ $title = 'Daftar Link Pribadi';
                 maxOptions: null,
             });
 
-            // Initialize Tom Select for category dropdown
             const categorySelect = new TomSelect('#categoryFilter', {
                 create: false,
                 sortField: {
@@ -470,27 +423,22 @@ $title = 'Daftar Link Pribadi';
 
             function applyFilters() {
                 const params = new URLSearchParams();
-
-                // Add search parameter
                 const searchValue = searchSelect.getValue();
                 if (searchValue) {
                     params.append('search', searchValue);
                 }
-
-                // Add category parameter
                 const categoryValue = categorySelect.getValue();
                 if (categoryValue && categoryValue !== 'all') {
                     params.append('category', categoryValue);
                 }
-
                 window.location.href = window.location.pathname + '?' + params.toString();
             }
 
-            // Event listeners
             searchSelect.on('change', applyFilters);
             categorySelect.on('change', applyFilters);
         });
     </script>
+
 </body>
 
 </html>
