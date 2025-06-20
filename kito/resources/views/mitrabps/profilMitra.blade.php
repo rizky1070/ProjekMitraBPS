@@ -492,7 +492,7 @@ $title = 'Profil Mitra';
                     break;
                 case 'ubah_status':
                     // `data` di sini adalah status saat ini (1=aktif, 0=non-aktif)
-                    const targetStatusText = (data == 1) ? 'Non-Aktif' : 'Aktif';
+                    const targetStatusText = (data == 1) ? 'bisa mengikuti survei' : 'tidak bisa mengikuti survei';
                     title = `Konfirmasi Ubah Status`;
                     message = `Anda yakin ingin mengubah status <b>${name}</b> menjadi <b>${targetStatusText}</b>?`;
                     break;

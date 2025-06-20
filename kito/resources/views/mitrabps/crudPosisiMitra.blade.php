@@ -81,7 +81,11 @@ $title = 'Daftar Posisi Mitra';
             <x-navbar></x-navbar>
 
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
+                @if (auth()->user()->is_admin || auth()->user()->is_leader)
                 <h1 class="text-2xl font-bold mb-4">Kelola Posisi Mitra</h1>
+                @else
+                <h1 class="text-2xl font-bold mb-4">Daftar Posisi Mitra</h1>
+                @endif
 
                 <div class="bg-white p-4 rounded shadow">
                     <div class="flex justify-between items-center mb-4">
@@ -97,11 +101,13 @@ $title = 'Daftar Posisi Mitra';
                             </select>
                         </div>
                         {{-- Tombol ini akan memanggil modal universal untuk menambah data --}}
+                        @if (auth()->user()->is_admin || auth()->user()->is_leader)
                         <button onclick="showConfirmation('tambah')"
                             class="bg-oren text-white ml-2 px-4 py-2 rounded hover:bg-orange-500 transition"
                             title="Tambah Posisi Mitra Baru">
                             Tambah
                         </button>
+                        @endif
                     </div>
 
                     <div class="cuScrollTableX">
@@ -111,15 +117,18 @@ $title = 'Daftar Posisi Mitra';
                                     <th
                                         class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Nama Posisi</th>
+                                    @if (auth()->user()->is_admin || auth()->user()->is_leader)
                                     <th
                                         class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Aksi</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($posisiMitra as $posisi)
                                     <tr class="hover:bg-gray-50" style="border-top-width: 2px; border-color: #D1D5DB;">
                                         <td class="px-4 py-2 text-left">{{ $posisi->nama_posisi }}</td>
+                                        @if (auth()->user()->is_admin || auth()->user()->is_leader)
                                         <td class="px-4 py-2 whitespace-nowrap text-center">
                                             {{-- Tombol Edit memanggil modal universal --}}
                                             <button
@@ -141,6 +150,7 @@ $title = 'Daftar Posisi Mitra';
                                                 </button>
                                             </form>
                                         </td>
+                                        @endif
                                     </tr>
                                 @empty
                                     <tr>
