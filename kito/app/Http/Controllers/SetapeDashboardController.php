@@ -27,8 +27,36 @@ class SetapeDashboardController extends Controller
             'officeNonActiveCount' => Office::inactive()->count(),
             'linkPribadiCount' => Link::where('user_id', Auth::id())->count(),
             'categoryPribadiCount' => CategoryUser::where('user_id', Auth::id())->count(),
+            
+            // Total kategori unik dari ketua dan office yang aktif
+            'totalKategoriKelompokKerjaAktif' => $this->getTotalKategoriKelompokKerjaAktif(),
         ];
 
         return view('setape.dashboard', $stats);
+    }
+
+    /**
+     * Menghitung total kategori unik dari ketua dan office yang aktif
+     */
+    protected function getTotalKategoriKelompokKerjaAktif()
+    {
+        // Ambil kategori_id dari ketua aktif
+        $kategoriKetuaAktif = Ketua::active()
+            ->pluck('category_id')
+            ->unique()
+            ->filter();
+
+        // Ambil kategori_id dari office aktif
+        $kategoriOfficeAktif = Office::active()
+            ->pluck('category_id')
+            ->unique()
+            ->filter();
+
+        // Gabungkan dan ambil yang unik
+        $allKategoriIds = $kategoriKetuaAktif->merge($kategoriOfficeAktif)
+            ->unique()
+            ->values();
+
+        return $allKategoriIds->count();
     }
 }
