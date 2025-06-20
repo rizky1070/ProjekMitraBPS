@@ -416,7 +416,7 @@ $title = 'Kelola Survei';
                                 Nama Mitra</th>
                             <th scope="col"
                                 class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Domisili</th>
+                                Kecamatan</th>
                             <th scope="col"
                                 class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Survei yang Diikuti</th>
@@ -497,8 +497,8 @@ $title = 'Kelola Survei';
                                     </td>
 
                                     {{-- Kolom select Posisi --}}
-                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">
-                                        <select name="id_posisi_mitra" class="w-full focus:outline-none text-center"
+                                    <td class="text-center" style="max-width: 120px;">
+                                        <select name="id_posisi_mitra" class="w-full focus:outline-none text-left"
                                             form="form-edit-{{ $mitra->id_mitra }}"> {{-- Tautkan ke form edit --}}
                                             <option value="">Pilih Posisi</option>
                                             @foreach ($posisiMitraOptions as $posisi)
@@ -570,7 +570,7 @@ $title = 'Kelola Survei';
                                     </td>
 
                                     {{-- Kolom select Posisi --}}
-                                    <td class="whitespace-nowrap text-center" style="max-width: 120px;">
+                                    <td class=" text-center" style="max-width: 120px;">
                                         <select name="id_posisi_mitra" class="w-full focus:outline-none text-left"
                                             form="form-tambah-{{ $mitra->id_mitra }}"> {{-- Tautkan ke form tambah --}}
                                             <option value="">Pilih Posisi</option>
