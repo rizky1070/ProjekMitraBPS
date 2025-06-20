@@ -192,6 +192,44 @@ $title = 'Super Tim';
 
                 isLoading: false,
 
+                init() {
+                // Inisialisasi Tom Select untuk modal tambah
+                this.$watch('showAddModal', (isOpen) => {
+                    if (isOpen) {
+                        this.$nextTick(() => {
+                            new TomSelect(this.$refs.categorySelect, {
+                                create: false,
+                                placeholder: "Pilih kategori...",
+                                onChange: (value) => {
+                                    this.newOfficeCategory = value;
+                                },
+                                onInitialize: () => {
+                                    // Set nilai awal jika ada
+                                    if (this.newOfficeCategory) {
+                                        this.$refs.categorySelect.tomselect.setValue(this.newOfficeCategory);
+                                    }
+                                }
+                            });
+                        });
+                    }
+                });
+
+                // Inisialisasi Tom Select untuk modal edit (jika ada)
+                this.$watch('showEditModal', (isOpen) => {
+                    if (isOpen) {
+                        this.$nextTick(() => {
+                            new TomSelect(this.$refs.editCategorySelect, {
+                                create: false,
+                                placeholder: "Pilih kategori...",
+                                onChange: (value) => {
+                                    this.editOfficeCategory = value;
+                                }
+                            });
+                        });
+                    }
+                });
+            },
+
                 toggleStatus(event) {
                     const checkbox = event.target;
                     const officeId = checkbox.dataset.officeId;
