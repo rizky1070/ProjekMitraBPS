@@ -16,7 +16,7 @@
             <div class="mb-4">
                 <label class="block text-gray-700 mb-2" for="editLinkCategory">Kategori</label>
                 <select x-model="editLinkCategory" id="editLinkCategory" 
-                    class="w-full border rounded" x-ref="editCategorySelect">
+                    class="w-full border border-gray-500 rounded" x-ref="editCategorySelect">
                     <option value="">Pilih Kategori</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>

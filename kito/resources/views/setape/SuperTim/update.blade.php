@@ -16,19 +16,11 @@
             <div class="mb-4">
                 <label class="block text-gray-700 mb-2" for="editOfficeCategory">Kategori</label>
                 <select x-model="editOfficeCategory" id="editOfficeCategory" 
-                    class="w-full border rounded" x-ref="editCategorySelect">
+                    class="w-full border border-gray-500 rounded" x-ref="editCategorySelect">
                     <option value="">Pilih Kategori</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}">{{ $category->name }}</option>
                     @endforeach
-                </select>
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2" for="editOfficeStatus">Status</label>
-                <select x-model="editOfficeStatus" id="editOfficeStatus" 
-                    class="w-full px-3 py-2 border rounded" required>
-                    <option value="1">Aktif</option>
-                    <option value="0">Nonaktif</option>
                 </select>
             </div>
             <div class="flex justify-end space-x-3">
