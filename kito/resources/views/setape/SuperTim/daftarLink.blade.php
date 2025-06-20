@@ -177,6 +177,7 @@ $title = 'Super Tim';
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('superTimData', () => ({
+                // Data state
                 sidebarOpen: false,
                 showAddModal: false,
                 showEditModal: false,
@@ -189,92 +190,92 @@ $title = 'Super Tim';
                 editOfficeLink: '',
                 editOfficeCategory: null,
                 editOfficeStatus: 1,
-
                 isLoading: false,
 
+                // Inisialisasi komponen
                 init() {
-                // Inisialisasi Tom Select untuk modal tambah
-                this.$watch('showAddModal', (isOpen) => {
-                    if (isOpen) {
-                        this.$nextTick(() => {
-                            new TomSelect(this.$refs.categorySelect, {
-                                create: false,
-                                placeholder: "Pilih kategori...",
-                                onChange: (value) => {
-                                    this.newOfficeCategory = value;
-                                },
-                                onInitialize: () => {
-                                    // Set nilai awal jika ada
-                                    if (this.newOfficeCategory) {
-                                        this.$refs.categorySelect.tomselect.setValue(this.newOfficeCategory);
+                    // Inisialisasi Tom Select untuk modal tambah
+                    this.$watch('showAddModal', (isOpen) => {
+                        if (isOpen) {
+                            this.$nextTick(() => {
+                                new TomSelect(this.$refs.categorySelect, {
+                                    create: false,
+                                    placeholder: "Pilih kategori...",
+                                    onChange: (value) => {
+                                        this.newOfficeCategory = value;
+                                    },
+                                    onInitialize: () => {
+                                        if (this.newOfficeCategory) {
+                                            this.$refs.categorySelect.tomselect.setValue(this.newOfficeCategory);
+                                        }
                                     }
-                                }
+                                });
                             });
-                        });
-                    }
-                });
+                        }
+                    });
 
-                // Inisialisasi Tom Select untuk modal edit (jika ada)
-                this.$watch('showEditModal', (isOpen) => {
-                    if (isOpen) {
-                        this.$nextTick(() => {
-                            new TomSelect(this.$refs.editCategorySelect, {
-                                create: false,
-                                placeholder: "Pilih kategori...",
-                                onChange: (value) => {
-                                    this.editOfficeCategory = value;
-                                }
+                    // Inisialisasi Tom Select untuk modal edit
+                    this.$watch('showEditModal', (isOpen) => {
+                        if (isOpen) {
+                            this.$nextTick(() => {
+                                const editSelect = new TomSelect(this.$refs.editCategorySelect, {
+                                    create: false,
+                                    placeholder: "Pilih kategori...",
+                                    onChange: (value) => {
+                                        this.editOfficeCategory = value;
+                                    },
+                                    onInitialize: () => {
+                                        if (this.editOfficeCategory) {
+                                            editSelect.setValue(this.editOfficeCategory);
+                                        }
+                                    }
+                                });
                             });
-                        });
-                    }
-                });
-            },
+                        }
+                    });
+                },
 
+                // Method lainnya
                 toggleStatus(event) {
                     const checkbox = event.target;
                     const officeId = checkbox.dataset.officeId;
                     const isActive = checkbox.checked;
                     const slider = checkbox.nextElementSibling;
 
-                    // Kirim request AJAX
                     fetch('{{ route('super-tim.update-status') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                office_id: officeId,
-                                status: isActive ? 'active' : 'inactive'
-                            })
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            office_id: officeId,
+                            status: isActive ? 'active' : 'inactive'
                         })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (!data.success) {
-                                // Revert changes if failed
-                                checkbox.checked = !isActive;
-                                slider.classList.toggle('bg-blue-600', !isActive);
-                                slider.classList.toggle('bg-gray-400', isActive);
-                                Swal.fire("Error!", data.message, "error");
-                            } else {
-                                // Update UI based on new status
-                                slider.classList.toggle('bg-blue-600', isActive);
-                                slider.classList.toggle('bg-gray-400', !isActive);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.success) {
                             checkbox.checked = !isActive;
                             slider.classList.toggle('bg-blue-600', !isActive);
                             slider.classList.toggle('bg-gray-400', isActive);
-                            Swal.fire("Error!", "Terjadi kesalahan jaringan", "error");
-                        });
+                            Swal.fire("Error!", data.message, "error");
+                        } else {
+                            slider.classList.toggle('bg-blue-600', isActive);
+                            slider.classList.toggle('bg-gray-400', !isActive);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        checkbox.checked = !isActive;
+                        slider.classList.toggle('bg-blue-600', !isActive);
+                        slider.classList.toggle('bg-gray-400', isActive);
+                        Swal.fire("Error!", "Terjadi kesalahan jaringan", "error");
+                    });
                 },
 
                 getStatusText(status) {
@@ -313,7 +314,7 @@ $title = 'Super Tim';
                         const data = await response.json();
 
                         if (!response.ok) {
-                            throw new Error(data.message || 'Gagal menambahkan Sekretariat');
+                            throw new Error(data.message || 'Gagal menambahkan Super Tim');
                         }
 
                         Swal.fire("Berhasil!", "Link Super Tim baru telah ditambahkan", "success")
