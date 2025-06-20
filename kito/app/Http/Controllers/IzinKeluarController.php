@@ -84,10 +84,12 @@ class IzinKeluarController extends Controller
         $pemohon = Auth::user();
         
         // Ganti dengan email admin yang akan menerima notifikasi
-        $admin = User::where('email', 'siti@example.com')->first(); 
+         $adminEmails = ['siti@example.com', 'budi@example.com']; // Tambahkan email admin kedua di sini
+        $admins = User::whereIn('email', $adminEmails)->get();
 
         // 5. Kirim notifikasi WhatsApp jika admin ditemukan
-        if ($admin) {
+        if ($admins->isNotEmpty()) {
+        foreach ($admins as $admin) {
             $this->sendWhatsAppIzinKeluar(
                 $admin,
                 $pemohon->name,
@@ -95,6 +97,7 @@ class IzinKeluarController extends Controller
                 $izin->jamizin,
                 $izin->keperluan
             );
+        }
         } else {
             // Opsional: catat ke log jika admin tidak ditemukan
             Log::warning('Admin dengan email target tidak ditemukan untuk notifikasi izin keluar.');
