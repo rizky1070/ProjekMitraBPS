@@ -31,7 +31,7 @@ $title = 'Super Tim';
         <x-sidebar></x-sidebar>
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
+            <main class="flex-1 overflow-x-hidden cuScrollGlobalY bg-gray-200 p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h1 class="text-2xl font-bold mb-4">Kelola Link Super Tim</h1>
                     <a href="/daftarsekretariat"

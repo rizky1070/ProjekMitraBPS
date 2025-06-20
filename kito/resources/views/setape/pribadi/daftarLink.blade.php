@@ -2,6 +2,7 @@
 $title = 'Daftar Link Pribadi';
 ?>
 @include('mitrabps.headerTemp')
+@include('setape.cuScroll')
 </head>
 
 <body class="h-full">
@@ -28,7 +29,7 @@ $title = 'Daftar Link Pribadi';
         <x-sidebar></x-sidebar>
         <div class="flex flex-col flex-1 overflow-hidden">
             <x-navbar></x-navbar>
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-6">
+            <main class="flex-1 overflow-x-hidden cuScrollGlobalY bg-gray-200 p-6">
                 <div class="block md:flex md:items-center md:justify-between mb-4">
                     <h1 class="text-2xl font-bold mb-2 md:mb-0">Daftar Link Pribadi</h1>
                 </div>
@@ -37,7 +38,7 @@ $title = 'Daftar Link Pribadi';
                         <div
                             class="flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0 items-stretch md:items-center">
                             <!-- Search Dropdown with Tom Select -->
-                            <div class="w-full md:w-64">
+                            <div class="cuScrollTableY w-full md:w-64">
                                 <select id="searchSelect" placeholder="Cari link..." class="w-full">
                                     <option value="">Semua Nama</option>
                                     @foreach ($linkNames as $name)
